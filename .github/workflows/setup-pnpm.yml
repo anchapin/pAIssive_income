@@ -68,7 +68,9 @@ jobs:
                   
                   # Add Node.js directory to PATH (pnpm might be there)
                   $env:PATH = "$nodeDir;$env:PATH"
-                  [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH, [System.EnvironmentVariableTarget]::Process)
+                  [System.Environment]::SetEnvironmentVariable("PATH",
+                  $env:PATH,
+                  [System.EnvironmentVariableTarget]::Process)
                   
                   # Check for pnpm in common locations
                   $pnpmLocations = @(
@@ -83,7 +85,9 @@ jobs:
                           Write-Host "Found pnpm at: $loc"
                           $pnpmDir = Split-Path -Parent $loc
                           $env:PATH = "$pnpmDir;$env:PATH"
-                          [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH, [System.EnvironmentVariableTarget]::Process)
+                          [System.Environment]::SetEnvironmentVariable("PATH",
+                          $env:PATH,
+                          [System.EnvironmentVariableTarget]::Process)
                           break
                       }
                   }
@@ -101,7 +105,8 @@ jobs:
                   }
                   
                   # Refresh PATH after npm install
-                  $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::Process)
+                  $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH",
+                  [System.EnvironmentVariableTarget]::Process)
                   $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
               }
               

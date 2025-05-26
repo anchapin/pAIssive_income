@@ -178,4 +178,5 @@ Update the PR description with a summary of changes made and request a new revie
 - Tasks can be completed incrementally - you don't need to do everything at once
 - Consider addressing critical security issues first
 - Document any changes made to help reviewers understand your approach
-- If you encounter complex issues, consider creating separate branches for specific fixes
+- If you encounter complex issues,
+consider creating separate branches for specific fixes

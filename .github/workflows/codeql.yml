@@ -115,13 +115,15 @@ jobs:
             echo "Installing dependencies with pnpm in root directory..."
             pnpm install
           else
-            echo "No package.json found in root directory, checking ui/react_frontend..."
+            echo "No package.json found in root directory,
+            checking ui/react_frontend..."
             # Check for package.json in ui/react_frontend
             if [ -f ui/react_frontend/package.json ]; then
               echo "Installing dependencies with pnpm in ui/react_frontend..."
               cd ui/react_frontend && pnpm install
             else
-              echo "No package.json found in ui/react_frontend, skipping dependency installation."
+              echo "No package.json found in ui/react_frontend,
+              skipping dependency installation."
             fi
           fi
         continue-on-error: true
@@ -298,220 +300,105 @@ jobs:
   analyze-python:
     name: Analyze Python
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 90  # Increased timeout for larger codebases
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full git history for better analysis
+          fetch-depth: 0
 
-      # Cache CodeQL database to speed up analysis
       - name: Cache CodeQL database
         uses: actions/cache@v4
         with:
           path: ~/.codeql/databases
-          key: codeql-python-${{ github.sha }}
+          key: codeql-python-${{ matrix.python-version }}-${{ github.sha }}
           restore-keys: |
-            codeql-python-
+            codeql-python-${{ matrix.python-version }}-
 
-      # Set up Python for better analysis
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
-      # Ensure tar is available on Windows
-      - name: Ensure tar is available (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          # Check if tar is available
-          if (-not (Get-Command tar -ErrorAction SilentlyContinue)) {
-            Write-Host "tar not found in PATH. Installing tar via Chocolatey..."
-            # Install Chocolatey if not already installed
-            if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-              Set-ExecutionPolicy Bypass -Scope Process -Force
-              [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-              iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-            }
-            # Install tar
-            choco install -y tar
-            # Refresh PATH
-            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-          } else {
-            Write-Host "tar is already available in PATH"
-          }
-          # Verify tar is now available
-          tar --version
-
-      # Install dependencies if requirements.txt exists
-      - name: Install dependencies (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Install Python dependencies
         shell: bash
         run: |
-          python -m pip install --upgrade uv
-          if [ -f requirements.txt ]; then
-            echo "Installing pip dependencies from requirements.txt using 'uv pip'..."
-            uv pip install -r requirements.txt || {
-              echo "Failed to install with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-            }
-          elif [ -f requirements-dev.txt ]; then
-            echo "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
-            uv pip install -r requirements-dev.txt || {
-              echo "Failed to install with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -r requirements-dev.txt
-            }
-          else
-            echo "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
-          fi
-
-          # Install package in development mode if setup.py exists
-          if [ -f setup.py ]; then
-            echo "Installing package in development mode using 'uv pip'..."
-            uv pip install -e . || {
-              echo "Failed to install package with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -e .
-            }
-          fi
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
         continue-on-error: true
 
-      # Install dependencies if requirements.txt exists (Windows)
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          python -m pip install --upgrade uv
-          if (Test-Path "requirements.txt") {
-            Write-Host "Installing pip dependencies from requirements.txt using 'uv pip'..."
-            try {
-              python -m uv pip install -r requirements.txt
-            } catch {
-              Write-Host "Failed to install with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-            }
-          } elseif (Test-Path "requirements-dev.txt") {
-            Write-Host "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
-            try {
-              python -m uv pip install -r requirements-dev.txt
-            } catch {
-              Write-Host "Failed to install with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -r requirements-dev.txt
-            }
-          } else {
-            Write-Host "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
-          }
-
-          # Install package in development mode if setup.py exists
-          if (Test-Path "setup.py") {
-            Write-Host "Installing package in development mode using 'uv pip'..."
-            try {
-              python -m uv pip install -e .
-            } catch {
-              Write-Host "Failed to install package with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -e .
-            }
-          }
-        continue-on-error: true
-
-      # Removed automatic fix script execution to prevent auto-fixing CodeQL issues
-      # Instead, we'll just create a .codeqlignore file
-      - name: Create .codeqlignore file
+      - name: Create Python-specific CodeQL custom queries
         shell: bash
         run: |
-          echo "Creating .codeqlignore file instead of running fix script..."
-          cat > .codeqlignore << 'EOL'
-          .venv/**
-          venv/**
-          env/**
-          .env/**
-          **/virtualenv/**
-          **/site-packages/**
-          **/dist-packages/**
-          **/node_modules/**
-          **/dist/**
-          **/build/**
-          **/vendor/**
-          **/external/**
-          **/third_party/**
-          **/__pycache__/**
-          **/.pytest_cache/**
-          **/.mypy_cache/**
-          **/.ruff_cache/**
-          **/*.pyc
-          **/*.pyo
-          **/*.pyd
-          **/test/**
-          **/tests/**
-          **/__tests__/**
-          **/__mocks__/**
-          **/*.test.js
-          **/*.test.ts
-          **/*.test.jsx
-          **/*.test.tsx
-          **/*.spec.js
-          **/*.spec.ts
-          **/*.spec.jsx
-          **/*.spec.tsx
-          **/.github/**
-          **/.vscode/**
-          **/.idea/**
-          **/coverage/**
-          **/.git/**
-          **/docs/**
-          **/*.md
-          **/*.mdx
-          **/*.rst
-          **/sphinx/**
-          **/playwright-report/**
-          **/generated/**
-          **/sarif-results/**
-          **/*.sarif
-          **/*.sarif.json
-          ui/react_frontend/node_modules/**
-          sdk/javascript/node_modules/**
+          mkdir -p .github/codeql/python-queries
+          cat > .github/codeql/python-queries/logging-validation.ql << 'EOL'
+          /**
+           * @name Python Log Injection Check
+           * @description Detects potential log injection vulnerabilities in Python code
+           * @kind path-problem
+           * @problem.severity error
+           * @precision high
+           * @id py/log-injection
+           * @tags security
+           *       logging
+           *       injection
+           */
+
+          import python
+          import semmle.python.dataflow.new.DataFlow
+          import semmle.python.dataflow.new.TaintTracking
+          import semmle.python.Concepts
+
+          class LoggingCall extends DataFlow::CallCfgNode {:
+            LoggingCall() {
+              exists(string name |
+                name = this.getFunction().toString() and
+                name.matches(["%log%", "%print%", "%logger%"])
+              )
+            }
+          }
+
+          class LogInjectionConfig extends TaintTracking::Configuration {:
+            LogInjectionConfig() { this = "LogInjectionConfig" }
+
+            override predicate isSource(DataFlow::Node source) {
+              exists(DataFlow::ParameterNode param |
+                param = source
+              )
+            }
+
+            override predicate isSink(DataFlow::Node sink) {
+              exists(LoggingCall call |
+                sink = call.getAnArgument()
+              )
+            }
+          }
+
+          from LogInjectionConfig config,
+          DataFlow::PathNode source,
+          DataFlow::PathNode sink
+          where config.hasFlowPath(source, sink)
+          select sink.getNode(), source, sink, 
+                 "This logging call may contain unsanitized input from $@.",
+                 source.getNode(), "this user-provided value"
           EOL
 
-          # List directories to verify
-          echo "Current directories:"
-          ls -la
-
-      - name: Initialize CodeQL
+      - name: Initialize CodeQL for Python
         uses: github/codeql-action/init@v3
         with:
           languages: python
-          queries: security-and-quality
-          config-file: ./.github/codeql/security-os-config.yml
+          queries: security-and-quality,
+                  ./.github/codeql/python-queries/logging-validation.ql
 
-      # Autobuild attempts to build any compiled languages
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      # Display disk space before analysis
-      - name: Check disk space (Linux/macOS)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: df -h
-
-      # Display disk space before analysis (Windows)
-      - name: Check disk space (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: Get-Volume
-
-      - name: Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis for Python
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:python"
@@ -533,3 +420,88 @@ jobs:
           name: python-${{ runner.os }}-sarif
           path: sarif-results/python-${{ runner.os }}.sarif
           retention-days: 7
+
+      # Add a custom ruleset specifically for log injection
+      - name: Add custom CodeQL ruleset
+        shell: bash
+        run: |
+          mkdir -p .github/codeql/custom-queries
+          cat > .github/codeql/custom-queries/log-injection.ql << 'EOL'
+          /**
+           * @name Log Injection Check
+           * @description Detects potential log injection vulnerabilities
+           * @kind path-problem
+           * @problem.severity error
+           * @precision high
+           * @id js/log-injection
+           * @tags security
+           *       log-injection
+           */
+          
+          import javascript
+          import DataFlow::PathGraph
+          
+          class LoggingCall extends DataFlow::CallNode {:
+            LoggingCall() {
+              exists(string name |
+                name = this.getCalleeName() and
+                name.toLowerCase().matches("%log%")
+              )
+            }
+          }
+          
+          class LogInjectionConfiguration extends TaintTracking::Configuration {:
+            LogInjectionConfiguration() { this = "LogInjectionConfiguration" }
+          
+            override predicate isSource(DataFlow::Node source) {
+              exists(DataFlow::ParameterNode param |
+                param = source and
+                not param.getName().toLowerCase().matches("%sanitized%")
+              )
+            }
+          
+            override predicate isSink(DataFlow::Node sink) {
+              exists(LoggingCall call |
+                sink = call.getAnArgument() and
+                not sink.asExpr().getFile().getAbsolutePath().matches("%test%")
+              )
+            }
+          }
+          
+          from LogInjectionConfiguration config,
+          DataFlow::PathNode source,
+          DataFlow::PathNode sink
+          where config.hasFlowPath(source, sink)
+          select sink,
+          source,
+          sink,
+          "Log injection from $@.",
+          source,
+          "user-provided value"
+          EOL
+
+      # Add the custom ruleset to the CodeQL configuration
+      - name: Update CodeQL config with custom queries
+        shell: bash
+        run: |
+          cat > .github/codeql/security-os-config.yml << 'EOL'
+          name: "Custom CodeQL Config"
+          
+          queries:
+            - uses: security-extended
+            - uses: security-and-quality
+            - uses: ./.github/codeql/custom-queries/log-injection.ql
+          
+          paths:
+            - src
+            - api
+            - ui
+          
+          paths-ignore:
+            - '**/node_modules/**'
+            - '**/dist/**'
+            - '**/build/**'
+            - '**/coverage/**'
+            - '**/test/**'
+            - '**/tests/**'
+          EOL

@@ -1,7 +1,9 @@
 setup_pre_commit.py:53: error: Returning Any from function declared to return "bool"  [no-any-return]
 run_tests.py:110: error: Returning Any from function declared to return "int"  [no-any-return]
-regenerate_venv.py:19: error: Incompatible default for argument "cwd" (default has type "None", argument has type "str")  [assignment]
-regenerate_venv.py:19: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+regenerate_venv.py:19: error: Incompatible default for argument "cwd" (default has type "None",
+argument has type "str")  [assignment]
+regenerate_venv.py:19: note: PEP 484 prohibits implicit Optional. Accordingly,
+mypy has changed its default to no_implicit_optional=True
 regenerate_venv.py:19: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
 regenerate_venv.py:19: error: X | Y syntax for unions requires Python 3.10  [syntax]
 regenerate_venv.py:45: error: Returning Any from function declared to return "Optional[str]"  [no-any-return]
@@ -19,8 +21,10 @@ fix_regex_ranges.py:117: note: Use "-> None" if function does not return a value
 fix_linting_issues.py:62: error: Returning Any from function declared to return "bool"  [no-any-return]
 fix_linting_issues.py:84: error: Returning Any from function declared to return "bool"  [no-any-return]
 fix_linting_issues.py:117: error: Returning Any from function declared to return "bool"  [no-any-return]
-fix_linting_issues.py:120: error: Incompatible default for argument "exclude_patterns" (default has type "None", argument has type "list[str]")  [assignment]
-fix_linting_issues.py:120: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+fix_linting_issues.py:120: error: Incompatible default for argument "exclude_patterns" (default has type "None",
+argument has type "list[str]")  [assignment]
+fix_linting_issues.py:120: note: PEP 484 prohibits implicit Optional. Accordingly,
+mypy has changed its default to no_implicit_optional=True
 fix_linting_issues.py:120: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
 fix_linting_issues.py:131: error: Statement is unreachable  [unreachable]
 dependency_container.py:16: error: Function is missing a return type annotation  [no-untyped-def]
@@ -102,7 +106,8 @@ users\services.py:82: error: Function is missing a return type annotation  [no-u
 users\services.py:256: error: Returning Any from function declared to return "str"  [no-any-return]
 users\services.py:256: error: "UserService" has no attribute "_ensure_string"  [attr-defined]
 users\password_reset.py:45: error: Function is missing a type annotation  [no-untyped-def]
-common_utils\secrets\secrets_manager.py:37: error: Incompatible default for argument "default_backend" (default has type "str", argument has type "SecretsBackend")  [assignment]
+common_utils\secrets\secrets_manager.py:37: error: Incompatible default for argument "default_backend" (default has type "str",
+argument has type "SecretsBackend")  [assignment]
 common_utils\secrets\secrets_manager.py:70: error: Returning Any from function declared to return "Optional[str]"  [no-any-return]
 common_utils\secrets\secrets_manager.py:85: error: Too many arguments for "get_secret" of "MemoryBackend"  [call-arg]
 common_utils\secrets\secrets_manager.py:94: error: Too many arguments for "get_secret" of "VaultBackend"  [call-arg]
@@ -110,9 +115,12 @@ common_utils\secrets\secrets_manager.py:139: error: Too many arguments for "set_
 common_utils\secrets\secrets_manager.py:148: error: Too many arguments for "set_secret" of "VaultBackend"  [call-arg]
 common_utils\secrets\secrets_manager.py:192: error: Too many arguments for "delete_secret" of "MemoryBackend"  [call-arg]
 common_utils\secrets\secrets_manager.py:201: error: Too many arguments for "delete_secret" of "VaultBackend"  [call-arg]
-common_utils\secrets\rotation.py:31: error: Incompatible default for argument "secrets_backend" (default has type "str", argument has type "SecretsBackend")  [assignment]
-common_utils\secrets\config.py:31: error: Incompatible default for argument "secrets_backend" (default has type "str", argument has type "SecretsBackend")  [assignment]
-common_utils\secrets\config.py:112: error: Subclass of "dict[str, Any]" and "str" cannot exist: would have incompatible method signatures  [unreachable]
+common_utils\secrets\rotation.py:31: error: Incompatible default for argument "secrets_backend" (default has type "str",
+argument has type "SecretsBackend")  [assignment]
+common_utils\secrets\config.py:31: error: Incompatible default for argument "secrets_backend" (default has type "str",
+argument has type "SecretsBackend")  [assignment]
+common_utils\secrets\config.py:112: error: Subclass of "dict[str,
+Any]" and "str" cannot exist: would have incompatible method signatures  [unreachable]
 common_utils\secrets\config.py:112: error: Right operand of "and" is never evaluated  [unreachable]
 common_utils\secrets\config.py:113: error: Statement is unreachable  [unreachable]
 common_utils\secrets\cli.py:44: error: Function is missing a type annotation  [no-untyped-def]

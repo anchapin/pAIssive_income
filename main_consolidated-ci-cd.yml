@@ -217,10 +217,14 @@ jobs:
           bandit_config_file=".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml"
           if [ -f "$bandit_config_file" ]; then
             echo "Using Bandit configuration file: $bandit_config_file"
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c "$bandit_config_file" --exclude ".venv,node_modules,tests" || true
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c "$bandit_config_file" --exclude ".venv,
+                                                                                                node_modules,
+                                                                                                tests" || true
           else
             echo "Bandit configuration file not found. Using default configuration."
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests" || true
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,
+                                                                                                node_modules,
+                                                                                                tests" || true
           fi
           
           # Ensure the SARIF file exists
@@ -230,7 +234,7 @@ jobs:
 {
   "version": "2.1.0",
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": [
+                  "runs": [
     {
       "tool": {
         "driver": {
@@ -274,10 +278,14 @@ EOF
           $banditConfigFile = ".github/bandit/bandit-config-windows-${{ github.run_id }}.yaml"
           if (Test-Path $banditConfigFile) {
             Write-Host "Using Bandit configuration file: $banditConfigFile"
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c $banditConfigFile --exclude ".venv,node_modules,tests"
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c $banditConfigFile --exclude ".venv,
+                                                                                                node_modules,
+                                                                                                tests"
           } else {
             Write-Host "Bandit configuration file not found. Using default configuration."
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests"
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,
+                                                                                                node_modules,
+                                                                                                tests"
           }
           
           # Ensure the SARIF file exists
@@ -287,7 +295,7 @@ EOF
 {
   "version": "2.1.0",
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": [
+                  "runs": [
     {
       "tool": {
         "driver": {

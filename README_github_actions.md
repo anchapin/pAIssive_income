@@ -2,7 +2,9 @@
 
 ## Overview
 
-The consolidated CI/CD pipeline provides comprehensive testing, security scanning, and deployment capabilities across multiple platforms.
+The consolidated CI/CD pipeline provides comprehensive testing,
+security scanning,
+and deployment capabilities across multiple platforms.
 
 ## Workflow Jobs
 
@@ -47,7 +49,8 @@ The consolidated CI/CD pipeline provides comprehensive testing, security scannin
 
 ## Permissions
 
-Default permissions are minimal (`contents: read`), with elevated permissions granted only where needed:
+Default permissions are minimal (`contents: read`),
+with elevated permissions granted only where needed:
 - `security-events: write`: For SARIF uploads
 - `packages: write`: For Docker publishing
 - `id-token: write`: For OIDC cloud authentication

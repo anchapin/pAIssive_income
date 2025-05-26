@@ -69,7 +69,8 @@ jobs:
               python -m pip install pyyaml requests
             }
           else
-            echo "requirements.txt not found, installing minimal dependencies for MCP tests"
+            echo "requirements.txt not found,
+            installing minimal dependencies for MCP tests"
             python -m pip install pyyaml requests
           fi
 
@@ -99,7 +100,8 @@ jobs:
               python -m pip install pyyaml requests
             }
           } else {
-            Write-Host "requirements.txt not found, installing minimal dependencies for MCP tests"
+            Write-Host "requirements.txt not found,
+            installing minimal dependencies for MCP tests"
             python -m pip install pyyaml requests
           }
 
@@ -119,9 +121,9 @@ jobs:
                 def __init__(self, endpoint, **kwargs):
                     self.endpoint = endpoint
                     self.kwargs = kwargs
-                def connect(self): pass
-                def disconnect(self): pass
-                def send_message(self, message): return f"Mock response to: {message}"
+                def connect(self): pass:
+                def disconnect(self): pass:
+                def send_message(self, message): return f"Mock response to: {message}":
             ' > modelcontextprotocol/__init__.py
             pip install -e .
           fi
@@ -141,7 +143,11 @@ jobs:
             New-Item -Path "modelcontextprotocol" -ItemType Directory -Force
 
             # Create a simple Python one-liner to create the module file
-            python -c "with open('modelcontextprotocol/__init__.py', 'w') as f: f.write('class Client:\\n    def __init__(self, endpoint, **kwargs):\\n        self.endpoint = endpoint\\n        self.kwargs = kwargs\\n    def connect(self):\\n        pass\\n    def disconnect(self):\\n        pass\\n    def send_message(self, message):\\n        return f\"Mock response to: {message}\"\\n')"
+            python -c "with open('modelcontextprotocol/__init__.py',
+            'w') as f: f.write('class Client:\\n    def __init__(self,
+            endpoint,
+            **kwargs):\\n        self.endpoint = endpoint\\n        self.kwargs = kwargs\\n    def connect(self):\\n        pass\\n    def disconnect(self):\\n        pass\\n    def send_message(self,
+            message):\\n        return f\"Mock response to: {message}\"\\n')"
 
             # Install the module
             pip install -e .

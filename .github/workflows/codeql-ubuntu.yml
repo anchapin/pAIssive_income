@@ -124,7 +124,11 @@ jobs:
             echo "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
 
             # Create a minimal valid package-lock.json with echo
-            echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
+            echo '{"name":"paissive-income",
+            "version":"1.0.0",
+            "lockfileVersion":3,
+            "packages":{"":{"name":"paissive-income",
+            "version":"1.0.0"}}}' > package-lock.json
 
             echo "Created minimal package-lock.json in the root directory."
 
@@ -143,7 +147,12 @@ jobs:
             else
               echo "CRITICAL ERROR: Failed to create package-lock.json"
               # Try alternative method
-              node -e "fs.writeFileSync('package-lock.json', JSON.stringify({name:'paissive-income',version:'1.0.0',lockfileVersion:3,packages:{'':{'name':'paissive-income','version':'1.0.0'}}}))" || true
+              node -e "fs.writeFileSync('package-lock.json',
+              JSON.stringify({name:'paissive-income',
+              version:'1.0.0',
+              lockfileVersion:3,
+              packages:{'':{'name':'paissive-income',
+              'version':'1.0.0'}}}))" || true
               if [ -f "package-lock.json" ]; then
                 echo "Successfully created package-lock.json using Node.js"
               fi
@@ -360,7 +369,11 @@ EOF
             # Final check for package-lock.json - create it if it still doesn't exist
             if [ ! -f "package-lock.json" ]; then
               echo "WARNING: package-lock.json still not found! Creating it as a last resort..."
-              echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
+              echo '{"name":"paissive-income",
+              "version":"1.0.0",
+              "lockfileVersion":3,
+              "packages":{"":{"name":"paissive-income",
+              "version":"1.0.0"}}}' > package-lock.json
               echo "Created minimal package-lock.json in the root directory."
             fi
 

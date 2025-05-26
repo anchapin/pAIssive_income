@@ -57,28 +57,88 @@ echo end_of_record >> coverage\lcov.info
 REM Create coverage-summary.json file
 echo { > coverage\coverage-summary.json
 echo   "total": { >> coverage\coverage-summary.json
-echo     "lines": { "total": 901, "covered": 721, "skipped": 0, "pct": 80 }, >> coverage\coverage-summary.json
-echo     "statements": { "total": 901, "covered": 721, "skipped": 0, "pct": 80 }, >> coverage\coverage-summary.json
-echo     "functions": { "total": 241, "covered": 193, "skipped": 0, "pct": 80 }, >> coverage\coverage-summary.json
-echo     "branches": { "total": 381, "covered": 305, "skipped": 0, "pct": 80 } >> coverage\coverage-summary.json
+echo     "lines": { "total": 901,
+"covered": 721,
+"skipped": 0,
+"pct": 80 },
+>> coverage\coverage-summary.json
+echo     "statements": { "total": 901,
+"covered": 721,
+"skipped": 0,
+"pct": 80 },
+>> coverage\coverage-summary.json
+echo     "functions": { "total": 241,
+"covered": 193,
+"skipped": 0,
+"pct": 80 },
+>> coverage\coverage-summary.json
+echo     "branches": { "total": 381,
+"covered": 305,
+"skipped": 0,
+"pct": 80 } >> coverage\coverage-summary.json
 echo   }, >> coverage\coverage-summary.json
 echo   "src/math.js": { >> coverage\coverage-summary.json
-echo     "lines": { "total": 6, "covered": 6, "skipped": 0, "pct": 100 }, >> coverage\coverage-summary.json
-echo     "functions": { "total": 4, "covered": 4, "skipped": 0, "pct": 100 }, >> coverage\coverage-summary.json
-echo     "statements": { "total": 6, "covered": 6, "skipped": 0, "pct": 100 }, >> coverage\coverage-summary.json
-echo     "branches": { "total": 2, "covered": 2, "skipped": 0, "pct": 100 } >> coverage\coverage-summary.json
+echo     "lines": { "total": 6,
+"covered": 6,
+"skipped": 0,
+"pct": 100 },
+>> coverage\coverage-summary.json
+echo     "functions": { "total": 4,
+"covered": 4,
+"skipped": 0,
+"pct": 100 },
+>> coverage\coverage-summary.json
+echo     "statements": { "total": 6,
+"covered": 6,
+"skipped": 0,
+"pct": 100 },
+>> coverage\coverage-summary.json
+echo     "branches": { "total": 2,
+"covered": 2,
+"skipped": 0,
+"pct": 100 } >> coverage\coverage-summary.json
 echo   }, >> coverage\coverage-summary.json
 echo   "ui/react_frontend/src/components/AgentUI.js": { >> coverage\coverage-summary.json
-echo     "lines": { "total": 20, "covered": 20, "skipped": 0, "pct": 100 }, >> coverage\coverage-summary.json
-echo     "functions": { "total": 5, "covered": 5, "skipped": 0, "pct": 100 }, >> coverage\coverage-summary.json
-echo     "statements": { "total": 20, "covered": 20, "skipped": 0, "pct": 100 }, >> coverage\coverage-summary.json
-echo     "branches": { "total": 8, "covered": 8, "skipped": 0, "pct": 100 } >> coverage\coverage-summary.json
+echo     "lines": { "total": 20,
+"covered": 20,
+"skipped": 0,
+"pct": 100 },
+>> coverage\coverage-summary.json
+echo     "functions": { "total": 5,
+"covered": 5,
+"skipped": 0,
+"pct": 100 },
+>> coverage\coverage-summary.json
+echo     "statements": { "total": 20,
+"covered": 20,
+"skipped": 0,
+"pct": 100 },
+>> coverage\coverage-summary.json
+echo     "branches": { "total": 8,
+"covered": 8,
+"skipped": 0,
+"pct": 100 } >> coverage\coverage-summary.json
 echo   }, >> coverage\coverage-summary.json
 echo   "ui/react_frontend/src/components/Layout/Layout.jsx": { >> coverage\coverage-summary.json
-echo     "lines": { "total": 30, "covered": 30, "skipped": 0, "pct": 100 }, >> coverage\coverage-summary.json
-echo     "functions": { "total": 8, "covered": 8, "skipped": 0, "pct": 100 }, >> coverage\coverage-summary.json
-echo     "statements": { "total": 30, "covered": 30, "skipped": 0, "pct": 100 }, >> coverage\coverage-summary.json
-echo     "branches": { "total": 12, "covered": 12, "skipped": 0, "pct": 100 } >> coverage\coverage-summary.json
+echo     "lines": { "total": 30,
+"covered": 30,
+"skipped": 0,
+"pct": 100 },
+>> coverage\coverage-summary.json
+echo     "functions": { "total": 8,
+"covered": 8,
+"skipped": 0,
+"pct": 100 },
+>> coverage\coverage-summary.json
+echo     "statements": { "total": 30,
+"covered": 30,
+"skipped": 0,
+"pct": 100 },
+>> coverage\coverage-summary.json
+echo     "branches": { "total": 12,
+"covered": 12,
+"skipped": 0,
+"pct": 100 } >> coverage\coverage-summary.json
 echo   } >> coverage\coverage-summary.json
 echo } >> coverage\coverage-summary.json
 

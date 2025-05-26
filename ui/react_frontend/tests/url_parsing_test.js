@@ -29,20 +29,46 @@ if (!fs.existsSync(config.reportDir)) {
   fs.mkdirSync(config.reportDir, { recursive: true });
 }
 
-// Logger function
+// Enhanced logger function with better formatting and error handling
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
-  
-  console.log(logMessage);
-  
+  const prefix = `[${timestamp}] [url-parsing-test] [${level.toUpperCase()}]`;
+  const sanitizedMessage = typeof message === 'string'
+    ? message.replace(/[\r\n]/g, ' ')
+    : String(message).replace(/[\r\n]/g, ' ');
+  const logMessage = `${prefix} ${sanitizedMessage}\n`;
+
+  // Console output with appropriate method
+  switch (level) {
+    case 'error':
+      console.error(logMessage.trim());
+      break;
+    case 'warn':
+      console.warn(logMessage.trim());
+      break;
+    case 'debug':
+      if (config.verboseLogging) {
+        console.log(logMessage.trim());
+      }
+      break;
+    default:
+      console.log(logMessage.trim());
+  }
+
+  // Write to log file with error handling
   try {
-    fs.appendFileSync(
-      path.join(config.logDir, 'url-parsing-test.log'),
-      logMessage + '\n'
-    );
+    fs.appendFileSync(path.join(config.logDir, 'url-parsing-test.log'), logMessage);
   } catch (error) {
     console.error(`Failed to write to log file: ${error.message}`);
+
+    // Try alternative locations as fallback
+    try {
+      const fallbackPath = path.join(process.cwd(), 'logs', 'url-parsing-test-fallback.log');
+      fs.appendFileSync(fallbackPath, logMessage);
+    } catch (fallbackError) {
+      // At this point we can only log to console
+      console.error(`Failed to write to fallback log file: ${fallbackError.message}`);
+    }
   }
 }
 
@@ -93,7 +119,7 @@ function parseUrl(pattern, url) {
       // If the pattern segment starts with a colon, it's a parameter
       if (patternSegment.startsWith(':')) {
         const paramName = patternSegment.substring(1);
-        
+
         // Validate the parameter name to prevent security issues
         if (/^[a-zA-Z0-9_]+$/.test(paramName)) {
           // Decode the URL segment to handle URL encoding
@@ -270,22 +296,22 @@ const generateUrlTestCases = [
 // Run the tests
 function runTests() {
   log('Starting URL parsing tests...');
-  
+
   let parseUrlPassed = 0;
   let parseUrlFailed = 0;
   let generateUrlPassed = 0;
   let generateUrlFailed = 0;
-  
+
   // Test parseUrl
   log('Testing parseUrl function...');
   parseUrlTestCases.forEach(testCase => {
     try {
       const result = parseUrl(testCase.pattern, testCase.url);
-      
+
       // Check if the result matches the expected result
       const matchMatches = result.match === testCase.expected.match;
       const paramsMatch = JSON.stringify(result.params) === JSON.stringify(testCase.expected.params);
-      
+
       if (matchMatches && paramsMatch) {
         log(`✅ [parseUrl] ${testCase.name}: PASSED`);
         parseUrlPassed++;
@@ -300,13 +326,13 @@ function runTests() {
       parseUrlFailed++;
     }
   });
-  
+
   // Test generateUrl
   log('Testing generateUrl function...');
   generateUrlTestCases.forEach(testCase => {
     try {
       const result = generateUrl(testCase.pattern, testCase.params);
-      
+
       if (result === testCase.expected) {
         log(`✅ [generateUrl] ${testCase.name}: PASSED`);
         generateUrlPassed++;
@@ -321,17 +347,17 @@ function runTests() {
       generateUrlFailed++;
     }
   });
-  
+
   // Create a summary report
   const totalTests = parseUrlTestCases.length + generateUrlTestCases.length;
   const totalPassed = parseUrlPassed + generateUrlPassed;
   const totalFailed = parseUrlFailed + generateUrlFailed;
-  
+
   log(`\nTest Summary:`);
   log(`parseUrl: ${parseUrlPassed} passed, ${parseUrlFailed} failed`);
   log(`generateUrl: ${generateUrlPassed} passed, ${generateUrlFailed} failed`);
   log(`Total: ${totalPassed} passed, ${totalFailed} failed (${totalTests} total)`);
-  
+
   // Create a report file
   createReport('url-parsing-test-results.txt',
     `URL Parsing Test Results at ${new Date().toISOString()}\n\n` +
@@ -344,7 +370,7 @@ function runTests() {
     `Platform: ${process.platform}\n` +
     `Working directory: ${process.cwd()}\n`
   );
-  
+
   // Return success if all tests passed
   return totalFailed === 0;
 }

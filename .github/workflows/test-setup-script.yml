@@ -48,7 +48,8 @@ permissions:
 
 jobs:
   test-ubuntu:
-    name: Test on Ubuntu (Python ${{ matrix.python-version }}, ${{ matrix.profile }} profile)
+    name: Test on Ubuntu (Python ${{ matrix.python-version }},
+    ${{ matrix.profile }} profile)
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ubuntu' || github.event.inputs.platform == '' }}
     timeout-minutes: 15
@@ -122,7 +123,8 @@ jobs:
                 echo "Failed to install PyYAML with pip3. Trying with system Python..."
                 python -m pip install --user pyyaml || {
                   echo "All PyYAML installation methods failed. This may cause issues with the setup script."
-                  echo "The setup script will attempt to install PyYAML itself, but this may fail."
+                  echo "The setup script will attempt to install PyYAML itself,
+                  but this may fail."
                 }
               }
             }
@@ -211,7 +213,7 @@ jobs:
               "version": "0.1.0",
               "private": true,
               "description": "Framework for generating passive income by utilizing a team of AI agents",
-              "scripts": {
+                            "scripts": {
                 "test": "echo \"Error: no test specified\" && exit 1"
               },
               "dependencies": {
@@ -235,7 +237,8 @@ jobs:
         shell: bash
         run: |
           # First, validate package.json to ensure it's valid JSON
-          node -e "try { require('./package.json'); console.log('package.json is valid JSON'); } catch(e) { console.error('Invalid package.json:', e.message); process.exit(1); }"
+          node -e "try { require('./package.json'); console.log('package.json is valid JSON'); } catch(e) { console.error('Invalid package.json:',
+          e.message); process.exit(1); }"
 
           # Try to install dependencies with pnpm
           pnpm install --reporter=default || {
@@ -350,7 +353,8 @@ jobs:
           # Run the setup script with appropriate profile
           # Add ALLOW_COMMANDS=true to bypass security restrictions in CI environment
           ALLOW_COMMANDS=true ./enhanced_setup_dev_environment.sh --${{ matrix.profile }} --no-system-deps --ci-mode || {
-            echo "Setup script failed, but this is expected in PR #126 which removes these scripts."
+            echo "Setup script failed,
+            but this is expected in PR #126 which removes these scripts."
             echo "Creating minimal environment structure for testing..."
             mkdir -p .venv/bin
             touch .venv/bin/python
@@ -656,7 +660,9 @@ jobs:
             Write-Host "Upgrading pip, setuptools, and wheel..."
             .\.venv\Scripts\python.exe -m pip install --upgrade pip setuptools wheel
             if ($LASTEXITCODE -ne 0) {
-              Write-Warning "Failed to upgrade pip, setuptools, and wheel. Continuing anyway..."
+              Write-Warning "Failed to upgrade pip,
+              setuptools,
+              and wheel. Continuing anyway..."
             }
           } catch {
             Write-Warning "Exception when upgrading pip, setuptools, and wheel: $_"
@@ -734,7 +740,8 @@ jobs:
             if (-not $pyyamlInstalled) {
               Write-Host "Method 3: Installing PyYAML with pip module directly..."
               try {
-                .\.venv\Scripts\python.exe -c "import pip._internal.cli.main; pip._internal.cli.main.main(['install', 'pyyaml'])"
+                .\.venv\Scripts\python.exe -c "import pip._internal.cli.main; pip._internal.cli.main.main(['install',
+                'pyyaml'])"
 
                 .\.venv\Scripts\python.exe -c "import yaml; print(f'PyYAML version: {yaml.__version__}')"
                 if ($LASTEXITCODE -eq 0) {
@@ -763,7 +770,8 @@ jobs:
             }
 
             if (-not $pyyamlInstalled) {
-              Write-Warning "All PyYAML installation methods failed. The setup script will attempt to install PyYAML itself, but this may fail."
+              Write-Warning "All PyYAML installation methods failed. The setup script will attempt to install PyYAML itself,
+              but this may fail."
             }
 
             # Install development dependencies
@@ -959,7 +967,9 @@ jobs:
                     Write-Host "Found pnpm at: $loc"
                     $pnpmDir = Split-Path -Parent $loc
                     $env:PATH = "$pnpmDir;$env:PATH"
-                    [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH, [System.EnvironmentVariableTarget]::Process)
+                    [System.Environment]::SetEnvironmentVariable("PATH",
+                    $env:PATH,
+                    [System.EnvironmentVariableTarget]::Process)
 
                     # Try to verify pnpm
                     $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
@@ -997,7 +1007,9 @@ jobs:
                 $npmBin = npm bin -g
                 if ($LASTEXITCODE -eq 0) {
                   $env:PATH = "$npmBin;$env:PATH"
-                  [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH, [System.EnvironmentVariableTarget]::Process)
+                  [System.Environment]::SetEnvironmentVariable("PATH",
+                  $env:PATH,
+                  [System.EnvironmentVariableTarget]::Process)
                 }
 
                 # Try to verify pnpm
@@ -1557,7 +1569,8 @@ jobs:
             echo python -m venv .venv 2^>nul >> enhanced_setup_dev_environment.bat
             echo if %%ERRORLEVEL%% neq 0 ( >> enhanced_setup_dev_environment.bat
             echo     echo Warning: Failed to create virtual environment. >> enhanced_setup_dev_environment.bat
-            echo     echo This is just a test run, so continuing anyway... >> enhanced_setup_dev_environment.bat
+            echo     echo This is just a test run,
+            so continuing anyway... >> enhanced_setup_dev_environment.bat
             echo ) else ( >> enhanced_setup_dev_environment.bat
             echo     echo Virtual environment created successfully. >> enhanced_setup_dev_environment.bat
             echo ) >> enhanced_setup_dev_environment.bat
@@ -1729,7 +1742,8 @@ jobs:
                 echo "Failed to install PyYAML with pip3. Trying with system Python..."
                 python -m pip install --user pyyaml || {
                   echo "All PyYAML installation methods failed. This may cause issues with the setup script."
-                  echo "The setup script will attempt to install PyYAML itself, but this may fail."
+                  echo "The setup script will attempt to install PyYAML itself,
+                  but this may fail."
                 }
               }
             }

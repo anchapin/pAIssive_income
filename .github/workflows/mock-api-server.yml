@@ -98,10 +98,36 @@ jobs:
           mkdir -p node_modules/path-to-regexp
 
           # Create a more comprehensive mock implementation with better error handling
-          echo 'function pathToRegexp(path, keys, options) { if (Array.isArray(keys) && typeof path === "string") { const paramNames = path.match(/:[a-zA-Z0-9_]{1,100}/g) || []; paramNames.forEach((param) => { keys.push({ name: param.substring(1), prefix: "/", suffix: "", modifier: "", pattern: "[^/]+" }); }); } return /.*/; } pathToRegexp.pathToRegexp = pathToRegexp; pathToRegexp.parse = function(path) { if (typeof path === "string") { const tokens = []; const parts = path.split("/").filter(Boolean); parts.forEach(part => { if (part.startsWith(":")) { tokens.push({ name: part.substring(1), prefix: "/", suffix: "", pattern: "[^/]+", modifier: "" }); } else if (part) { tokens.push(part); } }); return tokens; } return []; }; pathToRegexp.compile = function(path) { return function(params) { if (typeof path === "string" && params) { let result = path; Object.keys(params).forEach(key => { result = result.split(":" + key).join(params[key]); }); return result; } return path || ""; }; }; pathToRegexp.match = function(path) { return function(pathname) { const params = {}; if (typeof path === "string" && typeof pathname === "string") { const pathParts = path.split("/").filter(Boolean); const pathnameParts = pathname.split("/").filter(Boolean); const isExact = pathParts.length === pathnameParts.length; const minLength = Math.min(pathParts.length, pathnameParts.length); for (let i = 0; i < minLength; i++) { if (pathParts[i].startsWith(":")) { const paramName = pathParts[i].substring(1); params[paramName] = pathnameParts[i]; } } return { path: pathname, params: params, index: 0, isExact: isExact }; } return { path: pathname, params: {}, index: 0, isExact: false }; }; }; pathToRegexp.tokensToRegexp = function(tokens, keys) { if (Array.isArray(keys) && Array.isArray(tokens)) { tokens.forEach(token => { if (typeof token === "object" && token.name) { keys.push({ name: token.name, prefix: token.prefix || "/", suffix: token.suffix || "", modifier: token.modifier || "", pattern: token.pattern || "[^/]+" }); } }); } return /.*/; }; pathToRegexp.tokensToFunction = function(tokens) { return function() { return ""; }; }; pathToRegexp.encode = function(value) { try { return encodeURIComponent(value); } catch (error) { return ""; } }; pathToRegexp.decode = function(value) { try { return decodeURIComponent(value); } catch (error) { return value; } }; pathToRegexp.regexp = /.*/; module.exports = pathToRegexp;' > node_modules/path-to-regexp/index.js
+          echo 'function pathToRegexp(path,
+          keys,
+          options) { if (Array.isArray(keys) && typeof path === "string") { const paramNames = path.match(/:[a-zA-Z0-9_]{1,
+          100}/g) || []; paramNames.forEach((param) => { keys.push({ name: param.substring(1),
+          prefix: "/",
+          suffix: "",
+          modifier: "",
+          pattern: "[^/]+" }); }); } return /.*/; } pathToRegexp.pathToRegexp = pathToRegexp; pathToRegexp.parse = function(path) { if (typeof path === "string") { const tokens = []; const parts = path.split("/").filter(Boolean); parts.forEach(part => { if (part.startsWith(":")) { tokens.push({ name: part.substring(1),
+          prefix: "/",
+          suffix: "",
+          pattern: "[^/]+",
+          modifier: "" }); } else if (part) { tokens.push(part); } }); return tokens; } return []; }; pathToRegexp.compile = function(path) { return function(params) { if (typeof path === "string" && params) { let result = path; Object.keys(params).forEach(key => { result = result.split(":" + key).join(params[key]); }); return result; } return path || ""; }; }; pathToRegexp.match = function(path) { return function(pathname) { const params = {}; if (typeof path === "string" && typeof pathname === "string") { const pathParts = path.split("/").filter(Boolean); const pathnameParts = pathname.split("/").filter(Boolean); const isExact = pathParts.length === pathnameParts.length; const minLength = Math.min(pathParts.length,
+          pathnameParts.length); for (let i = 0; i < minLength; i++) { if (pathParts[i].startsWith(":")) { const paramName = pathParts[i].substring(1); params[paramName] = pathnameParts[i]; } } return { path: pathname,
+          params: params,
+          index: 0,
+          isExact: isExact }; } return { path: pathname,
+          params: {},
+          index: 0,
+          isExact: false }; }; }; pathToRegexp.tokensToRegexp = function(tokens,
+          keys) { if (Array.isArray(keys) && Array.isArray(tokens)) { tokens.forEach(token => { if (typeof token === "object" && token.name) { keys.push({ name: token.name,
+          prefix: token.prefix || "/",
+          suffix: token.suffix || "",
+          modifier: token.modifier || "",
+          pattern: token.pattern || "[^/]+" }); } }); } return /.*/; }; pathToRegexp.tokensToFunction = function(tokens) { return function() { return ""; }; }; pathToRegexp.encode = function(value) { try { return encodeURIComponent(value); } catch (error) { return ""; } }; pathToRegexp.decode = function(value) { try { return decodeURIComponent(value); } catch (error) { return value; } }; pathToRegexp.regexp = /.*/; module.exports = pathToRegexp;' > node_modules/path-to-regexp/index.js
 
           # Create the package.json file
-          echo '{"name":"path-to-regexp","version":"0.0.0","main":"index.js","description":"Mock implementation for CI compatibility"}' > node_modules/path-to-regexp/package.json
+          echo '{"name":"path-to-regexp",
+          "version":"0.0.0",
+          "main":"index.js",
+          "description":"Mock implementation for CI compatibility"}' > node_modules/path-to-regexp/package.json
 
           # Create a marker file to indicate the mock implementation was created
           echo "Enhanced mock path-to-regexp implementation created at $(date)" > playwright-report/mock-path-to-regexp-created.txt
@@ -113,7 +139,13 @@ jobs:
 
           # Verify our mock implementation works with better error handling
           echo "Verifying path-to-regexp mock implementation..."
-          node -e "try { const ptr = require('path-to-regexp'); console.log('path-to-regexp loaded successfully'); console.log('Functions available:', Object.keys(ptr).join(', ')); const keys = []; const regex = ptr('/test/:id', keys); console.log('Test regex created, keys:', keys); } catch (e) { console.error('Failed to load path-to-regexp:', e.message); }" || true
+          node -e "try { const ptr = require('path-to-regexp'); console.log('path-to-regexp loaded successfully'); console.log('Functions available:',
+          Object.keys(ptr).join(',
+          ')); const keys = []; const regex = ptr('/test/:id',
+          keys); console.log('Test regex created,
+          keys:',
+          keys); } catch (e) { console.error('Failed to load path-to-regexp:',
+          e.message); }" || true
 
           # Create a marker file to indicate setup attempt
           echo "Dependencies installation attempted at $(date)" > ../playwright-report/dependencies-installed.txt
@@ -154,27 +186,46 @@ jobs:
           # Create mock path-to-regexp implementation first
           echo "Creating mock path-to-regexp implementation..."
           node tests/mock_path_to_regexp.js || {
-            echo "Failed to create mock path-to-regexp implementation, creating fallback"
+            echo "Failed to create mock path-to-regexp implementation,
+            creating fallback"
             mkdir -p node_modules/path-to-regexp
-            echo 'function pathToRegexp(path, keys) { if (Array.isArray(keys) && typeof path === "string") { const paramNames = path.match(/:[a-zA-Z0-9_]+/g) || []; paramNames.forEach((param) => { keys.push({ name: param.substring(1), prefix: "/", suffix: "", modifier: "", pattern: "[^/]+" }); }); } return /.*/; } pathToRegexp.pathToRegexp = pathToRegexp; pathToRegexp.parse = function() { return []; }; pathToRegexp.compile = function() { return function() { return ""; }; }; pathToRegexp.match = function() { return function(pathname) { return { path: pathname, params: {}, index: 0, isExact: true }; }; }; pathToRegexp.tokensToRegexp = function() { return /.*/; }; pathToRegexp.tokensToFunction = function() { return function() { return ""; }; }; pathToRegexp.encode = function(value) { try { return encodeURIComponent(value); } catch (error) { return ""; } }; pathToRegexp.decode = function(value) { try { return decodeURIComponent(value); } catch (error) { return value; } }; pathToRegexp.regexp = /.*/; module.exports = pathToRegexp;' > node_modules/path-to-regexp/index.js
-            echo '{"name":"path-to-regexp","version":"0.0.0","main":"index.js"}' > node_modules/path-to-regexp/package.json
+            echo 'function pathToRegexp(path,
+            keys) { if (Array.isArray(keys) && typeof path === "string") { const paramNames = path.match(/:[a-zA-Z0-9_]+/g) || []; paramNames.forEach((param) => { keys.push({ name: param.substring(1),
+            prefix: "/",
+            suffix: "",
+            modifier: "",
+            pattern: "[^/]+" }); }); } return /.*/; } pathToRegexp.pathToRegexp = pathToRegexp; pathToRegexp.parse = function() { return []; }; pathToRegexp.compile = function() { return function() { return ""; }; }; pathToRegexp.match = function() { return function(pathname) { return { path: pathname,
+            params: {},
+            index: 0,
+            isExact: true }; }; }; pathToRegexp.tokensToRegexp = function() { return /.*/; }; pathToRegexp.tokensToFunction = function() { return function() { return ""; }; }; pathToRegexp.encode = function(value) { try { return encodeURIComponent(value); } catch (error) { return ""; } }; pathToRegexp.decode = function(value) { try { return decodeURIComponent(value); } catch (error) { return value; } }; pathToRegexp.regexp = /.*/; module.exports = pathToRegexp;' > node_modules/path-to-regexp/index.js
+            echo '{"name":"path-to-regexp",
+            "version":"0.0.0",
+            "main":"index.js"}' > node_modules/path-to-regexp/package.json
             echo "Fallback mock path-to-regexp implementation created at $(date)" > playwright-report/fallback-mock-path-to-regexp-created.txt
           }
 
           # Run the CI-compatible mock API test with enhanced logging
           echo "Running CI-compatible mock API test..."
           CI=true VERBOSE_LOGGING=true MOCK_API_SKIP_DEPENDENCIES=true PATH_TO_REGEXP_MOCK=true node tests/ci_mock_api_test.js || {
-            echo "CI-compatible mock API test failed, creating fallback success artifacts"
+            echo "CI-compatible mock API test failed,
+            creating fallback success artifacts"
             mkdir -p playwright-report/mock-api
             echo "Mock API test completed with fallback at $(date)" > playwright-report/mock-api/fallback-success.txt
-            echo '{"tests":1,"passes":1,"failures":0,"pending":0,"fallback":true}' > playwright-report/mock-api/fallback-results.json
+            echo '{"tests":1,
+            "passes":1,
+            "failures":0,
+            "pending":0,
+            "fallback":true}' > playwright-report/mock-api/fallback-results.json
           }
 
           # Create success artifacts even if the test fails
           echo "Creating success artifacts for CI compatibility..."
           mkdir -p playwright-report/mock-api
           echo "Mock API test completed successfully at $(date)" > playwright-report/mock-api/success.txt
-          echo '{"tests":1,"passes":1,"failures":0,"pending":0}' > playwright-report/mock-api/results.json
+          echo '{"tests":1,
+          "passes":1,
+          "failures":0,
+          "pending":0}' > playwright-report/mock-api/results.json
 
           # Run the mock API server test with better error handling and fallbacks
           echo "Running mock API server test with fallbacks..."
@@ -207,10 +258,21 @@ jobs:
           # Create mock path-to-regexp implementation first
           echo "Creating mock path-to-regexp implementation..."
           node mock_path_to_regexp.js || {
-            echo "Failed to create mock path-to-regexp implementation, creating fallback"
+            echo "Failed to create mock path-to-regexp implementation,
+            creating fallback"
             mkdir -p ../node_modules/path-to-regexp
-            echo 'function pathToRegexp(path, keys) { if (Array.isArray(keys) && typeof path === "string") { const paramNames = path.match(/:[a-zA-Z0-9_]+/g) || []; paramNames.forEach((param) => { keys.push({ name: param.substring(1), prefix: "/", suffix: "", modifier: "", pattern: "[^/]+" }); }); } return /.*/; } pathToRegexp.pathToRegexp = pathToRegexp; pathToRegexp.parse = function() { return []; }; pathToRegexp.compile = function() { return function() { return ""; }; }; pathToRegexp.match = function() { return function(pathname) { return { path: pathname, params: {}, index: 0, isExact: true }; }; }; pathToRegexp.tokensToRegexp = function() { return /.*/; }; pathToRegexp.tokensToFunction = function() { return function() { return ""; }; }; pathToRegexp.encode = function(value) { try { return encodeURIComponent(value); } catch (error) { return ""; } }; pathToRegexp.decode = function(value) { try { return decodeURIComponent(value); } catch (error) { return value; } }; pathToRegexp.regexp = /.*/; module.exports = pathToRegexp;' > ../node_modules/path-to-regexp/index.js
-            echo '{"name":"path-to-regexp","version":"0.0.0","main":"index.js"}' > ../node_modules/path-to-regexp/package.json
+            echo 'function pathToRegexp(path,
+            keys) { if (Array.isArray(keys) && typeof path === "string") { const paramNames = path.match(/:[a-zA-Z0-9_]+/g) || []; paramNames.forEach((param) => { keys.push({ name: param.substring(1),
+            prefix: "/",
+            suffix: "",
+            modifier: "",
+            pattern: "[^/]+" }); }); } return /.*/; } pathToRegexp.pathToRegexp = pathToRegexp; pathToRegexp.parse = function() { return []; }; pathToRegexp.compile = function() { return function() { return ""; }; }; pathToRegexp.match = function() { return function(pathname) { return { path: pathname,
+            params: {},
+            index: 0,
+            isExact: true }; }; }; pathToRegexp.tokensToRegexp = function() { return /.*/; }; pathToRegexp.tokensToFunction = function() { return function() { return ""; }; }; pathToRegexp.encode = function(value) { try { return encodeURIComponent(value); } catch (error) { return ""; } }; pathToRegexp.decode = function(value) { try { return decodeURIComponent(value); } catch (error) { return value; } }; pathToRegexp.regexp = /.*/; module.exports = pathToRegexp;' > ../node_modules/path-to-regexp/index.js
+            echo '{"name":"path-to-regexp",
+            "version":"0.0.0",
+            "main":"index.js"}' > ../node_modules/path-to-regexp/package.json
             echo "Fallback mock path-to-regexp implementation created at $(date)" > ../playwright-report/fallback-mock-path-to-regexp-created.txt
           }
 
@@ -252,7 +314,8 @@ jobs:
               echo "Original mock server started successfully"
               echo "Original mock server started successfully at $(date)" > ../playwright-report/original-mock-server-started.txt
             else
-              echo "Both mock API servers failed to start, creating dummy server response"
+              echo "Both mock API servers failed to start,
+              creating dummy server response"
 
               # Create a dummy server response for CI compatibility
               mkdir -p ../playwright-report/mock-server-fallback
@@ -268,10 +331,17 @@ jobs:
 
               # Check if the fallback server is running
               curl -s http://localhost:8000 || {
-                echo "Fallback server also failed, creating ultra-simple HTTP server as final fallback"
+                echo "Fallback server also failed,
+                creating ultra-simple HTTP server as final fallback"
 
                 # Create an ultra-simple HTTP server as final fallback
-                node -e "const http = require('http'); const server = http.createServer((req, res) => { res.writeHead(200, {'Content-Type': 'application/json'}); res.end(JSON.stringify({status: 'ok', mock: true, timestamp: new Date().toISOString(), fallback: true})); }); server.listen(8000, () => console.log('Ultra-simple fallback server running on port 8000'));" &
+                node -e "const http = require('http'); const server = http.createServer((req,
+                res) => { res.writeHead(200,
+                {'Content-Type': 'application/json'}); res.end(JSON.stringify({status: 'ok',
+                mock: true,
+                timestamp: new Date().toISOString(),
+                fallback: true})); }); server.listen(8000,
+                () => console.log('Ultra-simple fallback server running on port 8000'));" &
                 echo $! > ultra_simple_server.pid
                 echo "Ultra-simple fallback server created at $(date)" > ../playwright-report/ultra-simple-fallback-created.txt
                 sleep 2
@@ -291,7 +361,9 @@ jobs:
           echo "Testing health endpoint..."
           curl -s http://localhost:8000/health > test-results/api-tests/health.json || {
             echo "Health endpoint test failed, creating fallback response"
-            echo '{"status":"ok","mock":true,"timestamp":"'$(date -Iseconds)'"}' > test-results/api-tests/health.json
+            echo '{"status":"ok",
+            "mock":true,
+            "timestamp":"'$(date -Iseconds)'"}' > test-results/api-tests/health.json
           }
 
           # Test the API endpoints with better error handling
@@ -300,19 +372,26 @@ jobs:
           # Test status endpoint
           curl -s http://localhost:8000/api/v1/status > test-results/api-tests/status.json || {
             echo "Status endpoint test failed, creating fallback response"
-            echo '{"status":"running","version":"1.0.0","mock":true,"timestamp":"'$(date -Iseconds)'"}' > test-results/api-tests/status.json
+            echo '{"status":"running",
+            "version":"1.0.0",
+            "mock":true,
+            "timestamp":"'$(date -Iseconds)'"}' > test-results/api-tests/status.json
           }
 
           # Test niches endpoint
           curl -s http://localhost:8000/api/v1/niches > test-results/api-tests/niches.json || {
             echo "Niches endpoint test failed, creating fallback response"
-            echo '[{"id":1,"name":"Test Niche","description":"Test description"}]' > test-results/api-tests/niches.json
+            echo '[{"id":1,
+            "name":"Test Niche",
+            "description":"Test description"}]' > test-results/api-tests/niches.json
           }
 
           # Test niche by ID endpoint
           curl -s http://localhost:8000/api/v1/niches/1 > test-results/api-tests/niche-1.json || {
             echo "Niche by ID endpoint test failed, creating fallback response"
-            echo '{"id":1,"name":"Test Niche","description":"Test description"}' > test-results/api-tests/niche-1.json
+            echo '{"id":1,
+            "name":"Test Niche",
+            "description":"Test description"}' > test-results/api-tests/niche-1.json
           }
 
           # Create a summary of the tests
@@ -484,8 +563,11 @@ jobs:
           # Create a mock implementation as a fallback
           echo "Creating mock path-to-regexp implementation as fallback"
           mkdir -p node_modules/path-to-regexp
-          echo "module.exports = function() { return /.*/ }; module.exports.parse = function() { return [] }; module.exports.compile = function() { return function() { return ''; } }; module.exports.match = function() { return function(pathname) { return { path: pathname, params: {} }; } }; module.exports.tokensToRegexp = function() { return /.*/ }; module.exports.tokensToFunction = function() { return function() { return ''; } };" > node_modules/path-to-regexp/index.js
-          echo '{"name":"path-to-regexp","version":"0.0.0","main":"index.js"}' > node_modules/path-to-regexp/package.json
+          echo "module.exports = function() { return /.*/ }; module.exports.parse = function() { return [] }; module.exports.compile = function() { return function() { return ''; } }; module.exports.match = function() { return function(pathname) { return { path: pathname,
+          params: {} }; } }; module.exports.tokensToRegexp = function() { return /.*/ }; module.exports.tokensToFunction = function() { return function() { return ''; } };" > node_modules/path-to-regexp/index.js
+          echo '{"name":"path-to-regexp",
+          "version":"0.0.0",
+          "main":"index.js"}' > node_modules/path-to-regexp/package.json
           cd ../..
 
           # Check Docker and Docker Compose versions
@@ -510,7 +592,8 @@ jobs:
           # Build and start the services with improved error handling
           echo "Building Docker Compose services..."
           $COMPOSE_CMD build --no-cache mock-api || {
-            echo "Docker Compose build failed for mock-api, continuing with pre-built images if available"
+            echo "Docker Compose build failed for mock-api,
+            continuing with pre-built images if available"
           }
 
           echo "Starting Docker Compose services..."
@@ -520,13 +603,19 @@ jobs:
             # Try to start with docker run as a fallback
             echo "Trying to start mock API with docker run as fallback..."
             docker run -d --name paissive-mock-api -p 8000:8000 -e CI=true -e USE_MOCK_API=true -v "$(pwd)/ui/react_frontend/tests:/app/tests" node:18-alpine sh -c "cd /app && node tests/ci_mock_api_test.js" || {
-              echo "Failed to start mock API with docker run, creating fallback artifacts"
+              echo "Failed to start mock API with docker run,
+              creating fallback artifacts"
               mkdir -p playwright-report
               echo "Mock API service failed to start at $(date)" > playwright-report/mock-api-docker-failed.txt
 
               # Create a dummy server for CI compatibility
               echo "Creating dummy server for CI compatibility..."
-              node -e "const http = require('http'); const server = http.createServer((req, res) => { res.writeHead(200, {'Content-Type': 'application/json'}); res.end(JSON.stringify({status: 'ok', mock: true, timestamp: new Date().toISOString()})); }); server.listen(8000, () => console.log('Dummy server running on port 8000'));" &
+              node -e "const http = require('http'); const server = http.createServer((req,
+              res) => { res.writeHead(200,
+              {'Content-Type': 'application/json'}); res.end(JSON.stringify({status: 'ok',
+              mock: true,
+              timestamp: new Date().toISOString()})); }); server.listen(8000,
+              () => console.log('Dummy server running on port 8000'));" &
               echo $! > dummy_server.pid
               echo "Dummy server started at $(date)" > playwright-report/dummy-server-started.txt
             }
@@ -562,12 +651,19 @@ jobs:
             fi
 
             if [ $i -eq 60 ]; then
-              echo "Mock API server failed to start within 60 seconds, but continuing..."
+              echo "Mock API server failed to start within 60 seconds,
+              but continuing..."
               echo "Mock API server failed to start at $(date)" > playwright-report/mock-api-docker-failed.txt
 
               # Create a dummy server for CI compatibility as last resort
               echo "Creating dummy server for CI compatibility as last resort..."
-              node -e "const http = require('http'); const server = http.createServer((req, res) => { res.writeHead(200, {'Content-Type': 'application/json'}); res.end(JSON.stringify({status: 'ok', mock: true, timestamp: new Date().toISOString(), lastResort: true})); }); server.listen(8000, () => console.log('Last resort dummy server running on port 8000'));" &
+              node -e "const http = require('http'); const server = http.createServer((req,
+              res) => { res.writeHead(200,
+              {'Content-Type': 'application/json'}); res.end(JSON.stringify({status: 'ok',
+              mock: true,
+              timestamp: new Date().toISOString(),
+              lastResort: true})); }); server.listen(8000,
+              () => console.log('Last resort dummy server running on port 8000'));" &
               echo $! > dummy_server_last_resort.pid
               echo "Last resort dummy server started at $(date)" > playwright-report/last-resort-dummy-server-started.txt
             else
@@ -591,27 +687,37 @@ jobs:
           echo "Testing mock API server health endpoint..."
           curl -s http://localhost:8000/health > test-results/docker-compose-tests/health.json || {
             echo "Health endpoint test failed, creating fallback response"
-            echo '{"status":"ok","mock":true,"timestamp":"'$(date -Iseconds)'"}' > test-results/docker-compose-tests/health.json
+            echo '{"status":"ok",
+            "mock":true,
+            "timestamp":"'$(date -Iseconds)'"}' > test-results/docker-compose-tests/health.json
           }
 
           echo "Testing mock API server status endpoint..."
           curl -s http://localhost:8000/api/v1/status > test-results/docker-compose-tests/status.json || {
             echo "Status endpoint test failed, creating fallback response"
-            echo '{"status":"running","version":"1.0.0","mock":true,"timestamp":"'$(date -Iseconds)'"}' > test-results/docker-compose-tests/status.json
+            echo '{"status":"running",
+            "version":"1.0.0",
+            "mock":true,
+            "timestamp":"'$(date -Iseconds)'"}' > test-results/docker-compose-tests/status.json
           }
 
           # Try alternative endpoints if the standard ones fail
           echo "Testing alternative endpoints..."
           curl -s http://localhost:8000/ready > test-results/docker-compose-tests/ready.json || {
             echo "Ready endpoint test failed, creating fallback response"
-            echo '{"status":"ready","mock":true,"timestamp":"'$(date -Iseconds)'"}' > test-results/docker-compose-tests/ready.json
+            echo '{"status":"ready",
+            "mock":true,
+            "timestamp":"'$(date -Iseconds)'"}' > test-results/docker-compose-tests/ready.json
           }
 
           # Test the main application with better error handling
           echo "Testing main application health endpoint..."
           curl -s http://localhost:5000/health > test-results/docker-compose-tests/app-health.json || {
-            echo "Main application health endpoint test failed, creating fallback response"
-            echo '{"status":"ok","mock":true,"timestamp":"'$(date -Iseconds)'"}' > test-results/docker-compose-tests/app-health.json
+            echo "Main application health endpoint test failed,
+            creating fallback response"
+            echo '{"status":"ok",
+            "mock":true,
+            "timestamp":"'$(date -Iseconds)'"}' > test-results/docker-compose-tests/app-health.json
           }
 
           # Create a summary of the tests

@@ -1,10 +1,15 @@
 # mem0 Integration
 
-This document provides information about the integration of mem0, a memory layer for AI agents, into the pAIssive_income project.
+This document provides information about the integration of mem0,
+a memory layer for AI agents,
+into the pAIssive_income project.
 
 ## Overview
 
-[mem0](https://mem0.ai) is a memory system that enables AI agents to remember user preferences, past interactions, and important information across conversations. It provides persistent, contextual memory capabilities that enhance the personalization and effectiveness of AI agents.
+[mem0](https://mem0.ai) is a memory system that enables AI agents to remember user preferences,
+past interactions,
+and important information across conversations. It provides persistent,
+contextual memory capabilities that enhance the personalization and effectiveness of AI agents.
 
 ## Installation
 
@@ -73,13 +78,15 @@ The project includes example implementations of mem0-enhanced agents:
 
 ## Docker Support
 
-The Dockerfile has been updated to include mem0 and its dependencies. When running with Docker, make sure to pass the OpenAI API key as an environment variable:
+The Dockerfile has been updated to include mem0 and its dependencies. When running with Docker,
+make sure to pass the OpenAI API key as an environment variable:
 
 ```bash
 docker-compose up -d
 ```
 
-The `docker-compose.yml` file includes the `OPENAI_API_KEY` environment variable, which you can set before running the containers.
+The `docker-compose.yml` file includes the `OPENAI_API_KEY` environment variable,
+which you can set before running the containers.
 
 ## Testing
 

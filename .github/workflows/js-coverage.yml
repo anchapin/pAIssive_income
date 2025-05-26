@@ -46,7 +46,8 @@ jobs:
           pnpm test:ci --passWithNoTests || true
 
       - name: Generate coverage report
-        run: pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage report, but continuing workflow"
+        run: pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage report,
+        but continuing workflow"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

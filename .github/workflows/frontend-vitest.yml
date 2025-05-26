@@ -69,7 +69,9 @@ jobs:
           mkdir -p src/__tests__
           if [ ! -f "src/__tests__/dummy.test.ts" ] && [ ! -f "tests/dummy.test.ts" ] && [ ! -f "src/__tests__/dummy.test.tsx" ] && [ ! -f "tests/dummy.test.tsx" ]; then
             echo "Creating dummy test file"
-            echo 'import { describe, it, expect } from "vitest";' > src/__tests__/dummy.test.ts
+            echo 'import { describe,
+            it,
+            expect } from "vitest";' > src/__tests__/dummy.test.ts
             echo '' >> src/__tests__/dummy.test.ts
             echo 'describe("Dummy test", () => {' >> src/__tests__/dummy.test.ts
             echo '  it("should pass", () => {' >> src/__tests__/dummy.test.ts
@@ -162,7 +164,10 @@ jobs:
         if: steps.run_tests.outcome != 'success'
         run: |
           mkdir -p coverage
-          echo '{"total":{"lines":{"total":10,"covered":8,"skipped":0,"pct":80}}}' > coverage/coverage-summary.json
+          echo '{"total":{"lines":{"total":10,
+          "covered":8,
+          "skipped":0,
+          "pct":80}}}' > coverage/coverage-summary.json
           echo '<html><body><h1>Test Coverage Report</h1><p>Coverage: 80%</p></body></html>' > coverage/index.html
           echo "Created minimal coverage report due to test failure"
 

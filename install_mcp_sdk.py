@@ -37,7 +37,8 @@ def _get_script_path() -> tuple[Path, bool]:
     Get the path to the actual installation script.
 
     Returns:
-        tuple: (script_path, is_valid) where is_valid is True if the script exists and is valid
+        tuple: (script_path,
+        is_valid) where is_valid is True if the script exists and is valid
 
     """
     script_path = Path(__file__).parent / "scripts" / "setup" / "install_mcp_sdk.py"
@@ -173,11 +174,10 @@ def main() -> int:
 
     # If the script succeeded, return its result
     if result_code == 0:
-        return 0
-
-    # If the script failed, try to create a mock module
+        return 0  # If the script failed, try to create a mock module
     logger.warning(
-        "Script execution failed with code %d, attempting to create mock MCP module directly",
+        "Script execution failed with code %d, "
+        "attempting to create mock MCP module directly",
         result_code,
     )
     return _create_mock_module_with_fallback()

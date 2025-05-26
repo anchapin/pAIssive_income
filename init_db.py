@@ -36,7 +36,7 @@ def generate_secure_password(length: int = 16) -> str:
     """
     alphabet = string.ascii_letters + string.digits + string.punctuation
     # Use a more secure method for random selection
-    password = ""
+    password = ""  # nosec B105
     for _ in range(length):
         password += alphabet[randbelow(len(alphabet))]
     return password

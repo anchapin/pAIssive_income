@@ -1,15 +1,22 @@
 """
 Tests for mem0-enhanced agents.
 
-These tests verify the functionality of the memory-enhanced agent implementations.
-They use mocking to avoid actual API calls to mem0 or CrewAI.
+This module contains tests for memory-enhanced agent implementations.
+The tests verify the functionality while using mocking to avoid actual API calls.
+
+Classes:
+    TestMemoryEnhancedCrewAIAgentTeam: Tests for the MemoryEnhancedCrewAIAgentTeam class.
 """
+
+from __future__ import annotations
 
 import logging
 import unittest
+from typing import Any, Final, cast
 from unittest.mock import MagicMock, patch
 
 import pytest
+from typing_extensions import Protocol
 
 # Import the memory-enhanced agent team
 from agent_team.mem0_enhanced_agents import (
@@ -18,7 +25,6 @@ from agent_team.mem0_enhanced_agents import (
     MemoryEnhancedCrewAIAgentTeam,
 )
 
-
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(
     not CREWAI_AVAILABLE or not MEM0_AVAILABLE,
@@ -26,11 +32,44 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
-    """Tests for the MemoryEnhancedCrewAIAgentTeam class."""
+class MemoryProtocol(Protocol):
+    """Protocol for Memory class mocking."""
 
-    def setUp(self):
-        """Set up test fixtures."""
+    def add(self, text: str, metadata: dict[str, Any] | None = None) -> dict[str, str]:
+        """Add a memory."""
+        ...
+
+    def search(self, query: str, limit: int | None = None) -> list[dict[str, str]]:
+        """Search memories."""
+        ...
+
+
+class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
+    """
+    Tests for the MemoryEnhancedCrewAIAgentTeam class.
+
+    This test suite verifies the functionality of memory-enhanced CrewAI agent teams,
+    including initialization, agent management, task execution, and memory operations.
+    """
+
+    memory_mock: MagicMock
+    crew_mock: MagicMock
+    agent_mock: MagicMock
+    task_mock: MagicMock
+    team: MemoryEnhancedCrewAIAgentTeam
+    memory_patcher: Any
+    crew_patcher: Any
+    agent_patcher: Any
+    task_patcher: Any
+
+    def setUp(self) -> None:
+        """
+        Set up test fixtures.
+
+        Creates mock objects for Memory, Crew, Agent and Task classes.
+        Initializes a test instance of MemoryEnhancedCrewAIAgentTeam.
+        Disables logging during tests.
+        """
         # Create a mock Memory class
         self.memory_mock = MagicMock()
         self.memory_mock.add.return_value = {"id": "test-memory-id"}
@@ -42,7 +81,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Patch the Memory class
         self.memory_patcher = patch(
             "agent_team.mem0_enhanced_agents.Memory",
-            return_value=self.memory_mock,
+            return_value=cast("MemoryProtocol", self.memory_mock),
         )
         self.memory_patcher.start()
 
@@ -77,8 +116,12 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Disable logging during tests
         logging.disable(logging.CRITICAL)
 
-    def tearDown(self):
-        """Tear down test fixtures."""
+    def tearDown(self) -> None:
+        """
+        Tear down test fixtures.
+
+        Stops all mock patches and re-enables logging.
+        """
         # Stop all patches
         self.memory_patcher.stop()
         self.crew_patcher.stop()
@@ -88,8 +131,15 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Re-enable logging
         logging.disable(logging.NOTSET)
 
-    def test_initialization(self):
-        """Test that the team initializes correctly."""
+    def test_initialization(self) -> None:
+        """
+        Test that the team initializes correctly.
+
+        Verifies:
+        - Memory initialization
+        - User ID assignment
+        - Initial memory storage
+        """
         # Check that the memory was initialized
         assert self.team.memory == self.memory_mock
         assert self.team.user_id == "test-user"
@@ -97,80 +147,144 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Check that a memory was stored during initialization
         self.memory_mock.add.assert_called_once()
         args, kwargs = self.memory_mock.add.call_args
-        assert "test-user" in str(args) or "test-user" in str(kwargs)
+        text = str(args) if args else str(kwargs)
+        assert "test-user" in text, "Initialization memory should include user_id"
 
-    def test_add_agent(self):
+    @patch("agent_team.mem0_enhanced_agents.logging")
+    def test_memory_error_handling(self, mock_logging: MagicMock) -> None:
+        """
+        Test error handling during memory initialization.
+
+        Args:
+            mock_logging: Mock logging object
+
+        """
+        # Simulate memory initialization failure
+        self.memory_mock.add.side_effect = Exception("Memory error")
+
+        # Try to store a memory
+        result = self.team._store_memory("Test memory")
+        assert not result
+
+        # Verify error was logged
+        mock_logging.error.assert_called_once()
+
+    def test_add_agent(self) -> None:
         """Test adding an agent to the team."""
+        agent_config: dict[str, Any] = {
+            "name": "Test Agent",
+            "role": "Test Role",
+            "goal": "Test Goal",
+            "backstory": "Test Backstory",
+        }
+
         # Add an agent
-        agent = self.team.add_agent(
-            role="Researcher",
-            goal="Find information",
-            backstory="Expert researcher",
+        self.team.add_agent(**agent_config)
+
+        # Verify agent was created with correct parameters
+        self.agent_mock.assert_called_once_with(
+            name=agent_config["name"],
+            role=agent_config["role"],
+            goal=agent_config["goal"],
+            backstory=agent_config["backstory"],
         )
 
-        # Check that the agent was created
-        assert agent == self.agent_mock
+        assert len(self.team.agents) == 1
 
-        # Check that the agent was added to the team
-        assert agent in self.team.agents
+    def test_create_task(self) -> None:
+        """Test creating a task."""
+        task_config: dict[str, Any] = {
+            "description": "Test Task",
+            "agent": self.agent_mock,
+            "context": "Test Context",
+        }
 
-        # Check that a memory was stored
-        assert self.memory_mock.add.call_count >= 2  # Once for init, once for add_agent
-        args, kwargs = self.memory_mock.add.call_args
-        assert "Researcher" in str(args) or "Researcher" in str(kwargs)
+        # Create a task
+        self.team.create_task(**task_config)
 
-    def test_add_task(self):
-        """Test adding a task to the team."""
-        # Add an agent first
-        agent = self.team.add_agent(
-            role="Researcher",
-            goal="Find information",
-            backstory="Expert researcher",
+        # Verify task was created with correct parameters
+        self.task_mock.assert_called_once_with(
+            description=task_config["description"],
+            agent=task_config["agent"],
+            context=task_config["context"],
         )
 
-        # Add a task
-        task = self.team.add_task(
-            description="Research AI memory systems",
-            agent=agent,
-        )
+    def test_execute_workflow(self) -> None:
+        """Test executing a workflow with tasks."""
+        # Add an agent and create a task
+        agent_config: dict[str, Any] = {
+            "name": "Test Agent",
+            "role": "Test Role",
+            "goal": "Test Goal",
+            "backstory": "Test Backstory",
+        }
+        self.team.add_agent(**agent_config)
 
-        # Check that the task was created
-        assert task == self.task_mock
+        task_config: dict[str, Any] = {
+            "description": "Test Task",
+            "agent": self.agent_mock,
+            "context": "Test Context",
+        }
+        task = self.team.create_task(**task_config)
 
-        # Check that the task was added to the team
-        assert task in self.team.tasks
+        # Execute workflow
+        result = self.team.execute_workflow([task])
 
-        # Check that a memory was stored
-        assert self.memory_mock.add.call_count >= 3  # Init, add_agent, add_task
-        args, kwargs = self.memory_mock.add.call_args
-        assert "Research AI memory systems" in str(args) or "Research AI memory systems" in str(kwargs)
-
-    def test_run(self):
-        """Test running the team workflow."""
-        # Add an agent and task
-        agent = self.team.add_agent(
-            role="Researcher",
-            goal="Find information",
-            backstory="Expert researcher",
-        )
-        task = self.team.add_task(
-            description="Research AI memory systems",
-            agent=agent,
-        )
-
-        # Run the workflow
-        result = self.team.run()
-
-        # Check that the crew was created and run
-        assert result == "Test workflow result"
+        # Verify workflow execution
         self.crew_mock.kickoff.assert_called_once()
+        assert result == "Test workflow result"
 
-        # Check that memories were retrieved and stored
-        assert self.memory_mock.search.call_count >= 1
-        assert self.memory_mock.add.call_count >= 4  # Init, add_agent, add_task, run
+    def test_memory_integration(self) -> None:
+        """Test memory integration during workflow execution."""
+        # Prepare test data
+        query: Final[str] = "test query"
+        self.memory_mock.search.return_value = [
+            {"id": "memory-1", "text": "Relevant memory 1"},
+            {"id": "memory-2", "text": "Relevant memory 2"},
+        ]
 
-    def test_store_memory(self):
-        """Test storing a memory."""
+        # Get relevant memories
+        memories = self.team._retrieve_relevant_memories(query)
+
+        # Verify memory search
+        self.memory_mock.search.assert_called_once_with(query)
+        assert len(memories) == 2
+        assert "Relevant memory 1" in memories
+        assert "Relevant memory 2" in memories
+
+    def test_memory_enhancement(self) -> None:
+        """Test memory enhancement of task context."""
+        # Prepare test data
+        task_description: Final[str] = "Test task with context"
+        memories: Final[list[str]] = ["Memory 1", "Memory 2"]
+
+        # Create a task
+        task_config: dict[str, Any] = {
+            "description": task_description,
+            "agent": self.agent_mock,
+            "context": "Original context",
+        }
+        task = self.team.create_task(**task_config)
+
+        # Mock memory retrieval
+        with patch.object(
+            self.team, "_retrieve_relevant_memories", return_value=memories
+        ) as mock_retrieve:
+            # Enhance task with memories
+            enhanced_task = self.team._enhance_task_with_memories(task)
+
+            # Verify memory retrieval and enhancement
+            mock_retrieve.assert_called_once_with(task_description)
+            assert "Memory 1" in enhanced_task.context
+            assert "Memory 2" in enhanced_task.context
+            assert "Original context" in enhanced_task.context
+
+    def test_store_memory(self) -> None:
+        """
+        Test storing a memory.
+
+        Verifies that a memory can be stored with the expected content and metadata.
+        """
         # Store a memory
         self.team._store_memory(
             "Test memory content",
@@ -184,8 +298,12 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             metadata={"test_key": "test_value"},
         )
 
-    def test_retrieve_relevant_memories(self):
-        """Test retrieving relevant memories."""
+    def test_retrieve_relevant_memories(self) -> None:
+        """
+        Test retrieving relevant memories.
+
+        Verifies that relevant memories can be retrieved based on a query and limit.
+        """
         # Retrieve memories
         memories = self.team._retrieve_relevant_memories(
             query="Test query",
@@ -202,8 +320,12 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         assert memories[0]["id"] == "memory-1"
         assert memories[1]["id"] == "memory-2"
 
-    def test_enhance_context_with_memories(self):
-        """Test enhancing context with memories."""
+    def test_enhance_context_with_memories(self) -> None:
+        """
+        Test enhancing context with memories.
+
+        Verifies that the context is enhanced with relevant memories.
+        """
         # Set up test memories
         memories = [
             {"id": "memory-1", "text": "User prefers dark mode"},
@@ -225,8 +347,13 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Check that memories were retrieved
         self.team._retrieve_relevant_memories.assert_called_once()
 
-    def test_memory_persistence(self):
-        """Test that memories persist across team instances."""
+    def test_memory_persistence(self) -> None:
+        """
+        Test that memories persist across team instances.
+
+        Verifies that memories are accessible across different instances of MemoryEnhancedCrewAIAgentTeam
+        with the same user_id.
+        """
         # Create a new team with the same user_id
         new_team = MemoryEnhancedCrewAIAgentTeam(user_id="test-user")
 
@@ -244,6 +371,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             user_id="test-user",
             limit=5,  # Default limit
         )
+
 
 if __name__ == "__main__":
     unittest.main()

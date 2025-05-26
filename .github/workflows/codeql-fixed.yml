@@ -115,13 +115,15 @@ jobs:
             echo "Installing dependencies with pnpm in root directory..."
             pnpm install
           else
-            echo "No package.json found in root directory, checking ui/react_frontend..."
+            echo "No package.json found in root directory,
+            checking ui/react_frontend..."
             # Check for package.json in ui/react_frontend
             if [ -f ui/react_frontend/package.json ]; then
               echo "Installing dependencies with pnpm in ui/react_frontend..."
               cd ui/react_frontend && pnpm install
             else
-              echo "No package.json found in ui/react_frontend, skipping dependency installation."
+              echo "No package.json found in ui/react_frontend,
+              skipping dependency installation."
             fi
           fi
         continue-on-error: true
@@ -343,7 +345,9 @@ jobs:
             # Install tar
             choco install -y tar
             # Refresh PATH
-            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path",
+            "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path",
+            "User")
           } else {
             Write-Host "tar is already available in PATH"
           }
@@ -371,14 +375,16 @@ jobs:
               pip install -r requirements-dev.txt
             }
           else
-            echo "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
+            echo "No requirements.txt or requirements-dev.txt found,
+            skipping dependency installation."
           fi
 
           # Install package in development mode if setup.py exists
           if [ -f setup.py ]; then
             echo "Installing package in development mode using 'uv pip'..."
             uv pip install -e . || {
-              echo "Failed to install package with uv pip, falling back to regular pip..."
+              echo "Failed to install package with uv pip,
+              falling back to regular pip..."
               python -m pip install --upgrade pip
               pip install -e .
             }
@@ -410,7 +416,8 @@ jobs:
               pip install -r requirements-dev.txt
             }
           } else {
-            Write-Host "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
+            Write-Host "No requirements.txt or requirements-dev.txt found,
+            skipping dependency installation."
           }
 
           # Install package in development mode if setup.py exists
@@ -419,7 +426,8 @@ jobs:
             try {
               python -m uv pip install -e .
             } catch {
-              Write-Host "Failed to install package with uv pip, falling back to regular pip..."
+              Write-Host "Failed to install package with uv pip,
+              falling back to regular pip..."
               python -m pip install --upgrade pip
               pip install -e .
             }

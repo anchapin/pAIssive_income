@@ -85,7 +85,8 @@ check_service_health() {
   local max_attempts=$3
   local interval=$4
   
-  print_message "$YELLOW" "Checking health of $service service (max $max_attempts attempts, $interval seconds interval)..."
+  print_message "$YELLOW" "Checking health of $service service (max $max_attempts attempts,
+                $interval seconds interval)..."
   
   for i in $(seq 1 $max_attempts); do
     print_message "$YELLOW" "Attempt $i of $max_attempts..."
@@ -110,7 +111,8 @@ check_api_health() {
   local max_attempts=$1
   local interval=$2
   
-  print_message "$YELLOW" "Checking API health (max $max_attempts attempts, $interval seconds interval)..."
+  print_message "$YELLOW" "Checking API health (max $max_attempts attempts,
+  $interval seconds interval)..."
   
   for i in $(seq 1 $max_attempts); do
     print_message "$YELLOW" "Attempt $i of $max_attempts..."
@@ -135,7 +137,8 @@ check_frontend_health() {
   local max_attempts=$1
   local interval=$2
   
-  print_message "$YELLOW" "Checking frontend health (max $max_attempts attempts, $interval seconds interval)..."
+  print_message "$YELLOW" "Checking frontend health (max $max_attempts attempts,
+  $interval seconds interval)..."
   
   for i in $(seq 1 $max_attempts); do
     print_message "$YELLOW" "Attempt $i of $max_attempts..."

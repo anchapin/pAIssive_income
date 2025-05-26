@@ -111,7 +111,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Health check (distroless does not include shell, use python)
 HEALTHCHECK --interval=30s --timeout=60s --start-period=240s --retries=12 \
-  CMD ["python", "-c", "import urllib.request; print(urllib.request.urlopen('http://localhost:5000/health').read().decode())"]
+  CMD ["python",
+  "-c",
+  "import urllib.request; print(urllib.request.urlopen('http://localhost:5000/health').read().decode())"]
 
 # Expose port (if needed, e.g., 5000 for Flask)
 EXPOSE 5000

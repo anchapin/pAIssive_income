@@ -137,7 +137,8 @@ jobs:
               Write-Host "Running Enhanced CI test runner..."
               node tests/run_ci_tests_enhanced.js
             } else {
-              Write-Host "Enhanced CI test runner not found, falling back to regular runner..."
+              Write-Host "Enhanced CI test runner not found,
+              falling back to regular runner..."
               node tests/run_ci_tests.js
             }
           } catch {

@@ -102,7 +102,6 @@ jobs:
           cache: 'pnpm' # This will cache the pnpm store
           # cache-dependency-path: 'pnpm-lock.yaml' # Recommended: path to your pnpm lock file for this part of the build
 
-
       - name: Install Node.js dependencies and build Tailwind CSS
         run: |
           pnpm install
@@ -296,7 +295,14 @@ jobs:
             # Create a simple ruff.toml file with Windows-friendly settings
             "# Ruff configuration for Windows compatibility" | Out-File -FilePath "ruff.toml" -Encoding utf8
             "[tool.ruff]" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-            "exclude = ['.git', '.github', '.venv', 'venv', 'node_modules', '__pycache__', 'build', 'dist']" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
+            "exclude = ['.git',
+            '.github',
+            '.venv',
+            'venv',
+            'node_modules',
+            '__pycache__',
+            'build',
+            'dist']" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
             "line-length = 100" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
             "target-version = 'py310'" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
             Write-Host "Created ruff.toml with basic configuration"
@@ -321,11 +327,13 @@ jobs:
           # Run MCP adapter tests separately using the custom script
           if [ -f "run_tests.py" ]; then
             echo "Using run_tests.py script to run MCP tests"
-            python run_tests.py -v tests/ai_models/adapters/test_mcp_adapter.py tests/test_mcp_import.py tests/test_mcp_top_level_import.py || echo "MCP tests failed, but continuing"
+            python run_tests.py -v tests/ai_models/adapters/test_mcp_adapter.py tests/test_mcp_import.py tests/test_mcp_top_level_import.py || echo "MCP tests failed,
+            but continuing"
           elif [ -f "run_tests.sh" ]; then
             echo "Using run_tests.sh script to run MCP tests"
             chmod +x run_tests.sh
-            ./run_tests.sh -v tests/ai_models/adapters/test_mcp_adapter.py tests/test_mcp_import.py tests/test_mcp_top_level_import.py || echo "MCP tests failed, but continuing"
+            ./run_tests.sh -v tests/ai_models/adapters/test_mcp_adapter.py tests/test_mcp_import.py tests/test_mcp_top_level_import.py || echo "MCP tests failed,
+            but continuing"
           else
             echo "Using run_mcp_tests.py script"
             python run_mcp_tests.py || echo "MCP tests failed, but continuing"
@@ -376,11 +384,13 @@ jobs:
           # Run CrewAI tests separately using the custom script
           if [ -f "run_tests.py" ]; then
             echo "Using run_tests.py script to run CrewAI tests"
-            python run_tests.py -v tests/test_crewai_agents.py || echo "CrewAI tests failed, but continuing"
+            python run_tests.py -v tests/test_crewai_agents.py || echo "CrewAI tests failed,
+            but continuing"
           elif [ -f "run_tests.sh" ]; then
             echo "Using run_tests.sh script to run CrewAI tests"
             chmod +x run_tests.sh
-            ./run_tests.sh -v tests/test_crewai_agents.py || echo "CrewAI tests failed, but continuing"
+            ./run_tests.sh -v tests/test_crewai_agents.py || echo "CrewAI tests failed,
+            but continuing"
           else
             echo "Using run_crewai_tests.py script"
             python run_crewai_tests.py || echo "CrewAI tests failed, but continuing"
@@ -467,7 +477,8 @@ jobs:
             pnpm test || echo "JavaScript tests failed, but continuing"
 
             # Generate coverage report
-            pnpm coverage > ./coverage/lcov.info || echo "Failed to generate JavaScript coverage report, but continuing"
+            pnpm coverage > ./coverage/lcov.info || echo "Failed to generate JavaScript coverage report,
+            but continuing"
           else
             echo "No package.json found, skipping JavaScript tests"
           fi
@@ -500,7 +511,8 @@ jobs:
             try {
               pnpm coverage > ./coverage/lcov.info
             } catch {
-              Write-Host "Failed to generate JavaScript coverage report, but continuing: $_"
+              Write-Host "Failed to generate JavaScript coverage report,
+              but continuing: $_"
             }
           } else {
             Write-Host "No package.json found, skipping JavaScript tests"
@@ -599,7 +611,8 @@ jobs:
 
           # Create empty results files as fallback
           echo '{"results": [], "errors": []}' > security-reports/bandit-results.json
-          echo '{"results": [], "errors": []}' > security-reports/bandit-results-ini.json
+          echo '{"results": [],
+          "errors": []}' > security-reports/bandit-results-ini.json
 
       - name: Install security tools (Windows)
         if: runner.os == 'Windows'
@@ -637,7 +650,13 @@ jobs:
 
           # Create empty-sarif.json if it doesn't exist
           if [ ! -f "empty-sarif.json" ]; then
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}' > security-reports/bandit-results.sarif
+            echo '{"version":"2.1.0",
+            "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.0.json",
+            "runs":[{"tool":{"driver":{"name":"Bandit",
+            "informationUri":"https://github.com/PyCQA/bandit",
+            "version":"1.7.5",
+            "rules":[]}},
+            "results":[]}]}' > security-reports/bandit-results.sarif
             echo "Created empty-sarif.json in root directory"
           fi
 
@@ -656,20 +675,33 @@ jobs:
           if [ -f "run_bandit.sh" ]; then
             echo "Using run_bandit.sh script to run bandit"
             chmod +x run_bandit.sh
-            ./run_bandit.sh || echo "run_bandit.sh failed, but continuing with fallback JSON file"
+            ./run_bandit.sh || echo "run_bandit.sh failed,
+            but continuing with fallback JSON file"
           elif [ -f "test_bandit_config.py" ]; then
             echo "Using test_bandit_config.py script to run bandit"
-            python test_bandit_config.py || echo "test_bandit_config.py failed, but continuing with fallback JSON file"
+            python test_bandit_config.py || echo "test_bandit_config.py failed,
+            but continuing with fallback JSON file"
           else
             echo "No bandit script found. Using direct bandit command."
             # Run Bandit with the bandit.yaml configuration
             if [ -f "bandit.yaml" ]; then
               echo "Using bandit.yaml configuration file"
               # Add --exclude flag to ensure directories are properly excluded
-              bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates" --exit-zero
+              bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv,
+              node_modules,
+              tests,
+              docs,
+              docs_source,
+              junit,
+              bin,
+              dev_tools,
+              scripts,
+              tool_templates" --exit-zero
             else
               echo "bandit.yaml configuration file not found. Using default configuration."
-              bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" --exit-zero
+              bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,
+              node_modules,
+              tests" --exit-zero
             fi
           fi
 
@@ -679,7 +711,13 @@ jobs:
             python convert_bandit_to_sarif.py
           else
             echo "convert_bandit_to_sarif.py not found. Creating empty SARIF file."
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}' > security-reports/bandit-results.sarif
+            echo '{"version":"2.1.0",
+            "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.0.json",
+            "runs":[{"tool":{"driver":{"name":"Bandit",
+            "informationUri":"https://github.com/PyCQA/bandit",
+            "version":"1.7.5",
+            "rules":[]}},
+            "results":[]}]}' > security-reports/bandit-results.sarif
             cp security-reports/bandit-results.sarif security-reports/bandit-results-ini.sarif
           fi
 
@@ -774,16 +812,19 @@ jobs:
           # First try the enhanced mock script if it exists
           if [ -f "tests/enhanced_mock_path_to_regexp.js" ]; then
             echo "Enhanced mock path-to-regexp script found, running it..."
-            node tests/enhanced_mock_path_to_regexp.js || echo "Enhanced mock script failed, falling back..."
+            node tests/enhanced_mock_path_to_regexp.js || echo "Enhanced mock script failed,
+            falling back..."
           fi
 
           # Then try the regular mock script
           if [ -f "tests/mock_path_to_regexp_fixed.js" ]; then
             echo "Fixed mock path-to-regexp script found, running it..."
-            node tests/mock_path_to_regexp_fixed.js || echo "Fixed mock script failed, falling back..."
+            node tests/mock_path_to_regexp_fixed.js || echo "Fixed mock script failed,
+            falling back..."
           elif [ -f "tests/mock_path_to_regexp.js" ]; then
             echo "Mock path-to-regexp script found, running it..."
-            node tests/mock_path_to_regexp.js || echo "Mock script failed, using fallback implementation"
+            node tests/mock_path_to_regexp.js || echo "Mock script failed,
+            using fallback implementation"
           else
             echo "Mock path-to-regexp script not found, creating a placeholder..."
             mkdir -p tests
@@ -799,14 +840,18 @@ jobs:
               const ptr = require('path-to-regexp');
               console.log('path-to-regexp loaded successfully');
               console.log('path-to-regexp type:', typeof ptr);
-              console.log('path-to-regexp has parse method:', typeof ptr.parse === 'function');
-              console.log('path-to-regexp has compile method:', typeof ptr.compile === 'function');
-              console.log('path-to-regexp has match method:', typeof ptr.match === 'function');
+              console.log('path-to-regexp has parse method:',
+              typeof ptr.parse === 'function');
+              console.log('path-to-regexp has compile method:',
+              typeof ptr.compile === 'function');
+              console.log('path-to-regexp has match method:',
+              typeof ptr.match === 'function');
             } catch(e) {
               console.error('Error loading path-to-regexp:', e.message);
               process.exit(1);
             }
-          " > logs/path-to-regexp/verification.log 2>&1 || echo "Verification failed, but continuing..."
+          " > logs/path-to-regexp/verification.log 2>&1 || echo "Verification failed,
+          but continuing..."
 
           echo "Playwright test artifacts created successfully"
 

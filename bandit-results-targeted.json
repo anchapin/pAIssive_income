@@ -107,17 +107,22 @@
       },
       "issue_severity": "LOW",
       "issue_text": "Consider possible security implications associated with the subprocess module.",
-      "line_number": 9,
+                                                      "line_number": 9,
       "line_range": [
         9
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.8.3/blacklists/blacklist_imports.html#b404-import-subprocess",
-      "test_id": "B404",
+                                                      "test_id": "B404",
       "test_name": "blacklist"
     },
     {
-      "code": "42     try:\n43         result = subprocess.run(\n44             cmd,\n45             env=env,\n46             check=False,\n47             capture_output=True,\n48             text=True,\n49         )\n50         \n",
-      "col_offset": 17,
+      "code": "42     try:\n43         result = subprocess.run(\n44             cmd,
+      \n45             env=env,
+      \n46             check=False,
+      \n47             capture_output=True,
+      \n48             text=True,
+      \n49         )\n50         \n",
+            "col_offset": 17,
       "end_col_offset": 9,
       "filename": ".\\run_mcp_tests.py",
       "issue_confidence": "HIGH",
@@ -138,7 +143,7 @@
         49
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.8.3/plugins/b603_subprocess_without_shell_equals_true.html",
-      "test_id": "B603",
+                                                      "test_id": "B603",
       "test_name": "subprocess_without_shell_equals_true"
     }
   ]

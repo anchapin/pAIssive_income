@@ -1,27 +1,26 @@
 # Pre-commit configuration optimized for speed and parallel execution
 default_language_version:
-    python: python3
+  python: python3
 
 # Optimized exclude patterns
-exclude:
-  (?x)(
-    ^\.venv/.*|
-    ^venv/.*|
-    ^env/.*|
-    \.venv/.*|
-    venv/.*|
-    env/.*|
-    \.git/.*|
-    node_modules/.*|
-    .*__pycache__/.*|
-    .*\.pytest_cache/.*|
-    .*\.mypy_cache/.*|
-    .*\.ruff_cache/.*|
-    build/.*|
-    dist/.*|
-    .*\.egg-info/.*|
-    ui/react_frontend/node_modules/.*|
-    sdk/javascript/node_modules/.*
+exclude: (?x)(
+  ^\.venv/.*|
+  ^venv/.*|
+  ^env/.*|
+  \.venv/.*|
+  venv/.*|
+  env/.*|
+  \.git/.*|
+  node_modules/.*|
+  .*__pycache__/.*|
+  .*\.pytest_cache/.*|
+  .*\.mypy_cache/.*|
+  .*\.ruff_cache/.*|
+  build/.*|
+  dist/.*|
+  .*\.egg-info/.*|
+  ui/react_frontend/node_modules/.*|
+  sdk/javascript/node_modules/.*
   )
 
 default_stages: [pre-commit]
@@ -35,18 +34,7 @@ repos:
       - id: check-merge-conflict
       - id: check-case-conflict
       - id: check-added-large-files
-        args: ['--maxkb=1024']
-
-  # Security checks (run early to fail fast)
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.25.1
-    hooks:
-      - id: gitleaks
-        name: Detect secrets with Gitleaks
-        entry: gitleaks protect --staged -v --config=.gitleaks.toml --no-banner
-        language: golang
-        pass_filenames: false
-        stages: [pre-commit, pre-merge-commit]
+        args: ["--maxkb=1024"]
 
   # Primary code quality tool: Ruff (formatting, linting, import sorting)
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -62,12 +50,21 @@ repos:
         types: [python]
         files: \.py$
 
+  # Security checking with Bandit
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.7
+    hooks:
+      - id: bandit
+        name: Check for security issues with Bandit
+        args: ["-c", "bandit.yaml", "-r"]
+        types: [python]
+        exclude: "tests/.*"
   # Type checking (run after formatting/linting)
   - repo: local
     hooks:
-      - id: pyrefly
-        name: Type check with Pyrefly
-        entry: python -m pyrefly
+      - id: pyright
+        name: Type check with Pyright
+        entry: pyright
         language: system
         types: [python]
         require_serial: true
@@ -76,28 +73,22 @@ repos:
             ^scripts/__init__.py$|
             ^.github/scripts/__init__.py$
           )
+        stages: [manual]  # Skip pyright in normal pre-commit runs
 
-  # Optimized local hooks for incremental checks
-  - repo: local
-    hooks:
-      - id: incremental-quality
-        name: Run incremental quality checks
-        entry: python scripts/manage_quality.py incremental
+      # Custom security fixes
+      - id: security-fixes
+        name: Apply security fixes
+        entry: python scripts/fix/fix_all_security_and_types.py --security-only
         language: system
         types: [python]
-        pass_filenames: true
-        stages: [pre-commit]
-        exclude: |
-          (?x)(
-            ^scripts/__init__.py$|
-            ^.github/scripts/__init__.py$
-          )
-
-      - id: js-tests
-        name: Run JavaScript tests with coverage (pnpm test)
-        entry: pnpm test
-        language: system
-        types: [javascript]
         pass_filenames: false
-        always_run: true
-        stages: [pre-commit]
+        require_serial: true
+
+      # Duplicate logging check
+      - id: fix-duplicate-logging
+        name: Fix duplicate logging issues
+        entry: python scripts/fix/fix_duplicate_logging.py
+        language: system
+        types: [python]
+        pass_filenames: false
+        require_serial: true

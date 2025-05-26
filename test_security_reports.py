@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -75,19 +74,19 @@ def validate_json_files() -> bool:
     bandit_results_ini = Path("security-reports/bandit-results-ini.json")
 
     try:
-        with open(bandit_results) as f:
+        with bandit_results.open() as f:
             json.load(f)
         logger.info("bandit-results.json is valid JSON")
-    except (json.JSONDecodeError, Exception) as e:
-        logger.error("bandit-results.json is not valid JSON: %s", e)
+    except (json.JSONDecodeError, Exception):
+        logger.exception("bandit-results.json is not valid JSON")
         return False
 
     try:
-        with open(bandit_results_ini) as f:
+        with bandit_results_ini.open() as f:
             json.load(f)
         logger.info("bandit-results-ini.json is valid JSON")
-    except (json.JSONDecodeError, Exception) as e:
-        logger.error("bandit-results-ini.json is not valid JSON: %s", e)
+    except (json.JSONDecodeError, Exception):
+        logger.exception("bandit-results-ini.json is not valid JSON")
         return False
 
     return True
@@ -95,7 +94,7 @@ def validate_json_files() -> bool:
 
 def main() -> int:
     """
-    Main entry point for the script.
+    Check security reports and create them if needed.
 
     Returns:
         int: 0 if all checks pass, 1 otherwise
@@ -105,10 +104,10 @@ def main() -> int:
     if not check_security_reports_dir():
         # Try to create the directory
         try:
-            os.makedirs("security-reports", exist_ok=True)
+            Path("security-reports").mkdir(parents=True, exist_ok=True)
             logger.info("Created security-reports directory")
-        except Exception as e:
-            logger.error("Failed to create security-reports directory: %s", e)
+        except Exception:
+            logger.exception("Failed to create security-reports directory")
             return 1
 
     # Check if the JSON files exist
@@ -117,15 +116,15 @@ def main() -> int:
         try:
             import subprocess
 
-            subprocess.run(
+            subprocess.run(  # nosec B603
                 [sys.executable, "test_bandit_config.py"],
                 check=False,
                 shell=False,
                 timeout=300,
             )
             logger.info("Ran test_bandit_config.py")
-        except Exception as e:
-            logger.error("Failed to run test_bandit_config.py: %s", e)
+        except Exception:
+            logger.exception("Failed to run test_bandit_config.py")
             return 1
 
         # Check again

@@ -59,7 +59,7 @@ except ImportError:
     # Define a fallback function to avoid unbound variable errors
     def scan_directory(
         directory: str,  # Match the signature of the imported function
-        exclude_dirs: set[str]  # noqa: ARG001
+        exclude_dirs: set[str]
         | None = None,  # Match the signature of the imported function
     ) -> dict[str, list[tuple[str, int, int]]]:
         """
@@ -276,10 +276,12 @@ def _run_scan_with_imported_function(
 
     # Import the SECRET_PATTERNS from fix_potential_secrets to match the function signature
     try:
-        from fix_potential_secrets import SECRET_PATTERNS
+        from fix_potential_secrets import (
+            SECRET_PATTERNS,
+        )  # Note: scan_directory() only takes directory and patterns (excludes are defined inside it)
 
         results: dict[str, list[tuple[str, int, int]]] = scan_directory(
-            directory, SECRET_PATTERNS, exclude_dirs
+            directory, SECRET_PATTERNS
         )
     except ImportError:
         logger.warning("Could not import SECRET_PATTERNS from fix_potential_secrets")

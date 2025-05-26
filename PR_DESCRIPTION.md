@@ -2,7 +2,8 @@
 
 ## Overview
 
-This PR enhances the environment detection system used in our frontend tests, particularly focusing on improving compatibility with CI platforms and Docker environments. The changes integrate our unified environment detection module across the codebase to ensure consistent environment detection and handling.
+This PR enhances the environment detection system used in our frontend tests,
+particularly focusing on improving compatibility with CI platforms and Docker environments. The changes integrate our unified environment detection module across the codebase to ensure consistent environment detection and handling.
 
 ## Key Changes
 
@@ -32,8 +33,13 @@ This PR enhances the environment detection system used in our frontend tests, pa
 ## Benefits
 
 - **Consistent Environment Detection**: Uses the same detection logic across all test files
-- **Improved CI Compatibility**: Better detection of GitHub Actions, Jenkins, GitLab CI, and other CI platforms
-- **Enhanced Docker Support**: More robust detection of Docker, Kubernetes, and other container environments
+- **Improved CI Compatibility**: Better detection of GitHub Actions,
+Jenkins,
+GitLab CI,
+and other CI platforms
+- **Enhanced Docker Support**: More robust detection of Docker,
+Kubernetes,
+and other container environments
 - **Better Error Handling**: More detailed error reporting and fallback mechanisms
 - **Comprehensive Logging**: More detailed environment information for debugging
 
@@ -49,4 +55,6 @@ The changes have been tested locally to ensure they work as expected. The enviro
 
 ## Related Issues
 
-This PR addresses issues with CI environment detection, particularly in GitHub Actions workflows, and improves the path-to-regexp mock implementation for better compatibility across different environments.
+This PR addresses issues with CI environment detection,
+particularly in GitHub Actions workflows,
+and improves the path-to-regexp mock implementation for better compatibility across different environments.

@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document outlines the plan for implementing consistent validation for user inputs across the pAIssive_income project. Based on the input validation audit, we will focus on ensuring all user input points have proper validation mechanisms.
+This document outlines the plan for implementing consistent validation for user inputs across the pAIssive_income project. Based on the input validation audit,
+we will focus on ensuring all user input points have proper validation mechanisms.
 
 All validation and error handling must comply with [docs/input_validation_and_error_handling_standards.md](docs/input_validation_and_error_handling_standards.md).
 
@@ -147,7 +148,9 @@ All validation and error handling must comply with [docs/input_validation_and_er
 3. Apply validation to critical forms and API endpoints.
 4. Expand coverage to all user input points.
 5. Add/expand tests for invalid/malicious input and error handling (see checklist below).
-6. Ensure all validation, sanitization, and error handling matches the [standards](docs/input_validation_and_error_handling_standards.md).
+6. Ensure all validation,
+sanitization,
+and error handling matches the [standards](docs/input_validation_and_error_handling_standards.md).
 
 ---
 
