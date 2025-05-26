@@ -274,6 +274,10 @@ jobs:
             Write-Host "Model tests failed: $_"
           }
 
+      - name: Check logger initialization
+        run: python scripts/check_logger_initialization.py
+        shell: bash
+
       - name: Run MCP tests (Unix only)
         if: runner.os != 'Windows'
         continue-on-error: true
@@ -326,7 +330,12 @@ jobs:
         if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists == 'false'
         shell: pwsh
         run: |
-          $content = "#!/usr/bin/env python3`nimport sys`nprint('Mock CrewAI test script')`nprint('CrewAI tests skipped - script not found')`nsys.exit(0)"
+          $content = '#!/usr/bin/env python3
+          """Mock CrewAI test script."""
+          import sys
+          print("Mock CrewAI test script")
+          print("CrewAI tests skipped - script not found")
+          sys.exit(0)'
           Set-Content -Path run_crewai_tests.py -Value $content -Encoding utf8
 
       - name: Run CrewAI tests (Unix)
