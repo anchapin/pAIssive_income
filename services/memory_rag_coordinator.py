@@ -63,11 +63,11 @@ class MemoryRAGCoordinator:
             self._chroma_collection = self._chroma_client.get_or_create_collection(self.chroma_collection_name)
             self._embedder = SentenceTransformer("all-MiniLM-L6-v2")
         except ImportError:
-            logging.warning(
+            logger.warning(
                 "chromadb and/or sentence-transformers not installed. Install with: uv pip install chromadb sentence-transformers"
             )
-        except Exception as e:
-            logging.exception(f"Failed to initialize ChromaDB or embedder: {e}")
+        except Exception:
+            logger.exception("Failed to initialize ChromaDB or embedder")
 
         # mem0 Memory object is not persistent; instantiate per query for thread safety
 
@@ -126,18 +126,18 @@ class MemoryRAGCoordinator:
         try:
             from mem0 import Memory
         except ImportError:
-            logging.warning("mem0ai package is not installed. Install with: uv pip install mem0ai")
+            logger.warning("mem0ai package is not installed. Install with: uv pip install mem0ai")
             return []
 
         try:
             memory = Memory()
             results = memory.search(query=query, user_id=user_id)
             if not isinstance(results, list):
-                logging.error("mem0 Memory.search did not return a list.")
+                logger.error("mem0 Memory.search did not return a list.")
                 return []
             return results
-        except Exception as e:
-            logging.exception(f"Exception during mem0_query: {e}")
+        except Exception:
+            logger.exception("Exception during mem0_query")
             return []
 
     def chroma_query(self, query: str) -> list[dict]:
@@ -174,8 +174,8 @@ class MemoryRAGCoordinator:
                     entry.update(meta)
                 formatted.append(entry)
             return formatted
-        except Exception as e:
-            logging.exception(f"Exception during chroma_query: {e}")
+        except Exception:
+            logger.exception("Exception during chroma_query")
             return []
 
     def _merge_results(self, mem0_results: list[dict], chroma_results: list[dict]) -> list[dict]:

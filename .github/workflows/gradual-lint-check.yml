@@ -1,0 +1,59 @@
+name: Gradual Lint Check
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '**.py'
+      - 'ruff.toml'
+      - '.ruff.toml'
+      - 'pyproject.toml'
+      - '.github/workflows/gradual-lint-check.yml'
+
+jobs:
+  gradual-lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for comparison
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff
+        
+    - name: Run gradual lint check
+      run: |
+        echo "🔍 Running gradual lint check on changed files..."
+        python scripts/gradual_lint_fix.py --mode pr --base-branch main
+        
+    - name: Auto-fix issues (if any)
+      if: failure()
+      run: |
+        echo "🔧 Attempting to auto-fix linting issues..."
+        python scripts/gradual_lint_fix.py --mode pr --base-branch main --fix
+        
+    - name: Check if fixes were applied
+      if: failure()
+      run: |
+        if git diff --quiet; then
+          echo "❌ No auto-fixes were possible. Manual intervention required."
+          exit 1
+        else
+          echo "✅ Auto-fixes were applied. Please review and commit the changes."
+          git diff --name-only
+          git diff --stat
+          exit 1
+        fi
+        
+    - name: Success message
+      if: success()
+      run: |
+        echo "✅ All changed files pass linting checks!" 

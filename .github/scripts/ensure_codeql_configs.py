@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Script to ensure CodeQL configuration files exist.
+"""
+Script to ensure CodeQL configuration files exist.
 
 This script creates the necessary CodeQL configuration files for security scanning.
 """

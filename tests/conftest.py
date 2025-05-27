@@ -62,7 +62,7 @@ def app():
     # Create a temporary directory for the test database
     temp_dir = tempfile.mkdtemp()
     db_path = Path(temp_dir) / "test.db"
-    
+
     test_config = {
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": f"sqlite:///{db_path}",
@@ -121,17 +121,17 @@ def db_session(app):
         # Start a transaction
         connection = db.engine.connect()
         transaction = connection.begin()
-        
+
         # Configure session to use the transaction
         session = db.create_scoped_session(
             options={"bind": connection, "binds": {}}
         )
-        
+
         # Make session available to the app
         db.session = session
-        
+
         yield session
-        
+
         # Rollback transaction and close connection
         transaction.rollback()
         connection.close()
