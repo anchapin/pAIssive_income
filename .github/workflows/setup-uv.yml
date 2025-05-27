@@ -1,5 +1,5 @@
 name: Setup uv (Reusable)
-on:
+true:
   workflow_call:
     inputs:
       python-version:
@@ -66,3 +66,6 @@ jobs:
         \ inputs.dev-requirements-file }}\nfi\n"
       shell: bash
     timeout-minutes: 30
+'on':
+  workflow_call: {}
+  workflow_dispatch: {}

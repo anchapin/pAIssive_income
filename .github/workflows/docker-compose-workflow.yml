@@ -1,5 +1,5 @@
 name: Docker Compose Integration
-on:
+true:
   push:
     branches:
     - main
@@ -71,3 +71,15 @@ jobs:
         \ ]; then\n  echo \"has_frontend=true\" >> $GITHUB_OUTPUT\nelse\n  echo \"\
         has_frontend=false\" >> $GITHUB_OUTPUT\nfi\n"
     timeout-minutes: 30
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

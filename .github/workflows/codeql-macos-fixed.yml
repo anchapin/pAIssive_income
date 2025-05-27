@@ -1,5 +1,5 @@
 name: CodeQL Analysis - macOS
-on:
+true:
   pull_request:
     branches:
     - main
@@ -178,3 +178,15 @@ jobs:
         name: python-macos-sarif
         path: sarif-results/python-macos.sarif
         retention-days: 7
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

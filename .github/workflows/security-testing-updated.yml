@@ -1,5 +1,5 @@
 name: Security Testing
-on:
+true:
   push:
     branches:
     - main
@@ -147,3 +147,15 @@ jobs:
         deny-licenses: AGPL-1.0-or-later, AGPL-3.0-or-later
         allow-ghsas: []
     timeout-minutes: 30
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

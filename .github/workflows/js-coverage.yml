@@ -1,64 +1,73 @@
 name: JS Test Coverage
-
-on:
+true:
   push:
-    branches: [main]
+    branches:
+    - main
   pull_request:
-    branches: [main]
-    # Codecov will comment on PRs with coverage changes if configured in the Codecov dashboard.
-
+    branches:
+    - main
 jobs:
   js-coverage:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20, 24]
+        node-version:
+        - 20
+        - 24
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: npm
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+    - name: Install dependencies
+      run: pnpm install
+    - name: Create coverage directory
+      run: mkdir -p coverage
+    - name: Build Tailwind CSS
+      run: pnpm tailwind:build
+    - name: Run JS tests and check coverage
+      run: 'echo "Node.js version: $(node --version)"
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+        echo "npm version: $(npm --version)"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-          run_install: false
+        echo "pnpm version: $(pnpm --version)"
 
-      - name: Install dependencies
-        run: pnpm install
+        pnpm test:ci --passWithNoTests || true
 
-      - name: Create coverage directory
-        run: mkdir -p coverage
-
-      - name: Build Tailwind CSS
-        run: pnpm tailwind:build
-
-      - name: Run JS tests and check coverage
-        run: |
-          echo "Node.js version: $(node --version)"
-          echo "npm version: $(npm --version)"
-          echo "pnpm version: $(pnpm --version)"
-          pnpm test:ci --passWithNoTests || true
-
-      - name: Generate coverage report
-        run: pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage report, but continuing workflow"
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-          flags: js, node${{ matrix.node-version }}
-          fail_ci_if_error: false
-          strict: false   # Don't fail CI if coverage drops vs. base branch
-
-      - name: Upload HTML coverage report as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: js-coverage-html-report-node${{ matrix.node-version }}
-          path: coverage/
-          if-no-files-found: warn
+        '
+    - name: Generate coverage report
+      run: pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage
+        report, but continuing workflow"
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage/lcov.info
+        flags: js, node${{ matrix.node-version }}
+        fail_ci_if_error: false
+        strict: false
+    - name: Upload HTML coverage report as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: js-coverage-html-report-node${{ matrix.node-version }}
+        path: coverage/
+        if-no-files-found: warn
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

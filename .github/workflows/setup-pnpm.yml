@@ -1,5 +1,5 @@
 name: Setup pnpm (Reusable)
-on:
+true:
   workflow_call:
     inputs:
       node-version:
@@ -140,3 +140,6 @@ jobs:
         \  Write-Error \"- Missing or conflicting dependencies in package.json.\"\n\
         \  Write-Error \"- pnpm not set up properly.\"\n  exit 1\n}\n"
     timeout-minutes: 30
+'on':
+  workflow_call: {}
+  workflow_dispatch: {}

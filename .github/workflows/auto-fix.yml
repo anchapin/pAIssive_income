@@ -1,5 +1,5 @@
 name: Auto Fix (Linting Only)
-on:
+true:
   workflow_dispatch:
     inputs:
       fix_type:
@@ -78,3 +78,15 @@ jobs:
         git push
 
         '
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

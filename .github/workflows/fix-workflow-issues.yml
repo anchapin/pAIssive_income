@@ -1,196 +1,190 @@
 name: Fix Workflow Issues
-
-on:
-  workflow_dispatch:
+true:
+  workflow_dispatch: null
   push:
-    branches: [ main, dev, master, develop ]
+    branches:
+    - main
+    - dev
+    - master
+    - develop
   pull_request:
-    branches: [ main, dev, master, develop ]
-
+    branches:
+    - main
+    - dev
+    - master
+    - develop
 permissions:
   contents: read
-
 jobs:
   fix-dependencies:
     name: Fix Dependencies and Environment
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: npm
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: '~/.cache/pip
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+          ~/.cache/uv
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+          ~/.uv
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-          run_install: false
+          ~/.cache/pnpm
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.cache/uv
-            ~/.uv
-            ~/.cache/pnpm
-            node_modules
-            .pytest_cache
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/requirements*.txt', '**/package*.json', '**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-deps-
+          node_modules
 
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          .pytest_cache
 
-      - name: Fix Python dependencies
-        run: |
-          # Upgrade pip first
-          python -m pip install --upgrade pip
+          '
+        key: ${{ runner.os }}-deps-${{ hashFiles('**/requirements*.txt', '**/package*.json',
+          '**/pnpm-lock.yaml') }}
+        restore-keys: '${{ runner.os }}-deps-
 
-          # Install core testing tools
-          python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio ruff mypy
+          '
+    - name: Install uv
+      run: 'curl -LsSf https://astral.sh/uv/install.sh | sh
 
-          # Install protobuf with specific version to avoid conflicts
-          python -m pip install "protobuf>=3.19,<5.0"
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-          # Install requirements with error handling
-          if [ -f requirements.txt ]; then
-            echo "Installing requirements.txt..."
-            python -m pip install -r requirements.txt || echo "Some requirements failed, continuing..."
-          fi
+        '
+    - name: Fix Python dependencies
+      run: "# Upgrade pip first\npython -m pip install --upgrade pip\n\n# Install\
+        \ core testing tools\npython -m pip install pytest pytest-cov pytest-xdist\
+        \ pytest-asyncio ruff mypy\n\n# Install protobuf with specific version to\
+        \ avoid conflicts\npython -m pip install \"protobuf>=3.19,<5.0\"\n\n# Install\
+        \ requirements with error handling\nif [ -f requirements.txt ]; then\n  echo\
+        \ \"Installing requirements.txt...\"\n  python -m pip install -r requirements.txt\
+        \ || echo \"Some requirements failed, continuing...\"\nfi\n\nif [ -f requirements-dev.txt\
+        \ ]; then\n  echo \"Installing requirements-dev.txt...\"\n  python -m pip\
+        \ install -r requirements-dev.txt || echo \"Some dev requirements failed,\
+        \ continuing...\"\nfi\n"
+    - name: Fix MCP SDK installation
+      run: "echo \"Attempting to install MCP SDK...\"\npython install_mcp_sdk.py ||\
+        \ echo \"MCP SDK installation failed, creating mock...\"\n\n# Verify MCP installation\n\
+        python -c \"\ntry:\n    import modelcontextprotocol\n    print('MCP SDK installed\
+        \ successfully')\nexcept ImportError:\n    print('MCP SDK not available, using\
+        \ mock')\n\"\n"
+    - name: Fix Node.js dependencies
+      run: '# Install pnpm dependencies
 
-          if [ -f requirements-dev.txt ]; then
-            echo "Installing requirements-dev.txt..."
-            python -m pip install -r requirements-dev.txt || echo "Some dev requirements failed, continuing..."
-          fi
+        pnpm install --frozen-lockfile || pnpm install
 
-      - name: Fix MCP SDK installation
-        run: |
-          echo "Attempting to install MCP SDK..."
-          python install_mcp_sdk.py || echo "MCP SDK installation failed, creating mock..."
 
-          # Verify MCP installation
-          python -c "
-          try:
-              import modelcontextprotocol
-              print('MCP SDK installed successfully')
-          except ImportError:
-              print('MCP SDK not available, using mock')
-          "
+        # Build Tailwind CSS
 
-      - name: Fix Node.js dependencies
-        run: |
-          # Install pnpm dependencies
-          pnpm install --frozen-lockfile || pnpm install
+        pnpm tailwind:build || echo "Tailwind build failed, continuing..."
 
-          # Build Tailwind CSS
-          pnpm tailwind:build || echo "Tailwind build failed, continuing..."
+        '
+    - name: Run basic tests
+      run: "# Run a simple test to verify the environment\npython -c \"\nimport sys\n\
+        print(f'Python version: {sys.version}')\n\n# Test basic imports\ntry:\n  \
+        \  import pytest\n    print('pytest: OK')\nexcept ImportError as e:\n    print(f'pytest:\
+        \ FAILED - {e}')\n\ntry:\n    import ruff\n    print('ruff: OK')\nexcept ImportError\
+        \ as e:\n    print(f'ruff: FAILED - {e}')\n\n# Test project imports\ntry:\n\
+        \    from ai_models import __version__\n    print('ai_models: OK')\nexcept\
+        \ ImportError as e:\n    print(f'ai_models: FAILED - {e}')\n\"\n"
+    - name: Run linting (with error handling)
+      run: 'echo "Running ruff linting..."
 
-      - name: Run basic tests
-        run: |
-          # Run a simple test to verify the environment
-          python -c "
-          import sys
-          print(f'Python version: {sys.version}')
+        ruff check . --exit-zero || echo "Linting found issues but continuing..."
 
-          # Test basic imports
-          try:
-              import pytest
-              print('pytest: OK')
-          except ImportError as e:
-              print(f'pytest: FAILED - {e}')
 
-          try:
-              import ruff
-              print('ruff: OK')
-          except ImportError as e:
-              print(f'ruff: FAILED - {e}')
+        echo "Running basic pytest collection..."
 
-          # Test project imports
-          try:
-              from ai_models import __version__
-              print('ai_models: OK')
-          except ImportError as e:
-              print(f'ai_models: FAILED - {e}')
-          "
+        python -m pytest --collect-only tests/ || echo "Test collection had issues
+        but continuing..."
 
-      - name: Run linting (with error handling)
-        run: |
-          echo "Running ruff linting..."
-          ruff check . --exit-zero || echo "Linting found issues but continuing..."
-
-          echo "Running basic pytest collection..."
-          python -m pytest --collect-only tests/ || echo "Test collection had issues but continuing..."
-
+        '
   test-matrix:
     name: Test Matrix
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        python-version: ["3.12"]
+        os:
+        - ubuntu-latest
+        python-version:
+        - '3.12'
       fail-fast: false
     needs: fix-dependencies
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: '~/.cache/pip
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+          ~/.cache/uv
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.cache/uv
-            .pytest_cache
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-deps-
+          .pytest_cache
 
-      - name: Install minimal dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest pytest-cov ruff
+          '
+        key: ${{ runner.os }}-deps-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: '${{ runner.os }}-deps-
 
-          # Install only essential requirements
-          if [ -f requirements.txt ]; then
-            # Filter out problematic packages
-            grep -v "^crewai" requirements.txt | grep -v "^modelcontextprotocol" > requirements_filtered.txt || true
-            python -m pip install -r requirements_filtered.txt || echo "Some requirements failed"
-          fi
+          '
+    - name: Install minimal dependencies
+      run: "python -m pip install --upgrade pip\npython -m pip install pytest pytest-cov\
+        \ ruff\n\n# Install only essential requirements\nif [ -f requirements.txt\
+        \ ]; then\n  # Filter out problematic packages\n  grep -v \"^crewai\" requirements.txt\
+        \ | grep -v \"^modelcontextprotocol\" > requirements_filtered.txt || true\n\
+        \  python -m pip install -r requirements_filtered.txt || echo \"Some requirements\
+        \ failed\"\nfi\n"
+    - name: Run basic tests
+      run: '# Run only basic tests that should always pass
 
-      - name: Run basic tests
-        run: |
-          # Run only basic tests that should always pass
-          python -m pytest tests/test_basic.py -v || echo "Basic tests failed"
+        python -m pytest tests/test_basic.py -v || echo "Basic tests failed"
 
-          # Run import tests
-          python -m pytest tests/test_imports.py -v || echo "Import tests failed"
 
-      - name: Generate test report
-        if: always()
-        run: |
-          echo "Test execution completed"
-          echo "OS: ${{ matrix.os }}"
-          echo "Python: ${{ matrix.python-version }}"
-          echo "Status: ${{ job.status }}"
+        # Run import tests
+
+        python -m pytest tests/test_imports.py -v || echo "Import tests failed"
+
+        '
+    - name: Generate test report
+      if: always()
+      run: 'echo "Test execution completed"
+
+        echo "OS: ${{ matrix.os }}"
+
+        echo "Python: ${{ matrix.python-version }}"
+
+        echo "Status: ${{ job.status }}"
+
+        '
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

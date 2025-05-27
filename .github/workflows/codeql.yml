@@ -1,5 +1,5 @@
 name: CodeQL Analysis
-on:
+true:
   pull_request:
     branches:
     - main
@@ -385,3 +385,15 @@ jobs:
         \ src\n  - api\n  - ui\n\npaths-ignore:\n  - '**/node_modules/**'\n  - '**/dist/**'\n\
         \  - '**/build/**'\n  - '**/coverage/**'\n  - '**/test/**'\n  - '**/tests/**'\n\
         EOL\n"
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

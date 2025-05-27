@@ -1,5 +1,5 @@
 name: CodeQL Analysis - Windows
-on:
+true:
   pull_request:
     branches:
     - main
@@ -173,3 +173,15 @@ jobs:
         name: python-windows-sarif
         path: sarif-results/python-windows.sarif
         retention-days: 7
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

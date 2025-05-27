@@ -1,5 +1,5 @@
 name: Reusable Python Setup
-on:
+true:
   workflow_call:
     inputs:
       python-version:
@@ -58,3 +58,6 @@ jobs:
       id: save-venv-path
       run: echo "venv-path=$(pwd)/.venv" >> $GITHUB_OUTPUT
     timeout-minutes: 30
+'on':
+  workflow_call: {}
+  workflow_dispatch: {}

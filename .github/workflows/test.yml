@@ -1,5 +1,5 @@
 name: Python Tests (Reusable)
-on:
+true:
   workflow_call:
     inputs:
       python-version:
@@ -61,8 +61,8 @@ jobs:
       env:
         PYTHONPATH: ${{ github.workspace }}
         FLASK_ENV: development
-        DATABASE_URL: "sqlite:///:memory:"
-        TESTING: "true"
+        DATABASE_URL: 'sqlite:///:memory:'
+        TESTING: 'true'
       run: "# Activate virtual environment\nsource .venv/bin/activate\n\n# Run tests\
         \ with pytest\npytest ${{ inputs.test-path }} \\\n  -n auto \\\n  -v \\\n\
         \  --import-mode=importlib \\\n  --cov=. \\\n  --cov-report=xml \\\n  --cov-report=term-missing\
@@ -78,3 +78,15 @@ jobs:
       with:
         name: coverage-report-${{ github.run_id }}
         path: coverage.xml
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

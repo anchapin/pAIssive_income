@@ -1,114 +1,136 @@
 name: CodeQL Analysis (Fixed)
-
-on:
+true:
   pull_request:
-    branches: [main, dev, master, develop]
+    branches:
+    - main
+    - dev
+    - master
+    - develop
     paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - 'docs/**'
-      - 'LICENSE'
+    - '**/*.md'
+    - '**/*.txt'
+    - '**/*.rst'
+    - docs/**
+    - LICENSE
   schedule:
-    - cron: '0 4 * * 1'
-  workflow_dispatch:
-
+  - cron: 0 4 * * 1
+  workflow_dispatch: null
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 permissions:
   security-events: write
   actions: read
   contents: read
-
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript-typescript', 'python']
-
+        language:
+        - javascript-typescript
+        - python
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
     - name: Setup Node.js (for JavaScript analysis)
       if: matrix.language == 'javascript-typescript'
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-
     - name: Setup pnpm (for JavaScript analysis)
       if: matrix.language == 'javascript-typescript'
       uses: pnpm/action-setup@v4
       with:
         version: 8
-
     - name: Setup Python (for Python analysis)
       if: matrix.language == 'python'
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-
     - name: Create .codeqlignore
-      run: |
-        cat > .codeqlignore << 'EOF'
+      run: 'cat > .codeqlignore << ''EOF''
+
         .venv/**
+
         venv/**
+
         node_modules/**
+
         dist/**
+
         build/**
+
         coverage/**
+
         test/**
+
         tests/**
+
         __tests__/**
+
         __pycache__/**
+
         .pytest_cache/**
+
         .mypy_cache/**
+
         .ruff_cache/**
+
         *.pyc
+
         *.pyo
+
         *.pyd
+
         playwright-report/**
+
         .git/**
+
         docs/**
+
         *.md
+
         *.rst
+
         EOF
 
+        '
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         queries: security-and-quality
-
     - name: Install dependencies (JavaScript)
       if: matrix.language == 'javascript-typescript'
-      run: |
-        if [ -f package.json ]; then
-          pnpm install || npm install || echo "Install completed with issues"
-        fi
-
+      run: "if [ -f package.json ]; then\n  pnpm install || npm install || echo \"\
+        Install completed with issues\"\nfi\n"
     - name: Install dependencies (Python)
       if: matrix.language == 'python'
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then
-          pip install -r requirements.txt || echo "Install completed with issues"
-        fi
-
+      run: "python -m pip install --upgrade pip\nif [ -f requirements.txt ]; then\n\
+        \  pip install -r requirements.txt || echo \"Install completed with issues\"\
+        \nfi\n"
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
-
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: "/language:${{ matrix.language }}"
+        category: /language:${{ matrix.language }}
         upload: true
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}

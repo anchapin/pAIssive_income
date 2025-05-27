@@ -1,5 +1,5 @@
 name: Consolidated CI/CD
-on:
+true:
   push:
     branches:
     - main
@@ -142,33 +142,34 @@ jobs:
         \ -m)\" >> $GITHUB_ENV\necho \"CI_PYTHON_VERSION=$(python --version | cut\
         \ -d' ' -f2)\" >> $GITHUB_ENV\necho \"CI_NODE_VERSION=$(node --version)\"\
         \ >> $GITHUB_ENV\necho \"CI_RUNNER_OS=${{ runner.os }}\" >> $GITHUB_ENV\n\
-        echo \"CI_WORKSPACE=${{ github.workspace }}\" >> $GITHUB_ENV\n\n# Set Flask environment for testing\n\
-        echo \"FLASK_ENV=development\" >> $GITHUB_ENV\necho \"DATABASE_URL=sqlite:///:memory:\"\
-        \ >> $GITHUB_ENV\necho \"TESTING=true\" >> $GITHUB_ENV\n\n# Set container\
-        \ environment detection variables\necho \"DOCKER_ENVIRONMENT=false\" >> $GITHUB_ENV\n\
-        echo \"KUBERNETES_ENVIRONMENT=false\" >> $GITHUB_ENV\necho \"DOCKER_COMPOSE=false\"\
-        \ >> $GITHUB_ENV\necho \"DOCKER_SWARM=false\" >> $GITHUB_ENV\n\n# Generate\
-        \ environment report\n{\n  echo \"=== CI Environment Report ===\"\n  echo\
-        \ \"Date: $(date)\"\n  echo \"OS: $(uname -a)\"\n  echo \"Python: $(python\
-        \ --version)\"\n  echo \"Node: $(node --version)\"\n  echo \"npm: $(npm --version)\"\
-        \n  echo \"pnpm: $(pnpm --version)\"\n  echo \"Runner OS: ${{ runner.os }}\"\
-        \n  echo \"Workspace: ${{ github.workspace }}\"\n  echo \"Event: ${{ github.event_name\
-        \ }}\"\n  echo \"Repository: ${{ github.repository }}\"\n  echo \"Ref: ${{\
-        \ github.ref }}\"\n  echo \"SHA: ${{ github.sha }}\"\n  echo \"==========================\"\
-        \n} > ci-reports/environment-report.txt\n\n# Display environment report\n\
-        cat ci-reports/environment-report.txt\n"
+        echo \"CI_WORKSPACE=${{ github.workspace }}\" >> $GITHUB_ENV\n\n# Set Flask\
+        \ environment for testing\necho \"FLASK_ENV=development\" >> $GITHUB_ENV\n\
+        echo \"DATABASE_URL=sqlite:///:memory:\" >> $GITHUB_ENV\necho \"TESTING=true\"\
+        \ >> $GITHUB_ENV\n\n# Set container environment detection variables\necho\
+        \ \"DOCKER_ENVIRONMENT=false\" >> $GITHUB_ENV\necho \"KUBERNETES_ENVIRONMENT=false\"\
+        \ >> $GITHUB_ENV\necho \"DOCKER_COMPOSE=false\" >> $GITHUB_ENV\necho \"DOCKER_SWARM=false\"\
+        \ >> $GITHUB_ENV\n\n# Generate environment report\n{\n  echo \"=== CI Environment\
+        \ Report ===\"\n  echo \"Date: $(date)\"\n  echo \"OS: $(uname -a)\"\n  echo\
+        \ \"Python: $(python --version)\"\n  echo \"Node: $(node --version)\"\n  echo\
+        \ \"npm: $(npm --version)\"\n  echo \"pnpm: $(pnpm --version)\"\n  echo \"\
+        Runner OS: ${{ runner.os }}\"\n  echo \"Workspace: ${{ github.workspace }}\"\
+        \n  echo \"Event: ${{ github.event_name }}\"\n  echo \"Repository: ${{ github.repository\
+        \ }}\"\n  echo \"Ref: ${{ github.ref }}\"\n  echo \"SHA: ${{ github.sha }}\"\
+        \n  echo \"==========================\"\n} > ci-reports/environment-report.txt\n\
+        \n# Display environment report\ncat ci-reports/environment-report.txt\n"
     - name: Install dependencies (Unix)
       if: runner.os != 'Windows'
       run: "# Ensure pip is up to date\npython -m pip install --upgrade pip\n\n# Install\
         \ uv if not already available\nwhich uv || python -m pip install uv\n\n# Install\
-        \ testing tools\npython -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio\npython -m pip install\
-        \ protobuf==5.29.4 # Ensure compatible protobuf\n\n# Install requirements\n\
-        if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt;\
-        \ fi || echo \"Some requirements failed, continuing...\"\nif [ -f requirements.txt\
-        \ ]; then python -m pip install -r requirements.txt; fi || echo \"Some requirements\
-        \ failed, continuing...\"\n\n# Install MCP SDK using the installation script\n\
-        echo \"Installing MCP SDK using installation script...\"\npython install_mcp_sdk.py\n\
-        \n# Install CI environment detection script\nif [ -f scripts/ci/detect_ci_environment.py\
+        \ testing tools\npython -m pip install ruff pyrefly pytest pytest-cov pytest-xdist\
+        \ pytest-asyncio\npython -m pip install protobuf==5.29.4 # Ensure compatible\
+        \ protobuf\n\n# Install requirements\nif [ -f requirements-dev.txt ]; then\
+        \ python -m pip install -r requirements-dev.txt; fi || echo \"Some requirements\
+        \ failed, continuing...\"\nif [ -f requirements.txt ]; then python -m pip\
+        \ install -r requirements.txt; fi || echo \"Some requirements failed, continuing...\"\
+        \n\n# Install MCP SDK using the installation script\necho \"Installing MCP\
+        \ SDK using installation script...\"\npython install_mcp_sdk.py\n\n# Install\
+        \ CI environment detection script\nif [ -f scripts/ci/detect_ci_environment.py\
         \ ]; then\n  echo \"Installing CI environment detection script dependencies...\"\
         \n  python -m pip install pyyaml\n\n  # Run the CI environment detection script\n\
         \  echo \"Running CI environment detection script...\"\n  python scripts/ci/detect_ci_environment.py\
@@ -184,13 +185,14 @@ jobs:
         \ $env:GITHUB_ENV\necho \"CI_ARCH=x64\" >> $env:GITHUB_ENV\necho \"CI_PYTHON_VERSION=$(python\
         \ --version)\" >> $env:GITHUB_ENV\necho \"CI_NODE_VERSION=$(node --version)\"\
         \ >> $env:GITHUB_ENV\necho \"CI_RUNNER_OS=${{ runner.os }}\" >> $env:GITHUB_ENV\n\
-        echo \"CI_WORKSPACE=${{ github.workspace }}\" >> $env:GITHUB_ENV\n\n# Set Flask environment for testing\n\
-        echo \"FLASK_ENV=development\" >> $env:GITHUB_ENV\necho \"DATABASE_URL=sqlite:///:memory:\"\
-        \ >> $env:GITHUB_ENV\necho \"TESTING=true\" >> $env:GITHUB_ENV\n\n# Set\
-        \ container environment detection variables\necho \"DOCKER_ENVIRONMENT=false\"\
-        \ >> $env:GITHUB_ENV\necho \"KUBERNETES_ENVIRONMENT=false\" >> $env:GITHUB_ENV\n\
-        echo \"DOCKER_COMPOSE=false\" >> $env:GITHUB_ENV\necho \"DOCKER_SWARM=false\"\
-        \ >> $env:GITHUB_ENV\n\n# Install testing tools\npython -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio\n\
+        echo \"CI_WORKSPACE=${{ github.workspace }}\" >> $env:GITHUB_ENV\n\n# Set\
+        \ Flask environment for testing\necho \"FLASK_ENV=development\" >> $env:GITHUB_ENV\n\
+        echo \"DATABASE_URL=sqlite:///:memory:\" >> $env:GITHUB_ENV\necho \"TESTING=true\"\
+        \ >> $env:GITHUB_ENV\n\n# Set container environment detection variables\n\
+        echo \"DOCKER_ENVIRONMENT=false\" >> $env:GITHUB_ENV\necho \"KUBERNETES_ENVIRONMENT=false\"\
+        \ >> $env:GITHUB_ENV\necho \"DOCKER_COMPOSE=false\" >> $env:GITHUB_ENV\necho\
+        \ \"DOCKER_SWARM=false\" >> $env:GITHUB_ENV\n\n# Install testing tools\npython\
+        \ -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio\n\
         python -m pip install protobuf==5.29.4 # Ensure compatible protobuf\n\n# Install\
         \ requirements (excluding MCP-related packages)\nif (Test-Path requirements-dev.txt)\
         \ {\n  python -m pip install -r requirements-dev.txt --no-deps || echo \"\
@@ -726,3 +728,15 @@ jobs:
 
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache'
     timeout-minutes: 30
+'on':
+  push:
+    branches:
+    - main
+    - develop
+    - master
+  pull_request:
+    branches:
+    - main
+    - develop
+    - master
+  workflow_dispatch: {}
