@@ -3,10 +3,10 @@
 Enhanced CI test wrapper with comprehensive exclusions and error handling.
 """
 
+import logging
 import os
 import subprocess
 import sys
-import logging
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
@@ -20,7 +20,7 @@ def create_mock_modules():
     if not (mock_mcp_dir / "__init__.py").exists():
         with open(mock_mcp_dir / "__init__.py", "w") as f:
             f.write("# Mock MCP module\nclass MockMCPClient: pass\nClient = MockMCPClient\n")
-    
+
     # Mock CrewAI is handled by the main fix script
     logger.info("✓ Mock modules ensured")
 
@@ -75,13 +75,13 @@ def run_tests():
     os.environ["PYTHONPATH"] = os.getcwd()
     os.environ["CI"] = "true"
     os.environ["GITHUB_ACTIONS"] = "true"
-    
+
     # Ensure mock modules exist
     create_mock_modules()
-    
+
     # Get exclusions
     exclusions = get_test_exclusions()
-    
+
     # Basic test command with comprehensive exclusions
     cmd = [
         sys.executable, "-m", "pytest",
@@ -90,27 +90,26 @@ def run_tests():
         "--disable-warnings",
         "--maxfail=50",  # Stop after 50 failures to avoid overwhelming output
     ] + exclusions
-    
+
     try:
         logger.info("Running tests with comprehensive exclusions...")
         result = subprocess.run(cmd, check=False, capture_output=True, text=True)
-        
+
         print(result.stdout)
         if result.stderr:
             print("STDERR:", result.stderr)
-        
+
         # Return 0 for success, but don't fail CI on test failures
         # This allows the workflow to continue and report results
         if result.returncode == 0:
             logger.info("✓ All tests passed!")
             return 0
-        elif result.returncode == 1:
+        if result.returncode == 1:
             logger.warning("Some tests failed, but continuing...")
             return 0  # Don't fail CI
-        else:
-            logger.error(f"Test execution failed with code {result.returncode}")
-            return 0  # Still don't fail CI to allow other jobs to run
-            
+        logger.error(f"Test execution failed with code {result.returncode}")
+        return 0  # Still don't fail CI to allow other jobs to run
+
     except Exception as e:
         logger.error(f"Test execution failed: {e}")
         return 0  # Don't fail CI

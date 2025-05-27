@@ -10,9 +10,7 @@ GitHub Actions workflows to fail, focusing on:
 4. Database model fixes
 """
 
-import json
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -26,7 +24,7 @@ logger = logging.getLogger(__name__)
 def fix_mock_crewai_module():
     """Fix the mock CrewAI module to have proper attributes and methods."""
     logger.info("Fixing mock CrewAI module...")
-    
+
     mock_crewai_content = '''"""
 Mock CrewAI module for CI environments.
 Provides mock implementations of CrewAI classes to prevent import errors.
@@ -150,22 +148,22 @@ __all__ = [
     'tools', 'AgentType', 'CrewType', 'TaskType'
 ]
 '''
-    
+
     # Ensure mock_crewai directory exists
     mock_crewai_dir = Path("mock_crewai")
     mock_crewai_dir.mkdir(exist_ok=True)
-    
+
     # Write the improved mock module
     with open(mock_crewai_dir / "__init__.py", "w", encoding="utf-8") as f:
         f.write(mock_crewai_content)
-    
+
     logger.info("✓ Mock CrewAI module fixed")
 
 
 def fix_pytest_asyncio_config():
     """Fix pytest asyncio configuration to eliminate deprecation warnings."""
     logger.info("Fixing pytest asyncio configuration...")
-    
+
     pytest_config = """[tool:pytest]
 testpaths = tests
 python_files = test_*.py
@@ -189,43 +187,43 @@ filterwarnings =
 asyncio_default_fixture_loop_scope = function
 asyncio_mode = auto
 """
-    
+
     with open("pytest.ini", "w", encoding="utf-8") as f:
         f.write(pytest_config)
-    
+
     logger.info("✓ Pytest asyncio configuration fixed")
 
 
 def create_workflow_test_exclusions():
     """Create a comprehensive list of test exclusions for CI workflows."""
     logger.info("Creating workflow test exclusions...")
-    
+
     exclusions = [
         # MCP-related tests
         "tests/ai_models/adapters/test_mcp_adapter.py",
-        "tests/test_mcp_import.py", 
+        "tests/test_mcp_import.py",
         "tests/test_mcp_top_level_import.py",
-        
+
         # CrewAI tests that need real CrewAI
         "tests/test_crewai_agents.py",
-        
+
         # AI model adapter tests with constructor issues
         "tests/ai_models/adapters/test_lmstudio_adapter.py",
         "tests/ai_models/adapters/test_lmstudio_adapter_comprehensive.py",
         "tests/ai_models/adapters/test_ollama_adapter_comprehensive.py",
         "tests/ai_models/adapters/test_openai_compatible_adapter_comprehensive.py",
-        
+
         # Artist RL tests
         "ai_models/artist_rl/test_artist_rl.py",
-        
+
         # Mem0 integration tests
         "tests/test_mem0_integration.py",
         "examples/test_mem0_local.py",
-        
+
         # Mock directories
         "mock_mcp",
         "mock_crewai",
-        
+
         # Problematic logging tests
         "tests/common_utils/logging/test_centralized_logging_comprehensive.py",
         "tests/common_utils/logging/test_centralized_logging_improved.py",
@@ -236,54 +234,54 @@ def create_workflow_test_exclusions():
         "tests/common_utils/logging/test_secure_logging.py",
         "tests/common_utils/logging/test_secure_logging_comprehensive.py",
         "tests/common_utils/logging/test_log_aggregation_improved_part2.py",
-        
+
         # Secrets management tests with issues
         "tests/common_utils/secrets/",
-        
+
         # Service discovery tests with logging issues
         "tests/services/service_discovery/test_consul_service_registry.py",
         "tests/services/service_discovery/test_discovery_client_fixes.py",
-        
+
         # Flask app tests with database issues
         "tests/test_basic.py",
         "tests/test_app_flask_init.py",
         "tests/app_flask/test_models.py",
-        
+
         # Coverage placeholder tests with implementation mismatches
         "tests/test_coverage_placeholder_module.py",
-        
+
         # User model tests with missing methods
         "tests/test_models.py",
         "tests/test_user_api.py",
         "tests/test_user_service.py",
-        
+
         # Health check tests with mocking issues
         "tests/dev_tools/test_health_check.py",
-        
+
         # Example tests with parameter mismatches
         "tests/examples/test_mocking_example.py",
-        
+
         # Security tests with syntax errors
         "tests/security/test_security_fixes.py",
-        
+
         # Init agent db tests with logging format issues
         "tests/test_init_agent_db.py",
-        
+
         # Main tests with logging setup issues
         "tests/test_main.py",
-        
+
         # Validation tests with Pydantic issues
         "tests/test_validation.py",
-        
+
         # CrewAI integration tests
         "tests/test_crewai_copilotkit_integration.py",
     ]
-    
+
     # Write exclusions to a file for easy reference
     with open("ci_test_exclusions.txt", "w", encoding="utf-8") as f:
         for exclusion in exclusions:
             f.write(f"--ignore={exclusion}\n")
-    
+
     logger.info(f"✓ Created {len(exclusions)} test exclusions for CI")
     return exclusions
 
@@ -291,7 +289,7 @@ def create_workflow_test_exclusions():
 def update_ci_test_wrapper():
     """Update the CI test wrapper with better exclusions and error handling."""
     logger.info("Updating CI test wrapper...")
-    
+
     wrapper_content = '''#!/usr/bin/env python3
 """
 Enhanced CI test wrapper with comprehensive exclusions and error handling.
@@ -412,17 +410,17 @@ def run_tests():
 if __name__ == "__main__":
     sys.exit(run_tests())
 '''
-    
+
     with open("run_tests_ci_wrapper_enhanced.py", "w", encoding="utf-8") as f:
         f.write(wrapper_content)
-    
+
     logger.info("✓ Enhanced CI test wrapper created")
 
 
 def create_workflow_status_summary():
     """Create a summary of the current workflow status and fixes."""
     logger.info("Creating workflow status summary...")
-    
+
     summary = """# PR #139 Workflow Fixes - Current Status
 
 ## ✅ Issues Resolved
@@ -533,10 +531,10 @@ python run_tests_ci_wrapper_enhanced.py
 ---
 *Generated by fix_pr_139_critical_issues.py*
 """
-    
+
     with open("PR_139_CRITICAL_FIXES_STATUS.md", "w", encoding="utf-8") as f:
         f.write(summary)
-    
+
     logger.info("✓ Workflow status summary created")
 
 
@@ -545,7 +543,7 @@ def main():
     logger.info("=" * 60)
     logger.info("Applying Critical Fixes for PR #139 Workflow Issues")
     logger.info("=" * 60)
-    
+
     try:
         # Apply fixes
         fix_mock_crewai_module()
@@ -553,29 +551,29 @@ def main():
         exclusions = create_workflow_test_exclusions()
         update_ci_test_wrapper()
         create_workflow_status_summary()
-        
+
         logger.info("\n" + "=" * 60)
         logger.info("✅ All critical fixes applied successfully!")
         logger.info("=" * 60)
-        
+
         logger.info("\n📋 Summary of fixes:")
         logger.info("  ✓ Enhanced mock CrewAI module with proper attributes/methods")
         logger.info("  ✓ Fixed pytest asyncio configuration")
         logger.info(f"  ✓ Created {len(exclusions)} test exclusions for CI")
         logger.info("  ✓ Enhanced CI test wrapper with better error handling")
         logger.info("  ✓ Created comprehensive status documentation")
-        
+
         logger.info("\n🚀 Next steps:")
         logger.info("  1. Commit these changes to your PR branch")
         logger.info("  2. Update workflow to use run_tests_ci_wrapper_enhanced.py")
         logger.info("  3. Monitor workflow success rates")
-        
+
         return 0
-        
+
     except Exception as e:
         logger.error(f"Failed to apply fixes: {e}")
         return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())
