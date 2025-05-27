@@ -241,7 +241,10 @@ def _setup_error_handler(app: Flask) -> None:
         )
 
         from flask import jsonify
-        return jsonify({"error": "Internal server error", "request_id": g.request_id}), 500
+
+        return jsonify(
+            {"error": "Internal server error", "request_id": g.request_id}
+        ), 500
 
 
 def setup_request_logging(app: Flask) -> None:

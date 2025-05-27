@@ -75,18 +75,22 @@ def test_config_loading():
 def test_app_factory_pattern():
     """Test that the app factory pattern works correctly."""
     # Create multiple app instances with proper database configuration
-    app1 = create_app({
-        "TESTING": True,
-        "TEST_ID": 1,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-    })
-    app2 = create_app({
-        "TESTING": True,
-        "TEST_ID": 2,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-    })
+    app1 = create_app(
+        {
+            "TESTING": True,
+            "TEST_ID": 1,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        }
+    )
+    app2 = create_app(
+        {
+            "TESTING": True,
+            "TEST_ID": 2,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        }
+    )
 
     # They should be different instances
     assert app1 is not app2

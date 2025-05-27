@@ -18,16 +18,17 @@ from typing import Dict, List
 
 # Critical error codes that could break functionality
 CRITICAL_ERROR_CODES = [
-    "E9",    # Runtime errors (syntax errors, etc.)
-    "F63",   # Invalid print statement
-    "F7",    # Syntax errors in type comments
-    "F82",   # Undefined name in __all__
+    "E9",  # Runtime errors (syntax errors, etc.)
+    "F63",  # Invalid print statement
+    "F7",  # Syntax errors in type comments
+    "F82",  # Undefined name in __all__
     "F821",  # Undefined name
     "F822",  # Undefined name in __all__
     "F831",  # Local variable assigned but never used
     "E999",  # Syntax error
     "W605",  # Invalid escape sequence
 ]
+
 
 def get_changed_files(base_branch: str = "main") -> List[str]:
     """Get list of Python files changed compared to base branch."""
@@ -55,7 +56,9 @@ def get_changed_files(base_branch: str = "main") -> List[str]:
         return []
 
 
-def run_ruff_on_files(files: List[str], fix: bool = False, critical_only: bool = False) -> Dict[str, int]:
+def run_ruff_on_files(
+    files: List[str], fix: bool = False, critical_only: bool = False
+) -> Dict[str, int]:
     """Run ruff on specific files and return error counts."""
     if not files:
         return {}
@@ -78,12 +81,15 @@ def run_ruff_on_files(files: List[str], fix: bool = False, critical_only: bool =
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
-                errors="ignore", check=False,
+                errors="ignore",
+                check=False,
             )
 
             # Count errors (each line is typically one error)
             if result.stdout:
-                error_count = len([line for line in result.stdout.strip().split("\n") if line.strip()])
+                error_count = len(
+                    [line for line in result.stdout.strip().split("\n") if line.strip()]
+                )
             else:
                 error_count = 0
 
@@ -111,7 +117,8 @@ def get_baseline_errors() -> Dict[str, int]:
             capture_output=True,
             text=True,
             encoding="utf-8",
-            errors="ignore", check=False,
+            errors="ignore",
+            check=False,
         )
 
         if result.stdout and result.stdout.strip():
@@ -152,7 +159,9 @@ def load_baseline(filename: str = "lint_baseline.json") -> Dict[str, int]:
     return {}
 
 
-def check_pr_mode(base_branch: str = "main", fix: bool = False, critical_only: bool = False) -> int:
+def check_pr_mode(
+    base_branch: str = "main", fix: bool = False, critical_only: bool = False, auto_commit: bool = False
+) -> int:
     """Check only changed files in PR mode."""
     mode_desc = "critical errors only" if critical_only else "all linting issues"
     print(f"🔍 Running in PR mode - checking {mode_desc} in changed files...")
@@ -200,7 +209,9 @@ def check_progress_mode() -> int:
         current_errors = get_baseline_errors()
         save_baseline(current_errors)
         total_errors = sum(current_errors.values())
-        print(f"📊 Baseline established: {total_errors} total errors across {len(current_errors)} files")
+        print(
+            f"📊 Baseline established: {total_errors} total errors across {len(current_errors)} files"
+        )
         return 0
 
     current_errors = get_baseline_errors()
@@ -245,9 +256,13 @@ def check_progress_mode() -> int:
 
     if total_current <= total_baseline:
         save_baseline(current_errors)
-        print(f"\n📊 Overall progress: {total_baseline} → {total_current} errors ({total_baseline - total_current:+d})")
+        print(
+            f"\n📊 Overall progress: {total_baseline} → {total_current} errors ({total_baseline - total_current:+d})"
+        )
         return 0
-    print(f"\n📊 Overall regression: {total_baseline} → {total_current} errors ({total_current - total_baseline:+d})")
+    print(
+        f"\n📊 Overall regression: {total_baseline} → {total_current} errors ({total_current - total_baseline:+d})"
+    )
     return 1
 
 
@@ -284,39 +299,35 @@ def main():
         "--mode",
         choices=["pr", "progress", "fix"],
         default="pr",
-        help="Mode: pr (check changed files), progress (check against baseline), fix (fix top error files)"
+        help="Mode: pr (check changed files), progress (check against baseline), fix (fix top error files)",
     )
     parser.add_argument(
-        "--base-branch",
-        default="main",
-        help="Base branch for PR mode (default: main)"
+        "--base-branch", default="main", help="Base branch for PR mode (default: main)"
     )
     parser.add_argument(
-        "--fix",
-        action="store_true",
-        help="Automatically fix issues where possible"
+        "--fix", action="store_true", help="Automatically fix issues where possible"
     )
     parser.add_argument(
         "--critical-only",
         action="store_true",
-        help="Only check for critical errors that could break functionality"
+        help="Only check for critical errors that could break functionality",
     )
     parser.add_argument(
         "--auto-commit",
         action="store_true",
-        help="Automatically commit fixes (used in CI)"
+        help="Automatically commit fixes (used in CI)",
     )
     parser.add_argument(
         "--count",
         type=int,
         default=5,
-        help="Number of files to fix in fix mode (default: 5)"
+        help="Number of files to fix in fix mode (default: 5)",
     )
 
     args = parser.parse_args()
 
     if args.mode == "pr":
-        return check_pr_mode(args.base_branch, args.fix, args.critical_only)
+        return check_pr_mode(args.base_branch, args.fix, args.critical_only, args.auto_commit)
     if args.mode == "progress":
         return check_progress_mode()
     if args.mode == "fix":

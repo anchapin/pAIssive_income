@@ -60,7 +60,9 @@ def test_agent_model(app: Flask) -> None:
     """Test the Agent model."""
     with app.app_context():
         # Create a team
-        team = Team(name="Agent Model Test Team", description="A test team for agent model")
+        team = Team(
+            name="Agent Model Test Team", description="A test team for agent model"
+        )
         db.session.add(team)
         db.session.commit()
 
@@ -92,7 +94,9 @@ def test_team_agent_relationship(app: Flask) -> None:
     """Test the relationship between Team and Agent models."""
     with app.app_context():
         # Create a team
-        team = Team(name="Relationship Test Team", description="A test team for relationships")
+        team = Team(
+            name="Relationship Test Team", description="A test team for relationships"
+        )
         db.session.add(team)
         db.session.commit()
 
@@ -167,7 +171,9 @@ def test_user_unique_constraints(app: Flask) -> None:
         )
         db.session.add(user2)
 
-        with pytest.raises(Exception, match="UNIQUE constraint failed"):  # Should raise IntegrityError
+        with pytest.raises(
+            Exception, match="UNIQUE constraint failed"
+        ):  # Should raise IntegrityError
             db.session.commit()
 
         db.session.rollback()
@@ -180,7 +186,9 @@ def test_user_unique_constraints(app: Flask) -> None:
         )
         db.session.add(user3)
 
-        with pytest.raises(Exception, match="UNIQUE constraint failed"):  # Should raise IntegrityError
+        with pytest.raises(
+            Exception, match="UNIQUE constraint failed"
+        ):  # Should raise IntegrityError
             db.session.commit()
 
 
@@ -196,5 +204,7 @@ def test_team_unique_name(app: Flask) -> None:
         team2 = Team(name="Unique Team Name", description="Second team")
         db.session.add(team2)
 
-        with pytest.raises(Exception, match="UNIQUE constraint failed"):  # Should raise IntegrityError
+        with pytest.raises(
+            Exception, match="UNIQUE constraint failed"
+        ):  # Should raise IntegrityError
             db.session.commit()
