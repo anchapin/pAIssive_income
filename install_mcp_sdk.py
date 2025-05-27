@@ -207,11 +207,9 @@ def _create_in_memory_module() -> bool:
 
             def connect(self) -> None:
                 """Mock connect method."""
-                pass
 
             def disconnect(self) -> None:
                 """Mock disconnect method."""
-                pass
 
             def send_message(self, message: str) -> str:
                 """Mock send_message method."""
@@ -260,8 +258,6 @@ def _create_module_files(temp_dir: str) -> tuple[Path, Path]:
         RuntimeError: If file creation fails
 
     """
-    import tempfile
-
     try:
         # Create the module directory
         module_dir = Path(temp_dir) / "modelcontextprotocol"
@@ -402,8 +398,13 @@ def create_mock_mcp_module() -> None:
         except Exception as e:
             logger.error("Error in mock module creation: %s", e)
             # In CI environments, don't fail the build
-            if os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true":
-                logger.info("CI environment detected, continuing despite mock module creation failure")
+            if (
+                os.environ.get("CI") == "true"
+                or os.environ.get("GITHUB_ACTIONS") == "true"
+            ):
+                logger.info(
+                    "CI environment detected, continuing despite mock module creation failure"
+                )
                 return
             raise
 

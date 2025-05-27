@@ -54,7 +54,7 @@ def check_package_json() -> None:
         return
 
     try:
-        with open("package.json", "r") as f:
+        with open("package.json") as f:
             package_data = json.load(f)
 
         # Check test scripts
@@ -95,7 +95,9 @@ def check_workflow_files() -> None:
     if not check_directory_exists(str(workflow_dir), "Workflows directory"):
         return
 
-    workflow_files = list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
+    workflow_files = list(workflow_dir.glob("*.yml")) + list(
+        workflow_dir.glob("*.yaml")
+    )
     print(f"✅ Found {len(workflow_files)} workflow files")
 
     for workflow_file in workflow_files:
@@ -108,8 +110,10 @@ def check_test_files() -> None:
 
     test_directories = ["tests", "test"]
     for test_dir in test_directories:
-        if check_directory_exists(test_dir, f"Test directory"):
-            test_files = list(Path(test_dir).rglob("test_*.py")) + list(Path(test_dir).rglob("*_test.py"))
+        if check_directory_exists(test_dir, "Test directory"):
+            test_files = list(Path(test_dir).rglob("test_*.py")) + list(
+                Path(test_dir).rglob("*_test.py")
+            )
             print(f"  Found {len(test_files)} Python test files")
 
             # Check for specific test files mentioned in workflow
@@ -119,11 +123,11 @@ def check_test_files() -> None:
                 "tests/ai_models/adapters/test_mcp_adapter.py",
                 "tests/ai_models/test_mcp_import.py",
                 "tests/test_mcp_top_level_import.py",
-                "tests/test_crewai_agents.py"
+                "tests/test_crewai_agents.py",
             ]
 
             for test_file in specific_tests:
-                check_file_exists(test_file, f"Specific test file")
+                check_file_exists(test_file, "Specific test file")
 
 
 def check_scripts() -> None:
@@ -138,7 +142,7 @@ def check_scripts() -> None:
     ]
 
     for script in required_scripts:
-        check_file_exists(script, f"Required script")
+        check_file_exists(script, "Required script")
 
 
 def check_configuration_files() -> None:
