@@ -56,42 +56,42 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Setup Node.js and pnpm for Tailwind CSS build
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@8.14.0 --activate
-
-      - name: Install Node.js dependencies and build Tailwind CSS
-        run: |
-          pnpm install
-          pnpm tailwind:build
-
+      # Setup Python first (as it's independent)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      # Set up Node.js for JavaScript testing
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      # Set up pnpm for JavaScript package management
+      # Setup pnpm globally using its own action. This makes pnpm available.
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
-          run_install: false
+          version: 8 # Specify the desired pnpm version
+          run_install: false # We will run install manually later
 
+      # Now set up Node.js. actions/setup-node can now use pnpm for caching if needed.
+      # For Tailwind and initial JS dependencies
+      - name: Set up Node.js (for Tailwind and general use)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Version for Tailwind
+          cache: 'pnpm' # This should now work as pnpm is available
+
+      # Install Node.js dependencies for Tailwind and build it
+      - name: Install Node.js dependencies and build Tailwind CSS
+        run: |
+          pnpm install
+          pnpm tailwind:build
+
+      # If a different Node.js version is needed for JS testing, set it up separately.
+      # This setup was already using cache: 'npm', so it was likely not the source of the pnpm error.
+      - name: Set up Node.js (for JS testing)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24' # Different version for JS testing
+          cache: 'npm' # Using npm cache here
+
+      # Cache uv dependencies (Python)
       - name: Cache uv dependencies
         uses: actions/cache@v4
         with:
