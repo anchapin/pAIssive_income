@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Convert Bandit JSON output to SARIF format.
 
@@ -12,9 +17,6 @@ import os
 import shutil
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-logger = logging.getLogger(__name__)
 
 
 def _write_sarif_file(sarif_data: dict, output_file: str) -> bool:
@@ -538,4 +540,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     main()

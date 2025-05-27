@@ -1,11 +1,20 @@
+import logging
+import json
+import os
+import sys
 import shutil
 import tempfile
 from http import HTTPStatus
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 import pytest
 from flask import Flask
 
+# Add the project root to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
+# Import the blueprint
 from app_flask.mcp_servers import mcp_servers_api
 
 
@@ -14,6 +23,9 @@ def isolated_settings_file(monkeypatch):
     # Create a temporary directory for test files
     tmp_dir = tempfile.mkdtemp()
     test_file = Path(tmp_dir) / "test_cline_mcp_settings.json"
+
+    # Create an empty settings file
+    test_file.write_text("{}")
 
     # Patch the settings file path
     monkeypatch.setattr("app_flask.mcp_servers.MCP_SETTINGS_FILE", test_file)
@@ -26,7 +38,7 @@ def isolated_settings_file(monkeypatch):
 
 
 @pytest.fixture
-def app(_: Path):  # Renamed from isolated_settings_file to _ to indicate unused
+def app(isolated_settings_file):
     app = Flask(__name__)
     app.config["TESTING"] = True
     app.config["DEBUG"] = True
@@ -42,8 +54,17 @@ def client(app):
     return app.test_client()
 
 
-def test_mcp_server_lifecycle(client):
+@patch('app_flask.mcp_servers.Path.exists')
+@patch('app_flask.mcp_servers.Path.read_text')
+@patch('app_flask.mcp_servers.Path.write_text')
+def test_mcp_server_lifecycle(mock_write_text, mock_read_text, mock_exists, client):
     """Test the complete lifecycle of MCP server operations."""
+    # Mock the settings file operations
+    mock_exists.return_value = True
+
+    # Initially empty settings
+    mock_read_text.return_value = '{}'
+
     # List should be empty initially
     rv = client.get("/api/mcp_servers/")
     assert rv.status_code == HTTPStatus.OK
@@ -56,6 +77,17 @@ def test_mcp_server_lifecycle(client):
         "port": 9876,
         "description": "test desc",
     }
+
+    # Mock the settings file after adding a server
+    mock_read_text.return_value = json.dumps({
+        "test-server": {
+            "name": "test-server",
+            "host": "localhost",
+            "port": 9876,
+            "description": "test desc",
+        }
+    })
+
     rv = client.post("/api/mcp_servers/", json=data)
     assert rv.status_code == HTTPStatus.CREATED
     assert rv.json["status"] == "added"
@@ -65,13 +97,25 @@ def test_mcp_server_lifecycle(client):
     rv = client.get("/api/mcp_servers/")
     assert rv.status_code == HTTPStatus.OK
     servers = rv.json
-    assert any(s["name"] == "test-server" for s in servers)
+    assert len(servers) == 1
+    assert servers[0]["name"] == "test-server"
 
     # Add duplicate should fail
+    mock_read_text.return_value = json.dumps({
+        "test-server": {
+            "name": "test-server",
+            "host": "localhost",
+            "port": 9876,
+            "description": "test desc",
+        }
+    })
+
     rv = client.post("/api/mcp_servers/", json=data)
     assert rv.status_code == HTTPStatus.CONFLICT
 
     # Remove the server
+    mock_read_text.return_value = '{}'
+
     rv = client.delete("/api/mcp_servers/test-server")
     assert rv.status_code == HTTPStatus.OK
     assert rv.json["status"] == "deleted"
@@ -86,8 +130,14 @@ def test_mcp_server_lifecycle(client):
     assert rv.json == []
 
 
-def test_invalid_server_data(client):
+@patch('app_flask.mcp_servers.Path.exists')
+@patch('app_flask.mcp_servers.Path.read_text')
+def test_invalid_server_data(mock_read_text, mock_exists, client):
     """Test validation of server data."""
+    # Mock the settings file operations
+    mock_exists.return_value = True
+    mock_read_text.return_value = '{}'
+
     # Test missing required fields
     rv = client.post("/api/mcp_servers/", json={"name": "test-server"})
     assert rv.status_code == HTTPStatus.BAD_REQUEST
@@ -129,8 +179,14 @@ def test_invalid_server_data(client):
     assert rv.status_code == HTTPStatus.BAD_REQUEST
 
 
-def test_invalid_server_name_in_delete(client):
+@patch('app_flask.mcp_servers.Path.exists')
+@patch('app_flask.mcp_servers.Path.read_text')
+def test_invalid_server_name_in_delete(mock_read_text, mock_exists, client):
     """Test validation of server name in delete operation."""
+    # Mock the settings file operations
+    mock_exists.return_value = True
+    mock_read_text.return_value = '{}'
+
     # Test invalid server name format
     rv = client.delete("/api/mcp_servers/invalid;name")
     assert rv.status_code == HTTPStatus.BAD_REQUEST

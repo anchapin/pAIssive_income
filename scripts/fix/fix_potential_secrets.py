@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 """
 Script to detect and report potential secrets in the codebase.
 
@@ -18,9 +22,6 @@ import re
 from pathlib import Path
 from typing import Any, Pattern
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
 
 # Define patterns for potential secrets
 SECRET_PATTERNS = {
@@ -271,6 +272,8 @@ def generate_sarif(results: dict[str, list[tuple[str, int, str]]]) -> dict[str, 
 
 def main() -> None:
     """Run the script."""
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     parser = argparse.ArgumentParser(
         description="Scan for potential secrets in the codebase"
     )

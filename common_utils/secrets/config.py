@@ -10,13 +10,13 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 # Third-party imports
 # Local imports
 from common_utils.logging import get_logger
 
-from .secrets_manager import SecretsBackend, get_secret, set_secret
+from .secrets_manager import SecretsBackend, get_secret, set_secret, delete_secret
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -60,6 +60,33 @@ class SecretConfig:
         self.config: dict[str, Any] = {}
         self._load_config()
         logger.info("Configuration manager initialized with file: %s", self.config_file)
+
+    def _is_secret_reference(self, value: Any) -> bool:
+        """Check if a value is a secret reference.
+
+        Args:
+            value: The value to check
+
+        Returns:
+            bool: True if the value is a secret reference, False otherwise
+        """
+        if not isinstance(value, str):
+            return False
+        return value.startswith("secret:")
+
+    def _extract_secret_key(self, value: Any) -> Optional[str]:
+        """Extract the key from a secret reference.
+
+        Args:
+            value: The value to extract the key from
+
+        Returns:
+            Optional[str]: The extracted key, or None if the value is not a secret reference
+        """
+        if not self._is_secret_reference(value):
+            return None
+        # Extract the key by removing the "secret:" prefix
+        return value[len("secret:"):]
 
     def _load_config(self) -> None:
         """Load the configuration from the file."""
@@ -108,6 +135,11 @@ class SecretConfig:
             Any: The configuration value
 
         """
+        # Handle empty key - return the entire config
+        if not key:
+            logger.debug("Empty key provided, returning entire config")
+            return self.config
+
         # First try to get from environment variables
         env_key = key.replace(".", "_").upper()
         env_value = os.environ.get(env_key)
@@ -154,6 +186,17 @@ class SecretConfig:
             use_secret: Whether to treat the value as a secret
 
         """
+        # Handle empty key - replace the entire config
+        if not key:
+            if isinstance(value, dict):
+                self.config = value
+                self._save_config()
+                logger.debug("Replaced entire configuration")
+                return
+            else:
+                logger.warning("Cannot set non-dict value as entire configuration")
+                return
+
         if use_secret:
             # Store the value as a secret and save a reference
             # Don't log the actual key name as it might reveal sensitive information
@@ -189,6 +232,13 @@ class SecretConfig:
             bool: True if the key was deleted, False otherwise
 
         """
+        # Handle empty key - clear the entire config
+        if not key:
+            self.config = {}
+            self._save_config()
+            logger.debug("Cleared entire configuration")
+            return True
+
         # Delete from the configuration file
         parts = key.split(".")
         config = self.config
@@ -217,7 +267,6 @@ class SecretConfig:
             # Extract the key and delete the secret
             secret_key = value_to_check[len(self.SECRET_PREFIX) :]
             logger.debug("Deleting secret from configuration")
-            from .secrets_manager import delete_secret
 
             # Delete the secret
             delete_result = delete_secret(secret_key, self.secrets_backend)

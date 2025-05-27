@@ -12,14 +12,32 @@ then retrieves the most relevant context for a query.
 from __future__ import annotations
 
 import logging
-
-import chromadb
-from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
+import sys # Added for sys.exit
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+try:
+    import chromadb
+    from chromadb.config import Settings
+except ImportError:
+    print("Error: chromadb module not found. Please install it with 'pip install chromadb'")
+    sys.exit(1)
+
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    print("Error: sentence_transformers module not found. Please install it with 'pip install sentence-transformers'")
+    sys.exit(1)
+
+
 
 # 1. Initialize ChromaDB client (local, in-memory for demo)
 client = chromadb.Client(
@@ -71,29 +89,37 @@ def embed_and_insert_documents(
 
 
 # Call the function to embed and insert documents
-embed_and_insert_documents(documents, embedder, collection)
+def main():
+    """Main function to run the RAG demo."""
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-logger.info("Documents stored in ChromaDB.")
+    embed_and_insert_documents(documents, embedder, collection)
 
-# 6. Demo query
-query = "What city is the Eiffel Tower located in?"
+    logger.info("Documents stored in ChromaDB.")
 
-query_embedding = embedder.encode(query).tolist()
-results = collection.query(query_embeddings=[query_embedding], n_results=2)
+    # 6. Demo query
+    query = "What city is the Eiffel Tower located in?"
 
-logger.info("\nQuery: %s\n", query)
-logger.info("Top results:")
-for doc, dist in zip(results["documents"][0], results["distances"][0]):
-    logger.info("- %s (distance: %.4f)", doc, dist)
+    query_embedding = embedder.encode(query).tolist()
+    results = collection.query(query_embeddings=[query_embedding], n_results=2)
 
-"""
-Expected output:
+    logger.info("\nQuery: %s\n", query)
+    logger.info("Top results:")
+    for doc, dist in zip(results["documents"][0], results["distances"][0]):
+        logger.info("- %s (distance: %.4f)", doc, dist)
 
-Query: What city is the Eiffel Tower located in?
+    """
+    Expected output:
 
-Top results:
-- The Eiffel Tower is in Paris. (distance: ...)
-- The capital of Germany is Berlin. (distance: ...)
-"""
+    Query: What city is the Eiffel Tower located in?
 
-# Cleanup for demo (optional): client.delete_collection("demo_rag")
+    Top results:
+    - The Eiffel Tower is in Paris. (distance: ...)
+    - The capital of Germany is Berlin. (distance: ...)
+    """
+
+    # Cleanup for demo (optional): client.delete_collection("demo_rag")
+
+if __name__ == "__main__":
+    main()

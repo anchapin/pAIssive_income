@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 """Script to run pre-commit on all Python files in the repository, excluding the .venv directory."""
 
 from __future__ import annotations
@@ -10,9 +14,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
 
 
 def find_python_files() -> list[str]:
@@ -84,6 +85,8 @@ def run_pre_commit(files: list[str]) -> int:
 
 def main() -> None:
     """Execute the main script functionality."""
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     # Find Python files
     python_files = find_python_files()
 

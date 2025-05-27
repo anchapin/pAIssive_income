@@ -15,6 +15,8 @@ Message Types:
         Sends: 'summary_result' with payload {'summary': str}
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from typing import Optional
@@ -24,6 +26,16 @@ from adk.agent import Agent
 from adk.communication import Message
 from adk.memory import SimpleMemory
 from adk.skill import Skill
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
 
 # Import memory-enhanced agents
 try:
@@ -35,8 +47,13 @@ try:
 except ImportError:
     MEM0_AVAILABLE = False
 
-# Configure logging
-logger = logging.getLogger(__name__)
+    # If adk_demo.mem0_enhanced_adk_agents is not available,
+    # create dummy classes to avoid NameError later.
+    class MemoryEnhancedDataGathererAgent:  # type: ignore[no-redef]
+        pass
+
+    class MemoryEnhancedSummarizerAgent:  # type: ignore[no-redef]
+        pass
 
 
 class DataGathererSkill(Skill):
@@ -175,7 +192,9 @@ class SummarizerAgent(Agent):
             )
 
 
-def create_agents(use_memory: bool = False, user_id: Optional[str] = None) -> tuple[Agent, Agent]:
+def create_agents(
+    use_memory: bool = False, user_id: Optional[str] = None
+) -> tuple[Agent, Agent]:
     """
     Create and return a pair of agents, optionally using memory enhancement.
 
@@ -185,6 +204,7 @@ def create_agents(use_memory: bool = False, user_id: Optional[str] = None) -> tu
 
     Returns:
         A tuple containing (data_gatherer, summarizer) agents
+
     """
     if use_memory and MEM0_AVAILABLE:
         if not user_id:
@@ -192,7 +212,9 @@ def create_agents(use_memory: bool = False, user_id: Optional[str] = None) -> tu
             logger.warning("No user_id provided, using 'default_user'")
 
         logger.info(f"Creating memory-enhanced agents with user_id: {user_id}")
-        data_gatherer = MemoryEnhancedDataGathererAgent(name="data_gatherer", user_id=user_id)
+        data_gatherer = MemoryEnhancedDataGathererAgent(
+            name="data_gatherer", user_id=user_id
+        )
         summarizer = MemoryEnhancedSummarizerAgent(name="summarizer", user_id=user_id)
     else:
         if use_memory and not MEM0_AVAILABLE:
@@ -209,9 +231,8 @@ if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-
     # Check if mem0 is available
     if not MEM0_AVAILABLE:
         logger.warning("mem0 is not installed. Install with: pip install mem0ai")
@@ -232,7 +253,7 @@ if __name__ == "__main__":
             sender="user",
             receiver="data_gatherer",
             type="gather",
-            payload={"query": "AI memory systems"}
+            payload={"query": "AI memory systems"},
         )
     )
 

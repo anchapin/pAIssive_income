@@ -1,14 +1,16 @@
 """test_user_api - Tests for User API endpoints, edge cases, and error handling."""
 
+import logging
 import pytest
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 try:
     from api.main import app  # Adjust import if main FastAPI app is elsewhere
-except ImportError:
+    client = TestClient(app)
+except (ImportError, AttributeError):
     app = None
-
-client = TestClient(app) if app else None
+    client = None
 
 
 @pytest.mark.skipif(app is None, reason="Main FastAPI app not found for testing")
@@ -153,3 +155,17 @@ class TestUserAPI:
             },
         )
         assert response.status_code in (400, 422)
+
+    def test_create_user_unexpected_error(self):
+        with patch("api.routes.user_router.user_service.create_user") as mock_create_user:
+            mock_create_user.side_effect = Exception("Unexpected error")
+            response = client.post(
+                "/users/",
+                json={
+                    "username": "testuser",
+                    "email": "test@example.com",
+                    "password": "password123",
+                },
+            )
+            assert response.status_code == 500
+            assert response.json()["error"] == "An error occurred while creating the user"

@@ -1,5 +1,8 @@
 """test_monetization_integration - Module for tests/integration.test_monetization_integration."""
 
+import logging
+
+
 # Standard library imports
 
 # Third-party imports
