@@ -4,7 +4,15 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+# Get the directory of this script, which should be the project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+# Change to the script's directory to ensure relative paths work correctly
+cd "$SCRIPT_DIR" || { echo "ERROR: Failed to change directory to $SCRIPT_DIR"; exit 1; }
+
 echo "Starting pAIssive Income development environment setup..."
+echo "(Running from: $(pwd))"
+
 
 # 1. Run the enhanced Python environment setup script
 echo "----------------------------------------------------"
@@ -12,6 +20,10 @@ echo "STEP 1: Setting up Python environment and dependencies..."
 echo "----------------------------------------------------"
 if [ -f "scripts/setup/enhanced_setup_dev_environment.py" ]; then
     python3 scripts/setup/enhanced_setup_dev_environment.py --full
+    if [ $? -ne 0 ]; then
+        echo "ERROR: enhanced_setup_dev_environment.py script failed."
+        exit 1
+    fi
 else
     echo "ERROR: scripts/setup/enhanced_setup_dev_environment.py not found!"
     exit 1
@@ -25,7 +37,12 @@ echo "STEP 2: Installing Node.js dependencies..."
 echo "----------------------------------------------------"
 if command -v pnpm &> /dev/null; then
     pnpm install
-    echo "Node.js dependencies installed via pnpm."
+    if [ $? -ne 0 ]; then
+        echo "ERROR: pnpm install failed."
+        echo "WARNING: Node.js dependency installation failed. Subsequent steps or application functionality might be affected."
+    else
+        echo "Node.js dependencies installed via pnpm."
+    fi
 else
     echo "WARNING: pnpm command not found. Skipping Node.js dependency installation."
     echo "Please install pnpm (https://pnpm.io/installation) and then run 'pnpm install' manually in the project root."

@@ -1,7 +1,11 @@
 @echo off
 REM Main setup script for pAIssive Income (Windows)
 
+REM Change to the directory where the batch script is located
+pushd "%~dp0"
+
 echo Starting pAIssive Income development environment setup...
+echo (Running from: %CD%)
 
 REM 1. Run the enhanced Python environment setup script
 echo ----------------------------------------------------
@@ -9,8 +13,14 @@ echo STEP 1: Setting up Python environment and dependencies...
 echo ----------------------------------------------------
 if exist "scripts\setup\enhanced_setup_dev_environment.py" (
     python scripts\setup\enhanced_setup_dev_environment.py --full
+    if %ERRORLEVEL% NEQ 0 (
+        echo ERROR: Python environment setup script (enhanced_setup_dev_environment.py) failed.
+        popd
+        exit /b 1
+    )
 ) else (
     echo ERROR: scripts\setup\enhanced_setup_dev_environment.py not found!
+    popd
     exit /b 1
 )
 echo Python environment setup complete.
@@ -23,7 +33,12 @@ echo ----------------------------------------------------
 where pnpm >nul 2>nul
 if %ERRORLEVEL% == 0 (
     pnpm install
-    echo Node.js dependencies installed via pnpm.
+    if %ERRORLEVEL% NEQ 0 (
+        echo ERROR: pnpm install failed.
+        echo WARNING: Node.js dependency installation failed. Subsequent steps or application functionality might be affected.
+    ) else (
+        echo Node.js dependencies installed via pnpm.
+    )
 ) else (
     echo WARNING: pnpm command not found. Skipping Node.js dependency installation.
     echo Please install pnpm (https://pnpm.io/installation) and then run 'pnpm install' manually in the project root.
@@ -73,5 +88,8 @@ echo.
 echo For the jules.google.com setup, the command to run this script is:
 echo   setup.bat
 echo ----------------------------------------------------
+
+REM Restore the original directory
+popd
 
 exit /b 0
