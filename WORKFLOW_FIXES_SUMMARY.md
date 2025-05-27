@@ -3,6 +3,69 @@
 ## Overview
 This document summarizes the fixes applied to address failing GitHub Actions workflows for PR #166.
 
+## Issues Addressed for PR #166
+
+### 1. Fixed MCP Adapter Tests Workflow (`.github/workflows/mcp-adapter-tests.yml`)
+
+**Problem**: Malformed pip install command with pytest flags
+- The workflow was trying to install pytest with `--ignore` flags: `python -m pip install pytest --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py`
+- The `--ignore` flags are pytest runtime options, not pip install options
+
+**Solution**: 
+- Fixed both Unix and Windows dependency installation steps
+- Changed to proper pip install command: `python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio`
+- The `--ignore` flags are correctly used later when running pytest
+
+### 2. Fixed Workflow Validation Script (`validate_workflows.py`)
+
+**Problem**: False positives for missing 'on' field
+- YAML parsers interpret `on:` as boolean `True` instead of string `"on"`
+- This caused the validation script to incorrectly report missing 'on' fields
+
+**Solution**:
+- Updated validation logic to check for both `"on"` and `True` keys
+- Commented out the false positive check for "true" key
+- Improved malformed pip install command detection to be more specific
+
+### 3. Workflow Structure Improvements
+
+**Verified**:
+- All workflow files have proper YAML syntax
+- Required fields (name, on/True, jobs) are present
+- Job configurations include required `runs-on` and `steps` fields
+- Timeout configurations are properly set
+- Error handling with `continue-on-error` where appropriate
+
+## Validation Results
+
+After fixes:
+- ✅ All 27 workflow files pass validation
+- ✅ No YAML syntax errors
+- ✅ No malformed commands detected
+- ✅ Proper workflow structure maintained
+
+## Key Workflow Features Maintained
+
+1. **Multi-OS Support**: Ubuntu, Windows, macOS
+2. **Comprehensive Testing**: Python tests, JavaScript tests, security scans
+3. **Dependency Management**: Proper caching and installation
+4. **Error Resilience**: Continue-on-error for non-critical steps
+5. **Artifact Management**: Proper upload and retention policies
+6. **Security Integration**: CodeQL, Bandit, Trivy scanning
+
+## Files Modified
+
+1. `.github/workflows/mcp-adapter-tests.yml` - Fixed malformed pip install commands
+2. `validate_workflows.py` - Fixed YAML parsing validation logic
+
+## Testing
+
+- Ran workflow validation script: All 27 files pass validation
+- Verified YAML syntax is correct across all workflow files
+- Confirmed proper GitHub Actions structure and required fields
+
+These fixes should resolve the failing workflows for PR #166 by addressing the malformed pip install commands and ensuring all workflow files are properly structured and validated.
+
 ## Issues Identified and Fixed
 
 ### 1. Critical Syntax Error: `true:` instead of `on:`
