@@ -34,14 +34,21 @@ ruff>=0.1.6
 # Minimal numpy for basic functionality (much faster to install)
 numpy>=1.24.3
 
-# Skip these heavy packages in CI:
+# Memory and RAG dependencies (minimal versions for CI)
+# These are needed for the new memory coordination functionality
+mem0ai>=0.1.100
+openai>=1.33.0  # Required for mem0 embeddings
+pytz>=2024.1  # Required for mem0
+
+# MCP integration (lightweight)
+modelcontextprotocol>=0.1.0  # Required for MCP server integration
+
+# Skip these heavy packages in CI to prevent timeouts:
 # torch>=1.10.0
 # transformers>=4.20.0
-# sentence-transformers>=2.2.0
+# sentence-transformers>=2.2.0  # Will be handled gracefully in code
 # matplotlib>=3.5.0
 # pandas>=1.5.0
 # plotly>=5.13.0
-# mem0ai>=0.1.100
-# qdrant-client>=1.9.1
-# openai>=1.33.0
-# modelcontextprotocol>=0.1.0
+# qdrant-client>=1.9.1  # Will be handled gracefully in code
+# chromadb  # Will be handled gracefully in code
