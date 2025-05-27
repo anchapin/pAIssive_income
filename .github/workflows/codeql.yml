@@ -79,6 +79,9 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'javascript-typescript', 'python' ]
+    env:
+      ACTIONS_RUNNER_DEBUG: true
+      ACTIONS_STEP_DEBUG: true
 
     steps:
       - name: Checkout repository

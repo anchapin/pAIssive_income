@@ -22,6 +22,10 @@ jobs:
       matrix:
         language: [ 'javascript-typescript', 'python' ]
 
+    env:
+      ACTIONS_RUNNER_DEBUG: true
+      ACTIONS_STEP_DEBUG: true
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

@@ -73,3 +73,5 @@ pytest-asyncio>=0.26.0  # Using newer version from our branch
 aiohttp>=3.9.0  # Using newer version from our branch
 aio_pika>=9.0.0
 pydantic[email]>=2.0.0  # Required for email validation
+# coverage>=6.3 required for Python 3.11 compatibility, prevents segfaults in CI
+coverage>=6.3
