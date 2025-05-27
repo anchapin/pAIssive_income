@@ -1,506 +1,114 @@
-name: CodeQL Analysis
+name: CodeQL Analysis (Fixed)
+
 on:
   pull_request:
-    branches:
-    - main
-    - dev
-    - master
-    - develop
+    branches: [main, dev, master, develop]
     paths-ignore:
-    - '**/*.md'
-    - '**/*.txt'
-    - '**/*.rst'
-    - '**/*.png'
-    - '**/*.jpg'
-    - '**/*.jpeg'
-    - '**/*.gif'
-    - '**/*.svg'
-    - '**/*.ico'
-    - .gitignore
-    - docs/**
-    - LICENSE
-    - SECURITY.md
-    - CONTRIBUTING.md
-    - CODE_OF_CONDUCT.md
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - 'docs/**'
+      - 'LICENSE'
   schedule:
-  - cron: 0 4 * * 1
-  workflow_dispatch: {}
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
 permissions:
   security-events: write
   actions: read
   contents: read
+
 jobs:
-  analyze-javascript:
-    name: Analyze JavaScript/TypeScript
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     strategy:
       fail-fast: false
       matrix:
-        os:
-        - ubuntu-latest
-        - windows-latest
-        - macos-latest
+        language: ['javascript-typescript', 'python']
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Cache CodeQL database
-      uses: actions/cache@v4
-      with:
-        path: ~/.codeql/databases
-        key: codeql-javascript-${{ github.sha }}
-        restore-keys: 'codeql-javascript-
 
-          '
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: '8'
-    - name: Add pnpm to PATH (Linux/macOS)
-      if: runner.os != 'Windows'
-      shell: bash
-      run: 'export PATH=$(pnpm bin):$PATH
-
-        echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
-
-        echo "Current PATH: $PATH"
-
-        which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
-
-        '
-    - name: Add pnpm to PATH (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: "$pnpmPath = (& pnpm bin)\n$env:PATH = \"$pnpmPath;$env:PATH\"\necho \"\
-        PATH=$pnpmPath;$env:PATH\" | Out-File -FilePath $env:GITHUB_ENV -Append\n\
-        Write-Host \"Current PATH: $env:PATH\"\nif (-not (Get-Command pnpm -ErrorAction\
-        \ SilentlyContinue)) {\n  Write-Host \"Error: pnpm is not in PATH.\"\n  exit\
-        \ 1\n}\n"
-    - name: Set up Node.js
+    - name: Setup Node.js (for JavaScript analysis)
+      if: matrix.language == 'javascript-typescript'
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: pnpm
-    - name: Check pnpm version
-      shell: bash
-      run: pnpm --version
-    - name: Install dependencies
-      shell: bash
-      run: "# Check for package.json in the root directory\nif [ -f package.json ];\
-        \ then\n  echo \"Installing dependencies with pnpm in root directory...\"\n\
-        \  pnpm install\nelse\n  echo \"No package.json found in root directory,\n\
-        \  checking ui/react_frontend...\"\n  # Check for package.json in ui/react_frontend\n\
-        \  if [ -f ui/react_frontend/package.json ]; then\n    echo \"Installing dependencies\
-        \ with pnpm in ui/react_frontend...\"\n    cd ui/react_frontend && pnpm install\n\
-        \  else\n    echo \"No package.json found in ui/react_frontend,\n    skipping\
-        \ dependency installation.\"\n  fi\nfi\n"
-      continue-on-error: true
-    - name: Create .codeqlignore file
-      shell: bash
-      run: 'echo "Creating .codeqlignore file instead of running fix script..."
 
-        cat > .codeqlignore << ''EOL''
-
-        .venv/**
-
-        venv/**
-
-        env/**
-
-        .env/**
-
-        **/virtualenv/**
-
-        **/site-packages/**
-
-        **/dist-packages/**
-
-        **/node_modules/**
-
-        **/dist/**
-
-        **/build/**
-
-        **/vendor/**
-
-        **/external/**
-
-        **/third_party/**
-
-        **/__pycache__/**
-
-        **/.pytest_cache/**
-
-        **/.mypy_cache/**
-
-        **/.ruff_cache/**
-
-        **/*.pyc
-
-        **/*.pyo
-
-        **/*.pyd
-
-        **/test/**
-
-        **/tests/**
-
-        **/__tests__/**
-
-        **/__mocks__/**
-
-        **/*.test.js
-
-        **/*.test.ts
-
-        **/*.test.jsx
-
-        **/*.test.tsx
-
-        **/*.spec.js
-
-        **/*.spec.ts
-
-        **/*.spec.jsx
-
-        **/*.spec.tsx
-
-        **/.github/**
-
-        **/.vscode/**
-
-        **/.idea/**
-
-        **/coverage/**
-
-        **/.git/**
-
-        **/docs/**
-
-        **/*.md
-
-        **/*.mdx
-
-        **/*.rst
-
-        **/sphinx/**
-
-        **/playwright-report/**
-
-        **/generated/**
-
-        **/sarif-results/**
-
-        **/*.sarif
-
-        **/*.sarif.json
-
-        ui/react_frontend/node_modules/**
-
-        sdk/javascript/node_modules/**
-
-        EOL
-
-
-        # List directories to verify
-
-        echo "Current directories:"
-
-        ls -la
-
-        '
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+    - name: Setup pnpm (for JavaScript analysis)
+      if: matrix.language == 'javascript-typescript'
+      uses: pnpm/action-setup@v4
       with:
-        languages: javascript-typescript
-        queries: security-and-quality
-        config-file: ./.github/codeql/security-os-config.yml
-    - name: Install Node.js dependencies
-      shell: bash
-      run: "# Function to install dependencies with fallback\ninstall_deps() {\n \
-        \ local dir=$1\n  local original_dir=$(pwd)\n\n  if [ -n \"$dir\" ]; then\n\
-        \    cd \"$dir\" || return 1\n  fi\n\n  echo \"Installing dependencies in\
-        \ $(pwd)...\"\n\n  # Try with pnpm first (preferred)\n  if command -v pnpm\
-        \ &>/dev/null; then\n    echo \"Using pnpm to install dependencies...\"\n\
-        \    pnpm install || {\n      echo \"pnpm install failed, trying with npm...\"\
-        \n      npm install || {\n        echo \"Both pnpm and npm installation failed\
-        \ in $(pwd)\"\n        cd \"$original_dir\"\n        return 1\n      }\n \
-        \   }\n  else\n    # Fallback to npm if pnpm is not available\n    echo \"\
-        pnpm not found, using npm to install dependencies...\"\n    npm install ||\
-        \ {\n      echo \"npm installation failed in $(pwd)\"\n      cd \"$original_dir\"\
-        \n      return 1\n    }\n  fi\n\n  if [ -n \"$dir\" ]; then\n    cd \"$original_dir\"\
-        \n  fi\n\n  return 0\n}\n\n# Install dependencies in root directory if package.json\
-        \ exists\nif [ -f \"package.json\" ]; then\n  echo \"Found package.json in\
-        \ root directory\"\n  install_deps\nfi\n\n# Install dependencies in ui/react_frontend\
-        \ if package.json exists\nif [ -f \"ui/react_frontend/package.json\" ]; then\n\
-        \  echo \"Found package.json in ui/react_frontend\"\n  install_deps \"ui/react_frontend\"\
-        \nfi\n\n# Install dependencies in sdk/javascript if package.json exists\n\
-        if [ -f \"sdk/javascript/package.json\" ]; then\n  echo \"Found package.json\
-        \ in sdk/javascript\"\n  install_deps \"sdk/javascript\"\nfi\n"
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
-    - name: Check disk space (Linux/macOS)
-      if: runner.os != 'Windows'
-      shell: bash
-      run: df -h
-    - name: Check disk space (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: Get-Volume
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: /language:javascript-typescript
-        upload: true
-        output: sarif-results/javascript-typescript-${{ runner.os }}.sarif
-    - name: Upload language-specific CodeQL configuration
-      uses: github/codeql-action/upload-sarif@v3
-      continue-on-error: true
-      with:
-        sarif_file: sarif-results/javascript-typescript-${{ runner.os }}.sarif
-        category: /language:javascript-typescript
-    - name: Upload SARIF results
-      uses: actions/upload-artifact@v4
-      with:
-        name: javascript-typescript-${{ runner.os }}-sarif
-        path: sarif-results/javascript-typescript-${{ runner.os }}.sarif
-        retention-days: 7
-  analyze-python:
-    name: Analyze Python
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-        - ubuntu-latest
-        - windows-latest
-        - macos-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Cache CodeQL database
-      uses: actions/cache@v4
-      with:
-        path: ~/.codeql/databases
-        key: codeql-python-${{ github.sha }}
-        restore-keys: 'codeql-python-
+        version: 8
 
-          '
-    - name: Set up Python
+    - name: Setup Python (for Python analysis)
+      if: matrix.language == 'python'
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-        cache: pip
-    - name: Ensure tar is available (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: "# Check if tar is available\nif (-not (Get-Command tar -ErrorAction SilentlyContinue))\
-        \ {\n  Write-Host \"tar not found in PATH. Installing tar via Chocolatey...\"\
-        \n  # Install Chocolatey if not already installed\n  if (-not (Get-Command\
-        \ choco -ErrorAction SilentlyContinue)) {\n    Set-ExecutionPolicy Bypass\
-        \ -Scope Process -Force\n    [System.Net.ServicePointManager]::SecurityProtocol\
-        \ = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072\n    iex\
-        \ ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))\n\
-        \  }\n  # Install tar\n  choco install -y tar\n  # Refresh PATH\n  $env:Path\
-        \ = [System.Environment]::GetEnvironmentVariable(\"Path\",\n  \"Machine\"\
-        ) + \";\" + [System.Environment]::GetEnvironmentVariable(\"Path\",\n  \"User\"\
-        )\n} else {\n  Write-Host \"tar is already available in PATH\"\n}\n# Verify\
-        \ tar is now available\ntar --version\n"
-    - name: Install dependencies (Linux/macOS)
-      if: runner.os != 'Windows'
-      shell: bash
-      run: "python -m pip install --upgrade uv\nif [ -f requirements.txt ]; then\n\
-        \  echo \"Installing pip dependencies from requirements.txt using 'uv pip'...\"\
-        \n  uv pip install -r requirements.txt || {\n    echo \"Failed to install\
-        \ with uv pip, falling back to regular pip...\"\n    python -m pip install\
-        \ --upgrade pip\n    pip install -r requirements.txt\n  }\nelif [ -f requirements-dev.txt\
-        \ ]; then\n  echo \"Installing pip dependencies from requirements-dev.txt\
-        \ using 'uv pip'...\"\n  uv pip install -r requirements-dev.txt || {\n   \
-        \ echo \"Failed to install with uv pip, falling back to regular pip...\"\n\
-        \    python -m pip install --upgrade pip\n    pip install -r requirements-dev.txt\n\
-        \  }\nelse\n  echo \"No requirements.txt or requirements-dev.txt found,\n\
-        \  skipping dependency installation.\"\nfi\n\n# Install package in development\
-        \ mode if setup.py exists\nif [ -f setup.py ]; then\n  echo \"Installing package\
-        \ in development mode using 'uv pip'...\"\n  uv pip install -e . || {\n  \
-        \  echo \"Failed to install package with uv pip,\n    falling back to regular\
-        \ pip...\"\n    python -m pip install --upgrade pip\n    pip install -e .\n\
-        \  }\nfi\n"
-      continue-on-error: true
-    - name: Install dependencies (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: "python -m pip install --upgrade uv\nif (Test-Path \"requirements.txt\"\
-        ) {\n  Write-Host \"Installing pip dependencies from requirements.txt using\
-        \ 'uv pip'...\"\n  try {\n    python -m uv pip install -r requirements.txt\n\
-        \  } catch {\n    Write-Host \"Failed to install with uv pip, falling back\
-        \ to regular pip...\"\n    python -m pip install --upgrade pip\n    pip install\
-        \ -r requirements.txt\n  }\n} elseif (Test-Path \"requirements-dev.txt\")\
-        \ {\n  Write-Host \"Installing pip dependencies from requirements-dev.txt\
-        \ using 'uv pip'...\"\n  try {\n    python -m uv pip install -r requirements-dev.txt\n\
-        \  } catch {\n    Write-Host \"Failed to install with uv pip, falling back\
-        \ to regular pip...\"\n    python -m pip install --upgrade pip\n    pip install\
-        \ -r requirements-dev.txt\n  }\n} else {\n  Write-Host \"No requirements.txt\
-        \ or requirements-dev.txt found,\n  skipping dependency installation.\"\n\
-        }\n\n# Install package in development mode if setup.py exists\nif (Test-Path\
-        \ \"setup.py\") {\n  Write-Host \"Installing package in development mode using\
-        \ 'uv pip'...\"\n  try {\n    python -m uv pip install -e .\n  } catch {\n\
-        \    Write-Host \"Failed to install package with uv pip,\n    falling back\
-        \ to regular pip...\"\n    python -m pip install --upgrade pip\n    pip install\
-        \ -e .\n  }\n}\n"
-      continue-on-error: true
-    - name: Create .codeqlignore file
-      shell: bash
-      run: 'echo "Creating .codeqlignore file instead of running fix script..."
 
-        cat > .codeqlignore << ''EOL''
-
+    - name: Create .codeqlignore
+      run: |
+        cat > .codeqlignore << 'EOF'
         .venv/**
-
         venv/**
+        node_modules/**
+        dist/**
+        build/**
+        coverage/**
+        test/**
+        tests/**
+        __tests__/**
+        __pycache__/**
+        .pytest_cache/**
+        .mypy_cache/**
+        .ruff_cache/**
+        *.pyc
+        *.pyo
+        *.pyd
+        playwright-report/**
+        .git/**
+        docs/**
+        *.md
+        *.rst
+        EOF
 
-        env/**
-
-        .env/**
-
-        **/virtualenv/**
-
-        **/site-packages/**
-
-        **/dist-packages/**
-
-        **/node_modules/**
-
-        **/dist/**
-
-        **/build/**
-
-        **/vendor/**
-
-        **/external/**
-
-        **/third_party/**
-
-        **/__pycache__/**
-
-        **/.pytest_cache/**
-
-        **/.mypy_cache/**
-
-        **/.ruff_cache/**
-
-        **/*.pyc
-
-        **/*.pyo
-
-        **/*.pyd
-
-        **/test/**
-
-        **/tests/**
-
-        **/__tests__/**
-
-        **/__mocks__/**
-
-        **/*.test.js
-
-        **/*.test.ts
-
-        **/*.test.jsx
-
-        **/*.test.tsx
-
-        **/*.spec.js
-
-        **/*.spec.ts
-
-        **/*.spec.jsx
-
-        **/*.spec.tsx
-
-        **/.github/**
-
-        **/.vscode/**
-
-        **/.idea/**
-
-        **/coverage/**
-
-        **/.git/**
-
-        **/docs/**
-
-        **/*.md
-
-        **/*.mdx
-
-        **/*.rst
-
-        **/sphinx/**
-
-        **/playwright-report/**
-
-        **/generated/**
-
-        **/sarif-results/**
-
-        **/*.sarif
-
-        **/*.sarif.json
-
-        ui/react_frontend/node_modules/**
-
-        sdk/javascript/node_modules/**
-
-        EOL
-
-
-        # List directories to verify
-
-        echo "Current directories:"
-
-        ls -la
-
-        '
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
-        languages: python
+        languages: ${{ matrix.language }}
         queries: security-and-quality
-        config-file: ./.github/codeql/security-os-config.yml
+
+    - name: Install dependencies (JavaScript)
+      if: matrix.language == 'javascript-typescript'
+      run: |
+        if [ -f package.json ]; then
+          pnpm install || npm install || echo "Install completed with issues"
+        fi
+
+    - name: Install dependencies (Python)
+      if: matrix.language == 'python'
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt || echo "Install completed with issues"
+        fi
+
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
-    - name: Check disk space (Linux/macOS)
-      if: runner.os != 'Windows'
-      shell: bash
-      run: df -h
-    - name: Check disk space (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: Get-Volume
+
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: /language:python
+        category: "/language:${{ matrix.language }}"
         upload: true
-        output: sarif-results/python-${{ runner.os }}.sarif
-    - name: Upload language-specific CodeQL configuration
-      uses: github/codeql-action/upload-sarif@v3
-      continue-on-error: true
-      with:
-        sarif_file: sarif-results/python-${{ runner.os }}.sarif
-        category: /language:python
-    - name: Upload SARIF results
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-${{ runner.os }}-sarif
-        path: sarif-results/python-${{ runner.os }}.sarif
-        retention-days: 7
