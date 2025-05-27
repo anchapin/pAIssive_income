@@ -1,29 +1,24 @@
 """Mock MCP module for testing environments."""
 
-class MockClient:
-    """Mock MCP client for testing."""
-    
-    def __init__(self, url):
-        self.url = url
-        self.connected = False
-    
-    def connect(self):
-        """Mock connect method."""
-        self.connected = True
-        return True
-    
-    def disconnect(self):
-        """Mock disconnect method."""
-        self.connected = False
-    
-    def send_message(self, message):
-        """Mock send_message method."""
-        return f"Mock response to: {message}"
+# Mock MCP module for CI environments
+class MockMCPClient:
+    def __init__(self, *args, **kwargs):
+        pass
 
-# Mock the main mcp module
-class MockMCP:
-    """Mock MCP module."""
-    Client = MockClient
+    def connect(self):
+        pass
+
+    def disconnect(self):
+        pass
+
+    def list_tools(self):
+        return []
+
+    def call_tool(self, name, arguments=None):
+        return {"result": "mock"}
+
+# Mock the main MCP classes
+Client = MockMCPClient
 
 # Create module-level instance
-mcp = MockMCP()
+mcp = MockMCPClient()
