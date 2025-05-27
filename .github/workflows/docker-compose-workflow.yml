@@ -1,5 +1,5 @@
 name: Docker Compose Integration
-true:
+on:
   push:
     branches:
     - main
@@ -30,7 +30,7 @@ true:
     - Dockerfile
     - docker-healthcheck.sh
     - wait-for-db.sh
-  workflow_dispatch: null
+  workflow_dispatch: {}
 jobs:
   docker-compose-integration:
     runs-on: ubuntu-latest

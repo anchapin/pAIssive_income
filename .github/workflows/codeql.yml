@@ -1,5 +1,5 @@
 name: CodeQL Analysis
-true:
+on:
   pull_request:
     branches:
     - main
@@ -24,7 +24,7 @@ true:
     - CODE_OF_CONDUCT.md
   schedule:
   - cron: 0 4 * * 1
-  workflow_dispatch: null
+  workflow_dispatch: {}
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

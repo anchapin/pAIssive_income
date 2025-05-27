@@ -1,5 +1,5 @@
 name: Frontend E2E Tests
-true:
+on:
   push:
     branches:
     - main
@@ -14,7 +14,7 @@ true:
     paths:
     - ui/react_frontend/**
     - .github/workflows/frontend-e2e.yml
-  workflow_dispatch: null
+  workflow_dispatch: {}
 jobs:
   frontend-e2e:
     runs-on: ${{ matrix.os }}

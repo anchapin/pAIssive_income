@@ -1,5 +1,5 @@
 name: Setup pnpm (Reusable)
-true:
+on:
   workflow_call:
     inputs:
       node-version:

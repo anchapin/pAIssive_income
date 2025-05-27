@@ -1,5 +1,5 @@
 name: Auto Fix (Linting Only)
-true:
+on:
   workflow_dispatch:
     inputs:
       fix_type:

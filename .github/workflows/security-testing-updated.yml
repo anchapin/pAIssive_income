@@ -1,5 +1,5 @@
 name: Security Testing
-true:
+on:
   push:
     branches:
     - main
@@ -20,7 +20,7 @@ true:
     - requirements*.txt
     - pyproject.toml
     - setup.py
-  workflow_dispatch: null
+  workflow_dispatch: {}
 jobs:
   security-scan:
     name: Security Scan

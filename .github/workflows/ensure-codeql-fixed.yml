@@ -1,5 +1,5 @@
 name: Ensure Fixed CodeQL Workflows
-true:
+on:
   pull_request:
     branches:
     - main
@@ -10,7 +10,7 @@ true:
     - .github/workflows/codeql*.yml
     - .github/scripts/ensure-fixed-codeql-workflows.ps1
     - .github/workflows/ensure-codeql-fixed.yml
-  workflow_dispatch: null
+  workflow_dispatch: {}
 jobs:
   ensure-fixed-codeql:
     runs-on: windows-latest

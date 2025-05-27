@@ -48,8 +48,7 @@ permissions:
 
 jobs:
   test-ubuntu:
-    name: Test on Ubuntu (Python ${{ matrix.python-version }},
-    ${{ matrix.profile }} profile)
+    name: Test on Ubuntu (Python ${{ matrix.python-version }}, ${{ matrix.profile }} profile)
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ubuntu' || github.event.inputs.platform == '' }}
     timeout-minutes: 15
@@ -1085,13 +1084,6 @@ jobs:
             New-Item -Path "node_modules" -ItemType Directory -Force | Out-Null
           }
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: '**/package.json'
-
       - name: Verify package.json
         shell: powershell
         run: |
@@ -1811,13 +1803,6 @@ jobs:
             # Create empty node_modules to ensure caching works
             mkdir -p node_modules
           fi
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: '**/package.json'
 
       - name: Check pnpm version
         run: pnpm --version

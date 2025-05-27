@@ -1,5 +1,5 @@
 name: Build Tailwind CSS
-true:
+on:
   push:
     branches:
     - main

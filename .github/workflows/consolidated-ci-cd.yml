@@ -1,5 +1,5 @@
 name: Consolidated CI/CD
-true:
+on:
   push:
     branches:
     - main
@@ -41,7 +41,7 @@ true:
     - codeql-success.txt
   schedule:
   - cron: 0 0 * * 0
-  workflow_dispatch: null
+  workflow_dispatch: {}
 permissions:
   contents: read
 jobs:
@@ -91,11 +91,6 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '24'
-        cache: npm
     - name: Cache uv dependencies
       uses: actions/cache@v4
       with:
@@ -164,11 +159,7 @@ jobs:
       if: runner.os != 'Windows'
       run: "# Ensure pip is up to date\npython -m pip install --upgrade pip\n\n# Install\
         \ uv if not already available\nwhich uv || python -m pip install uv\n\n# Install\
-        \ testing tools\npython -m pip install ruff pyrefly pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py-cov pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py-xdist pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py-asyncio\npython -m pip install\
+        \ testing tools\npython -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio\npython -m pip install\
         \ protobuf==5.29.4 # Ensure compatible protobuf\n\n# Install requirements\n\
         if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt;\
         \ fi || echo \"Some requirements failed, continuing...\"\nif [ -f requirements.txt\
@@ -195,11 +186,7 @@ jobs:
         \ container environment detection variables\necho \"DOCKER_ENVIRONMENT=false\"\
         \ >> $env:GITHUB_ENV\necho \"KUBERNETES_ENVIRONMENT=false\" >> $env:GITHUB_ENV\n\
         echo \"DOCKER_COMPOSE=false\" >> $env:GITHUB_ENV\necho \"DOCKER_SWARM=false\"\
-        \ >> $env:GITHUB_ENV\n\n# Install testing tools\npython -m pip install ruff\
-        \ pyrefly pytest --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py\
-        \ pytest --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py-cov\
-        \ pytest --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py-xdist\
-        \ pytest --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py-asyncio\n\
+        \ >> $env:GITHUB_ENV\n\n# Install testing tools\npython -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio\n\
         python -m pip install protobuf==5.29.4 # Ensure compatible protobuf\n\n# Install\
         \ requirements (excluding MCP-related packages)\nif (Test-Path requirements-dev.txt)\
         \ {\n  python -m pip install -r requirements-dev.txt --no-deps || echo \"\

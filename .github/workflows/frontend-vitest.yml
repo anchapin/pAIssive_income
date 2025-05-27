@@ -1,5 +1,5 @@
 name: Frontend Unit Tests (Vitest)
-true:
+on:
   pull_request:
     branches:
     - main

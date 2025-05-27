@@ -1,5 +1,5 @@
 name: Python Tests (Reusable)
-true:
+on:
   workflow_call:
     inputs:
       python-version:

@@ -1,5 +1,5 @@
 name: MCP Adapter Tests
-true:
+on:
   push:
     branches:
     - main

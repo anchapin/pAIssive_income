@@ -47,12 +47,14 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
           pip install bandit safety detect-secrets semgrep
-        continue-on-error: true      - name: Run Bandit security scan
+        continue-on-error: true
+
+      - name: Run Bandit security scan
         shell: bash
         run: |
           bandit -r . -c bandit.yaml -f json -o bandit-results-${{ matrix.python-version }}.json
           python convert_bandit_to_sarif.py bandit-results-${{ matrix.python-version }}.json
-          
+
       - name: Run custom security fixes
         shell: bash
         run: |
