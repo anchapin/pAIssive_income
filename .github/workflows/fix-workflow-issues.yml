@@ -1,18 +1,18 @@
 name: Fix Workflow Issues
-true:
+on:
   workflow_dispatch: null
   push:
     branches:
-    - main
-    - dev
-    - master
-    - develop
+      - main
+      - dev
+      - master
+      - develop
   pull_request:
     branches:
-    - main
-    - dev
-    - master
-    - develop
+      - main
+      - dev
+      - master
+      - develop
 permissions:
   contents: read
 jobs:
@@ -61,52 +61,108 @@ jobs:
 
           '
     - name: Install uv
-      run: 'curl -LsSf https://astral.sh/uv/install.sh | sh
+      run: 'curl -LsSf https://astral.sh/uv/install.sh |
+        sh
 
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
         '
     - name: Fix Python dependencies
-      run: "# Upgrade pip first\npython -m pip install --upgrade pip\n\n# Install\
-        \ core testing tools\npython -m pip install pytest pytest-cov pytest-xdist\
-        \ pytest-asyncio ruff mypy\n\n# Install protobuf with specific version to\
-        \ avoid conflicts\npython -m pip install \"protobuf>=3.19,<5.0\"\n\n# Install\
-        \ requirements with error handling\nif [ -f requirements.txt ]; then\n  echo\
-        \ \"Installing requirements.txt...\"\n  python -m pip install -r requirements.txt\
-        \ || echo \"Some requirements failed, continuing...\"\nfi\n\nif [ -f requirements-dev.txt\
-        \ ]; then\n  echo \"Installing requirements-dev.txt...\"\n  python -m pip\
-        \ install -r requirements-dev.txt || echo \"Some dev requirements failed,\
-        \ continuing...\"\nfi\n"
+      run: |
+        # Upgrade pip first
+python -m pip install --upgrade pip:
+
+# Install\
+        \ core testing tools
+python -m pip install pytest pytest-cov pytest-xdist:
+        \ pytest-asyncio ruff mypy
+
+# Install protobuf with specific version to\
+        \ avoid conflicts
+python -m pip install protobuf>=3.19,<5.0"
+
+# Install\
+        \ requirements with error handling
+if [ -f requirements.txt ]; then:
+  echo\
+        \ "Installing requirements.txt..."
+  python -m pip install -r requirements.txt\
+        \ || echo "Some requirements failed, continuing..."
+fi
+
+if [ -f requirements-dev.txt:
+        \ ]; then
+  echo "Installing requirements-dev.txt..."
+  python -m pip\
+        \ install -r requirements-dev.txt || echo "Some dev requirements failed,\
+        \ continuing..."
+fi
     - name: Fix MCP SDK installation
-      run: "echo \"Attempting to install MCP SDK...\"\npython install_mcp_sdk.py ||\
-        \ echo \"MCP SDK installation failed, creating mock...\"\n\n# Verify MCP installation\n\
-        python -c \"\ntry:\n    import modelcontextprotocol\n    print('MCP SDK installed\
-        \ successfully')\nexcept ImportError:\n    print('MCP SDK not available, using\
-        \ mock')\n\"\n"
+      run: |
+        echo "Attempting to install MCP SDK...
+python install_mcp_sdk.py ||\
+        \ echo "MCP SDK installation failed, creating mock..."
+
+# Verify MCP installation
+:
+        python -c "
+try:
+    import modelcontextprotocol
+    print('MCP SDK installed\
+        \ successfully')
+except ImportError:
+    print('MCP SDK not available, using\
+        \ mock')
+":
+":
     - name: Fix Node.js dependencies
       run: '# Install pnpm dependencies
 
         pnpm install --frozen-lockfile || pnpm install
 
-
         # Build Tailwind CSS
 
-        pnpm tailwind:build || echo "Tailwind build failed, continuing..."
+        pnpm tailwind: build || echo "Tailwind build failed, continuing..."
 
         '
     - name: Run basic tests
-      run: "# Run a simple test to verify the environment\npython -c \"\nimport sys\n\
-        print(f'Python version: {sys.version}')\n\n# Test basic imports\ntry:\n  \
-        \  import pytest\n    print('pytest: OK')\nexcept ImportError as e:\n    print(f'pytest:\
-        \ FAILED - {e}')\n\ntry:\n    import ruff\n    print('ruff: OK')\nexcept ImportError\
-        \ as e:\n    print(f'ruff: FAILED - {e}')\n\n# Test project imports\ntry:\n\
-        \    from ai_models import __version__\n    print('ai_models: OK')\nexcept\
-        \ ImportError as e:\n    print(f'ai_models: FAILED - {e}')\n\"\n"
+      run: |
+        # Run a simple test to verify the environment
+python -c ":
+import sys:
+:
+        print(f'Python version: {sys.version}')
+
+# Test basic imports
+try:
+  \
+        \  import pytest
+    print('pytest: OK')
+except ImportError as e:
+    print(f'pytest:\
+        \ FAILED - {e}')
+
+try:
+    import ruff
+    print('ruff: OK')
+except ImportError:
+        \ as e:
+    print(f'ruff: FAILED - {e}')
+
+# Test project imports
+try:
+:
+        \    from ai_models import __version__
+    print('ai_models: OK')
+except:
+        \ ImportError as e:
+    print(f'ai_models: FAILED - {e}')
+":
+":
     - name: Run linting (with error handling)
       run: 'echo "Running ruff linting..."
 
         ruff check . --exit-zero || echo "Linting found issues but continuing..."
-
 
         echo "Running basic pytest collection..."
 
@@ -148,17 +204,25 @@ jobs:
 
           '
     - name: Install minimal dependencies
-      run: "python -m pip install --upgrade pip\npython -m pip install pytest pytest-cov\
-        \ ruff\n\n# Install only essential requirements\nif [ -f requirements.txt\
-        \ ]; then\n  # Filter out problematic packages\n  grep -v \"^crewai\" requirements.txt\
-        \ | grep -v \"^modelcontextprotocol\" > requirements_filtered.txt || true\n\
-        \  python -m pip install -r requirements_filtered.txt || echo \"Some requirements\
-        \ failed\"\nfi\n"
+      run: |
+        python -m pip install --upgrade pip
+python -m pip install pytest pytest-cov:
+        \ ruff
+
+# Install only essential requirements
+if [ -f requirements.txt:
+        \ ]; then
+  # Filter out problematic packages
+  grep -v ^crewai" requirements.txt\
+        \ | grep -v "^modelcontextprotocol" > requirements_filtered.txt || true
+:
+        \  python -m pip install -r requirements_filtered.txt || echo "Some requirements\
+        \ failed"
+fi
     - name: Run basic tests
       run: '# Run only basic tests that should always pass
 
         python -m pytest tests/test_basic.py -v || echo "Basic tests failed"
-
 
         # Run import tests
 
@@ -176,15 +240,3 @@ jobs:
         echo "Status: ${{ job.status }}"
 
         '
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}

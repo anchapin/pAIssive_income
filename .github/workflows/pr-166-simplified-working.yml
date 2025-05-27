@@ -42,7 +42,7 @@ jobs:
       run: |
         mkdir -p security-reports coverage junit ci-reports playwright-report test-results src logs
         mkdir -p .github/codeql ui/static/css
-        echo "Created required directories"
+                 echo "Created required directories"
 
     - name: Install Python dependencies
       run: |
@@ -74,7 +74,7 @@ jobs:
           return a / b;
         }
         EOF
-        echo "Created src/math.js"
+                     echo "Created src/math.js"
         fi
 
         # Create basic test file if missing
@@ -89,7 +89,7 @@ jobs:
           });
         });
         EOF
-        echo "Created src/math.test.js"
+                     echo "Created src/math.test.js"
         fi
 
     - name: Build Tailwind CSS
@@ -98,11 +98,11 @@ jobs:
         # Create Tailwind input if missing
         if [ ! -f "ui/static/css/tailwind.css" ]; then
           mkdir -p ui/static/css
-        echo "@tailwind base; @tailwind components; @tailwind utilities;" > ui/static/css/tailwind.css
+          echo "@tailwind base; @tailwind components; @tailwind utilities;" > ui/static/css/tailwind.css
         fi
 
         # Build Tailwind
-        pnpm tailwind:build || npm run tailwind:build || echo "Tailwind build failed"
+        pnpm tailwind: build || npm run tailwind: build || echo "Tailwind build failed"
 
     - name: Run linting
       continue-on-error: true
@@ -162,11 +162,11 @@ jobs:
     - name: Summary
       if: always()
       run: |
-        echo "PR #166 simplified workflow completed!"
-        echo "Created necessary directories"
-        echo "Fixed missing test files"
-        echo "Ran basic tests"
-        echo "Performed security scans"
-        echo "Generated coverage reports"
+                 echo "PR #166 simplified workflow completed!"
+         echo "Created necessary directories"
+         echo "Fixed missing test files"
+         echo "Ran basic tests"
+         echo "Performed security scans"
+         echo "Generated coverage reports"
         echo ""
         echo "Check the uploaded artifacts for detailed results."

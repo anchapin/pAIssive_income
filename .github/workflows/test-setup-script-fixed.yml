@@ -3,14 +3,14 @@ name: Test Setup Script (Fixed)
 on:
   push:
     branches:
-    - main
+      - main
     paths:
-    - .github/workflows/test-setup-script-fixed.yml
+      - .github/workflows/test-setup-script-fixed.yml
   pull_request:
     branches:
-    - main
+      - main
     paths:
-    - .github/workflows/test-setup-script-fixed.yml
+      - .github/workflows/test-setup-script-fixed.yml
   workflow_dispatch:
     inputs:
       platform:

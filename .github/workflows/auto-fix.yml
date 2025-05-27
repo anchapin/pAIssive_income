@@ -1,5 +1,5 @@
 name: Auto Fix (Linting Only)
-true:
+on:
   workflow_dispatch:
     inputs:
       fix_type:
@@ -42,7 +42,8 @@ jobs:
     - name: Install uv and dependencies
       run: 'python -m pip install --upgrade pip
 
-        curl -LsSf https://astral.sh/uv/install.sh | sh
+        curl -LsSf https://astral.sh/uv/install.sh |
+          sh
 
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
@@ -56,15 +57,24 @@ jobs:
 
         '
     - name: Run fix_linting_issues.py if present, else fallback to Ruff
-      run: "source .venv/bin/activate\nif [ -f \"fix_linting_issues.py\" ]; then\n\
-        \  python fix_linting_issues.py --verbose\nelse\n  echo \"fix_linting_issues.py\
-        \ not found, running Ruff fix on all Python files\"\n  ruff check --fix .\n\
-        \  ruff format .\nfi\n"
+      run: |
+        source .venv/bin/activate
+        if [ -f "fix_linting_issues.py" ]; then
+          python fix_linting_issues.py --verbose
+        else
+          echo "fix_linting_issues.py not found, running Ruff fix on all Python files"
+          ruff check --fix .
+          ruff format .
+        fi
     - name: Check for changes
       id: lint-git-check
-      run: "if [[ -n \"$(git status --porcelain)\" ]]; then\n  echo \"changes=true\"\
-        \ >> $GITHUB_OUTPUT\n  git status --porcelain\nelse\n  echo \"No changes detected\"\
-        \nfi\n"
+      run: |
+        if [[ -n "$(git status --porcelain)" ]]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+          git status --porcelain
+        else
+          echo "No changes detected"
+        fi
     - name: Commit linting fixes
       if: steps.lint-git-check.outputs.changes == 'true'
       run: 'git config --local user.email "github-actions[bot]@users.noreply.github.com"
@@ -78,15 +88,3 @@ jobs:
         git push
 
         '
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}

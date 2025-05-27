@@ -1,25 +1,25 @@
 name: Security Testing
-true:
+on:
   push:
     branches:
-    - main
-    - develop
+      - main
+      - develop
     paths:
-    - '**.py'
-    - .github/workflows/security-testing.yml
-    - requirements*.txt
-    - pyproject.toml
-    - setup.py
+      - '**.py'
+      - .github/workflows/security-testing.yml
+      - requirements*.txt
+      - pyproject.toml
+      - setup.py
   pull_request:
     branches:
-    - main
-    - develop
+      - main
+      - develop
     paths:
-    - '**.py'
-    - .github/workflows/security-testing.yml
-    - requirements*.txt
-    - pyproject.toml
-    - setup.py
+      - '**.py'
+      - .github/workflows/security-testing.yml
+      - requirements*.txt
+      - pyproject.toml
+      - setup.py
   workflow_dispatch: {}
 jobs:
   security-scan:
@@ -147,15 +147,3 @@ jobs:
         deny-licenses: AGPL-1.0-or-later, AGPL-3.0-or-later
         allow-ghsas: []
     timeout-minutes: 30
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}

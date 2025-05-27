@@ -108,12 +108,12 @@ jobs:
       continue-on-error: true
       run: |
         # Build root Tailwind
-        pnpm tailwind:build || npm run tailwind:build || echo "Root Tailwind build failed"
+        pnpm tailwind: build || npm run tailwind: build || echo "Root Tailwind build failed"
 
         # Build frontend Tailwind
         if [ -d "ui/react_frontend" ]; then
           cd ui/react_frontend
-          pnpm tailwind:build || npx tailwindcss -i ./src/index.css -o ./src/tailwind.output.css --minify || echo "Frontend Tailwind build failed"
+          pnpm tailwind: build || npx tailwindcss -i ./src/index.css -o ./src/tailwind.output.css --minify || echo "Frontend Tailwind build failed"
           cd ../..
         fi
 
@@ -146,7 +146,7 @@ jobs:
         # Frontend tests
         if [ -d "ui/react_frontend" ]; then
           cd ui/react_frontend
-          pnpm test:unit || npm run test:unit || echo "Frontend tests failed"
+          pnpm test: unit || npm run test: unit || echo "Frontend tests failed"
           cd ../..
         fi
 
@@ -200,12 +200,12 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         echo "🤖 Detected bot PR - triggering other workflows..."
-        
+
         # Trigger main workflows
         gh workflow run "consolidated-ci-cd.yml" --ref "${{ github.head_ref }}" || echo "Failed to trigger consolidated-ci-cd"
         gh workflow run "frontend-vitest.yml" --ref "${{ github.head_ref }}" || echo "Failed to trigger frontend-vitest"
         gh workflow run "codeql.yml" --ref "${{ github.head_ref }}" || echo "Failed to trigger codeql"
-        
+
         echo "Workflows triggered successfully!"
 
     - name: Summary

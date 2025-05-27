@@ -2,45 +2,45 @@ name: Consolidated CI/CD
 on:
   push:
     branches:
-    - main
-    - dev
-    - master
-    - develop
-    - cosine/improve-frontend-tests-y4hwd5
+      - main
+      - dev
+      - master
+      - develop
+      - cosine/improve-frontend-tests-y4hwd5
     paths:
-    - '**/*.py'
-    - '**/*.js'
-    - '**/*.jsx'
-    - '**/*.ts'
-    - '**/*.tsx'
-    - '**/*.yml'
-    - '**/*.yaml'
-    - .github/workflows/**
-    - .github/codeql/**
-    - scripts/**
-    - codeql-success.txt
+      - '**/*.py'
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - .github/workflows/**
+      - .github/codeql/**
+      - scripts/**
+      - codeql-success.txt
     tags:
-    - v*.*.*
+      - v*.*.*
   pull_request:
     branches:
-    - main
-    - dev
-    - master
-    - develop
+      - main
+      - dev
+      - master
+      - develop
     paths:
-    - '**/*.py'
-    - '**/*.js'
-    - '**/*.jsx'
-    - '**/*.ts'
-    - '**/*.tsx'
-    - '**/*.yml'
-    - '**/*.yaml'
-    - .github/workflows/**
-    - .github/codeql/**
-    - scripts/**
-    - codeql-success.txt
+      - '**/*.py'
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - .github/workflows/**
+      - .github/codeql/**
+      - scripts/**
+      - codeql-success.txt
   schedule:
-  - cron: 0 0 * * 0
+      - cron: 0 0 * * 0
   workflow_dispatch: {}
 permissions:
   contents: read
@@ -91,7 +91,7 @@ jobs:
     - name: Install Node.js dependencies and build Tailwind CSS
       run: 'pnpm install
 
-        pnpm tailwind:build
+        pnpm tailwind: build
 
         '
     - name: Set up Python
@@ -116,7 +116,8 @@ jobs:
 
         mkdir -p ~/.uv
 
-        curl -LsSf https://astral.sh/uv/install.sh | sh
+        curl -LsSf https://astral.sh/uv/install.sh |
+          sh
 
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
@@ -131,9 +132,11 @@ jobs:
 
         New-Item -ItemType Directory -Force -Path ~/.uv
 
-        iwr -useb https://astral.sh/uv/install.ps1 | iex
+        iwr -useb https://astral.sh/uv/install.ps1 |
+          iex
 
-        echo "$HOME\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        echo "$HOME\.cargo\bin" |
+          Out-File -FilePath $env: GITHUB_PATH -Encoding utf8
         -Append
 
         '
@@ -153,7 +156,8 @@ jobs:
         echo "CI_PLATFORM=github" >> $GITHUB_ENV
         echo "CI_OS=$(uname -s)" >> $GITHUB_ENV
         echo "CI_ARCH=$(uname -m)" >> $GITHUB_ENV
-        echo "CI_PYTHON_VERSION=$(python --version | cut -d' ' -f2)" >> $GITHUB_ENV
+        echo "CI_PYTHON_VERSION=$(python --version |
+          cut -d' ' -f2)" >> $GITHUB_ENV
         echo "CI_NODE_VERSION=$(node --version)" >> $GITHUB_ENV
         echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
         echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
@@ -208,7 +212,6 @@ jobs:
         fi || echo "Some requirements failed, continuing..."
         if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi || echo "Some requirements failed, continuing..."
 
-
         # Install MCP SDK using the installation script
         echo "Installing MCP SDK using installation script..."
         python install_mcp_sdk.py
@@ -232,28 +235,28 @@ jobs:
         python -m pip install --upgrade pip
 
         # Set CI environment variables with enhanced environment detection
-        echo "CI=true" >> $env:GITHUB_ENV
-        echo "CI_ENVIRONMENT=true" >> $env:GITHUB_ENV
-        echo "CI_TYPE=github" >> $env:GITHUB_ENV
-        echo "GITHUB_ACTIONS=true" >> $env:GITHUB_ENV
-        echo "CI_PLATFORM=github" >> $env:GITHUB_ENV
-        echo "CI_OS=Windows" >> $env:GITHUB_ENV
-        echo "CI_ARCH=x64" >> $env:GITHUB_ENV
-        echo "CI_PYTHON_VERSION=$(python --version)" >> $env:GITHUB_ENV
-        echo "CI_NODE_VERSION=$(node --version)" >> $env:GITHUB_ENV
-        echo "CI_RUNNER_OS=${{ runner.os }}" >> $env:GITHUB_ENV
-        echo "CI_WORKSPACE=${{ github.workspace }}" >> $env:GITHUB_ENV
+        echo "CI=true" >> $env: GITHUB_ENV
+        echo "CI_ENVIRONMENT=true" >> $env: GITHUB_ENV
+        echo "CI_TYPE=github" >> $env: GITHUB_ENV
+        echo "GITHUB_ACTIONS=true" >> $env: GITHUB_ENV
+        echo "CI_PLATFORM=github" >> $env: GITHUB_ENV
+        echo "CI_OS=Windows" >> $env: GITHUB_ENV
+        echo "CI_ARCH=x64" >> $env: GITHUB_ENV
+        echo "CI_PYTHON_VERSION=$(python --version)" >> $env: GITHUB_ENV
+        echo "CI_NODE_VERSION=$(node --version)" >> $env: GITHUB_ENV
+        echo "CI_RUNNER_OS=${{ runner.os }}" >> $env: GITHUB_ENV
+        echo "CI_WORKSPACE=${{ github.workspace }}" >> $env: GITHUB_ENV
 
         # Set Flask environment for testing
-        echo "FLASK_ENV=development" >> $env:GITHUB_ENV
-        echo "DATABASE_URL=sqlite:///:memory:" >> $env:GITHUB_ENV
-        echo "TESTING=true" >> $env:GITHUB_ENV
+        echo "FLASK_ENV=development" >> $env: GITHUB_ENV
+        echo "DATABASE_URL=sqlite:///:memory:" >> $env: GITHUB_ENV
+        echo "TESTING=true" >> $env: GITHUB_ENV
 
         # Set container environment detection variables
-        echo "DOCKER_ENVIRONMENT=false" >> $env:GITHUB_ENV
-        echo "KUBERNETES_ENVIRONMENT=false" >> $env:GITHUB_ENV
-        echo "DOCKER_COMPOSE=false" >> $env:GITHUB_ENV
-        echo "DOCKER_SWARM=false" >> $env:GITHUB_ENV
+        echo "DOCKER_ENVIRONMENT=false" >> $env: GITHUB_ENV
+        echo "KUBERNETES_ENVIRONMENT=false" >> $env: GITHUB_ENV
+        echo "DOCKER_COMPOSE=false" >> $env: GITHUB_ENV
+        echo "DOCKER_SWARM=false" >> $env: GITHUB_ENV
 
         # Install testing tools
         python -m pip install ruff pyright pytest pytest-cov pytest-xdist pytest-asyncio
@@ -267,8 +270,10 @@ jobs:
 
         # Install requirements.txt but skip MCP packages
         if (Test-Path requirements.txt) {
-          $requirements = Get-Content requirements.txt | Where-Object { -not $_.Contains("mcp") -and -not $_.Contains("modelcontextprotocol") }
-          $requirements | Set-Content -Path "requirements_filtered.txt"
+          $requirements = Get-Content requirements.txt |
+            Where-Object { -not $_.Contains("mcp") -and -not $_.Contains("modelcontextprotocol") }
+          $requirements |
+            Set-Content -Path "requirements_filtered.txt"
           python -m pip install -r requirements_filtered.txt || echo "Some requirements failed, continuing..."
         }
 
@@ -283,7 +288,7 @@ jobs:
 
           # Run the CI environment detection script
           Write-Host "Running CI environment detection script..."
-          $env:PYTHONIOENCODING = "UTF-8"
+          $env: PYTHONIOENCODING = "UTF-8"
           python scripts/ci/detect_ci_environment.py --verbose --create-dirs
         }
     - name: Create ruff configuration (Windows)
@@ -294,8 +299,10 @@ jobs:
         if (-not (Test-Path "pyproject.toml") -and -not (Test-Path "ruff.toml")) {
           Write-Host "Creating minimal ruff.toml configuration..."
           # Create a simple ruff.toml file with Windows-friendly settings
-          "# Ruff configuration for Windows compatibility" | Out-File -FilePath "ruff.toml" -Encoding utf8
-          [tool.ruff]" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
+          "# Ruff configuration for Windows compatibility" |
+            Out-File -FilePath "ruff.toml" -Encoding utf8
+          [tool.ruff]" |
+            Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
           "exclude = ['.git',
           '.github',
           '.venv',
@@ -303,9 +310,12 @@ jobs:
           'node_modules',
           '__pycache__',
           'build',
-          'dist']" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-          "line-length = 100" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-          "target-version = 'py310'" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
+          'dist']" |
+            Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
+          "line-length = 100" |
+            Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
+          "target-version = 'py310'" |
+            Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
           Write-Host "Created ruff.toml with basic configuration"
         }
     - name: Run linting (Unix)
@@ -365,9 +375,9 @@ jobs:
       shell: pwsh
       run: |
         if (Test-Path "run_crewai_tests.py") {
-          echo "script_exists=true" >> $env:GITHUB_OUTPUT
+          echo "script_exists=true" >> $env: GITHUB_OUTPUT
         } else {
-          echo "script_exists=false" >> $env:GITHUB_OUTPUT
+          echo "script_exists=false" >> $env: GITHUB_OUTPUT
         }
         "
     - name: Create mock CrewAI test script (Unix)
@@ -420,10 +430,10 @@ jobs:
           python run_tests.py -v tests/test_crewai_agents.py
         } elseif (Test-Path "run_tests.ps1") {
           Write-Host "Using run_tests.ps1 script to run CrewAI tests"
-          .\\run_tests.ps1 -v tests/test_crewai_agents.py
+          .\run_tests.ps1 -v tests/test_crewai_agents.py
         } elseif (Test-Path "run_tests.bat") {
           Write-Host "Using run_tests.bat script to run CrewAI tests"
-          .\\run_tests.bat -v tests/test_crewai_agents.py
+          .\run_tests.bat -v tests/test_crewai_agents.py
         } else {
           Write-Host "Using run_crewai_tests.py script"
           python run_crewai_tests.py
@@ -460,13 +470,13 @@ jobs:
           python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
         } elseif (Test-Path "run_tests.ps1") {
           Write-Host "Using run_tests.ps1 script to run tests"
-          .\\run_tests.ps1 -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+          .\run_tests.ps1 -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
         } elseif (Test-Path "run_tests.bat") {
           Write-Host "Using run_tests.bat script to run tests"
-          .\\run_tests.bat -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+          .\run_tests.bat -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
         } else {
           Write-Host "Using pytest directly"
-          $env:SKIP_VENV_CHECK = "1"
+          $env: SKIP_VENV_CHECK = "1"
           pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
         }
         "
@@ -624,7 +634,6 @@ jobs:
         # Verify bandit installation
 
         bandit --version || echo "Bandit installation failed, but continuing"
-
 
         # Create empty results files as fallback
 
@@ -835,7 +844,7 @@ jobs:
           echo "docker_tag=${{ secrets.DOCKERHUB_USERNAME }}/paissiveincome-app:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "should_push=true" >> $GITHUB_OUTPUT
         else
-          echo "docker_tag=paissiveincome/app:test" >> $GITHUB_OUTPUT
+          echo "docker_tag=paissiveincome/app: test" >> $GITHUB_OUTPUT
           echo "should_push=false" >> $GITHUB_OUTPUT
         fi
         "
@@ -845,7 +854,7 @@ jobs:
       uses: docker/setup-buildx-action@v3
       with:
         platforms: linux/amd64,linux/arm64
-        driver-opts: 'image=moby/buildkit:v0.12.0'
+        driver-opts: 'image=moby/buildkit: v0.12.0'
     - name: Log in to Docker Hub
       if: steps.set-docker-tag.outputs.should_push == 'true' && runner.os == 'Linux'
       uses: docker/login-action@v3
@@ -920,7 +929,7 @@ jobs:
           echo "docker_tag=${{ secrets.DOCKERHUB_USERNAME }}/paissiveincome-app:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "should_push=true" >> $GITHUB_OUTPUT
         else
-          echo "docker_tag=paissiveincome/app:test" >> $GITHUB_OUTPUT
+          echo "docker_tag=paissiveincome/app: test" >> $GITHUB_OUTPUT
           echo "should_push=false" >> $GITHUB_OUTPUT
         fi
         "
@@ -930,7 +939,7 @@ jobs:
       uses: docker/setup-buildx-action@v3
       with:
         platforms: linux/amd64,linux/arm64
-        driver-opts: 'image=moby/buildkit:v0.12.0'
+        driver-opts: 'image=moby/buildkit: v0.12.0'
     - name: Log in to Docker Hub
       if: steps.set-docker-tag.outputs.should_push == 'true' && runner.os == 'Linux'
       uses: docker/login-action@v3
@@ -948,7 +957,7 @@ jobs:
       uses: docker/setup-buildx-action@v3
       with:
         platforms: linux/amd64,linux/arm64
-        driver-opts: 'image=moby/buildkit:v0.12.0'
+        driver-opts: 'image=moby/buildkit: v0.12.0'
     - name: Log in to Docker Hub
       if: steps.set-docker-tag.outputs.should_push == 'true'
       uses: docker/login-action@v3

@@ -1,11 +1,11 @@
 name: JS Test Coverage
-true:
+on:
   push:
     branches:
-    - main
+      - main
   pull_request:
     branches:
-    - main
+      - main
 jobs:
   js-coverage:
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
     - name: Create coverage directory
       run: mkdir -p coverage
     - name: Build Tailwind CSS
-      run: pnpm tailwind:build
+      run: pnpm tailwind: build
     - name: Run JS tests and check coverage
       run: 'echo "Node.js version: $(node --version)"
 
@@ -40,11 +40,12 @@ jobs:
 
         echo "pnpm version: $(pnpm --version)"
 
-        pnpm test:ci --passWithNoTests || true
+        pnpm test: ci --passWithNoTests || true
 
         '
     - name: Generate coverage report
-      run: pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage
+      run: |
+        pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage
         report, but continuing workflow"
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
@@ -59,15 +60,3 @@ jobs:
         name: js-coverage-html-report-node${{ matrix.node-version }}
         path: coverage/
         if-no-files-found: warn
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}

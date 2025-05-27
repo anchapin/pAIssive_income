@@ -1,29 +1,29 @@
 name: CodeQL Analysis - Windows
-true:
+on:
   pull_request:
     branches:
-    - main
-    - dev
-    - master
-    - develop
+      - main
+      - dev
+      - master
+      - develop
     paths-ignore:
-    - '**/*.md'
-    - '**/*.txt'
-    - '**/*.rst'
-    - '**/*.png'
-    - '**/*.jpg'
-    - '**/*.jpeg'
-    - '**/*.gif'
-    - '**/*.svg'
-    - '**/*.ico'
-    - .gitignore
-    - docs/**
-    - LICENSE
-    - SECURITY.md
-    - CONTRIBUTING.md
-    - CODE_OF_CONDUCT.md
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - .gitignore
+      - docs/**
+      - LICENSE
+      - SECURITY.md
+      - CONTRIBUTING.md
+      - CODE_OF_CONDUCT.md
   schedule:
-  - cron: 0 4 * * 1
+      - cron: 0 4 * * 1
   workflow_dispatch: {}
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -63,14 +63,32 @@ jobs:
       run: pnpm --version
     - name: Install dependencies
       shell: pwsh
-      run: "# Check for package.json in the root directory\nif (Test-Path package.json)\
-        \ {\n  Write-Host \"Installing dependencies with pnpm in root directory...\"\
-        \n  pnpm install\n} else {\n  Write-Host \"No package.json found in root directory,\n\
-        \  checking ui/react_frontend...\"\n  # Check for package.json in ui/react_frontend\n\
-        \  if (Test-Path ui/react_frontend/package.json) {\n    Write-Host \"Installing\
-        \ dependencies with pnpm in ui/react_frontend...\"\n    cd ui/react_frontend\n\
-        \    pnpm install\n  } else {\n    Write-Host \"No package.json found in ui/react_frontend,\n\
-        \    skipping dependency installation.\"\n  }\n}\n"
+      run: |
+        # Check for package.json in the root directory
+if (Test-Path package.json):
+        \ {
+  Write-Host Installing dependencies with pnpm in root directory..."\
+
+  pnpm install
+} else {:
+  Write-Host "No package.json found in root directory,
+:
+        \  checking ui/react_frontend..."
+  # Check for package.json in ui/react_frontend
+:
+        \  if (Test-Path ui/react_frontend/package.json) {
+    Write-Host "Installing\
+        \ dependencies with pnpm in ui/react_frontend..."
+    cd ui/react_frontend
+:
+        \    pnpm install
+  } else {
+    Write-Host "No package.json found in ui/react_frontend,
+:
+        \    skipping dependency installation."
+  }
+}:
+":
       continue-on-error: true
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -86,7 +104,7 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: /security/os:windows-latest
+        category: /security/os: windows-latest
         upload: true
         output: sarif-results/javascript-typescript-windows.sarif
     - name: Upload OS-specific CodeQL configuration
@@ -94,7 +112,7 @@ jobs:
       continue-on-error: true
       with:
         sarif_file: sarif-results/javascript-typescript-windows.sarif
-        category: /security/os:windows-latest
+        category: /security/os: windows-latest
     - name: Upload SARIF results
       uses: actions/upload-artifact@v4
       with:
@@ -125,24 +143,61 @@ jobs:
         cache: pip
     - name: Install dependencies
       shell: pwsh
-      run: "python -m pip install --upgrade uv\nif (Test-Path requirements.txt) {\n\
-        \  Write-Host \"Installing pip dependencies from requirements.txt using 'uv\
-        \ pip'...\"\n  try {\n    python -m uv pip install -r requirements.txt\n \
-        \ } catch {\n    Write-Host \"Failed to install with uv pip, falling back\
-        \ to regular pip...\"\n    python -m pip install --upgrade pip\n    pip install\
-        \ -r requirements.txt\n  }\n} elseif (Test-Path requirements-dev.txt) {\n\
-        \  Write-Host \"Installing pip dependencies from requirements-dev.txt using\
-        \ 'uv pip'...\"\n  try {\n    python -m uv pip install -r requirements-dev.txt\n\
-        \  } catch {\n    Write-Host \"Failed to install with uv pip, falling back\
-        \ to regular pip...\"\n    python -m pip install --upgrade pip\n    pip install\
-        \ -r requirements-dev.txt\n  }\n} else {\n  Write-Host \"No requirements.txt\
-        \ or requirements-dev.txt found,\n  skipping dependency installation.\"\n\
-        }\n\n# Install package in development mode if setup.py exists\nif (Test-Path\
-        \ setup.py) {\n  Write-Host \"Installing package in development mode using\
-        \ 'uv pip'...\"\n  try {\n    python -m uv pip install -e .\n  } catch {\n\
-        \    Write-Host \"Failed to install package with uv pip,\n    falling back\
-        \ to regular pip...\"\n    python -m pip install --upgrade pip\n    pip install\
-        \ -e .\n  }\n}\n"
+      run: |
+        python -m pip install --upgrade uv
+if (Test-Path requirements.txt) {:
+:
+        \  Write-Host Installing pip dependencies from requirements.txt using 'uv\
+        \ pip'..."
+  try {
+    python -m uv pip install -r requirements.txt
+ \
+        \ } catch {
+    Write-Host "Failed to install with uv pip, falling back\
+        \ to regular pip..."
+    python -m pip install --upgrade pip
+    pip install\
+        \ -r requirements.txt
+  }
+} elseif (Test-Path requirements-dev.txt) {:
+:
+        \  Write-Host "Installing pip dependencies from requirements-dev.txt using\
+        \ 'uv pip'..."
+  try {
+    python -m uv pip install -r requirements-dev.txt
+:
+        \  } catch {
+    Write-Host "Failed to install with uv pip, falling back\
+        \ to regular pip..."
+    python -m pip install --upgrade pip
+    pip install\
+        \ -r requirements-dev.txt
+  }
+} else {:
+  Write-Host "No requirements.txt\
+        \ or requirements-dev.txt found,
+  skipping dependency installation."
+:
+        }
+
+# Install package in development mode if setup.py exists
+if (Test-Path:
+        \ setup.py) {
+  Write-Host "Installing package in development mode using\
+        \ 'uv pip'..."
+  try {
+    python -m uv pip install -e .
+  } catch {
+:
+        \    Write-Host "Failed to install package with uv pip,
+    falling back\
+        \ to regular pip..."
+    python -m pip install --upgrade pip
+    pip install\
+        \ -e .
+  }
+}:
+":
       continue-on-error: true
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -158,7 +213,7 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: /security/os:windows-latest
+        category: /security/os: windows-latest
         upload: true
         output: sarif-results/python-windows.sarif
     - name: Upload OS-specific CodeQL configuration
@@ -166,22 +221,10 @@ jobs:
       continue-on-error: true
       with:
         sarif_file: sarif-results/python-windows.sarif
-        category: /security/os:windows-latest
+        category: /security/os: windows-latest
     - name: Upload SARIF results
       uses: actions/upload-artifact@v4
       with:
         name: python-windows-sarif
         path: sarif-results/python-windows.sarif
         retention-days: 7
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}

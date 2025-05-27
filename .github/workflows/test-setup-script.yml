@@ -214,7 +214,7 @@ jobs:
               "private": true,
               "description": "Framework for generating passive income by utilizing a team of AI agents",
                             "scripts": {
-                "test": "echo \"Error: no test specified\" && exit 1"
+                "test": "echo "Error: no test specified" && exit 1"
               },
               "dependencies": {
                 "react": "^18.2.0",
@@ -924,7 +924,7 @@ jobs:
 
           # Method 1: Check if pnpm is in PATH
           try {
-            Write-Host "Current PATH: $($env:PATH)"
+            Write-Host "Current PATH: $($env: PATH)"
             $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
             if ($pnpmCmd) {
               Write-Host "pnpm command found at: $($pnpmCmd.Source)"
@@ -956,19 +956,21 @@ jobs:
                 # Check for pnpm in common locations
                 $pnpmLocations = @(
                   "$nodeDir\pnpm.cmd",
-                  "$nodeDir\node_modules\pnpm\bin\pnpm.js",
-                  "$env:APPDATA\npm\pnpm.cmd",
-                  "$env:LOCALAPPDATA\pnpm\pnpm.cmd",
-                  "$env:USERPROFILE\.pnpm\pnpm.cmd"
+                  "$nodeDir
+ode_modules\pnpm\bin\pnpm.js",:
+                  "$env: APPDATA
+pm\pnpm.cmd",:
+                  "$env: LOCALAPPDATA\pnpm\pnpm.cmd",
+                  "$env: USERPROFILE\.pnpm\pnpm.cmd"
                 )
 
                 foreach ($loc in $pnpmLocations) {
                   if (Test-Path $loc) {
                     Write-Host "Found pnpm at: $loc"
                     $pnpmDir = Split-Path -Parent $loc
-                    $env:PATH = "$pnpmDir;$env:PATH"
+                    $env: PATH = "$pnpmDir;$env: PATH"
                     [System.Environment]::SetEnvironmentVariable("PATH",
-                    $env:PATH,
+                    $env: PATH,
                     [System.EnvironmentVariableTarget]::Process)
 
                     # Try to verify pnpm
@@ -1006,9 +1008,9 @@ jobs:
                 # Refresh PATH after npm install
                 $npmBin = npm bin -g
                 if ($LASTEXITCODE -eq 0) {
-                  $env:PATH = "$npmBin;$env:PATH"
+                  $env: PATH = "$npmBin;$env: PATH"
                   [System.Environment]::SetEnvironmentVariable("PATH",
-                  $env:PATH,
+                  $env: PATH,
                   [System.EnvironmentVariableTarget]::Process)
                 }
 
@@ -1060,7 +1062,7 @@ jobs:
       - name: Debug PATH
         shell: powershell
         run: |
-          Write-Host "Final PATH: $($env:PATH)"
+          Write-Host "Final PATH: $($env: PATH)"
 
       - name: Check pnpm version
         shell: powershell
@@ -1071,17 +1073,19 @@ jobs:
         shell: powershell
         run: |
           # Create pnpm store directory to ensure it exists before caching
-          New-Item -Path "$env:LOCALAPPDATA\pnpm\store" -ItemType Directory -Force | Out-Null
+          New-Item -Path "$env: LOCALAPPDATA\pnpm\store" -ItemType Directory -Force |
+            Out-Null
 
           # Check if node_modules exists
           if (Test-Path "node_modules") {
             Write-Host "node_modules directory exists"
-            echo "node_modules_exists=true" >> $env:GITHUB_OUTPUT
+            echo "node_modules_exists=true" >> $env: GITHUB_OUTPUT
           } else {
             Write-Host "node_modules directory does not exist"
-            echo "node_modules_exists=false" >> $env:GITHUB_OUTPUT
+            echo "node_modules_exists=false" >> $env: GITHUB_OUTPUT
             # Create empty node_modules to ensure caching works
-            New-Item -Path "node_modules" -ItemType Directory -Force | Out-Null
+            New-Item -Path "node_modules" -ItemType Directory -Force |
+              Out-Null
           }
 
       - name: Verify package.json
@@ -1120,7 +1124,8 @@ jobs:
                   version = "1.0.0"
                   description = "Temporary package.json for testing"
                   private = $true
-                } | ConvertTo-Json
+                } |
+                  ConvertTo-Json
 
                 Set-Content -Path "package.json" -Value $minimalPackageJson
                 Write-Host "Created minimal package.json:"
@@ -1133,7 +1138,8 @@ jobs:
                 version = "1.0.0"
                 description = "Temporary package.json for testing"
                 private = $true
-              } | ConvertTo-Json
+              } |
+                ConvertTo-Json
 
               Set-Content -Path "package.json" -Value $minimalPackageJson
               Write-Host "Created minimal package.json:"
@@ -1180,16 +1186,19 @@ jobs:
                 # Check if package.json exists and is valid
                 if (Test-Path "package.json") {
                   try {
-                    $packageJson = Get-Content "package.json" -Raw | ConvertFrom-Json
+                    $packageJson = Get-Content "package.json" -Raw |
+                      ConvertFrom-Json
                     Write-Host "package.json is valid JSON. Dependencies:"
                     if ($packageJson.dependencies) {
-                      $packageJson.dependencies | Format-Table -AutoSize
+                      $packageJson.dependencies |
+                        Format-Table -AutoSize
                     } else {
                       Write-Host "No dependencies found in package.json."
                     }
 
                     # Create a minimal package.json if needed
-                    if (-not $packageJson.dependencies -or ($packageJson.dependencies | Get-Member).Count -eq 0) {
+                    if (-not $packageJson.dependencies -or ($packageJson.dependencies |
+                      Get-Member).Count -eq 0) {
                       Write-Host "Creating a minimal package.json with no dependencies..."
                       $minimalPackageJson = @{
                         name = "paissive_income_test"
@@ -1197,7 +1206,8 @@ jobs:
                         description = "Temporary package.json for testing"
                         private = $true
                         dependencies = @{}
-                      } | ConvertTo-Json
+                      } |
+                        ConvertTo-Json
 
                       Set-Content -Path "package.json" -Value $minimalPackageJson
                       Write-Host "Created minimal package.json. Trying npm install again..."
@@ -1219,7 +1229,8 @@ jobs:
                       description = "Temporary package.json for testing"
                       private = $true
                       dependencies = @{}
-                    } | ConvertTo-Json
+                    } |
+                      ConvertTo-Json
 
                     Set-Content -Path "package.json" -Value $minimalPackageJson
                     Write-Host "Created minimal package.json. Trying npm install again..."
@@ -1240,7 +1251,8 @@ jobs:
                     description = "Temporary package.json for testing"
                     private = $true
                     dependencies = @{}
-                  } | ConvertTo-Json
+                  } |
+                    ConvertTo-Json
 
                   Set-Content -Path "package.json" -Value $minimalPackageJson
                   Write-Host "Created minimal package.json. Trying npm install again..."
@@ -1333,7 +1345,8 @@ jobs:
               Write-Host "Created minimal .pre-commit-config.yaml file."
             } else {
               Write-Host ".pre-commit-config.yaml found."
-              Get-Content ".pre-commit-config.yaml" | Select-Object -First 10
+              Get-Content ".pre-commit-config.yaml" |
+                Select-Object -First 10
               Write-Host "..."
             }
           } catch {
@@ -1473,7 +1486,8 @@ jobs:
           # Create virtual environment structure
           Write-Host "Creating minimal virtual environment structure..."
           if (-not (Test-Path ".venv\Scripts")) {
-            New-Item -Path ".venv\Scripts" -ItemType Directory -Force | Out-Null
+            New-Item -Path ".venv\Scripts" -ItemType Directory -Force |
+              Out-Null
           }
 
           # Create mock Python and pip executables
@@ -1491,7 +1505,8 @@ jobs:
           # Create .vscode directory and settings.json
           Write-Host "Creating VS Code settings..."
           if (-not (Test-Path ".vscode")) {
-            New-Item -Path ".vscode" -ItemType Directory -Force | Out-Null
+            New-Item -Path ".vscode" -ItemType Directory -Force |
+              Out-Null
           }
 
           Set-Content -Path ".vscode\settings.json" -Value '{`r`n    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python"`r`n}'
@@ -1500,9 +1515,9 @@ jobs:
 
           # Set output variable for use in subsequent steps
           if ($scriptExists) {
-            echo "script_exists=true" >> $env:GITHUB_OUTPUT
+            echo "script_exists=true" >> $env: GITHUB_OUTPUT
           } else {
-            echo "script_exists=false" >> $env:GITHUB_OUTPUT
+            echo "script_exists=false" >> $env: GITHUB_OUTPUT
           }
 
       - name: Run Batch Script

@@ -1,13 +1,13 @@
 name: Frontend Unit Tests (Vitest)
-true:
+on:
   pull_request:
     branches:
-    - main
-    - develop
-    - master
+      - main
+      - develop
+      - master
     paths:
-    - ui/react_frontend/**
-    - .github/workflows/frontend-vitest.yml
+      - ui/react_frontend/**
+      - .github/workflows/frontend-vitest.yml
   workflow_dispatch:
     inputs:
       debug:
@@ -57,52 +57,133 @@ jobs:
     - name: Create coverage directory
       run: mkdir -p coverage
     - name: Create dummy test file if it doesn't exist
-      run: "mkdir -p src/__tests__\nif [ ! -f \"src/__tests__/dummy.test.ts\" ] &&\
-        \ [ ! -f \"tests/dummy.test.ts\" ] && [ ! -f \"src/__tests__/dummy.test.tsx\"\
-        \ ] && [ ! -f \"tests/dummy.test.tsx\" ]; then\n  echo \"Creating dummy test\
-        \ file\"\n  echo 'import { describe,\n  it,\n  expect } from \"vitest\";'\
-        \ > src/__tests__/dummy.test.ts\n  echo '' >> src/__tests__/dummy.test.ts\n\
-        \  echo 'describe(\"Dummy test\", () => {' >> src/__tests__/dummy.test.ts\n\
-        \  echo '  it(\"should pass\", () => {' >> src/__tests__/dummy.test.ts\n \
-        \ echo '    expect(true).toBe(true);' >> src/__tests__/dummy.test.ts\n  echo\
-        \ '  });' >> src/__tests__/dummy.test.ts\n  echo '});' >> src/__tests__/dummy.test.ts\n\
-        \  echo \"Created dummy test file to ensure coverage directory is created\"\
-        \nelse\n  echo \"Test files already exist, skipping dummy test creation\"\n\
-        fi\n"
+      run: |
+        mkdir -p src/__tests__
+if [ ! -f "src/__tests__/dummy.test.ts" ] &&:
+        \ [ ! -f "tests/dummy.test.ts" ] && [ ! -f "src/__tests__/dummy.test.tsx"\
+        \ ] && [ ! -f "tests/dummy.test.tsx" ]; then
+  echo "Creating dummy test\
+        \ file"
+  echo 'import { describe,
+  it,
+  expect } from "vitest";'\
+        \ > src/__tests__/dummy.test.ts
+  echo '' >> src/__tests__/dummy.test.ts
+:
+        \  echo 'describe("Dummy test", () => {' >> src/__tests__/dummy.test.ts
+:
+        \  echo '  it("should pass", () => {' >> src/__tests__/dummy.test.ts
+ \
+        \ echo '    expect(true).toBe(true);' >> src/__tests__/dummy.test.ts
+  echo\
+        \ '  });' >> src/__tests__/dummy.test.ts
+  echo '});' >> src/__tests__/dummy.test.ts
+:
+        \  echo "Created dummy test file to ensure coverage directory is created"\
+
+else
+  echo "Test files already exist, skipping dummy test creation"
+:
+        fi
+":
     - name: Build Tailwind CSS
-      run: pnpm tailwind:build
+      run: pnpm tailwind: build
     - name: Generate enhanced environment report
-      run: "# Create directories\nmkdir -p coverage\nmkdir -p playwright-report\n\
-        mkdir -p test-results\nmkdir -p ci-reports/github\n\n# Run the enhanced environment\
-        \ report generator\nnode tests/helpers/generate-environment-report.js coverage/environment-report.txt\n\
+      run: |
+        # Create directories
+mkdir -p coverage:
+mkdir -p playwright-report:
+:
+        mkdir -p test-results
+mkdir -p ci-reports/github:
+
+# Run the enhanced environment\
+        \ report generator
+node tests/helpers/generate-environment-report.js coverage/environment-report.txt:
+:
         node tests/helpers/generate-environment-report.js coverage/environment-report.json\
-        \ --json\nnode tests/helpers/generate-environment-report.js ci-reports/github/environment-report.txt\
-        \ --env-vars\n\necho \"Enhanced environment reports generated\"\n\n# Create\
-        \ a summary of the environment for the workflow\ncat > coverage/environment-summary.txt\
-        \ << EOF\nEnvironment Summary\n------------------\nGenerated at: $(date -u\
-        \ +\"%Y-%m-%dT%H:%M:%S.%3NZ\")\n\nCI: true\nGitHub Actions: true\nRunner OS:\
-        \ $(uname -s)\nNode.js: $(node --version)\n\nContainer Detection:\n  Docker:\
-        \ false\n  rkt: false\n  Singularity: false\n\nTest Configuration:\n  Mode:\
-        \ Vitest Unit Tests with Parallel Execution\n  Debug Mode: ${{ inputs.debug\
-        \ }}\nEOF\n\necho \"Environment summary created at coverage/environment-summary.txt\"\
-        \n"
+        \ --json
+node tests/helpers/generate-environment-report.js ci-reports/github/environment-report.txt:
+        \ --env-vars
+
+echo Enhanced environment reports generated":
+
+# Create\
+        \ a summary of the environment for the workflow
+cat > coverage/environment-summary.txt:
+        \ << EOF
+Environment Summary:
+------------------
+Generated at: $(date -u\
+        \ +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+CI: true
+GitHub Actions: true
+Runner OS:\
+        \ $(uname -s)
+Node.js: $(node --version)
+
+Container Detection:
+  Docker:\
+        \ false
+  rkt: false
+  Singularity: false
+
+Test Configuration:
+  Mode:\
+        \ Vitest Unit Tests with Parallel Execution
+  Debug Mode: ${{ inputs.debug\
+        \ }}
+EOF:
+
+echo "Environment summary created at coverage/environment-summary.txt":
+
+":
     - name: Run Vitest unit tests with parallel execution
       id: run_tests
       continue-on-error: true
-      run: "# Set enhanced environment variables\nexport CI=true\nexport CI_ENVIRONMENT=true\n\
-        export CI_TYPE=github\nexport GITHUB_ACTIONS=true\nexport DOCKER_ENVIRONMENT=false\n\
-        export RKT_ENVIRONMENT=false\nexport SINGULARITY_ENVIRONMENT=false\nexport\
-        \ KUBERNETES_SERVICE_HOST=\"\"\nexport COMPOSE_PROJECT_NAME=\"\"\nexport DOCKER_SWARM=\"\
-        \"\nexport VERBOSE_LOGGING=true\n\n# Determine optimal number of workers for\
-        \ parallel execution\nCPUS=$(nproc)\nWORKERS=$(( CPUS > 2 ? CPUS - 1 : 2 ))\n\
-        echo \"Using $WORKERS workers for parallel test execution\"\n\n# Run tests\
-        \ with parallel execution and proper error handling\npnpm run test:unit --threads=$WORKERS\
-        \ --reporter=verbose || {\n  echo \"Tests failed with exit code $?\"\n  echo\
-        \ \"Creating error report...\"\n  echo \"Test execution failed at $(date -u\
-        \ +\"%Y-%m-%dT%H:%M:%S.%3NZ\")\" > coverage/test-error-report.txt\n  echo\
-        \ \"Exit code: $?\" >> coverage/test-error-report.txt\n  echo \"Workers: $WORKERS\"\
-        \ >> coverage/test-error-report.txt\n  echo \"Tests failed but continuing\
-        \ workflow\"\n}\n"
+      run: |
+        # Set enhanced environment variables
+export CI=true
+export CI_ENVIRONMENT=true
+:
+        export CI_TYPE=github
+export GITHUB_ACTIONS=true
+export DOCKER_ENVIRONMENT=false
+:
+        export RKT_ENVIRONMENT=false
+export SINGULARITY_ENVIRONMENT=false
+export:
+        \ KUBERNETES_SERVICE_HOST="
+export COMPOSE_PROJECT_NAME=""
+export DOCKER_SWARM="\
+        "
+export VERBOSE_LOGGING=true
+
+# Determine optimal number of workers for\
+        \ parallel execution
+CPUS=$(nproc)
+WORKERS=$(( CPUS > 2 ? CPUS - 1 : 2 ))
+:
+        echo "Using $WORKERS workers for parallel test execution"
+
+# Run tests\
+        \ with parallel execution and proper error handling
+pnpm run test: unit --threads=$WORKERS\
+        \ --reporter=verbose || {
+  echo "Tests failed with exit code $?"
+  echo\
+        \ "Creating error report..."
+  echo "Test execution failed at $(date -u\
+        \ +"%Y-%m-%dT%H:%M:%S.%3NZ")" > coverage/test-error-report.txt
+  echo\
+        \ "Exit code: $?" >> coverage/test-error-report.txt
+  echo "Workers: $WORKERS"\
+        \ >> coverage/test-error-report.txt
+  echo "Tests failed but continuing\
+        \ workflow"
+}:
+":
     - name: Create minimal coverage report if tests fail
       if: steps.run_tests.outcome != 'success'
       run: 'mkdir -p coverage
@@ -129,15 +210,3 @@ jobs:
         path: ui/react_frontend/coverage
         if-no-files-found: warn
     timeout-minutes: 30
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}

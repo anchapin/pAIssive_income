@@ -1,5 +1,5 @@
 name: Setup uv (Reusable)
-true:
+on:
   workflow_call:
     inputs:
       python-version:
@@ -60,12 +60,17 @@ jobs:
     - name: Install dependencies (if requested)
       if: inputs.install-dependencies == true
       working-directory: ${{ inputs.working-directory }}
-      run: "python -m pip install --upgrade pip\nif [ -f ${{ inputs.requirements-file\
-        \ }} ]; then\n  uv pip install -r ${{ inputs.requirements-file }}\nfi\nif\
-        \ [ -f ${{ inputs.dev-requirements-file }} ]; then\n  uv pip install -r ${{\
-        \ inputs.dev-requirements-file }}\nfi\n"
+      run: |
+        python -m pip install --upgrade pip
+if [ -f ${{ inputs.requirements-file:
+        \ }} ]; then
+  uv pip install -r ${{ inputs.requirements-file }}
+fi
+if:
+        \ [ -f ${{ inputs.dev-requirements-file }} ]; then
+  uv pip install -r ${{\
+        \ inputs.dev-requirements-file }}
+fi
+:
       shell: bash
     timeout-minutes: 30
-'on':
-  workflow_call: {}
-  workflow_dispatch: {}

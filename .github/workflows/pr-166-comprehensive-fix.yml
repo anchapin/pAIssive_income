@@ -259,12 +259,12 @@ jobs:
       continue-on-error: true
       run: |
         echo "🎨 Building Tailwind CSS..."
-        
+
         # Build root Tailwind
         if command -v pnpm &> /dev/null; then
-          pnpm tailwind:build || echo "⚠️ pnpm tailwind build failed"
+          pnpm tailwind: build || echo "⚠️ pnpm tailwind build failed"
         elif command -v npm &> /dev/null; then
-          npm run tailwind:build || echo "⚠️ npm tailwind build failed"
+          npm run tailwind: build || echo "⚠️ npm tailwind build failed"
         else
           npx tailwindcss -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify || echo "⚠️ Direct tailwind build failed"
         fi
@@ -272,7 +272,7 @@ jobs:
         # Build frontend Tailwind if directory exists
         if [ -d "ui/react_frontend" ]; then
           cd ui/react_frontend
-          pnpm tailwind:build || npx tailwindcss -i ./src/index.css -o ./src/tailwind.output.css --minify || echo "⚠️ Frontend tailwind build failed"
+          pnpm tailwind: build || npx tailwindcss -i ./src/index.css -o ./src/tailwind.output.css --minify || echo "⚠️ Frontend tailwind build failed"
           cd ../..
         fi
 
@@ -282,7 +282,7 @@ jobs:
       continue-on-error: true
       run: |
         echo "🔍 Running linting..."
-        
+
         # Python linting with Ruff
         if command -v ruff &> /dev/null; then
           ruff check . --exclude=".venv,node_modules,__pycache__,.git" || echo "⚠️ Ruff check found issues"
@@ -308,7 +308,7 @@ jobs:
         TESTING: true
       run: |
         echo "🧪 Running tests..."
-        
+
         # Python tests
         if [ -d "tests" ] && command -v pytest &> /dev/null; then
           pytest tests/ -v --tb=short --maxfail=5 || echo "⚠️ Python tests failed"
@@ -331,9 +331,9 @@ jobs:
         if [ -d "ui/react_frontend" ]; then
           cd ui/react_frontend
           if command -v pnpm &> /dev/null; then
-            pnpm test:unit || echo "⚠️ Frontend tests failed"
+            pnpm test: unit || echo "⚠️ Frontend tests failed"
           elif command -v npm &> /dev/null; then
-            npm run test:unit || echo "⚠️ Frontend tests failed"
+            npm run test: unit || echo "⚠️ Frontend tests failed"
           fi
           cd ../..
           echo "✅ Frontend tests completed"
@@ -343,7 +343,7 @@ jobs:
       continue-on-error: true
       run: |
         echo "🔒 Running security scans..."
-        
+
         # Create empty security reports first
         echo '{"results": [], "errors": [], "generated_at": "'$(date -Iseconds)'"}' > security-reports/bandit-results.json
         echo '{"results": [], "errors": [], "generated_at": "'$(date -Iseconds)'"}' > security-reports/safety-results.json
@@ -370,7 +370,7 @@ jobs:
       continue-on-error: true
       run: |
         echo "📊 Generating coverage reports..."
-        
+
         # Create minimal coverage files
         mkdir -p coverage
         cat > coverage/coverage-summary.json << 'EOF'
@@ -466,4 +466,4 @@ jobs:
       run: |
         echo "🎉 PR #166 Comprehensive Fix completed successfully!"
         echo "📊 Check the workflow summary and uploaded artifacts for detailed results."
-        echo "🔍 All major workflow issues have been addressed with robust error handling." 
+        echo "🔍 All major workflow issues have been addressed with robust error handling."

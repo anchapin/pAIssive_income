@@ -1,5 +1,5 @@
 name: Reusable Python Setup
-true:
+on:
   workflow_call:
     inputs:
       python-version:
@@ -39,7 +39,8 @@ jobs:
         key: ${{ runner.os }}-deps-${{ hashFiles('**/requirements*.txt') }}
         restore-keys: ${{ runner.os }}-deps-
     - name: Install uv
-      run: 'curl -LsSf https://astral.sh/uv/install.sh | sh
+      run: 'curl -LsSf https://astral.sh/uv/install.sh |
+        sh
 
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
@@ -58,6 +59,3 @@ jobs:
       id: save-venv-path
       run: echo "venv-path=$(pwd)/.venv" >> $GITHUB_OUTPUT
     timeout-minutes: 30
-'on':
-  workflow_call: {}
-  workflow_dispatch: {}

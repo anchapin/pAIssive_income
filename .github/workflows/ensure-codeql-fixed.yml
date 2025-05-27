@@ -1,15 +1,15 @@
 name: Ensure Fixed CodeQL Workflows
-true:
+on:
   pull_request:
     branches:
-    - main
-    - dev
-    - master
-    - develop
+      - main
+      - dev
+      - master
+      - develop
     paths:
-    - .github/workflows/codeql*.yml
-    - .github/scripts/ensure-fixed-codeql-workflows.ps1
-    - .github/workflows/ensure-codeql-fixed.yml
+      - .github/workflows/codeql*.yml
+      - .github/scripts/ensure-fixed-codeql-workflows.ps1
+      - .github/workflows/ensure-codeql-fixed.yml
   workflow_dispatch: {}
 jobs:
   ensure-fixed-codeql:
@@ -21,31 +21,45 @@ jobs:
         fetch-depth: 0
     - name: Ensure fixed CodeQL workflow files
       shell: pwsh
-      run: "Write-Host \"Ensuring fixed CodeQL workflow files are used...\"\nif (Test-Path\
-        \ \".github/scripts/ensure-fixed-codeql-workflows.ps1\") {\n  Write-Host \"\
-        Running ensure-fixed-codeql-workflows.ps1 script...\"\n  ./.github/scripts/ensure-fixed-codeql-workflows.ps1\n\
-        } else {\n  Write-Host \"ensure-fixed-codeql-workflows.ps1 script not found,\
-        \ skipping...\"\n  exit 1\n}\n"
+      run: |
+        Write-Host "Ensuring fixed CodeQL workflow files are used...
+if (Test-Path:
+        \ ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
+  Write-Host "\
+        Running ensure-fixed-codeql-workflows.ps1 script..."
+  ./.github/scripts/ensure-fixed-codeql-workflows.ps1
+:
+        } else {
+  Write-Host "ensure-fixed-codeql-workflows.ps1 script not found,\
+        \ skipping..."
+  exit 1
+}:
+":
     - name: Commit changes if needed
       shell: pwsh
-      run: "git config --local user.email \"github-actions[bot]@users.noreply.github.com\"\
-        \ngit config --local user.name \"github-actions[bot]\"\n\n# Check if there\
-        \ are changes to commit\nif (git status --porcelain | Select-String \".github/workflows/codeql\"\
-        ) {\n  Write-Host \"Changes detected in CodeQL workflow files. Committing\
-        \ changes...\"\n  git add .github/workflows/codeql*.yml\n  git commit -m \"\
-        Use fixed CodeQL workflow files [skip ci]\"\n  \n  # Push changes\n  git push\n\
-        \  Write-Host \"Changes pushed successfully.\"\n} else {\n  Write-Host \"\
-        No changes to commit. CodeQL workflow files are already up to date.\"\n}\n"
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"\
+
+git config --local user.name "github-actions[bot]":
+
+# Check if there\
+        \ are changes to commit
+if (git status --porcelain |
+  Select-String ".github/workflows/codeql"\
+        ) {
+  Write-Host "Changes detected in CodeQL workflow files. Committing\
+        \ changes..."
+  git add .github/workflows/codeql*.yml
+  git commit -m "\
+        Use fixed CodeQL workflow files [skip ci]"
+
+  # Push changes
+  git push
+:
+        \  Write-Host "Changes pushed successfully."
+} else {:
+  Write-Host "\
+        No changes to commit. CodeQL workflow files are already up to date."
+}:
+":
     timeout-minutes: 30
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}

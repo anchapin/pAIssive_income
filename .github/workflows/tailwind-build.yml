@@ -1,21 +1,21 @@
 name: Build Tailwind CSS (Fixed)
-true:
+on:
   push:
     branches:
-    - main
+      - main
     paths:
-    - ui/static/css/tailwind.css
-    - tailwind.config.js
-    - package.json
-    - .github/workflows/tailwind-build.yml
+      - ui/static/css/tailwind.css
+      - tailwind.config.js
+      - package.json
+      - .github/workflows/tailwind-build.yml
   pull_request:
     branches:
-    - main
+      - main
     paths:
-    - ui/static/css/tailwind.css
-    - tailwind.config.js
-    - package.json
-    - .github/workflows/tailwind-build.yml
+      - ui/static/css/tailwind.css
+      - tailwind.config.js
+      - package.json
+      - .github/workflows/tailwind-build.yml
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,48 +32,80 @@ jobs:
       with:
         version: 8
     - name: Ensure required files exist
-      run: "# Create Tailwind input file if missing\nif [ ! -f \"ui/static/css/tailwind.css\"\
-        \ ]; then\n  mkdir -p ui/static/css\n  echo \"@tailwind base;\" > ui/static/css/tailwind.css\n\
-        \  echo \"@tailwind components;\" >> ui/static/css/tailwind.css\n  echo \"\
-        @tailwind utilities;\" >> ui/static/css/tailwind.css\n  echo \"Created missing\
-        \ tailwind.css\"\nfi\n\n# Create Tailwind config if missing\nif [ ! -f \"\
-        tailwind.config.js\" ]; then\n  cat > tailwind.config.js << 'EOF'\n/** @type\
-        \ {import('tailwindcss').Config} */\nmodule.exports = {\n  content: [\n  \
-        \  \"./ui/**/*.{html,js,jsx,ts,tsx}\",\n    \"./src/**/*.{html,js,jsx,ts,tsx}\"\
-        \n  ],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}\nEOF\n  echo\
-        \ \"Created missing tailwind.config.js\"\nfi\n"
+      run: |
+        # Create Tailwind input file if missing
+if [ ! -f "ui/static/css/tailwind.css":
+        \ ]; then
+  mkdir -p ui/static/css
+  echo "@tailwind base;" > ui/static/css/tailwind.css
+:
+        \  echo "@tailwind components;" >> ui/static/css/tailwind.css
+  echo "\
+        @tailwind utilities;" >> ui/static/css/tailwind.css
+  echo "Created missing\
+        \ tailwind.css"
+fi
+
+# Create Tailwind config if missing
+if [ ! -f ":
+        tailwind.config.js" ]; then
+  cat > tailwind.config.js << 'EOF'
+/** @type:
+        \ {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+  \
+        \  "./ui/**/*.{html,js,jsx,ts,tsx}",
+    "./src/**/*.{html,js,jsx,ts,tsx}"\
+
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}:
+EOF:
+  echo\
+        \ "Created missing tailwind.config.js"
+fi
     - name: Install dependencies
       run: 'pnpm install || npm install || echo "Install completed with issues"
 
         '
     - name: Build Tailwind CSS
-      run: "# Try multiple build methods\nif pnpm tailwind:build; then\n  echo \"\u2705\
-        \ Tailwind built successfully with pnpm script\"\nelif npx tailwindcss -i\
+      run: |
+        # Try multiple build methods
+if pnpm tailwind: build; then
+  echo "\u2705\
+        \ Tailwind built successfully with pnpm script"
+elif npx tailwindcss -i:
         \ ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify;\
-        \ then\n  echo \"\u2705 Tailwind built successfully with npx\"\nelse\n  echo\
-        \ \"\u274C Tailwind build failed, creating minimal output file\"\n  mkdir\
-        \ -p ui/static/css\n  echo \"/* Tailwind CSS build failed - minimal fallback\
-        \ */\" > ui/static/css/tailwind.output.css\nfi\n"
+        \ then
+  echo "\u2705 Tailwind built successfully with npx"
+else
+  echo\
+        \ "\u274C Tailwind build failed, creating minimal output file"
+  mkdir\
+        \ -p ui/static/css
+  echo "/* Tailwind CSS build failed - minimal fallback\
+        \ */" > ui/static/css/tailwind.output.css
+fi
     - name: Verify output file
-      run: "if [ -f \"ui/static/css/tailwind.output.css\" ]; then\n  echo \"\u2705\
-        \ Output file exists\"\n  ls -la ui/static/css/tailwind.output.css\nelse\n\
-        \  echo \"\u274C Output file missing, creating empty file\"\n  mkdir -p ui/static/css\n\
-        \  touch ui/static/css/tailwind.output.css\nfi\n"
+      run: |
+        if [ -f "ui/static/css/tailwind.output.css" ]; then
+  echo "\u2705\
+        \ Output file exists"
+  ls -la ui/static/css/tailwind.output.css
+else
+:
+        \  echo "\u274C Output file missing, creating empty file"
+  mkdir -p ui/static/css
+:
+        \  touch ui/static/css/tailwind.output.css
+fi
     - name: Upload Tailwind CSS output as artifact
       uses: actions/upload-artifact@v4
       with:
         name: tailwind-output-css
         path: ui/static/css/tailwind.output.css
         if-no-files-found: warn
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}

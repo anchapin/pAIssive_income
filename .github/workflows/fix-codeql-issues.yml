@@ -1,5 +1,5 @@
 name: Fix CodeQL Issues (Manual Mode)
-true:
+on:
   workflow_dispatch: {}
 permissions:
   contents: read
@@ -146,15 +146,3 @@ jobs:
         EOL
 
         '
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}

@@ -1,16 +1,16 @@
 name: Test Setup Script (Simplified)
-true:
+on:
   workflow_call: null
   push:
     branches:
-    - main
+      - main
     paths:
-    - .github/workflows/test-setup-script-simplified.yml
+      - .github/workflows/test-setup-script-simplified.yml
   pull_request:
     branches:
-    - main
+      - main
     paths:
-    - .github/workflows/test-setup-script-simplified.yml
+      - .github/workflows/test-setup-script-simplified.yml
   workflow_dispatch: null
 permissions:
   contents: read
@@ -35,17 +35,30 @@ jobs:
       with:
         version: 8
     - name: Install Python dependencies
-      run: "python -m pip install --upgrade pip\npip install pytest ruff\nif [ -f\
-        \ requirements-dev.txt ]; then\n  pip install -r requirements-dev.txt || echo\
-        \ \"Some requirements failed\"\nfi\n"
+      run: |
+        python -m pip install --upgrade pip
+pip install pytest ruff:
+if [ -f:
+        \ requirements-dev.txt ]; then
+  pip install -r requirements-dev.txt || echo\
+        \ Some requirements failed"
+fi
     - name: Install Node.js dependencies
       run: 'pnpm install || npm install || echo "Install completed with issues"
 
         '
     - name: Run basic tests
-      run: "echo \"\u2705 Python setup completed\"\npython --version\necho \"\u2705\
-        \ Node.js setup completed\"\nnode --version\necho \"\u2705 pnpm setup completed\"\
-        \npnpm --version\necho \"\u2705 Basic test setup completed successfully\"\n"
+      run: |
+        echo "\u2705 Python setup completed
+python --version:
+echo "\u2705:
+        \ Node.js setup completed"
+node --version:
+echo "\u2705 pnpm setup completed":
+
+pnpm --version:
+echo "\u2705 Basic test setup completed successfully":
+":
   test-windows:
     name: Test on Windows
     runs-on: windows-latest
@@ -67,17 +80,36 @@ jobs:
         version: 8
     - name: Install Python dependencies
       shell: pwsh
-      run: "python -m pip install --upgrade pip\npip install pytest ruff\nif (Test-Path\
-        \ requirements-dev.txt) {\n  pip install -r requirements-dev.txt\n}\n"
+      run: |
+        python -m pip install --upgrade pip
+pip install pytest ruff:
+if (Test-Path:
+        \ requirements-dev.txt) {
+  pip install -r requirements-dev.txt
+}:
+:
     - name: Install Node.js dependencies
       shell: pwsh
-      run: "pnpm install\nif ($LASTEXITCODE -ne 0) {\n  npm install\n}\n"
+      run: |
+        pnpm install
+if ($LASTEXITCODE -ne 0) {:
+  npm install
+}:
+":
     - name: Run basic tests
       shell: pwsh
-      run: "Write-Host \"\u2705 Python setup completed\"\npython --version\nWrite-Host\
-        \ \"\u2705 Node.js setup completed\"\nnode --version\nWrite-Host \"\u2705\
-        \ pnpm setup completed\"\npnpm --version\nWrite-Host \"\u2705 Basic test setup\
-        \ completed successfully\"\n"
+      run: |
+        Write-Host "\u2705 Python setup completed
+python --version:
+Write-Host:
+        \ "\u2705 Node.js setup completed"
+node --version:
+Write-Host "\u2705:
+        \ pnpm setup completed"
+pnpm --version:
+Write-Host "\u2705 Basic test setup:
+        \ completed successfully"
+":
   test-macos:
     name: Test on macOS
     runs-on: macos-latest
@@ -98,26 +130,27 @@ jobs:
       with:
         version: 8
     - name: Install Python dependencies
-      run: "python -m pip install --upgrade pip\npip install pytest ruff\nif [ -f\
-        \ requirements-dev.txt ]; then\n  pip install -r requirements-dev.txt || echo\
-        \ \"Some requirements failed\"\nfi\n"
+      run: |
+        python -m pip install --upgrade pip
+pip install pytest ruff:
+if [ -f:
+        \ requirements-dev.txt ]; then
+  pip install -r requirements-dev.txt || echo\
+        \ Some requirements failed"
+fi
     - name: Install Node.js dependencies
       run: 'pnpm install || npm install || echo "Install completed with issues"
 
         '
     - name: Run basic tests
-      run: "echo \"\u2705 Python setup completed\"\npython --version\necho \"\u2705\
-        \ Node.js setup completed\"\nnode --version\necho \"\u2705 pnpm setup completed\"\
-        \npnpm --version\necho \"\u2705 Basic test setup completed successfully\"\n"
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}
+      run: |
+        echo "\u2705 Python setup completed
+python --version:
+echo "\u2705:
+        \ Node.js setup completed"
+node --version:
+echo "\u2705 pnpm setup completed":
+
+pnpm --version:
+echo "\u2705 Basic test setup completed successfully":
+":

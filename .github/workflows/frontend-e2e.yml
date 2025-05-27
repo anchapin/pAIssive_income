@@ -1,19 +1,19 @@
 name: Frontend E2E Tests
-true:
+on:
   push:
     branches:
-    - main
-    - develop
+      - main
+      - develop
     paths:
-    - ui/react_frontend/**
-    - .github/workflows/frontend-e2e.yml
+      - ui/react_frontend/**
+      - .github/workflows/frontend-e2e.yml
   pull_request:
     branches:
-    - main
-    - develop
+      - main
+      - develop
     paths:
-    - ui/react_frontend/**
-    - .github/workflows/frontend-e2e.yml
+      - ui/react_frontend/**
+      - .github/workflows/frontend-e2e.yml
   workflow_dispatch: {}
 jobs:
   frontend-e2e:
@@ -72,17 +72,15 @@ jobs:
 
         mkdir -p playwright-report/html
 
-
         # Set environment variables
 
-        echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" >> $GITHUB_ENV
+        echo "REACT_APP_API_BASE_URL=http://localhost: 8000/api" >> $GITHUB_ENV
 
         echo "REACT_APP_AG_UI_ENABLED=true" >> $GITHUB_ENV
 
         echo "CI=true" >> $GITHUB_ENV
 
         echo "VERBOSE_LOGGING=true" >> $GITHUB_ENV
-
 
         # Set enhanced environment detection variables
 
@@ -97,7 +95,6 @@ jobs:
         echo "CI_RUNNER_OS=$(uname -s)" >> $GITHUB_ENV
 
         echo "CI_WORKSPACE=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
 
         # Set container environment detection variables
 
@@ -133,70 +130,104 @@ jobs:
         New-Item -ItemType Directory -Path "playwright-report/html" -Force -ErrorAction
         SilentlyContinue
 
-
         # Set environment variables
 
-        echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" | Out-File -FilePath
-        $env:GITHUB_ENV -Append
+        echo "REACT_APP_API_BASE_URL=http://localhost: 8000/api" |
+          Out-File -FilePath
+        $env: GITHUB_ENV -Append
 
-        echo "REACT_APP_AG_UI_ENABLED=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "REACT_APP_AG_UI_ENABLED=true" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "CI=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "CI=true" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "VERBOSE_LOGGING=true" | Out-File -FilePath $env:GITHUB_ENV -Append
-
+        echo "VERBOSE_LOGGING=true" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
         # Set enhanced environment detection variables
 
-        echo "GITHUB_ACTIONS=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "GITHUB_ACTIONS=true" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "CI_ENVIRONMENT=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "CI_ENVIRONMENT=true" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "CI_PLATFORM=github" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "CI_PLATFORM=github" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "CI_TYPE=github" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "CI_TYPE=github" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "CI_RUNNER_OS=$env:OS" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "CI_RUNNER_OS=$env: OS" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "CI_WORKSPACE=$env:GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_ENV
+        echo "CI_WORKSPACE=$env: GITHUB_WORKSPACE" |
+          Out-File -FilePath $env: GITHUB_ENV
         -Append
-
 
         # Set container environment detection variables
 
-        echo "DOCKER_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "DOCKER_ENVIRONMENT=false" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "KUBERNETES_SERVICE_HOST=" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "KUBERNETES_SERVICE_HOST=" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "RKT_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "RKT_ENVIRONMENT=false" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "SINGULARITY_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV
+        echo "SINGULARITY_ENVIRONMENT=false" |
+          Out-File -FilePath $env: GITHUB_ENV
         -Append
 
-        echo "DOCKER_COMPOSE=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "DOCKER_COMPOSE=false" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
-        echo "DOCKER_SWARM=" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "DOCKER_SWARM=" |
+          Out-File -FilePath $env: GITHUB_ENV -Append
 
         '
     - name: Run tests (Linux/macOS)
       if: runner.os != 'Windows'
       shell: bash
       working-directory: ui/react_frontend
-      run: "if [ -f \"tests/run_ci_tests_enhanced.js\" ]; then\n  echo \"Running Enhanced\
-        \ CI test runner...\"\n  node tests/run_ci_tests_enhanced.js\nelse\n  echo\
-        \ \"Enhanced CI test runner not found, falling back to regular runner...\"\
-        \n  node tests/run_ci_tests.js\nfi\n"
+      run: |
+        if [ -f "tests/run_ci_tests_enhanced.js" ]; then
+  echo "Running Enhanced\
+        \ CI test runner..."
+  node tests/run_ci_tests_enhanced.js
+else
+  echo\
+        \ "Enhanced CI test runner not found, falling back to regular runner..."\
+
+  node tests/run_ci_tests.js
+fi
     - name: Run tests (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
       working-directory: ui/react_frontend
-      run: "try {\n  if (Test-Path \"tests/run_ci_tests_enhanced.js\") {\n    Write-Host\
-        \ \"Running Enhanced CI test runner...\"\n    node tests/run_ci_tests_enhanced.js\n\
-        \  } else {\n    Write-Host \"Enhanced CI test runner not found,\n    falling\
-        \ back to regular runner...\"\n    node tests/run_ci_tests.js\n  }\n} catch\
-        \ {\n  Write-Host \"Tests failed but continuing workflow: $_\"\n  Set-Content\
-        \ -Path \"../../logs/test-failures.txt\" -Value \"Test failures detected at\
-        \ $(Get-Date)\"\n}\n"
+      run: |
+        try {
+  if (Test-Path "tests/run_ci_tests_enhanced.js") {
+    Write-Host\
+        \ "Running Enhanced CI test runner..."
+    node tests/run_ci_tests_enhanced.js
+:
+        \  } else {
+    Write-Host "Enhanced CI test runner not found,
+    falling\
+        \ back to regular runner..."
+    node tests/run_ci_tests.js
+  }
+} catch:
+        \ {
+  Write-Host "Tests failed but continuing workflow: $_"
+  Set-Content\
+        \ -Path "../../logs/test-failures.txt" -Value "Test failures detected at\
+        \ $(Get-Date)"
+}:
+":
     - name: Upload Playwright report
       if: always()
       uses: actions/upload-artifact@v4
@@ -222,15 +253,3 @@ jobs:
         if-no-files-found: ignore
         retention-days: 30
     timeout-minutes: 30
-'on':
-  push:
-    branches:
-    - main
-    - develop
-    - master
-  pull_request:
-    branches:
-    - main
-    - develop
-    - master
-  workflow_dispatch: {}
