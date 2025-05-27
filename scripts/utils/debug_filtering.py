@@ -5,6 +5,8 @@ from __future__ import annotations
 # Standard library imports
 import logging
 
+logger = logging.getLogger(__name__)
+
 # Third-party imports
 # Local imports
 from common_utils.logging import get_logger

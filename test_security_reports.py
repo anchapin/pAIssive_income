@@ -79,7 +79,7 @@ def validate_json_files() -> bool:
             json.load(f)
         logger.info("bandit-results.json is valid JSON")
     except (json.JSONDecodeError, Exception) as e:
-        logger.error("bandit-results.json is not valid JSON: %s", e)
+        logger.exception("bandit-results.json is not valid JSON: %s", e)
         return False
 
     try:
@@ -87,7 +87,7 @@ def validate_json_files() -> bool:
             json.load(f)
         logger.info("bandit-results-ini.json is valid JSON")
     except (json.JSONDecodeError, Exception) as e:
-        logger.error("bandit-results-ini.json is not valid JSON: %s", e)
+        logger.exception("bandit-results-ini.json is not valid JSON: %s", e)
         return False
 
     return True
@@ -108,7 +108,7 @@ def main() -> int:
             os.makedirs("security-reports", exist_ok=True)
             logger.info("Created security-reports directory")
         except Exception as e:
-            logger.error("Failed to create security-reports directory: %s", e)
+            logger.exception("Failed to create security-reports directory: %s", e)
             return 1
 
     # Check if the JSON files exist
@@ -125,7 +125,7 @@ def main() -> int:
             )
             logger.info("Ran test_bandit_config.py")
         except Exception as e:
-            logger.error("Failed to run test_bandit_config.py: %s", e)
+            logger.exception("Failed to run test_bandit_config.py: %s", e)
             return 1
 
         # Check again

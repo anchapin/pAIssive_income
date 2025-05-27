@@ -17,11 +17,11 @@ For more details, see README_mem0_integration.md.
 
 from __future__ import annotations
 
-import logging
 import hashlib
 import json
+import logging
 import unicodedata
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Optional
 
 import chromadb
 from chromadb.config import Settings
@@ -48,8 +48,7 @@ def canonicalize_text(text: str) -> str:
     - Lowercase, strip, remove extra whitespace, apply NFC unicode normalization.
     """
     text = unicodedata.normalize("NFC", text.lower().strip())
-    text = " ".join(text.split())
-    return text
+    return " ".join(text.split())
 
 def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
     """
@@ -58,14 +57,14 @@ def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
     """
     content_canon = canonicalize_text(content)
     source = metadata.get("source", "")
-    hash_input = f"{user_id}|{content_canon}|{source}".encode("utf-8")
+    hash_input = f"{user_id}|{content_canon}|{source}".encode()
     return hashlib.sha256(hash_input).hexdigest()
 
 def prepare_document(
     doc: dict,
     user_id: Optional[str] = None,
     default_metadata: Optional[dict] = None,
-    embedding: Optional[List[float]] = None,
+    embedding: Optional[list[float]] = None,
 ) -> dict:
     """
     Ensure the document follows the unified schema.
@@ -141,14 +140,14 @@ collection = client.get_or_create_collection("demo_rag")
 
 # 6. Canonicalization and deduplication logic before inserting documents
 def embed_and_insert_documents_with_dedup(
-    docs: List[dict],
+    docs: list[dict],
     embedder_model: SentenceTransformer,
     collection: chromadb.Collection,
     user_id_default: str = "global",
-) -> Tuple[List[dict], List[str]]:
+) -> tuple[list[dict], list[str]]:
     """
     Embed documents, canonicalize, deduplicate, and insert into collection.
-    Returns: (inserted_docs, skipped_duplicate_ids)
+    Returns: (inserted_docs, skipped_duplicate_ids).
     """
     stored_hashes = set()
     # Retrieve all existing documents' canonical hashes (if any)
@@ -160,7 +159,7 @@ def embed_and_insert_documents_with_dedup(
             # Use user_id from metadatas, content from doc, and source from metadata
             meta = existing["metadatas"][i]
             uid = meta.get("user_id", user_id_default)
-            source = meta.get("source", "demo")
+            meta.get("source", "demo")
             content = doc
             doc_hash = canonical_doc_hash(uid, content, meta)
             stored_hashes.add(doc_hash)
@@ -220,13 +219,12 @@ def query_with_metadata_filter(
         where["user_id"] = user_id
     if metadata_filter:
         where.update(metadata_filter)
-    results = collection.query(
+    return collection.query(
         query_embeddings=[query_embedding],
         n_results=n_results,
         where=where if where else None,
         include=["documents", "metadatas", "distances", "ids"],
     )
-    return results
 
 # Demo query: Retrieve facts only, for user 'global'
 logger.info("\n--- Retrieval Demo: Query with Metadata Filtering ---")
@@ -249,7 +247,7 @@ for i, doc in enumerate(all_facts["documents"]):
 
 # 8. Test block: Verify deduplication and filtering
 
-def test_deduplication_and_metadata():
+def test_deduplication_and_metadata() -> None:
     """
     Test deduplication (should not insert duplicates)
     and metadata filtering (should return only filtered docs).
