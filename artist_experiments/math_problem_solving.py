@@ -69,7 +69,7 @@ class MathTool:
             expr = parse_expr(equation_str)
             return str(expr.evalf())
         except Exception as e:
-            logger.error(f"Error solving equation: {e}")
+            logger.exception(f"Error solving equation: {e}")
             return f"Error: {e!s}"
 
     @staticmethod
@@ -89,7 +89,7 @@ class MathTool:
             factored = sp.factor(expr)
             return str(factored)
         except Exception as e:
-            logger.error(f"Error factoring expression: {e}")
+            logger.exception(f"Error factoring expression: {e}")
             return f"Error: {e!s}"
 
     @staticmethod
@@ -109,7 +109,7 @@ class MathTool:
             expanded = sp.expand(expr)
             return str(expanded)
         except Exception as e:
-            logger.error(f"Error expanding expression: {e}")
+            logger.exception(f"Error expanding expression: {e}")
             return f"Error: {e!s}"
 
 
