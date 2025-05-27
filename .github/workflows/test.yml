@@ -60,6 +60,9 @@ jobs:
     - name: Run tests
       env:
         PYTHONPATH: ${{ github.workspace }}
+        FLASK_ENV: development
+        DATABASE_URL: "sqlite:///:memory:"
+        TESTING: "true"
       run: "# Activate virtual environment\nsource .venv/bin/activate\n\n# Run tests\
         \ with pytest\npytest ${{ inputs.test-path }} \\\n  -n auto \\\n  -v \\\n\
         \  --import-mode=importlib \\\n  --cov=. \\\n  --cov-report=xml \\\n  --cov-report=term-missing\

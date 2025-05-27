@@ -142,7 +142,9 @@ jobs:
         \ -m)\" >> $GITHUB_ENV\necho \"CI_PYTHON_VERSION=$(python --version | cut\
         \ -d' ' -f2)\" >> $GITHUB_ENV\necho \"CI_NODE_VERSION=$(node --version)\"\
         \ >> $GITHUB_ENV\necho \"CI_RUNNER_OS=${{ runner.os }}\" >> $GITHUB_ENV\n\
-        echo \"CI_WORKSPACE=${{ github.workspace }}\" >> $GITHUB_ENV\n\n# Set container\
+        echo \"CI_WORKSPACE=${{ github.workspace }}\" >> $GITHUB_ENV\n\n# Set Flask environment for testing\n\
+        echo \"FLASK_ENV=development\" >> $GITHUB_ENV\necho \"DATABASE_URL=sqlite:///:memory:\"\
+        \ >> $GITHUB_ENV\necho \"TESTING=true\" >> $GITHUB_ENV\n\n# Set container\
         \ environment detection variables\necho \"DOCKER_ENVIRONMENT=false\" >> $GITHUB_ENV\n\
         echo \"KUBERNETES_ENVIRONMENT=false\" >> $GITHUB_ENV\necho \"DOCKER_COMPOSE=false\"\
         \ >> $GITHUB_ENV\necho \"DOCKER_SWARM=false\" >> $GITHUB_ENV\n\n# Generate\
@@ -182,7 +184,9 @@ jobs:
         \ $env:GITHUB_ENV\necho \"CI_ARCH=x64\" >> $env:GITHUB_ENV\necho \"CI_PYTHON_VERSION=$(python\
         \ --version)\" >> $env:GITHUB_ENV\necho \"CI_NODE_VERSION=$(node --version)\"\
         \ >> $env:GITHUB_ENV\necho \"CI_RUNNER_OS=${{ runner.os }}\" >> $env:GITHUB_ENV\n\
-        echo \"CI_WORKSPACE=${{ github.workspace }}\" >> $env:GITHUB_ENV\n\n# Set\
+        echo \"CI_WORKSPACE=${{ github.workspace }}\" >> $env:GITHUB_ENV\n\n# Set Flask environment for testing\n\
+        echo \"FLASK_ENV=development\" >> $env:GITHUB_ENV\necho \"DATABASE_URL=sqlite:///:memory:\"\
+        \ >> $env:GITHUB_ENV\necho \"TESTING=true\" >> $env:GITHUB_ENV\n\n# Set\
         \ container environment detection variables\necho \"DOCKER_ENVIRONMENT=false\"\
         \ >> $env:GITHUB_ENV\necho \"KUBERNETES_ENVIRONMENT=false\" >> $env:GITHUB_ENV\n\
         echo \"DOCKER_COMPOSE=false\" >> $env:GITHUB_ENV\necho \"DOCKER_SWARM=false\"\
