@@ -1,6 +1,6 @@
-# CI-friendly requirements file
-# This file contains dependencies needed for GitHub Actions workflows
-# Excludes problematic packages that cause CI failures
+# CI-friendly requirements file for Windows
+# This file contains dependencies needed for GitHub Actions workflows on Windows
+# Excludes packages that don't support Windows
 
 # Core testing dependencies
 pytest>=8.0.0
@@ -15,11 +15,11 @@ ruff>=0.1.0
 pyright>=1.1.0
 black>=23.0.0
 
-# Security scanning tools
+# Security scanning tools (Windows compatible only)
 safety>=2.3.0
 bandit>=1.7.0
-# semgrep>=1.0.0  # EXCLUDED: Does not support Windows
 pip-audit>=2.6.0
+# semgrep>=1.0.0  # EXCLUDED: Does not support Windows
 
 # Core dependencies (filtered for CI compatibility)
 fastapi>=0.100.0
@@ -98,7 +98,6 @@ redis>=4.5.0
 
 # EXCLUDED PACKAGES FOR CI COMPATIBILITY:
 # The following packages are commented out because they cause CI failures
-# Mock versions are used instead in CI environments
 
 # MCP integration - commented out for CI compatibility
 # modelcontextprotocol>=0.1.0
@@ -117,4 +116,7 @@ redis>=4.5.0
 # transformers>=4.20.0
 # sentence-transformers>=2.2.0
 
-# Note: Mock modules are created automatically in CI for these excluded packages
+# Windows incompatible packages
+# semgrep>=1.0.0  # Does not support Windows
+
+# Note: Mock modules are created automatically in CI for these excluded packages 

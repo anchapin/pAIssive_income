@@ -166,8 +166,26 @@ def run_pytest_strategy(test_args: List[str]) -> int:
         # Add ignore flags for mock directories
         filtered_args.extend(["--ignore", "mock_mcp", "--ignore", "mock_crewai"])
         
+        # Ensure we use python -m pytest for better compatibility
         cmd = [sys.executable, "-m", "pytest", *filtered_args]
-        result = subprocess.run(cmd, check=False, capture_output=False)  # noqa: S603
+        logger.info(f"Running command: {' '.join(cmd)}")
+        
+        # Set environment variables for better pytest execution
+        env = os.environ.copy()
+        
+        # Add current directory to PYTHONPATH
+        current_pythonpath = env.get("PYTHONPATH", "")
+        current_dir = str(Path.cwd())
+        if current_pythonpath:
+            env["PYTHONPATH"] = f"{current_pythonpath};{current_dir}"
+        else:
+            env["PYTHONPATH"] = current_dir
+        
+        # Ensure user site-packages are available (don't set PYTHONNOUSERSITE)
+        if "PYTHONNOUSERSITE" in env:
+            del env["PYTHONNOUSERSITE"]
+        
+        result = subprocess.run(cmd, check=False, capture_output=False, env=env)  # noqa: S603
         
         if result.returncode == 0:
             logger.info("Tests completed successfully with pytest")
@@ -180,6 +198,9 @@ def run_pytest_strategy(test_args: List[str]) -> int:
             return result.returncode
     except subprocess.SubprocessError:
         logger.exception("pytest execution failed")
+        return 1
+    except Exception as e:
+        logger.exception("Unexpected error during pytest execution: %s", e)
         return 1
 
 

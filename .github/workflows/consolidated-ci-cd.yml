@@ -149,8 +149,15 @@ jobs:
         run: |
           Write-Host "Setting up Python environment for Windows..."
 
-          # Install CI-friendly requirements if available
-          if (Test-Path requirements-ci.txt) {
+          # Install Windows-specific CI requirements if available
+          if (Test-Path requirements-ci-windows.txt) {
+            Write-Host "Installing Windows-specific CI requirements..."
+            try {
+              python -m pip install -r requirements-ci-windows.txt
+            } catch {
+              Write-Host "Windows CI requirements installation failed: $_"
+            }
+          } elseif (Test-Path requirements-ci.txt) {
             Write-Host "Installing CI-friendly requirements..."
             try {
               python -m pip install -r requirements-ci.txt
@@ -400,7 +407,9 @@ jobs:
           Write-Host "Installing security tools on Windows..."
           python -m pip install --upgrade pip
           try {
-            python -m pip install safety bandit semgrep pip-audit
+            # Install Windows-compatible security tools only (semgrep not supported on Windows)
+            python -m pip install safety bandit pip-audit
+            Write-Host "Windows-compatible security tools installed successfully"
           } catch {
             Write-Host "Some security tools failed to install: $_"
           }
@@ -443,10 +452,11 @@ jobs:
           cp security-reports/bandit-results.sarif empty-sarif.json || echo "Failed to copy SARIF"
         shell: bash
 
-      - name: Run security scans
+      - name: Run security scans (Unix)
+        if: runner.os != 'Windows'
         continue-on-error: true
         run: |
-          echo "Running security scans..."
+          echo "Running security scans on Unix systems..."
 
           # Run safety check
           echo "Running safety check..."
@@ -472,10 +482,56 @@ jobs:
           echo "Running pip-audit..."
           pip-audit || echo "pip-audit failed"
 
-          # Run semgrep
+          # Run semgrep (Unix only)
           echo "Running semgrep..."
           semgrep scan --config auto || echo "semgrep failed"
         shell: bash
+
+      - name: Run security scans (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          Write-Host "Running security scans on Windows..."
+
+          # Run safety check
+          Write-Host "Running safety check..."
+          try {
+            safety check
+          } catch {
+            Write-Host "Safety check failed: $_"
+          }
+
+          # Run Bandit scan
+          Write-Host "Running Bandit scan..."
+          try {
+            if (Test-Path "test_bandit_config.py") {
+              python test_bandit_config.py
+            } else {
+              bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests,mock_mcp,mock_crewai" --exit-zero
+            }
+          } catch {
+            Write-Host "Bandit scan failed: $_"
+          }
+
+          # Convert to SARIF if converter exists
+          if (Test-Path "convert_bandit_to_sarif.py") {
+            try {
+              python convert_bandit_to_sarif.py
+            } catch {
+              Write-Host "SARIF conversion failed: $_"
+            }
+          }
+
+          # Run pip-audit
+          Write-Host "Running pip-audit..."
+          try {
+            pip-audit
+          } catch {
+            Write-Host "pip-audit failed: $_"
+          }
+
+          # Note: semgrep is not supported on Windows, skipping
 
       - name: Upload Bandit SARIF report
         uses: github/codeql-action/upload-sarif@v3
