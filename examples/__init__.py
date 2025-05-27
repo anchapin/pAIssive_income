@@ -1,1 +1,1 @@
-"""Examples package for demonstrating various features.""" 
+"""Examples package for demonstrating various features."""

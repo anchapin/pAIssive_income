@@ -6,6 +6,7 @@ This script implements a gradual approach to fixing linting issues:
 1. For PRs: Only lint changed files
 2. For main branch: Track progress and gradually expand coverage
 3. Provides tools to systematically fix existing issues
+4. Supports critical-only mode for large PRs
 """
 
 import argparse
@@ -15,6 +16,18 @@ import sys
 from pathlib import Path
 from typing import Dict, List
 
+# Critical error codes that could break functionality
+CRITICAL_ERROR_CODES = [
+    "E9",    # Runtime errors (syntax errors, etc.)
+    "F63",   # Invalid print statement
+    "F7",    # Syntax errors in type comments
+    "F82",   # Undefined name in __all__
+    "F821",  # Undefined name
+    "F822",  # Undefined name in __all__
+    "F831",  # Local variable assigned but never used
+    "E999",  # Syntax error
+    "W605",  # Invalid escape sequence
+]
 
 def get_changed_files(base_branch: str = "main") -> List[str]:
     """Get list of Python files changed compared to base branch."""
@@ -42,7 +55,7 @@ def get_changed_files(base_branch: str = "main") -> List[str]:
         return []
 
 
-def run_ruff_on_files(files: List[str], fix: bool = False) -> Dict[str, int]:
+def run_ruff_on_files(files: List[str], fix: bool = False, critical_only: bool = False) -> Dict[str, int]:
     """Run ruff on specific files and return error counts."""
     if not files:
         return {}
@@ -54,6 +67,11 @@ def run_ruff_on_files(files: List[str], fix: bool = False) -> Dict[str, int]:
             cmd = ["ruff", "check", file]
             if fix:
                 cmd.append("--fix")
+
+            if critical_only:
+                # Only check for critical errors
+                select_codes = ",".join(CRITICAL_ERROR_CODES)
+                cmd.extend(["--select", select_codes])
 
             result = subprocess.run(
                 cmd,
@@ -134,9 +152,10 @@ def load_baseline(filename: str = "lint_baseline.json") -> Dict[str, int]:
     return {}
 
 
-def check_pr_mode(base_branch: str = "main", fix: bool = False) -> int:
+def check_pr_mode(base_branch: str = "main", fix: bool = False, critical_only: bool = False) -> int:
     """Check only changed files in PR mode."""
-    print("🔍 Running in PR mode - checking only changed files...")
+    mode_desc = "critical errors only" if critical_only else "all linting issues"
+    print(f"🔍 Running in PR mode - checking {mode_desc} in changed files...")
 
     changed_files = get_changed_files(base_branch)
 
@@ -148,17 +167,26 @@ def check_pr_mode(base_branch: str = "main", fix: bool = False) -> int:
     for file in changed_files:
         print(f"  - {file}")
 
-    results = run_ruff_on_files(changed_files, fix=fix)
+    results = run_ruff_on_files(changed_files, fix=fix, critical_only=critical_only)
 
     # Check if any changed files have new errors
     total_errors = sum(count for count in results.values() if count > 0)
 
     if total_errors == 0:
-        print("✅ All changed files are lint-clean!")
+        success_msg = "critical checks" if critical_only else "linting checks"
+        print(f"✅ All changed files pass {success_msg}!")
         return 0
-    print(f"❌ Found {total_errors} linting issues in changed files.")
+
+    error_type = "critical issues" if critical_only else "linting issues"
+    print(f"❌ Found {total_errors} {error_type} in changed files.")
+
     if not fix:
         print("💡 Run with --fix to automatically fix issues, or fix manually.")
+
+    # In critical-only mode, only fail for critical errors
+    if critical_only:
+        return 1
+
     return 1
 
 
@@ -269,6 +297,16 @@ def main():
         help="Automatically fix issues where possible"
     )
     parser.add_argument(
+        "--critical-only",
+        action="store_true",
+        help="Only check for critical errors that could break functionality"
+    )
+    parser.add_argument(
+        "--auto-commit",
+        action="store_true",
+        help="Automatically commit fixes (used in CI)"
+    )
+    parser.add_argument(
         "--count",
         type=int,
         default=5,
@@ -278,7 +316,7 @@ def main():
     args = parser.parse_args()
 
     if args.mode == "pr":
-        return check_pr_mode(args.base_branch, args.fix)
+        return check_pr_mode(args.base_branch, args.fix, args.critical_only)
     if args.mode == "progress":
         return check_progress_mode()
     if args.mode == "fix":
