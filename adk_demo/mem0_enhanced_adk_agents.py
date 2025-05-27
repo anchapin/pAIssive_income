@@ -18,8 +18,10 @@ Requirements:
     - adk package: pip install adk
 """
 
+from __future__ import annotations
+
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 # Import ADK components
 try:
@@ -33,11 +35,13 @@ except ImportError:
     # Define placeholder classes for type hints
     class Agent:
         """Placeholder for Agent class when ADK is not installed."""
+
         def __init__(self, name: str) -> None:
             self.name = name
 
     class Message:
         """Placeholder for Message class when ADK is not installed."""
+
         def __init__(self, type: str, payload: Dict[str, Any], sender: str) -> None:
             self.type = type
             self.payload = payload
@@ -45,11 +49,13 @@ except ImportError:
 
     class SimpleMemory:
         """Placeholder for SimpleMemory class when ADK is not installed."""
+
         def __init__(self) -> None:
             pass
 
     class Skill:
         """Placeholder for Skill class when ADK is not installed."""
+
         def run(self, *args: Any, **kwargs: Any) -> Any:
             pass
 
@@ -69,22 +75,26 @@ if ADK_AVAILABLE:
         # Define placeholder skills if not available
         class DataGathererSkill(Skill):
             """Placeholder for DataGathererSkill."""
+
             def run(self, query: str) -> str:
                 return f"Data found for '{query}': [Example data]"
 
         class SummarizerSkill(Skill):
             """Placeholder for SummarizerSkill."""
+
             def run(self, data: str) -> str:
                 return f"Summary of data: {data[:50]}..."
 else:
     # Define placeholder skills if ADK is not available
     class DataGathererSkill(Skill):
         """Placeholder for DataGathererSkill."""
+
         def run(self, query: str) -> str:
             return f"Data found for '{query}': [Example data]"
 
     class SummarizerSkill(Skill):
         """Placeholder for SummarizerSkill."""
+
         def run(self, data: str) -> str:
             return f"Summary of data: {data[:50]}..."
 
@@ -110,6 +120,7 @@ class MemoryEnhancedAgent(Agent):
         Args:
             name: The name of the agent
             user_id: The user ID for memory storage and retrieval
+
         """
         super().__init__(name)
 
@@ -145,6 +156,7 @@ class MemoryEnhancedAgent(Agent):
 
         Returns:
             The response message
+
         """
         # Skip memory enhancement if mem0 is not available
         if self.memory is None:
@@ -178,15 +190,15 @@ class MemoryEnhancedAgent(Agent):
 
         Returns:
             A query string for memory retrieval
+
         """
         # Extract query based on message type
         if message.type == "gather":
             return message.payload.get("query", "")
-        elif message.type == "summarize":
+        if message.type == "summarize":
             return message.payload.get("data", "")
-        else:
-            # Default to message type as query
-            return f"Message of type {message.type} from {message.sender}"
+        # Default to message type as query
+        return f"Message of type {message.type} from {message.sender}"
 
     def _enhance_message_with_memories(self, message: Message, memories: List[Dict[str, Any]]) -> Message:
         """
@@ -198,6 +210,7 @@ class MemoryEnhancedAgent(Agent):
 
         Returns:
             The enhanced message
+
         """
         # TODO: This is intentionally a placeholder for future enhancement.
         # In future iterations, this method will be implemented to inject
@@ -214,6 +227,7 @@ class MemoryEnhancedAgent(Agent):
         Args:
             message: The incoming message
             response: The outgoing response
+
         """
         # Create a conversation-style memory
         conversation = [
@@ -231,13 +245,14 @@ class MemoryEnhancedAgent(Agent):
             }
         )
 
-    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Dict[str, str] = None) -> None:
+    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Optional[Dict[str, str]] = None) -> None:
         """
         Store a memory using mem0.
 
         Args:
             content: The content to store (string or conversation messages)
             metadata: Optional metadata for the memory
+
         """
         if self.memory is None:
             return
@@ -250,7 +265,7 @@ class MemoryEnhancedAgent(Agent):
             )
             logger.debug(f"Memory stored: {content[:50]}..." if isinstance(content, str) else "Conversation stored")
         except Exception as e:
-            logger.error(f"Error storing memory: {e}")
+            logger.exception(f"Error storing memory: {e}")
 
     def _retrieve_relevant_memories(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
         """
@@ -262,20 +277,20 @@ class MemoryEnhancedAgent(Agent):
 
         Returns:
             List of relevant memories
+
         """
         if self.memory is None or not query:
             return []
 
         try:
             # Search for relevant memories
-            memories = self.memory.search(
+            return self.memory.search(
                 query=query,
                 user_id=self.user_id,
                 limit=limit
             )
-            return memories
         except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+            logger.exception(f"Error retrieving memories: {e}")
             return []
 
 
@@ -294,6 +309,7 @@ class MemoryEnhancedDataGathererAgent(MemoryEnhancedAgent):
         Args:
             name: The name of the agent
             user_id: The user ID for memory storage and retrieval
+
         """
         super().__init__(name, user_id)
 
@@ -322,6 +338,7 @@ class MemoryEnhancedSummarizerAgent(MemoryEnhancedAgent):
         Args:
             name: The name of the agent
             user_id: The user ID for memory storage and retrieval
+
         """
         super().__init__(name, user_id)
 

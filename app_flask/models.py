@@ -1,18 +1,16 @@
 """models.py - SQLAlchemy models for Flask app."""
 
-from typing import TypeVar
+from __future__ import annotations
 
-from . import db
-
-# Type alias for db.Model - using Any to avoid mypy errors
-# mypy: disable-error-code="name-defined"
-ModelType = TypeVar("ModelType", bound="db.Model")  # type: ignore[name-defined]
+# Import db from the database module
+from .database import db
 
 
 class User(db.Model):  # type: ignore[name-defined]
     """User model for authentication and user management."""
 
     __tablename__ = "users"
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -33,6 +31,7 @@ class Team(db.Model):  # type: ignore[name-defined]
     """Team model for grouping AI agents."""
 
     __tablename__ = "teams"
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
@@ -41,6 +40,7 @@ class Team(db.Model):  # type: ignore[name-defined]
         db.DateTime, server_default=db.func.now(), onupdate=db.func.now()
     )
 
+    # Relationships
     agents = db.relationship(
         "Agent", back_populates="team", cascade="all, delete-orphan"
     )
@@ -60,6 +60,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
     """Agent model for AI agents that belong to teams."""
 
     __tablename__ = "agents"
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(64), nullable=True)
@@ -70,6 +71,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
         db.DateTime, server_default=db.func.now(), onupdate=db.func.now()
     )
 
+    # Relationships
     team = db.relationship("Team", back_populates="agents")
 
     def __repr__(self) -> str:
