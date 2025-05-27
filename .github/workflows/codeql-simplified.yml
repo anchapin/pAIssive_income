@@ -1,0 +1,105 @@
+name: CodeQL Analysis (Simplified)
+
+on:
+  push:
+    branches: [main, develop, master]
+  pull_request:
+    branches: [main, develop, master]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Mondays
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript', 'python']
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        config: |
+          name: "Simplified CodeQL Config"
+          queries:
+            - uses: security-and-quality
+          paths:
+            - src
+            - ui
+            - scripts
+            - api
+          paths-ignore:
+            - '**/node_modules/**'
+            - '**/dist/**'
+            - '**/build/**'
+            - '**/coverage/**'
+            - '**/test*/**'
+            - '**/.venv/**'
+            - '**/venv/**'
+            - '**/__pycache__/**'
+            - '**/*.test.js'
+            - '**/*.test.ts'
+            - '**/*.test.py'
+
+    - name: Setup Node.js (for JavaScript analysis)
+      if: matrix.language == 'javascript'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup pnpm (for JavaScript analysis)
+      if: matrix.language == 'javascript'
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+
+    - name: Install JavaScript dependencies
+      if: matrix.language == 'javascript'
+      run: |
+        pnpm install --no-optional || npm install --no-optional || echo "Install failed, continuing..."
+
+    - name: Setup Python (for Python analysis)
+      if: matrix.language == 'python'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Python dependencies
+      if: matrix.language == 'python'
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt || echo "Some requirements failed"
+        fi
+        if [ -f requirements-dev.txt ]; then
+          pip install -r requirements-dev.txt || echo "Some dev requirements failed"
+        fi
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{ matrix.language }}"
+        upload: true
+
+    - name: Upload CodeQL results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: codeql-results-${{ matrix.language }}-${{ github.run_id }}
+        path: |
+          /home/runner/work/_temp/codeql_databases/
+        retention-days: 7 
