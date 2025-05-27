@@ -1,0 +1,144 @@
+name: CodeQL Analysis (Simple)
+
+on:
+  pull_request:
+    branches: [main, dev, master, develop]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - '.gitignore'
+      - 'docs/**'
+      - 'LICENSE'
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript-typescript', 'python']
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup pnpm
+      if: matrix.language == 'javascript-typescript'
+      uses: pnpm/action-setup@v4
+      with:
+        version: '8'
+
+    - name: Set up Node.js
+      if: matrix.language == 'javascript-typescript'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: pnpm
+
+    - name: Set up Python
+      if: matrix.language == 'python'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      if: matrix.language == 'javascript-typescript'
+      run: |
+        if [ -f package.json ]; then
+          pnpm install
+        elif [ -f ui/react_frontend/package.json ]; then
+          cd ui/react_frontend && pnpm install
+        fi
+      continue-on-error: true
+
+    - name: Create .codeqlignore file
+      run: |
+        cat > .codeqlignore << 'EOL'
+        .venv/**
+        venv/**
+        env/**
+        .env/**
+        **/virtualenv/**
+        **/site-packages/**
+        **/dist-packages/**
+        **/node_modules/**
+        **/dist/**
+        **/build/**
+        **/vendor/**
+        **/external/**
+        **/third_party/**
+        **/__pycache__/**
+        **/.pytest_cache/**
+        **/.mypy_cache/**
+        **/.ruff_cache/**
+        **/*.pyc
+        **/*.pyo
+        **/*.pyd
+        **/test/**
+        **/tests/**
+        **/__tests__/**
+        **/__mocks__/**
+        **/*.test.js
+        **/*.test.ts
+        **/*.test.jsx
+        **/*.test.tsx
+        **/*.spec.js
+        **/*.spec.ts
+        **/*.spec.jsx
+        **/*.spec.tsx
+        **/.github/**
+        **/.vscode/**
+        **/.idea/**
+        **/coverage/**
+        **/.git/**
+        **/docs/**
+        **/*.md
+        **/*.mdx
+        **/*.rst
+        **/sphinx/**
+        **/playwright-report/**
+        **/generated/**
+        **/sarif-results/**
+        **/*.sarif
+        **/*.sarif.json
+        ui/react_frontend/node_modules/**
+        sdk/javascript/node_modules/**
+        EOL
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-and-quality
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{ matrix.language }}" 

@@ -64,33 +64,23 @@ jobs:
     - name: Add pnpm to PATH (Linux/macOS)
       if: runner.os != 'Windows'
       shell: bash
-      run: 'export PATH=$(pnpm bin):$PATH
-
+      run: |
+        export PATH=$(pnpm bin):$PATH
         echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
-
         echo "Current PATH: $PATH"
-
         which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
-
-        '
     - name: Add pnpm to PATH (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
         $pnpmPath = (& pnpm bin)
-$env: PATH = "$pnpmPath;$env: PATH"
-echo ":
-        PATH=$pnpmPath;$env: PATH" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
-:
-        Write-Host "Current PATH: $env: PATH"
-if (-not (Get-Command pnpm -ErrorAction:
-        \ SilentlyContinue)) {
-  Write-Host "Error: pnpm is not in PATH."
-  exit\
-        \ 1
-}:
-":
+        $env:PATH = "$pnpmPath;$env:PATH"
+        echo "PATH=$pnpmPath;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+        Write-Host "Current PATH: $env:PATH"
+        if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+          Write-Host "Error: pnpm is not in PATH."
+          exit 1
+        }
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
@@ -103,28 +93,19 @@ if (-not (Get-Command pnpm -ErrorAction:
       shell: bash
       run: |
         # Check for package.json in the root directory
-if [ -f package.json ];:
-        \ then
-  echo Installing dependencies with pnpm in root directory..."
-:
-        \  pnpm install
-else
-  echo "No package.json found in root directory,
-:
-        \  checking ui/react_frontend..."
-  # Check for package.json in ui/react_frontend
-:
-        \  if [ -f ui/react_frontend/package.json ]; then
-    echo "Installing dependencies\
-        \ with pnpm in ui/react_frontend..."
-    cd ui/react_frontend && pnpm install
-:
-        \  else
-    echo "No package.json found in ui/react_frontend,
-    skipping\
-        \ dependency installation."
-  fi
-fi
+        if [ -f package.json ]; then
+          echo "Installing dependencies with pnpm in root directory..."
+          pnpm install
+        else
+          echo "No package.json found in root directory, checking ui/react_frontend..."
+          # Check for package.json in ui/react_frontend
+          if [ -f ui/react_frontend/package.json ]; then
+            echo "Installing dependencies with pnpm in ui/react_frontend..."
+            cd ui/react_frontend && pnpm install
+          else
+            echo "No package.json found in ui/react_frontend, skipping dependency installation."
+          fi
+        fi
       continue-on-error: true
     - name: Create .codeqlignore file
       shell: bash
