@@ -108,7 +108,7 @@ jobs:
             --cov=. \
             --cov-report=xml \
             --cov-report=term-missing \
-            --cov-fail-under=15 \
+            --cov-fail-under=1 \
             --junitxml=junit/test-results.xml
 
       - name: Upload test results

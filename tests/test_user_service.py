@@ -2,7 +2,7 @@
 
 import logging
 import unittest
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import bcrypt
@@ -74,11 +74,13 @@ patch("users.models.User", MockUser).start()
 mock_db = MagicMock()
 patch("users.models.db", mock_db).start()
 
-# Mock Flask app context
-patch("flask.current_app._get_current_object", MagicMock()).start()
+# Mock Flask app context - avoid triggering _get_current_object at import time
 patch("flask.has_app_context", MagicMock(return_value=True)).start()
-patch("flask._app_ctx_stack.top", MagicMock()).start()
-patch("flask.current_app.app_context", MagicMock(return_value=MockAppContext())).start()
+
+# Create a mock app object that doesn't trigger context errors
+mock_app = MagicMock()
+mock_app.app_context.return_value = MockAppContext()
+patch("flask.current_app", mock_app).start()
 
 
 @pytest.fixture
@@ -114,8 +116,8 @@ def test_create_user(mock_hash):
         id=1,
         username="testuser",
         email="test@example.com",
-        created_at=datetime.now(tz=datetime.timezone.utc),
-        updated_at=datetime.now(tz=datetime.timezone.utc),
+        created_at=datetime.now(tz=timezone.utc),
+        updated_at=datetime.now(tz=timezone.utc),
     )
 
     # Set up the mocks
