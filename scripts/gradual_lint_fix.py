@@ -160,7 +160,10 @@ def load_baseline(filename: str = "lint_baseline.json") -> Dict[str, int]:
 
 
 def check_pr_mode(
-    base_branch: str = "main", fix: bool = False, critical_only: bool = False, auto_commit: bool = False
+    base_branch: str = "main",
+    fix: bool = False,
+    critical_only: bool = False,
+    auto_commit: bool = False,
 ) -> int:
     """Check only changed files in PR mode."""
     mode_desc = "critical errors only" if critical_only else "all linting issues"
@@ -327,7 +330,9 @@ def main():
     args = parser.parse_args()
 
     if args.mode == "pr":
-        return check_pr_mode(args.base_branch, args.fix, args.critical_only, args.auto_commit)
+        return check_pr_mode(
+            args.base_branch, args.fix, args.critical_only, args.auto_commit
+        )
     if args.mode == "progress":
         return check_progress_mode()
     if args.mode == "fix":
