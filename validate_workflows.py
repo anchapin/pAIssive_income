@@ -36,15 +36,16 @@ def validate_workflow_file(file_path):
         if "name" not in workflow:
             issues.append("Missing 'name' field")
 
-        if "on" not in workflow:
+        # Check for 'on' field (YAML parsers may interpret 'on:' as boolean True)
+        if "on" not in workflow and True not in workflow:
             issues.append("Missing 'on' field (workflow triggers)")
 
         if "jobs" not in workflow:
             issues.append("Missing 'jobs' field")
 
-        # Check for common issues
-        if "true" in workflow:
-            issues.append("Found 'true' key - should probably be 'on'")
+        # Check for common issues - this is actually normal for 'on:' fields
+        # if "true" in workflow:
+        #     issues.append("Found 'true' key - should probably be 'on'")
 
         # Check jobs structure
         if "jobs" in workflow and isinstance(workflow["jobs"], dict):
@@ -60,12 +61,9 @@ def validate_workflow_file(file_path):
                     issues.append(f"Job '{job_name}' missing 'steps' field")
 
         # Check for malformed pip install commands
-        if (
-            "pytest --ignore=" in content
-            and "pytest --ignore=" in content[content.find("pytest --ignore=") + 20 :]
-        ):
+        if "pip install pytest --ignore=" in content:
             issues.append(
-                "Found potentially malformed pip install command with repeated pytest"
+                "Found malformed pip install command: --ignore flags should be used with pytest run, not pip install"
             )
 
         return issues

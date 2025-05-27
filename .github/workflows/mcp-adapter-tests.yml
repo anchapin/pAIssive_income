@@ -71,11 +71,7 @@ jobs:
         restore-keys: ${{ runner.os }}-deps-
     - name: Install dependencies (Unix)
       if: runner.os != 'Windows'
-      run: "python -m pip install --upgrade pip\npython -m pip install pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py-cov pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py-xdist pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py-asyncio\n\n# Check if requirements.txt\
+      run: "python -m pip install --upgrade pip\npython -m pip install pytest pytest-cov pytest-xdist pytest-asyncio\n\n# Check if requirements.txt\
         \ exists\nif [ -f \"requirements.txt\" ] || [ -e \"requirements.txt\" ]; then\n\
         \  echo \"Installing dependencies from requirements.txt\"\n  python -m pip\
         \ install -r requirements.txt || {\n    echo \"Failed to install dependencies\
@@ -86,11 +82,7 @@ jobs:
     - name: Install dependencies (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
-      run: "python -m pip install --upgrade pip\npython -m pip install pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py-cov pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py-xdist pytest --ignore=tests/test_mcp_import.py\
-        \ --ignore=tests/test_mcp_top_level_import.py-asyncio\n\n# Set CI environment\
+      run: "python -m pip install --upgrade pip\npython -m pip install pytest pytest-cov pytest-xdist pytest-asyncio\n\n# Set CI environment\
         \ variables\n$env:CI = \"true\"\n$env:GITHUB_ACTIONS = \"true\"\n\n# Check\
         \ if requirements.txt exists\nif (Test-Path \"requirements.txt\") {\n  Write-Host\
         \ \"Installing dependencies from requirements.txt\"\n  try {\n    # Install\
