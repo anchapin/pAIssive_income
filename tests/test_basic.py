@@ -1,9 +1,9 @@
 """test_basic - Basic tests for the Flask application."""
 
 import pytest
-from flask import Flask
 
 from app_flask import create_app, db
+from flask import Flask
 
 
 def test_app_creation():

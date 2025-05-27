@@ -10,8 +10,9 @@ from logging import INFO, Logger, getLogger
 logger = getLogger(__name__)
 from typing import Any, Callable, TypeVar, cast
 
-from flask.globals import current_app, g
 from werkzeug.local import LocalProxy
+
+from flask.globals import current_app, g
 
 # Type variables for generic function decorators
 F = TypeVar("F", bound=Callable[..., Any])

@@ -3,11 +3,11 @@
 from typing import Generator
 
 import pytest
-from flask import Flask
-from flask.testing import FlaskClient
 
 from app_flask import db
 from app_flask.models import Agent, Team, User
+from flask import Flask
+from flask.testing import FlaskClient
 
 # Constants
 EXPECTED_AGENT_COUNT = 2
