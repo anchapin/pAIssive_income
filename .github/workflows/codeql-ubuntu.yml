@@ -123,7 +123,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
+          # Remove cache: 'pip' to avoid cache folder path issues
 
       # Display disk space before analysis
       - name: Check disk space

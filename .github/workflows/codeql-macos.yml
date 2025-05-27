@@ -121,7 +121,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
+          # Remove cache: 'pip' to avoid cache folder path issues
 
       # Verify lock files exist before analysis with enhanced error handling
       - name: Verify lock files
