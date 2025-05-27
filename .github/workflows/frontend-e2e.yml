@@ -30,6 +30,7 @@ on:
 jobs:
   e2e:
     runs-on: ${{ (github.event.inputs.platform == 'both' || github.event.inputs.platform == '') && 'ubuntu-latest' || format('{0}-latest', github.event.inputs.platform) }}
+    timeout-minutes: 60
 
     defaults:
       run:

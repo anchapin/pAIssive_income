@@ -171,29 +171,25 @@ jobs:
             # Ensure directory exists
             New-Item -ItemType Directory -Force -Path ".github/codeql" | Out-Null
 
-            # Create minimal Windows configuration using a here-string
-            $windowsConfig = @"
-name: "CodeQL Configuration for Windows"
-os: windows-latest
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-"@
+            # Create minimal Windows configuration
+            $windowsConfig = 'name: "CodeQL Configuration for Windows"' + "`n" +
+                           'os: windows-latest' + "`n" +
+                           'queries:' + "`n" +
+                           '  - uses: security-and-quality' + "`n" +
+                           '  - uses: security-extended' + "`n" +
+                           '  - uses: security' + "`n" +
+                           'disable-default-queries: false' + "`n" +
+                           'trap-for-errors: true'
             Set-Content -Path ".github/codeql/security-os-windows.yml" -Value $windowsConfig -Encoding UTF8 -Force
 
-            # Create minimal unified configuration using a here-string
-            $unifiedConfig = @"
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-"@
+            # Create minimal unified configuration
+            $unifiedConfig = 'name: "Unified CodeQL Configuration"' + "`n" +
+                           'queries:' + "`n" +
+                           '  - uses: security-and-quality' + "`n" +
+                           '  - uses: security-extended' + "`n" +
+                           '  - uses: security' + "`n" +
+                           'disable-default-queries: false' + "`n" +
+                           'trap-for-errors: true'
             Set-Content -Path ".github/codeql/security-os-config.yml" -Value $unifiedConfig -Encoding UTF8 -Force
           }
 
@@ -218,33 +214,31 @@ trap-for-errors: true
             Write-Host "WARNING: CodeQL configuration file not found: $configFile"
             Write-Host "Creating minimal configuration file..."
 
-            # Create configuration content using a here-string
-            $configContent = @"
-name: "CodeQL Configuration for Windows"
-
-# This configuration file customizes the CodeQL analysis for Windows
-# It provides Windows-specific settings
-
-# Windows-specific settings
-os: windows-latest
-
-# Query filters
-queries:
-  # Include the standard security and quality queries
-  - uses: security-and-quality
-
-  # Include additional security queries
-  - uses: security-extended
-
-  # Use standard security queries
-  - uses: security
-
-# Disable noisy alerts
-disable-default-queries: false
-
-# Trap errors during extraction
-trap-for-errors: true
-"@
+            # Create configuration content
+            $configContent = 'name: "CodeQL Configuration for Windows"' + "`n" +
+                           '' + "`n" +
+                           '# This configuration file customizes the CodeQL analysis for Windows' + "`n" +
+                           '# It provides Windows-specific settings' + "`n" +
+                           '' + "`n" +
+                           '# Windows-specific settings' + "`n" +
+                           'os: windows-latest' + "`n" +
+                           '' + "`n" +
+                           '# Query filters' + "`n" +
+                           'queries:' + "`n" +
+                           '  # Include the standard security and quality queries' + "`n" +
+                           '  - uses: security-and-quality' + "`n" +
+                           '' + "`n" +
+                           '  # Include additional security queries' + "`n" +
+                           '  - uses: security-extended' + "`n" +
+                           '' + "`n" +
+                           '  # Use standard security queries' + "`n" +
+                           '  - uses: security' + "`n" +
+                           '' + "`n" +
+                           '# Disable noisy alerts' + "`n" +
+                           'disable-default-queries: false' + "`n" +
+                           '' + "`n" +
+                           '# Trap errors during extraction' + "`n" +
+                           'trap-for-errors: true'
             # Create the configuration file
             Set-Content -Path $configFile -Value $configContent -Encoding UTF8 -Force
 

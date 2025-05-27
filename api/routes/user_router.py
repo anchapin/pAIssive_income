@@ -1,20 +1,17 @@
-"""user_router - User API endpoints using SQLAlchemy ORM."""
+"""user_router - User API endpoints using FastAPI."""
 
 from __future__ import annotations
 
 import os
 
 # Type checking imports
-from typing import TYPE_CHECKING, Union
+from typing import List
 
-from flask import Blueprint, jsonify, request
+from fastapi import APIRouter, HTTPException, Path, status
 
 from common_utils.logging import get_logger
-
-if TYPE_CHECKING:
-    from flask.wrappers import Response
-    from werkzeug.wrappers import Response as WerkzeugResponse
-from users.services import AuthenticationError, UserExistsError, UserService
+from users.schemas import UserCreate, UserResponse, UserUpdate
+from users.services import UserService
 
 # Set up secure logger that masks sensitive info
 logger = get_logger(__name__)
@@ -22,68 +19,67 @@ logger = get_logger(__name__)
 # Example: provide your secret through environment variable in production
 TOKEN_SECRET = os.environ.get("USER_TOKEN_SECRET", "super-secret")
 
-user_bp = Blueprint("user", __name__, url_prefix="/api/users")
+# Create router
+router = APIRouter(prefix="/users", tags=["users"])
 
+# Initialize user service with token secret
 user_service = UserService(token_secret=TOKEN_SECRET)
 
+# API endpoints
+@router.get("", response_model=List[UserResponse])
+async def get_users_endpoint():
+    """Get all users."""
+    return user_service.get_users()
 
-@user_bp.route("/", methods=["POST"])
-def create_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
-    """
-    Create a new user.
 
-    Returns:
-        tuple[Response, int]: JSON response with user data or error and HTTP status code
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user_endpoint(user_id: int = Path(..., ge=1)):
+    """Get a user by ID."""
+    user = user_service.get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID {user_id} not found"
+        )
+    return user
 
-    """
+
+@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user_endpoint(user: UserCreate):
+    """Create a new user."""
     try:
-        data = request.get_json()
-        username = data.get("username")
-        email = data.get("email")
-        password = data.get("password")
-
-        logger.info("Creating new user")
-        user = user_service.create_user(username, email, password)
-        logger.info("User created successfully")
-        return jsonify(user), 201
-
-    except UserExistsError:
-        logger.warning("Attempt to create duplicate user")
-        return jsonify({"error": "User already exists"}), 400
-
-    except AuthenticationError:
-        logger.warning("Invalid credentials provided during user creation")
-        return jsonify({"error": "Invalid credentials"}), 400
-
+        user_data = user.model_dump()
+        return user_service.create_user(
+            username=user_data["username"],
+            email=user_data["email"],
+            auth_credential=user_data["password"]
+        )
     except Exception:
-        logger.exception("Failed to create user")
-        return jsonify({"error": "An error occurred while creating the user"}), 500
+        logger.exception("Error creating user")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while creating the user"
+        )
 
 
-@user_bp.route("/authenticate", methods=["POST"])
-def authenticate_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
-    """
-    Authenticate a user.
+@router.put("/{user_id}", response_model=UserResponse)
+async def update_user_endpoint(user: UserUpdate, user_id: int = Path(..., ge=1)):
+    """Update a user."""
+    updated_user = user_service.update_user(user_id, user.model_dump(exclude_unset=True))
+    if not updated_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID {user_id} not found"
+        )
+    return updated_user
 
-    Returns:
-        tuple[Response, int]: JSON response with user data or error and HTTP status code
 
-    """
-    try:
-        data = request.get_json()
-        username_or_email = data.get("username_or_email")
-        password = data.get("password")
-
-        logger.info("Authenticating user")
-        success, user = user_service.authenticate_user(username_or_email, password)
-
-        if success:
-            logger.info("User authentication successful")
-            return jsonify(user), 200
-
-        logger.warning("Invalid credentials provided")
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    except Exception:
-        logger.exception("Failed to authenticate user")
-        return jsonify({"error": "An error occurred during authentication"}), 500
+@router.delete("/{user_id}")
+async def delete_user_endpoint(user_id: int = Path(..., ge=1)):
+    """Delete a user."""
+    if not user_service.delete_user(user_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID {user_id} not found"
+        )
+    return {"message": f"User with ID {user_id} deleted successfully"}

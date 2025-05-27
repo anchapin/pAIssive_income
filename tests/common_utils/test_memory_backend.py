@@ -4,6 +4,7 @@ Test module for common_utils.secrets.memory_backend.
 This module tests the MemoryBackend class for secure logging.
 """
 
+import logging
 from unittest.mock import patch
 
 import pytest
