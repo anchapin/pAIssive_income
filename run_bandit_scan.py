@@ -108,7 +108,7 @@ def create_empty_json_files() -> bool:
 
         return True
     except Exception as e:
-        logger.error("Failed to create empty files: %s", e)
+        logger.exception("Failed to create empty files: %s", e)
         return False
 
 
@@ -239,7 +239,7 @@ def main() -> int:
             except Exception as e:
                 logger.warning("Bandit scan with default configuration failed: %s", e)
     except Exception as e:
-        logger.error("Error running bandit: %s", e)
+        logger.exception("Error running bandit: %s", e)
 
     # Convert JSON to SARIF format
     try:
@@ -260,7 +260,7 @@ def main() -> int:
                     "Failed to convert Bandit results to SARIF format: %s", e
                 )
     except Exception as e:
-        logger.error("Error converting to SARIF: %s", e)
+        logger.exception("Error converting to SARIF: %s", e)
 
     logger.info("Bandit scan completed successfully")
     return 0

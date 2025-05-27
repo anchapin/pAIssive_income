@@ -1,14 +1,14 @@
 import logging
 import unittest
+from typing import Any, Dict, List, Optional  # Assuming these are used in the file
 from unittest.mock import MagicMock, patch
-from typing import List, Dict, Any, Optional # Assuming these are used in the file
 
 import pytest
 
 from agent_team.mem0_enhanced_agents import (
-    MemoryEnhancedCrewAIAgentTeam,
     CREWAI_AVAILABLE,
     MEM0_AVAILABLE,
+    MemoryEnhancedCrewAIAgentTeam,
 )
 
 """
@@ -153,7 +153,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             goal="Find information",
             backstory="Expert researcher",
         )
-        task = self.team.add_task(
+        self.team.add_task(
             description="Research AI memory systems",
             agent=agent,
         )

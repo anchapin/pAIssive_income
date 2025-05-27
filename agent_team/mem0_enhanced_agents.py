@@ -27,7 +27,7 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 # Import CrewAI components
 try:
@@ -36,7 +36,6 @@ try:
 except ImportError:
     CREWAI_AVAILABLE = False
     # Use placeholder classes from crewai_agents.py
-    from agent_team.crewai_agents import Agent, Crew, Task, AgentPlaceholder, CrewPlaceholder, TaskPlaceholder
 
 # Import mem0 components
 try:
@@ -48,6 +47,9 @@ except ImportError:
 
 # Import base CrewAI agent team
 from agent_team.crewai_agents import CrewAIAgentTeam
+
+# Import MemoryRAGCoordinator for unified memory/RAG retrieval
+from services.memory_rag_coordinator import MemoryRAGCoordinator
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -64,13 +66,14 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     - Team execution
     """
 
-    def __init__(self, llm_provider: object = None, user_id: str = None) -> None:
+    def __init__(self, llm_provider: object = None, user_id: Optional[str] = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
 
         Args:
             llm_provider: The LLM provider to use for agent interactions
             user_id: The user ID for memory storage and retrieval
+
         """
         super().__init__(llm_provider)
 
@@ -84,6 +87,9 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         # Set user ID for memory operations
         self.user_id = user_id or "default_user"
+
+        # Initialize the MemoryRAGCoordinator for unified memory & RAG retrieval
+        self.rag_coordinator = MemoryRAGCoordinator()
 
         # Store team creation in memory
         self._store_memory(f"Agent team created with user ID: {self.user_id}")
@@ -99,6 +105,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The created agent
+
         """
         # Create the agent using the parent method
         agent = super().add_agent(role, goal, backstory)
@@ -121,6 +128,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The created task
+
         """
         # Create the task using the parent method
         task = super().add_task(description, agent)
@@ -148,6 +156,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The result of the workflow
+
         """
         if not CREWAI_AVAILABLE:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
@@ -190,13 +199,14 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         return result
 
-    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Dict[str, str] = None) -> None:
+    def _store_memory(self, content: Union[str, list[dict[str, str]]], metadata: Optional[dict[str, str]] = None) -> None:
         """
         Store a memory using mem0.
 
         Args:
             content: The content to store (string or conversation messages)
             metadata: Optional metadata for the memory
+
         """
         if self.memory is None:
             return
@@ -209,37 +219,36 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             )
             logger.debug(f"Memory stored: {content[:50]}..." if isinstance(content, str) else "Conversation stored")
         except Exception as e:
-            logger.error(f"Error storing memory: {e}")
+            logger.exception(f"Error storing memory: {e}")
 
-    def _retrieve_relevant_memories(self, query: str = None, limit: int = 5) -> List[Dict[str, Any]]:
+    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> list[dict[str, Any]]:
         """
-        Retrieve relevant memories for the current context.
+        Retrieve relevant memories and RAG results for the current context.
+
+        This method now uses the MemoryRAGCoordinator to provide unified,
+        deduplicated, and relevance-ranked results from both mem0 and ChromaDB.
 
         Args:
             query: Optional query string (defaults to team and agent information)
-            limit: Maximum number of memories to retrieve
+            limit: Maximum number of memories to retrieve (applied after merge)
 
         Returns:
-            List of relevant memories
-        """
-        if self.memory is None:
-            return []
+            List of relevant memories and RAG results, merged and deduplicated.
 
+        """
         # If no query provided, create one based on team information
         if query is None:
             agent_roles = [getattr(agent, "role", "unknown") for agent in self.agents]
             query = f"Information about agents with roles: {', '.join(agent_roles)}"
 
         try:
-            # Search for relevant memories
-            memories = self.memory.search(
-                query=query,
-                user_id=self.user_id,
-                limit=limit
-            )
-            return memories
+            # Query the unified memory/RAG coordinator
+            unified_response = self.rag_coordinator.query(query, self.user_id)
+            memories = unified_response.get("merged_results", [])
+            # Optionally apply a limit to the number of returned results
+            return memories[:limit] if limit else memories
         except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+            logger.exception(f"Error retrieving unified memories: {e}")
             return []
 
     def _enhance_context_with_memories(self, context: str) -> str:
@@ -255,6 +264,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The enhanced context with memories included
+
         """
         if self.memory is None:
             return context
@@ -272,7 +282,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         ])
 
         # Combine memories with original context
-        enhanced_context = f"""
+        return f"""
 Relevant memories:
 {memory_text}
 
@@ -280,7 +290,6 @@ Original context:
 {context}
 """
 
-        return enhanced_context
 
 
 # Example usage
@@ -329,4 +338,4 @@ if __name__ == "__main__":
             result = team.run()
             logger.info(f"Workflow result: {result}")
         except Exception as e:
-            logger.error(f"Error running workflow: {e}")
+            logger.exception(f"Error running workflow: {e}")
