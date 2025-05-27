@@ -145,10 +145,10 @@ jobs:
         echo "TESTING=true" >> $GITHUB_ENV
 
         # Set container environment detection variables
-        echo "DOCKER_ENVIRONMENT=false" >> $GITHUB_ENV
-        echo "KUBERNETES_ENVIRONMENT=false" >> $GITHUB_ENV
-        echo "DOCKER_COMPOSE=false" >> $GITHUB_ENV
-        echo "DOCKER_SWARM=false" >> $GITHUB_ENV
+        echo "DOCKER_ENVIRONMENT=false" >> $env:GITHUB_ENV
+        echo "KUBERNETES_ENVIRONMENT=false" >> $env:GITHUB_ENV
+        echo "DOCKER_COMPOSE=false" >> $env:GITHUB_ENV
+        echo "DOCKER_SWARM=false" >> $env:GITHUB_ENV
 
         # Generate environment report
         {
@@ -229,10 +229,10 @@ jobs:
         echo "TESTING=true" >> $env:GITHUB_ENV
 
         # Set container environment detection variables
-        echo "DOCKER_ENVIRONMENT=false" >> $env: GITHUB_ENV
-        echo "KUBERNETES_ENVIRONMENT=false" >> $env: GITHUB_ENV
-        echo "DOCKER_COMPOSE=false" >> $env: GITHUB_ENV
-        echo "DOCKER_SWARM=false" >> $env: GITHUB_ENV
+        echo "DOCKER_ENVIRONMENT=false" >> $env:GITHUB_ENV
+        echo "KUBERNETES_ENVIRONMENT=false" >> $env:GITHUB_ENV
+        echo "DOCKER_COMPOSE=false" >> $env:GITHUB_ENV
+        echo "DOCKER_SWARM=false" >> $env:GITHUB_ENV
 
         # Install testing tools
         python -m pip install ruff pyright pytest pytest-cov pytest-xdist pytest-asyncio
@@ -271,27 +271,24 @@ jobs:
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
-        # Create ruff configuration file if it doesn't exist
         if (-not (Test-Path "pyproject.toml") -and -not (Test-Path "ruff.toml")) {
           Write-Host "Creating minimal ruff.toml configuration..."
-          # Create a simple ruff.toml file with Windows-friendly settings
-  # Ruff configuration for Windows compatibility" |
-            Out-File -FilePath "ruff.toml" -Encoding utf8
-          [tool.ruff]" |
-            Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-  exclude = ['.git',
-          '.github',
-          '.venv',
-          'venv',
-          'node_modules',
-          '__pycache__',
-          'build',
-          'dist']" |
-            Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-  line-length = 100" |
-            Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-  target-version = 'py310'" |
-            Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
+          $content = @"
+[tool.ruff]
+exclude = [
+  '.git',
+  '.github',
+  '.venv',
+  'venv',
+  'node_modules',
+  '__pycache__',
+  'build',
+  'dist'
+]
+line-length = 100
+target-version = 'py310'
+"@
+          $content | Out-File -FilePath "ruff.toml" -Encoding utf8
           Write-Host "Created ruff.toml with basic configuration"
         }
     - name: Run linting (Unix)
@@ -351,9 +348,9 @@ jobs:
       shell: pwsh
       run: |
         if (Test-Path "run_crewai_tests.py") {
-          echo "script_exists=true" >> $env: GITHUB_OUTPUT
+          echo "script_exists=true" >> $env:GITHUB_OUTPUT
         } else {
-          echo "script_exists=false" >> $env: GITHUB_OUTPUT
+          echo "script_exists=false" >> $env:GITHUB_OUTPUT
         }
 
     - name: Create mock CrewAI test script (Unix)
@@ -632,13 +629,7 @@ jobs:
 
         # Create empty-sarif.json if it doesn't exist
         if [ ! -f "empty-sarif.json" ]; then
-          echo '{"version":"2.1.0",
-  $schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.0.json",
-  runs":[{"tool":{"driver":{"name":"Bandit",
-  informationUri":"https://github.com/PyCQA/bandit",
-  version":"1.7.5",
-  rules":[]}},
-  results":[]}]}' > security-reports/bandit-results.sarif
+          echo '{"version":"2.1.0", "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.0.json", "runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]} ' > security-reports/bandit-results.sarif
           echo "Created empty-sarif.json in root directory"
         fi
 
@@ -666,7 +657,6 @@ jobs:
           # Run Bandit with the bandit.yaml configuration
           if [ -f "bandit.yaml" ]; then
             echo "Using bandit.yaml configuration file"
-            # Add --exclude flag to ensure directories are properly excluded
             bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv, node_modules, tests, docs, docs_source, junit, bin, dev_tools, scripts, tool_templates" --exit-zero
           else
             echo "bandit.yaml configuration file not found. Using default configuration."
