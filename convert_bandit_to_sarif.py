@@ -18,7 +18,6 @@ import shutil
 from pathlib import Path
 
 
-
 def _write_sarif_file(sarif_data: dict, output_file: str) -> bool:
     """
     Write SARIF data to a file.

@@ -1,14 +1,15 @@
 """test_api_server - Module for tests/ui.test_api_server."""
 
 # Standard library imports
-import logging
 import http.client
 import json
+import logging
 import socket
 import sys
 import threading
 import time
 import unittest
+
 import pytest
 
 # Constants
@@ -41,7 +42,7 @@ class TestAPIServer(unittest.TestCase):
 
         # Find an available port
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('localhost', 0))
+            s.bind(("localhost", 0))
             cls.port = s.getsockname()[1]
 
         # Define a function to run the server and handle shutdown
@@ -49,7 +50,7 @@ class TestAPIServer(unittest.TestCase):
             try:
                 # Create the server
                 server_address = ("localhost", cls.port)
-                from ui.api_server import ThreadedHTTPServer, APIHandler
+                from ui.api_server import APIHandler, ThreadedHTTPServer
                 cls.mock_server = ThreadedHTTPServer(server_address, APIHandler)
 
                 # Set timeout to ensure serve_forever doesn't block indefinitely

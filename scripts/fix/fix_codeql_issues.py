@@ -19,7 +19,6 @@ import re
 import sys
 from pathlib import Path
 
-
 # Patterns to detect potential security issues
 PATTERNS = {
     # Hardcoded credentials

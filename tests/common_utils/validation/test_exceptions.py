@@ -1,6 +1,7 @@
 """Test module for common_utils.validation.exceptions."""
 
 import logging
+
 import pytest
 
 from common_utils.validation.exceptions import ValidationError

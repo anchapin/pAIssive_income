@@ -40,7 +40,7 @@ class TestCentralizedLoggingService:
     def teardown_method(self):
         """Tear down test fixtures."""
         # Stop the service if it's running
-        if hasattr(self, 'service') and self.service.running:
+        if hasattr(self, "service") and self.service.running:
             self.service.stop()
 
         # Clean up the temporary directory
@@ -151,7 +151,7 @@ class TestCentralizedLoggingService:
         self.service.start()
 
         # Mock the output method of the FileOutput
-        with patch.object(self.service.outputs[0], 'output') as mock_output:
+        with patch.object(self.service.outputs[0], "output") as mock_output:
             # Process the log
             self.service.process_log(log_entry)
 

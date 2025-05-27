@@ -1,22 +1,22 @@
 """Extended tests for the audit module."""
 
+import json
 import logging
 import os
-import json
 import tempfile
 import unittest
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
 from common_utils.secrets.audit import (
-    generate_json_report,
-    generate_text_report,
-    encrypt_report_content,
-    save_encrypted_report,
-    generate_report,
-    log_scan_completion,
     SecretsAuditor,
+    encrypt_report_content,
+    generate_json_report,
+    generate_report,
+    generate_text_report,
+    log_scan_completion,
+    save_encrypted_report,
 )
 
 

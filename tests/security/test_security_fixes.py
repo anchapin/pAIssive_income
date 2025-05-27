@@ -6,7 +6,6 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-
 from common_utils.secrets.audit import generate_report
 from common_utils.secrets.cli import handle_list
 
@@ -84,10 +83,10 @@ class TestSecurityFixes(unittest.TestCase):
             # Read the file content
             temp_path_obj = Path(temp_path)
             # Open in binary mode since the file might contain encrypted content
-            with temp_path_obj.open('rb') as f:
+            with temp_path_obj.open("rb") as f:
                 binary_content = f.read()
             # Safely decode binary content to text
-            content = binary_content.decode('utf-8', errors='ignore')
+            content = binary_content.decode("utf-8", errors="ignore")
 
             # Ensure no sensitive data in file
             assert "[TEST_PLACEHOLDER]" not in content
@@ -157,10 +156,10 @@ class TestSecurityFixes(unittest.TestCase):
         mock_subprocess_run.return_value.returncode = 0
 
         # Import the function we want to test
-        import sys
         import os
+        import sys
         # Add the scripts/fix directory to the path
-        sys.path.insert(0, os.path.abspath('scripts/fix'))
+        sys.path.insert(0, os.path.abspath("scripts/fix"))
         from scripts.fix.fix_security_issues import run_security_scan
 
         # Run the function with missing imports

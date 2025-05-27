@@ -1,16 +1,16 @@
 """Enhanced test module for common_utils.logging.log_utils."""
 
 import logging
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from common_utils.logging.log_utils import (
-    get_logger,
-    log_user_input_safely,
-    log_exception_safely,
     configure_secure_logging,
+    get_logger,
+    log_exception_safely,
     log_user_id_safely,
+    log_user_input_safely,
     sanitize_user_input,
 )
 from common_utils.logging.secure_logging import SecureLogger
@@ -21,7 +21,7 @@ class TestLogUtilsEnhanced:
 
     def test_get_logger(self):
         """Test get_logger function."""
-        with patch('common_utils.logging.log_utils.get_secure_logger') as mock_get_secure_logger:
+        with patch("common_utils.logging.log_utils.get_secure_logger") as mock_get_secure_logger:
             mock_logger = MagicMock(spec=SecureLogger)
             mock_get_secure_logger.return_value = mock_logger
 
@@ -43,7 +43,7 @@ class TestLogUtilsEnhanced:
         user_input = "user<script>alert('xss')</script>"
         sanitized_input = "user&lt;script&gt;alert('xss')&lt;/script&gt;"
 
-        with patch('common_utils.logging.log_utils.sanitize_user_input', return_value=sanitized_input) as mock_sanitize:
+        with patch("common_utils.logging.log_utils.sanitize_user_input", return_value=sanitized_input) as mock_sanitize:
             # Call log_user_input_safely with format specifier
             log_user_input_safely(mock_logger, logging.INFO, "User input: %s", user_input)
 
@@ -62,7 +62,7 @@ class TestLogUtilsEnhanced:
         user_input = "user<script>alert('xss')</script>"
         sanitized_input = "user&lt;script&gt;alert('xss')&lt;/script&gt;"
 
-        with patch('common_utils.logging.log_utils.sanitize_user_input', return_value=sanitized_input) as mock_sanitize:
+        with patch("common_utils.logging.log_utils.sanitize_user_input", return_value=sanitized_input) as mock_sanitize:
             # Call log_user_input_safely without format specifier
             log_user_input_safely(mock_logger, logging.INFO, "User input:", user_input)
 
@@ -81,7 +81,7 @@ class TestLogUtilsEnhanced:
         user_input = "user input"
         sanitized_input = "sanitized input"
 
-        with patch('common_utils.logging.log_utils.sanitize_user_input', return_value=sanitized_input):
+        with patch("common_utils.logging.log_utils.sanitize_user_input", return_value=sanitized_input):
             # Call log_user_input_safely with extra args
             extra = {"key": "value"}
             log_user_input_safely(mock_logger, logging.INFO, "User input: %s", user_input, extra=extra)
@@ -117,7 +117,7 @@ class TestLogUtilsEnhanced:
         # Mock root logger
         mock_root_logger = MagicMock()
 
-        with patch('common_utils.logging.log_utils.logging.getLogger', return_value=mock_root_logger) as mock_get_logger:
+        with patch("common_utils.logging.log_utils.logging.getLogger", return_value=mock_root_logger) as mock_get_logger:
             # Call configure_secure_logging
             configure_secure_logging()
 
@@ -140,7 +140,7 @@ class TestLogUtilsEnhanced:
         mock_root_logger = MagicMock()
         mock_root_logger.handlers = [mock_existing_handler]
 
-        with patch('common_utils.logging.log_utils.logging.getLogger', return_value=mock_root_logger):
+        with patch("common_utils.logging.log_utils.logging.getLogger", return_value=mock_root_logger):
             # Call configure_secure_logging with custom handler
             configure_secure_logging(handlers=[mock_new_handler])
 
@@ -159,7 +159,7 @@ class TestLogUtilsEnhanced:
         user_id = "user-123<script>alert('xss')</script>"
         sanitized_id = "user-123&lt;script&gt;alert('xss')&lt;/script&gt;"
 
-        with patch('common_utils.logging.log_utils.sanitize_user_input', return_value=sanitized_id) as mock_sanitize:
+        with patch("common_utils.logging.log_utils.sanitize_user_input", return_value=sanitized_id) as mock_sanitize:
             # Call log_user_id_safely with format specifier
             log_user_id_safely(mock_logger, logging.INFO, "User ID: %s", user_id)
 
@@ -178,7 +178,7 @@ class TestLogUtilsEnhanced:
         user_id = "user-123<script>alert('xss')</script>"
         sanitized_id = "user-123&lt;script&gt;alert('xss')&lt;/script&gt;"
 
-        with patch('common_utils.logging.log_utils.sanitize_user_input', return_value=sanitized_id) as mock_sanitize:
+        with patch("common_utils.logging.log_utils.sanitize_user_input", return_value=sanitized_id) as mock_sanitize:
             # Call log_user_id_safely without format specifier
             log_user_id_safely(mock_logger, logging.INFO, "User ID:", user_id)
 

@@ -4,12 +4,12 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from pydantic import ValidationError as PydanticValidationError
 
-from common_utils.config_loader import load_config, ExampleConfigModel
+from common_utils.config_loader import ExampleConfigModel, load_config
 from common_utils.validation.core import ValidationError
 
 
@@ -105,7 +105,7 @@ class TestConfigLoaderAdditional:
             "max_connections": 50
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             json.dump(valid_config, temp_file)
             temp_path = temp_file.name
 
@@ -128,7 +128,7 @@ class TestConfigLoaderAdditional:
     def test_load_config_with_invalid_json(self):
         """Test load_config with invalid JSON."""
         # Create a temporary file with invalid JSON
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             temp_file.write("This is not valid JSON")
             temp_path = temp_file.name
 
@@ -149,7 +149,7 @@ class TestConfigLoaderAdditional:
             "max_connections": 50
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             json.dump(invalid_config, temp_file)
             temp_path = temp_file.name
 
@@ -162,7 +162,7 @@ class TestConfigLoaderAdditional:
             # Clean up the temporary file
             os.unlink(temp_path)
 
-    @patch('common_utils.config_loader.logger')
+    @patch("common_utils.config_loader.logger")
     def test_load_config_logs_validation_error(self, mock_logger):
         """Test that load_config logs validation errors."""
         # Create a temporary config file with invalid data
@@ -172,7 +172,7 @@ class TestConfigLoaderAdditional:
             "max_connections": 50
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             json.dump(invalid_config, temp_file)
             temp_path = temp_file.name
 

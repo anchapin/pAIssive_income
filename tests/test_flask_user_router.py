@@ -1,9 +1,10 @@
 """Tests for the Flask user router."""
 
-import logging
 import json
+import logging
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from app_flask import create_app, db
 from app_flask.models import User
@@ -13,9 +14,9 @@ from app_flask.models import User
 def app():
     """Create and configure a Flask app for testing."""
     test_config = {
-        'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
-        'SQLALCHEMY_TRACK_MODIFICATIONS': False
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False
     }
     app = create_app(test_config)
 
@@ -35,7 +36,7 @@ def client(app):
 @pytest.fixture
 def mock_user_service():
     """Mock the UserService."""
-    with patch('api.routes.flask_user_router.user_service') as mock_service:
+    with patch("api.routes.flask_user_router.user_service") as mock_service:
         yield mock_service
 
 
@@ -53,12 +54,12 @@ class TestFlaskUserRouter:
             db.session.commit()
 
         # Test the endpoint
-        response = client.get('/api/users/')
+        response = client.get("/api/users/")
         assert response.status_code == 200
         data = json.loads(response.data)
         assert len(data) == 2
-        assert data[0]['username'] == 'testuser1'
-        assert data[1]['username'] == 'testuser2'
+        assert data[0]["username"] == "testuser1"
+        assert data[1]["username"] == "testuser2"
 
     def test_get_user(self, client, app):
         """Test getting a user by ID."""
@@ -70,60 +71,60 @@ class TestFlaskUserRouter:
             user_id = user.id
 
         # Test the endpoint
-        response = client.get(f'/api/users/{user_id}')
+        response = client.get(f"/api/users/{user_id}")
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert data['username'] == 'testuser'
-        assert data['email'] == 'test@example.com'
+        assert data["username"] == "testuser"
+        assert data["email"] == "test@example.com"
 
     def test_get_user_not_found(self, client):
         """Test getting a non-existent user."""
-        response = client.get('/api/users/00000000-0000-0000-0000-000000000000')
+        response = client.get("/api/users/00000000-0000-0000-0000-000000000000")
         assert response.status_code == 404
         data = json.loads(response.data)
-        assert 'error' in data
+        assert "error" in data
 
     def test_create_user(self, client, mock_user_service):
         """Test creating a user."""
         # Mock the user service
         mock_user_service.create_user.return_value = {
-            'id': 1,
-            'username': 'newuser',
-            'email': 'new@example.com',
-            'is_active': True
+            "id": 1,
+            "username": "newuser",
+            "email": "new@example.com",
+            "is_active": True
         }
 
         # Test the endpoint
         response = client.post(
-            '/api/users/',
+            "/api/users/",
             json={
-                'username': 'newuser',
-                'email': 'new@example.com',
-                'password': 'password123'
+                "username": "newuser",
+                "email": "new@example.com",
+                "password": "password123"
             }
         )
         assert response.status_code == 201
         data = json.loads(response.data)
-        assert data['username'] == 'newuser'
-        assert data['email'] == 'new@example.com'
+        assert data["username"] == "newuser"
+        assert data["email"] == "new@example.com"
 
         # Verify the service was called
         mock_user_service.create_user.assert_called_once_with(
-            'newuser', 'new@example.com', 'password123'
+            "newuser", "new@example.com", "password123"
         )
 
     def test_create_user_missing_fields(self, client):
         """Test creating a user with missing fields."""
         response = client.post(
-            '/api/users/',
+            "/api/users/",
             json={
-                'username': 'newuser',
+                "username": "newuser",
                 # Missing email and password
             }
         )
         assert response.status_code == 400
         data = json.loads(response.data)
-        assert 'error' in data
+        assert "error" in data
 
     def test_create_user_service_error(self, client, mock_user_service):
         """Test creating a user with a service error."""
@@ -132,16 +133,16 @@ class TestFlaskUserRouter:
 
         # Test the endpoint
         response = client.post(
-            '/api/users/',
+            "/api/users/",
             json={
-                'username': 'newuser',
-                'email': 'new@example.com',
-                'password': 'password123'
+                "username": "newuser",
+                "email": "new@example.com",
+                "password": "password123"
             }
         )
         assert response.status_code == 400
         data = json.loads(response.data)
-        assert 'error' in data
+        assert "error" in data
 
     def test_create_user_server_error(self, client, mock_user_service):
         """Test creating a user with a server error."""
@@ -154,30 +155,30 @@ class TestFlaskUserRouter:
         mock_user_service.authenticate_user.return_value = (
             True,
             {
-                'id': 1,
-                'username': 'testuser',
-                'email': 'test@example.com',
-                'is_active': True
+                "id": 1,
+                "username": "testuser",
+                "email": "test@example.com",
+                "is_active": True
             }
         )
         mock_user_service.generate_token.return_value = "test-token"
 
         # Test the endpoint
         response = client.post(
-            '/api/users/authenticate',
+            "/api/users/authenticate",
             json={
-                'username_or_email': 'testuser',
-                'password': 'password123'
+                "username_or_email": "testuser",
+                "password": "password123"
             }
         )
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert data['token'] == 'test-token'
-        assert data['user']['username'] == 'testuser'
+        assert data["token"] == "test-token"
+        assert data["user"]["username"] == "testuser"
 
         # Verify the service was called
         mock_user_service.authenticate_user.assert_called_once_with(
-            'testuser', 'password123'
+            "testuser", "password123"
         )
         mock_user_service.generate_token.assert_called_once()
 
@@ -188,33 +189,33 @@ class TestFlaskUserRouter:
 
         # Test the endpoint
         response = client.post(
-            '/api/users/authenticate',
+            "/api/users/authenticate",
             json={
-                'username_or_email': 'testuser',
-                'password': 'wrongpassword'
+                "username_or_email": "testuser",
+                "password": "wrongpassword"
             }
         )
         assert response.status_code == 401
         data = json.loads(response.data)
-        assert 'error' in data
+        assert "error" in data
 
         # Verify the service was called
         mock_user_service.authenticate_user.assert_called_once_with(
-            'testuser', 'wrongpassword'
+            "testuser", "wrongpassword"
         )
 
     def test_authenticate_user_missing_fields(self, client):
         """Test authenticating a user with missing fields."""
         response = client.post(
-            '/api/users/authenticate',
+            "/api/users/authenticate",
             json={
-                'username_or_email': 'testuser',
+                "username_or_email": "testuser",
                 # Missing password
             }
         )
         assert response.status_code == 400
         data = json.loads(response.data)
-        assert 'error' in data
+        assert "error" in data
 
     def test_authenticate_user_server_error(self, client, mock_user_service):
         """Test authenticating a user with a server error."""
@@ -235,38 +236,38 @@ class TestFlaskUserRouter:
 
         # Test the endpoint
         response = client.put(
-            f'/api/users/{user_id}',
+            f"/api/users/{user_id}",
             json={
-                'username': 'updateduser',
-                'email': 'updated@example.com',
-                'is_active': False
+                "username": "updateduser",
+                "email": "updated@example.com",
+                "is_active": False
             }
         )
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert data['username'] == 'updateduser'
-        assert data['email'] == 'updated@example.com'
-        assert data['is_active'] is False
+        assert data["username"] == "updateduser"
+        assert data["email"] == "updated@example.com"
+        assert data["is_active"] is False
 
         # Verify the user was updated in the database
         with app.app_context():
             updated_user = User.query.get(user_id)
-            assert updated_user.username == 'updateduser'
-            assert updated_user.email == 'updated@example.com'
+            assert updated_user.username == "updateduser"
+            assert updated_user.email == "updated@example.com"
             assert updated_user.is_active == "false"  # is_active is stored as a string in the database
 
     def test_update_user_not_found(self, client):
         """Test updating a non-existent user."""
         response = client.put(
-            '/api/users/00000000-0000-0000-0000-000000000000',
+            "/api/users/00000000-0000-0000-0000-000000000000",
             json={
-                'username': 'updateduser',
-                'email': 'updated@example.com'
+                "username": "updateduser",
+                "email": "updated@example.com"
             }
         )
         assert response.status_code == 404
         data = json.loads(response.data)
-        assert 'error' in data
+        assert "error" in data
 
     def test_update_user_server_error(self, client, app):
         """Test updating a user with a server error."""
@@ -283,10 +284,10 @@ class TestFlaskUserRouter:
             user_id = user.id
 
         # Test the endpoint
-        response = client.delete(f'/api/users/{user_id}')
+        response = client.delete(f"/api/users/{user_id}")
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert 'message' in data
+        assert "message" in data
 
         # Verify the user was deleted from the database
         with app.app_context():
@@ -295,10 +296,10 @@ class TestFlaskUserRouter:
 
     def test_delete_user_not_found(self, client):
         """Test deleting a non-existent user."""
-        response = client.delete('/api/users/00000000-0000-0000-0000-000000000000')
+        response = client.delete("/api/users/00000000-0000-0000-0000-000000000000")
         assert response.status_code == 404
         data = json.loads(response.data)
-        assert 'error' in data
+        assert "error" in data
 
     def test_delete_user_server_error(self, client, app):
         """Test deleting a user with a server error."""

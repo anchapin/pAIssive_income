@@ -2,10 +2,9 @@
 
 # Standard library imports
 import logging
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 # Third-party imports
-
 import pytest
 
 # Local imports

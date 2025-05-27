@@ -1,15 +1,16 @@
 """Comprehensive tests for the common_utils.string_utils module."""
 
 import re
+
 import pytest
 
 from common_utils.string_utils import (
-    slugify,
     camel_to_snake,
+    format_number,
+    remove_html_tags,
+    slugify,
     snake_to_camel,
     truncate,
-    remove_html_tags,
-    format_number,
 )
 
 

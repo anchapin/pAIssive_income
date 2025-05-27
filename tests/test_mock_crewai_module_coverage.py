@@ -2,13 +2,13 @@
 
 import importlib
 import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 # Import the mock_crewai module
 import mock_crewai
-from mock_crewai import Agent, Crew, Task, AgentType, CrewType, TaskType
+from mock_crewai import Agent, AgentType, Crew, CrewType, Task, TaskType
 
 
 class TestMockCrewAIModuleCoverage:
@@ -259,6 +259,6 @@ class TestMockCrewAIModuleCoverage:
         """Test the tools module."""
         # Verify the tools module exists
         assert hasattr(mock_crewai, "tools")
-        
+
         # Verify the BaseTool class exists
         assert hasattr(mock_crewai.tools, "BaseTool")

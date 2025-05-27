@@ -27,13 +27,15 @@ URL_REGEX = re.compile(
 
 
 def validate_email(email: str) -> bool:
-    """Validate an email address.
+    """
+    Validate an email address.
 
     Args:
         email: The email address to validate
 
     Returns:
         True if the email is valid, False otherwise
+
     """
     if not email:
         return False
@@ -43,26 +45,28 @@ def validate_email(email: str) -> bool:
         return False
 
     # Additional checks for common invalid patterns
-    parts = email.split('@')
+    parts = email.split("@")
     if len(parts) != 2:
         return False
 
     domain = parts[1]
     # Check for consecutive dots in domain
-    if '..' in domain:
+    if ".." in domain:
         return False
 
     return True
 
 
 def validate_url(url: str) -> bool:
-    """Validate a URL.
+    """
+    Validate a URL.
 
     Args:
         url: The URL to validate
 
     Returns:
         True if the URL is valid, False otherwise
+
     """
     if not url:
         return False
@@ -80,7 +84,7 @@ def validate_url(url: str) -> bool:
             return False
 
         # Special case for URLs with authentication
-        if '@' in parsed_url.netloc:
+        if "@" in parsed_url.netloc:
             # Allow URLs with username and password
             return True
 
@@ -94,7 +98,8 @@ def validate_url(url: str) -> bool:
 
 
 def validate_password_strength(password: str) -> Dict[str, Any]:
-    """Validate password strength.
+    """
+    Validate password strength.
 
     Args:
         password: The password to validate
@@ -104,6 +109,7 @@ def validate_password_strength(password: str) -> Dict[str, Any]:
         - valid: True if the password meets all requirements, False otherwise
         - errors: List of error messages if any
         - score: Password strength score (0-100)
+
     """
     errors = []
     score = 0
@@ -146,7 +152,8 @@ def validate_password_strength(password: str) -> Dict[str, Any]:
 
 
 def validate_username(username: str) -> Dict[str, Any]:
-    """Validate a username.
+    """
+    Validate a username.
 
     Args:
         username: The username to validate
@@ -155,6 +162,7 @@ def validate_username(username: str) -> Dict[str, Any]:
         Dictionary with validation results:
         - valid: True if the username meets all requirements, False otherwise
         - errors: List of error messages if any
+
     """
     errors = []
 

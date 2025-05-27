@@ -9,15 +9,15 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from common_utils.logging.log_aggregation import (
-    LogAggregator,
     ElasticsearchHandler,
-    LogstashHandler,
     FileRotatingHandler,
+    LogAggregator,
+    LogstashHandler,
     aggregate_logs,
     configure_log_aggregation,
-    parse_log_file,
     get_log_files,
     get_log_statistics,
+    parse_log_file,
 )
 
 
@@ -287,7 +287,7 @@ class TestFileRotatingHandler:
     def teardown_method(self):
         """Tear down test fixtures."""
         # Close the handler to release the file
-        if hasattr(self, 'handler') and hasattr(self.handler, 'handler'):
+        if hasattr(self, "handler") and hasattr(self.handler, "handler"):
             self.handler.handler.close()
 
         # Clean up the temporary directory
@@ -383,7 +383,7 @@ class TestAggregateLogsFunctions:
         mock_elasticsearch.Elasticsearch.return_value = mock_es_client
 
         # Mock the import
-        with patch.dict('sys.modules', {'elasticsearch': mock_elasticsearch}):
+        with patch.dict("sys.modules", {"elasticsearch": mock_elasticsearch}):
             # Call the function under test
             aggregate_logs(
                 app_name="test_app",
@@ -439,8 +439,8 @@ class TestAggregateLogsFunctions:
         mock_file_handler.return_value = mock_file_handler_instance
 
         # Mock the import to raise ImportError
-        with patch.dict('sys.modules', {'elasticsearch': None}):
-            with patch('builtins.__import__', side_effect=ImportError("No module named 'elasticsearch'")):
+        with patch.dict("sys.modules", {"elasticsearch": None}):
+            with patch("builtins.__import__", side_effect=ImportError("No module named 'elasticsearch'")):
                 # Call the function under test
                 aggregate_logs(
                     app_name="test_app",
@@ -496,7 +496,7 @@ class TestAggregateLogsFunctions:
         mock_elasticsearch.Elasticsearch.side_effect = Exception("Test error")
 
         # Mock the import
-        with patch.dict('sys.modules', {'elasticsearch': mock_elasticsearch}):
+        with patch.dict("sys.modules", {"elasticsearch": mock_elasticsearch}):
             # Call the function under test
             aggregate_logs(
                 app_name="test_app",

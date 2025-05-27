@@ -19,7 +19,7 @@ class TestExceptionsComprehensive:
         """Test that AdapterError can be instantiated with a message."""
         # Create an instance with a custom message
         error = AdapterError("Custom error message")
-        
+
         # Verify the error message
         assert str(error) == "Custom error message"
 
@@ -28,14 +28,14 @@ class TestExceptionsComprehensive:
         # Create a custom subclass of AdapterError
         class CustomAdapterError(AdapterError):
             pass
-        
+
         # Verify the inheritance
         assert issubclass(CustomAdapterError, AdapterError)
         assert issubclass(CustomAdapterError, Exception)
-        
+
         # Create an instance of the custom error
         error = CustomAdapterError("Custom subclass error")
-        
+
         # Verify the error message
         assert str(error) == "Custom subclass error"
 
@@ -43,10 +43,10 @@ class TestExceptionsComprehensive:
         """Test ModelContextProtocolError class."""
         # Verify that ModelContextProtocolError is a subclass of AdapterError
         assert issubclass(ModelContextProtocolError, AdapterError)
-        
+
         # Create an instance of ModelContextProtocolError
         error = ModelContextProtocolError()
-        
+
         # Verify the error message
         assert "modelcontextprotocol-python-sdk is not installed" in str(error)
         assert "uv pip install modelcontextprotocol-python-sdk" in str(error)
@@ -56,7 +56,7 @@ class TestExceptionsComprehensive:
         # Create two instances of ModelContextProtocolError
         error1 = ModelContextProtocolError()
         error2 = ModelContextProtocolError()
-        
+
         # Verify that both instances have the same error message
         assert str(error1) == str(error2)
         assert str(error1) == ModelContextProtocolError.MESSAGE
@@ -68,13 +68,13 @@ class TestExceptionsComprehensive:
             raise AdapterError("Test error")
         except AdapterError as e:
             assert str(e) == "Test error"
-        
+
         # Test catching ModelContextProtocolError
         try:
             raise ModelContextProtocolError()
         except ModelContextProtocolError as e:
             assert "modelcontextprotocol-python-sdk is not installed" in str(e)
-        
+
         # Test catching ModelContextProtocolError as AdapterError
         try:
             raise ModelContextProtocolError()
@@ -89,10 +89,10 @@ class TestExceptionsComprehensive:
                 super().__init__(message)
                 self.code = code
                 self.details = details
-        
+
         # Create an instance with custom attributes
         error = CustomAttributeError("Custom error", 404, {"reason": "Not found"})
-        
+
         # Verify the error message and attributes
         assert str(error) == "Custom error"
         assert error.code == 404

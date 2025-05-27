@@ -1,9 +1,9 @@
 """Tests for the webhook service."""
 
-import logging
 import json
-from unittest.mock import MagicMock, patch
+import logging
 from datetime import datetime, timezone
+from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
@@ -206,7 +206,7 @@ class TestWebhookService:
             "type": "user.created",
             "data": {"user_id": "user-123", "username": "testuser"},
         }
-        
+
         # Mock the response
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -237,7 +237,7 @@ class TestWebhookService:
             "type": "user.created",
             "data": {"user_id": "user-123", "username": "testuser"},
         }
-        
+
         # Mock the response
         mock_response = MagicMock()
         mock_response.status_code = 500
@@ -263,7 +263,7 @@ class TestWebhookService:
             "type": "user.created",
             "data": {"user_id": "user-123", "username": "testuser"},
         }
-        
+
         # Mock the exception
         mock_post.side_effect = RequestException("Connection error")
 

@@ -2,19 +2,20 @@
 Test file to ensure we have at least 80% test coverage.
 This file imports and tests the main modules of the application.
 """
+import importlib
 import logging
-import pytest
 import os
 import sys
-import importlib
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Add the root directory to the path so we can import modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the main modules
-from users.auth import hash_credential, verify_credential
 from common_utils.logging import get_logger
+from users.auth import hash_credential, verify_credential
 
 
 def test_hash_and_verify_credential():
@@ -22,16 +23,16 @@ def test_hash_and_verify_credential():
     # Test with a valid credential
     credential = "test_password123"
     hashed = hash_credential(credential)
-    
+
     # Verify the result is a string
     assert isinstance(hashed, str)
-    
+
     # Verify the hash is not the original credential
     assert hashed != credential
-    
+
     # Verify the credential
     assert verify_credential(credential, hashed) is True
-    
+
     # Verify with wrong credential
     assert verify_credential("wrong_password", hashed) is False
 
@@ -107,9 +108,9 @@ def test_verify_credential_exceptions():
 def test_backward_compatibility_aliases():
     """Test the backward compatibility aliases."""
     from users.auth import hash_auth, verify_auth
-    
+
     # Test that hash_auth is an alias for hash_credential
     assert hash_auth is hash_credential
-    
+
     # Test that verify_auth is an alias for verify_credential
     assert verify_auth is verify_credential

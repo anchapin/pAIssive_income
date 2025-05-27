@@ -2,7 +2,7 @@
 
 import logging
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -144,7 +144,7 @@ class TestSecureLoggingEnhancements(unittest.TestCase):
 
         # Create a handler that writes to the StringIO
         handler = logging.StreamHandler(log_stream)
-        formatter = logging.Formatter('%(message)s')
+        formatter = logging.Formatter("%(message)s")
         handler.setFormatter(formatter)
 
         # Create a SecureLogger and add the handler
@@ -322,7 +322,7 @@ class TestSecureLoggingEnhancements(unittest.TestCase):
         args, kwargs = mock_logger.info.call_args
         assert "[SECURE]" in args[0]
         assert test_message in args[0]
-        assert kwargs.get('secure_context') is True
+        assert kwargs.get("secure_context") is True
 
 
 if __name__ == "__main__":

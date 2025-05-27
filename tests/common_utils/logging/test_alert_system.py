@@ -51,14 +51,14 @@ class TestAlertRule:
             parameters={"pattern": "error"},
             cooldown_period=1,  # 1 second for testing
         )
-        
+
         # Initially not in cooldown
         assert rule.is_in_cooldown() is False
-        
+
         # Mark as triggered
         rule.mark_triggered()
         assert rule.is_in_cooldown() is True
-        
+
         # Wait for cooldown to expire
         time.sleep(1.1)
         assert rule.is_in_cooldown() is False
@@ -90,7 +90,7 @@ class TestAlertSystem:
             condition=AlertCondition.PATTERN,
             parameters={"pattern": "error"},
         )
-        
+
         system.add_rule(rule)
         assert len(system.rules) == 1
         assert system.rules[0] == rule
@@ -112,7 +112,7 @@ class TestAlertSystem:
             parameters={"pattern": "updated"},
             id="test_rule",
         )
-        
+
         system.add_rule(rule1)
         system.add_rule(rule2)
         assert len(system.rules) == 1
@@ -129,14 +129,14 @@ class TestAlertSystem:
             condition=AlertCondition.PATTERN,
             parameters={"pattern": "error"},
         )
-        
+
         system.add_rule(rule)
         assert len(system.rules) == 1
-        
+
         result = system.remove_rule(rule.id)
         assert result is True
         assert len(system.rules) == 0
-        
+
         result = system.remove_rule("nonexistent")
         assert result is False
 
@@ -144,7 +144,7 @@ class TestAlertSystem:
         """Test adding a notifier."""
         system = AlertSystem()
         notifier = MockNotifier()
-        
+
         system.add_notifier(notifier)
         assert len(system.notifiers) == 1
         assert system.notifiers["mock"] == notifier
@@ -153,14 +153,14 @@ class TestAlertSystem:
         """Test removing a notifier."""
         system = AlertSystem()
         notifier = MockNotifier()
-        
+
         system.add_notifier(notifier)
         assert len(system.notifiers) == 1
-        
+
         result = system.remove_notifier("mock")
         assert result is True
         assert len(system.notifiers) == 0
-        
+
         result = system.remove_notifier("nonexistent")
         assert result is False
 
@@ -169,7 +169,7 @@ class TestAlertSystem:
         system = AlertSystem()
         notifier = MockNotifier()
         system.add_notifier(notifier)
-        
+
         rule = AlertRule(
             name="Error Pattern",
             description="Detect error patterns",
@@ -178,7 +178,7 @@ class TestAlertSystem:
             notifiers=["mock"],
         )
         system.add_rule(rule)
-        
+
         # Create log entries
         log_entries = [
             {
@@ -194,17 +194,17 @@ class TestAlertSystem:
                 "message": "This is an info message",
             },
         ]
-        
+
         # Process logs
         alerts = system.process_logs(log_entries)
-        
+
         # Check results
         assert len(alerts) == 1
         assert alerts[0]["rule"] == "Error Pattern"
         assert alerts[0]["severity"] == AlertSeverity.WARNING
         assert "context" in alerts[0]
         assert alerts[0]["context"]["matches"] == 1
-        
+
         # Check notifier
         assert len(notifier.alerts) == 1
         assert notifier.alerts[0][0] == rule
@@ -214,7 +214,7 @@ class TestAlertSystem:
         system = AlertSystem()
         notifier = MockNotifier()
         system.add_notifier(notifier)
-        
+
         rule = AlertRule(
             name="High Error Rate",
             description="Detect high error rate",
@@ -223,7 +223,7 @@ class TestAlertSystem:
             notifiers=["mock"],
         )
         system.add_rule(rule)
-        
+
         # Create log entries with high error rate
         log_entries = [
             {
@@ -245,17 +245,17 @@ class TestAlertSystem:
                 "message": "This is an info message",
             },
         ]
-        
+
         # Process logs
         alerts = system.process_logs(log_entries)
-        
+
         # Check results
         assert len(alerts) == 1
         assert alerts[0]["rule"] == "High Error Rate"
         assert "context" in alerts[0]
         assert alerts[0]["context"]["metric"] == "error_rate"
         assert alerts[0]["context"]["current_value"] > 0.3
-        
+
         # Check notifier
         assert len(notifier.alerts) == 1
         assert notifier.alerts[0][0] == rule
@@ -265,7 +265,7 @@ class TestAlertSystem:
         system = AlertSystem()
         notifier = MockNotifier()
         system.add_notifier(notifier)
-        
+
         rule = AlertRule(
             name="Error Pattern",
             description="Detect error patterns",
@@ -275,7 +275,7 @@ class TestAlertSystem:
             cooldown_period=1,  # 1 second for testing
         )
         system.add_rule(rule)
-        
+
         # Create log entries
         log_entries = [
             {
@@ -285,20 +285,20 @@ class TestAlertSystem:
                 "message": "This is an error message",
             },
         ]
-        
+
         # Process logs first time
         alerts1 = system.process_logs(log_entries)
         assert len(alerts1) == 1
         assert len(notifier.alerts) == 1
-        
+
         # Process logs again immediately (should be in cooldown)
         alerts2 = system.process_logs(log_entries)
         assert len(alerts2) == 0
         assert len(notifier.alerts) == 1
-        
+
         # Wait for cooldown to expire
         time.sleep(1.1)
-        
+
         # Process logs again (cooldown expired)
         alerts3 = system.process_logs(log_entries)
         assert len(alerts3) == 1
@@ -314,7 +314,7 @@ class TestEmailNotifier:
         # Create mock SMTP instance
         mock_smtp_instance = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_smtp_instance
-        
+
         # Create notifier
         notifier = EmailNotifier(
             smtp_host="smtp.example.com",
@@ -324,7 +324,7 @@ class TestEmailNotifier:
             from_email="alerts@example.com",
             to_emails=["admin@example.com"],
         )
-        
+
         # Create rule and context
         rule = AlertRule(
             name="Test Rule",
@@ -334,13 +334,13 @@ class TestEmailNotifier:
             severity=AlertSeverity.WARNING,
         )
         context = {"matches": 1}
-        
+
         # Send alert
         result = notifier.send_alert(rule, context)
-        
+
         # Check result
         assert result is True
-        
+
         # Check SMTP calls
         mock_smtp.assert_called_once_with("smtp.example.com", 587)
         mock_smtp_instance.starttls.assert_called_once()
@@ -356,13 +356,13 @@ class TestWebhookNotifier:
         """Test sending a webhook alert."""
         # Configure mock
         mock_post.return_value.raise_for_status.return_value = None
-        
+
         # Create notifier
         notifier = WebhookNotifier(
             url="https://example.com/webhook",
             headers={"Authorization": "Bearer token"},
         )
-        
+
         # Create rule and context
         rule = AlertRule(
             name="Test Rule",
@@ -372,13 +372,13 @@ class TestWebhookNotifier:
             severity=AlertSeverity.WARNING,
         )
         context = {"matches": 1}
-        
+
         # Send alert
         result = notifier.send_alert(rule, context)
-        
+
         # Check result
         assert result is True
-        
+
         # Check requests.post call
         mock_post.assert_called_once()
         args, kwargs = mock_post.call_args
@@ -396,10 +396,10 @@ class TestInAppNotifier:
         """Test sending an in-app alert."""
         # Create mock callback
         callback = MagicMock()
-        
+
         # Create notifier
         notifier = InAppNotifier(callback=callback)
-        
+
         # Create rule and context
         rule = AlertRule(
             name="Test Rule",
@@ -409,12 +409,12 @@ class TestInAppNotifier:
             severity=AlertSeverity.WARNING,
         )
         context = {"matches": 1}
-        
+
         # Send alert
         result = notifier.send_alert(rule, context)
-        
+
         # Check result
         assert result is True
-        
+
         # Check callback call
         callback.assert_called_once_with(rule, context)

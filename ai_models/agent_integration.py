@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 import logging
 import re
+import sys  # Added sys import
 from pathlib import Path
-import sys # Added sys import
 from typing import Any, Optional
 
 # Configure logging

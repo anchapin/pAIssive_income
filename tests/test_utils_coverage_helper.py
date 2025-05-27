@@ -1,7 +1,8 @@
 """Tests for utils/coverage_helper.py module."""
 
-import sys
 import os
+import sys
+
 import pytest
 
 # Add the project root to the Python path
@@ -9,8 +10,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 # Import the module under test
 from utils.coverage_helper import (
-    add, subtract, multiply, divide, 
-    is_even, is_odd, get_first_element, format_string
+    add,
+    divide,
+    format_string,
+    get_first_element,
+    is_even,
+    is_odd,
+    multiply,
+    subtract,
 )
 
 

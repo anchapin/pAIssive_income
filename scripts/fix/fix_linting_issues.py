@@ -23,7 +23,6 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 
-
 def get_executable_path(name: str) -> str:
     """
     Get the full path to an executable.

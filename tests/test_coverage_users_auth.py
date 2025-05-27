@@ -2,11 +2,12 @@
 Test file to ensure we have at least 80% test coverage for users.auth module.
 """
 import logging
-import pytest
-import bcrypt
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from users.auth import hash_credential, verify_credential, hash_auth, verify_auth
+import bcrypt
+import pytest
+
+from users.auth import hash_auth, hash_credential, verify_auth, verify_credential
 
 
 def test_hash_credential_valid():
@@ -43,14 +44,14 @@ def test_hash_credential_none():
         hash_credential(credential)
 
 
-@patch('bcrypt.gensalt')
-@patch('bcrypt.hashpw')
+@patch("bcrypt.gensalt")
+@patch("bcrypt.hashpw")
 def test_hash_credential_implementation(mock_hashpw, mock_gensalt):
     """Test the implementation details of hash_credential."""
     # Arrange
     credential = "test_password123"
-    mock_salt = b'mock_salt'
-    mock_hash = b'mock_hash'
+    mock_salt = b"mock_salt"
+    mock_hash = b"mock_hash"
     mock_gensalt.return_value = mock_salt
     mock_hashpw.return_value = mock_hash
 
@@ -59,15 +60,15 @@ def test_hash_credential_implementation(mock_hashpw, mock_gensalt):
 
     # Assert
     mock_gensalt.assert_called_once_with(rounds=12)
-    mock_hashpw.assert_called_once_with(credential.encode('utf-8'), mock_salt)
-    assert result == mock_hash.decode('utf-8')
+    mock_hashpw.assert_called_once_with(credential.encode("utf-8"), mock_salt)
+    assert result == mock_hash.decode("utf-8")
 
 
 def test_verify_credential_valid_match():
     """Test verifying a valid credential that matches the hash."""
     # Arrange
     credential = "test_password123"
-    hashed = bcrypt.hashpw(credential.encode('utf-8'), bcrypt.gensalt())
+    hashed = bcrypt.hashpw(credential.encode("utf-8"), bcrypt.gensalt())
 
     # Act
     result = verify_credential(credential, hashed)
@@ -81,7 +82,7 @@ def test_verify_credential_valid_no_match():
     # Arrange
     credential = "test_password123"
     wrong_credential = "wrong_password"
-    hashed = bcrypt.hashpw(credential.encode('utf-8'), bcrypt.gensalt())
+    hashed = bcrypt.hashpw(credential.encode("utf-8"), bcrypt.gensalt())
 
     # Act
     result = verify_credential(wrong_credential, hashed)
@@ -133,8 +134,8 @@ def test_verify_credential_string_hash():
     """Test verifying with a string hash."""
     # Arrange
     credential = "test_password123"
-    hashed_bytes = bcrypt.hashpw(credential.encode('utf-8'), bcrypt.gensalt())
-    hashed_str = hashed_bytes.decode('utf-8')
+    hashed_bytes = bcrypt.hashpw(credential.encode("utf-8"), bcrypt.gensalt())
+    hashed_str = hashed_bytes.decode("utf-8")
 
     # Act
     result = verify_credential(credential, hashed_str)
@@ -190,7 +191,7 @@ def test_verify_credential_attribute_error():
     mock_logger.error.assert_called_once()
 
 
-@patch('bcrypt.checkpw')
+@patch("bcrypt.checkpw")
 def test_verify_credential_exception_handling(mock_checkpw):
     """Test exception handling in verify_credential."""
     # Arrange

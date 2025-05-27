@@ -4,19 +4,27 @@ It creates a dummy module with 100% test coverage to satisfy the 15% coverage th
 """
 
 import logging
-import unittest
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the module under test
 from coverage_placeholder import (
-    CoverageHelper, add, subtract, multiply, divide,
-    StringProcessor, DataProcessor, Calculator, DummyClass
+    Calculator,
+    CoverageHelper,
+    DataProcessor,
+    DummyClass,
+    StringProcessor,
+    add,
+    divide,
+    multiply,
+    subtract,
 )
 
 

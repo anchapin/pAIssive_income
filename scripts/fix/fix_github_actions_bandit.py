@@ -20,7 +20,6 @@ import sys
 from pathlib import Path
 
 
-
 def ensure_directory_exists(directory_path: str) -> bool:
     """
     Ensure that a directory exists, creating it if necessary.

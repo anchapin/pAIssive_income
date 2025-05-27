@@ -11,10 +11,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from common_utils.logging.log_aggregation import (
-    LogAggregator,
     ElasticsearchHandler,
-    LogstashHandler,
     FileRotatingHandler,
+    LogAggregator,
+    LogstashHandler,
     aggregate_logs,
     configure_log_aggregation,
 )

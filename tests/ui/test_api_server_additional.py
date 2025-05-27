@@ -1,13 +1,14 @@
 """Additional tests for the API server."""
 
-import logging
 import json
+import logging
 import os
-import pytest
 import socket
 import threading
 import time
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from ui.api_server import APIHandler, ThreadedHTTPServer, run_server
 
@@ -20,11 +21,11 @@ class TestAPIHandlerAdditional:
         # Create mock request and client_address
         mock_request = MagicMock()
         mock_request.makefile.return_value = MagicMock()
-        client_address = ('127.0.0.1', 12345)
+        client_address = ("127.0.0.1", 12345)
         server = MagicMock()
 
         # Create handler with mocks
-        with patch.object(APIHandler, '__init__', return_value=None):
+        with patch.object(APIHandler, "__init__", return_value=None):
             self.handler = APIHandler()
 
         # Mock handler methods
@@ -41,7 +42,7 @@ class TestAPIHandlerAdditional:
     def test_send_response_with_empty_data(self):
         """Test _send_response method with empty data."""
         # Mock json.dumps to return a string
-        with patch('json.dumps', return_value="{}"):
+        with patch("json.dumps", return_value="{}"):
             self.handler._send_response(200, {})
 
             self.handler.send_response.assert_called_once_with(200)
@@ -64,7 +65,7 @@ class TestAPIHandlerAdditional:
 
         # Mock json.dumps to return a JSON string
         json_str = json.dumps(data)
-        with patch('json.dumps', return_value=json_str):
+        with patch("json.dumps", return_value=json_str):
             self.handler._send_response(200, data)
 
             self.handler.send_response.assert_called_once_with(200)
@@ -72,7 +73,7 @@ class TestAPIHandlerAdditional:
             self.handler.end_headers.assert_called_once()
 
             # Verify the JSON data was written correctly
-            self.handler.wfile.write.assert_called_once_with(json_str.encode('utf-8'))
+            self.handler.wfile.write.assert_called_once_with(json_str.encode("utf-8"))
 
     def test_do_get_health_check(self):
         """Test do_GET method with health check path."""
@@ -80,7 +81,7 @@ class TestAPIHandlerAdditional:
 
         # Mock _send_response and urlparse
         self.handler._send_response = MagicMock()
-        with patch('ui.api_server.urlparse') as mock_urlparse:
+        with patch("ui.api_server.urlparse") as mock_urlparse:
             # Configure the mock to return a path object
             mock_path = MagicMock()
             mock_path.path = "/health"
@@ -98,7 +99,7 @@ class TestAPIHandlerAdditional:
 
         # Mock _send_response and urlparse
         self.handler._send_response = MagicMock()
-        with patch('ui.api_server.urlparse') as mock_urlparse:
+        with patch("ui.api_server.urlparse") as mock_urlparse:
             # Configure the mock to return a path object
             mock_path = MagicMock()
             mock_path.path = "/invalid"
@@ -120,11 +121,11 @@ class TestThreadedHTTPServerAdditional:
         """Test server initialization."""
         # Find an available port
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('localhost', 0))
+            s.bind(("localhost", 0))
             port = s.getsockname()[1]
 
         # Create the server
-        server = ThreadedHTTPServer(('localhost', port), APIHandler)
+        server = ThreadedHTTPServer(("localhost", port), APIHandler)
 
         # Verify server attributes
         assert server.allow_reuse_address is True
@@ -137,11 +138,11 @@ class TestThreadedHTTPServerAdditional:
         """Test server handle_request method."""
         # Find an available port
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('localhost', 0))
+            s.bind(("localhost", 0))
             port = s.getsockname()[1]
 
         # Create the server
-        server = ThreadedHTTPServer(('localhost', port), APIHandler)
+        server = ThreadedHTTPServer(("localhost", port), APIHandler)
 
         # Create an event to signal when the server has processed the request
         request_processed = threading.Event()
@@ -165,11 +166,11 @@ class TestThreadedHTTPServerAdditional:
         try:
             # Send a request to the server
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-                client.connect(('localhost', port))
+                client.connect(("localhost", port))
                 client.sendall(b"GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n")
 
                 # Receive the response
-                response = client.recv(1024).decode('utf-8')
+                response = client.recv(1024).decode("utf-8")
 
                 # Verify the response contains the expected status code
                 assert "200 OK" in response
@@ -196,18 +197,18 @@ class TestRunServerAdditional:
             # Occupy multiple ports to force all retries to fail
             for _ in range(6):  # max_retries + 1
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.bind(('localhost', 0))
+                s.bind(("localhost", 0))
                 port = s.getsockname()[1]
                 occupied_ports.append(port)
                 sockets.append(s)
 
             # Mock the ThreadedHTTPServer to raise OSError for all ports
-            with patch('ui.api_server.ThreadedHTTPServer') as mock_server:
+            with patch("ui.api_server.ThreadedHTTPServer") as mock_server:
                 mock_server.side_effect = OSError("Port in use")
 
                 # Call run_server with the first occupied port
                 with pytest.raises(OSError):
-                    run_server(host='localhost', port=occupied_ports[0])
+                    run_server(host="localhost", port=occupied_ports[0])
         finally:
             # Close all sockets
             for s in sockets:
@@ -217,16 +218,16 @@ class TestRunServerAdditional:
         """Test run_server with KeyboardInterrupt."""
         # Find an available port
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('localhost', 0))
+            s.bind(("localhost", 0))
             port = s.getsockname()[1]
 
         # Mock ThreadedHTTPServer
         mock_server = MagicMock()
         mock_server.serve_forever.side_effect = KeyboardInterrupt()
 
-        with patch('ui.api_server.ThreadedHTTPServer', return_value=mock_server):
+        with patch("ui.api_server.ThreadedHTTPServer", return_value=mock_server):
             # Call run_server
-            run_server(host='localhost', port=port)
+            run_server(host="localhost", port=port)
 
             # Verify serve_forever and server_close were called
             mock_server.serve_forever.assert_called_once()

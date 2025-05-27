@@ -1,26 +1,27 @@
 """Test module for tools.log_dashboard."""
 
-import logging
 import datetime
+import logging
 import os
-import tempfile
 import sys
+import tempfile
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 # Mock the dash module and other dependencies
-sys.modules['dash'] = MagicMock()
-sys.modules['dash.dcc'] = MagicMock()
-sys.modules['dash.html'] = MagicMock()
-sys.modules['dash.dependencies'] = MagicMock()
-sys.modules['dash_bootstrap_components'] = MagicMock()
-sys.modules['pandas'] = MagicMock()
-sys.modules['plotly.express'] = MagicMock()
-sys.modules['plotly.graph_objects'] = MagicMock()
+sys.modules["dash"] = MagicMock()
+sys.modules["dash.dcc"] = MagicMock()
+sys.modules["dash.html"] = MagicMock()
+sys.modules["dash.dependencies"] = MagicMock()
+sys.modules["dash_bootstrap_components"] = MagicMock()
+sys.modules["pandas"] = MagicMock()
+sys.modules["plotly.express"] = MagicMock()
+sys.modules["plotly.graph_objects"] = MagicMock()
 
 # Define constants that would be imported from the module
 import re
+
 LOG_PATTERN = re.compile(r"(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)?) - (?P<name>[^-]+) - (?P<level>[A-Z]+) - (?P<message>.*)")
 LOG_COLORS = {
     "DEBUG": "#6c757d",
@@ -34,7 +35,7 @@ LOG_COLORS = {
 def parse_log_file(file_path):
     """Mock implementation of parse_log_file."""
     log_entries = []
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         for line in f:
             import re
             pattern = re.compile(LOG_PATTERN)
@@ -46,10 +47,9 @@ def parse_log_file(file_path):
                     "%Y-%m-%d %H:%M:%S"
                 )
                 log_entries.append(entry)
-            else:
-                # Handle multi-line entries (e.g., tracebacks)
-                if log_entries:
-                    log_entries[-1]["message"] += "\n" + line.strip()
+            # Handle multi-line entries (e.g., tracebacks)
+            elif log_entries:
+                log_entries[-1]["message"] += "\n" + line.strip()
     return log_entries
 
 def get_log_files(log_dir):
@@ -122,7 +122,7 @@ class TestLogDashboard:
         with open(self.multiline_log_path, "w") as f:
             f.write("2023-01-01 12:05:00 - app.api - ERROR - Exception occurred\n")
             f.write("Traceback (most recent call last):\n")
-            f.write("  File \"app.py\", line 100, in handle_request\n")
+            f.write('  File "app.py", line 100, in handle_request\n')
             f.write("    result = process_data(data)\n")
             f.write("ValueError: Invalid data format\n")
 

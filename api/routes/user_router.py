@@ -5,16 +5,12 @@ from __future__ import annotations
 import os
 
 # Type checking imports
-from typing import TYPE_CHECKING, List
+from typing import List
 
 from fastapi import APIRouter, HTTPException, Path, status
 
-from users.schemas import UserResponse, UserCreate, UserUpdate
-
 from common_utils.logging import get_logger
-
-if TYPE_CHECKING:
-    pass
+from users.schemas import UserCreate, UserResponse, UserUpdate
 from users.services import UserService
 
 # Set up secure logger that masks sensitive info

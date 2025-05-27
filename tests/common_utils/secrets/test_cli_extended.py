@@ -1,42 +1,42 @@
 """test_cli_extended - Module for tests/common_utils/secrets.test_cli_extended."""
 
 # Standard library imports
+import argparse
+import getpass
 import logging
-import unittest
-from unittest.mock import patch, MagicMock, mock_open, call
 import os
 import sys
 import time
-import argparse
-import getpass
+import unittest
 from io import StringIO
+from unittest.mock import MagicMock, call, mock_open, patch
 
 # Local imports
 from common_utils.secrets.cli import (
-    require_auth,
-    _check_auth,
-    _check_rate_limit,
-    _validate_secret_value,
-    parse_args,
-    get_secret_value,
-    handle_get,
-    handle_set,
-    handle_delete,
-    handle_list,
-    handle_audit,
-    handle_rotation,
-    _handle_schedule_rotation,
-    _handle_rotate_secret,
-    _handle_rotate_all,
-    _handle_list_due,
-    _handle_unknown_rotation_command,
-    main,
-    MAX_FAILED_ATTEMPTS,
-    LOCKOUT_DURATION,
     ADMIN_TOKEN_DIR,
     ADMIN_TOKEN_FILE,
+    LOCKOUT_DURATION,
+    MAX_FAILED_ATTEMPTS,
+    _check_auth,
+    _check_rate_limit,
+    _handle_list_due,
+    _handle_rotate_all,
+    _handle_rotate_secret,
+    _handle_schedule_rotation,
+    _handle_unknown_rotation_command,
+    _validate_secret_value,
     failed_attempts,
+    get_secret_value,
+    handle_audit,
+    handle_delete,
+    handle_get,
+    handle_list,
+    handle_rotation,
+    handle_set,
     lockout_times,
+    main,
+    parse_args,
+    require_auth,
 )
 
 

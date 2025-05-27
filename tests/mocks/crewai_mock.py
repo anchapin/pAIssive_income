@@ -2,7 +2,7 @@
 
 class Agent:
     """Mock Agent class for testing."""
-    
+
     def __init__(self, role=None, goal=None, backstory=None, **kwargs):
         """Initialize a mock Agent."""
         self.role = role
@@ -13,7 +13,7 @@ class Agent:
 
 class Task:
     """Mock Task class for testing."""
-    
+
     def __init__(self, description=None, agent=None, **kwargs):
         """Initialize a mock Task."""
         self.description = description
@@ -23,13 +23,13 @@ class Task:
 
 class Crew:
     """Mock Crew class for testing."""
-    
+
     def __init__(self, agents=None, tasks=None, **kwargs):
         """Initialize a mock Crew."""
         self.agents = agents or []
         self.tasks = tasks or []
         self.kwargs = kwargs
-    
+
     def run(self, *args, **kwargs):
         """Mock run method."""
         return "Mock crew execution result"

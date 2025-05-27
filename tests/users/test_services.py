@@ -2,21 +2,21 @@
 
 import logging
 import unittest
-from unittest.mock import patch, MagicMock
-from datetime import datetime, timezone
 import uuid
-import jwt
+from datetime import datetime, timezone
+from unittest.mock import MagicMock, patch
 
+import jwt
 import pytest
 from flask import Flask
 
 from users.services import (
-    UserService,
     AuthenticationError,
     DatabaseSessionNotAvailableError,
+    TokenError,
     UserExistsError,
     UserModelNotAvailableError,
-    TokenError,
+    UserService,
 )
 
 
@@ -30,9 +30,9 @@ class TestUserService(unittest.TestCase):
         # Create a Flask app for testing
         self.app = Flask(__name__)
         # Configure the app for testing
-        self.app.config['TESTING'] = True
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        self.app.config["TESTING"] = True
+        self.app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+        self.app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         # Push an application context
         self.app_context = self.app.app_context()
         self.app_context.push()

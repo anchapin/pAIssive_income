@@ -2,22 +2,22 @@
 
 # Standard library imports
 import logging
-import unittest
-from unittest.mock import patch, MagicMock, call
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import MagicMock, call, patch
 
 # Local imports
 from dev_tools.health_check import (
-    run,
     check_gitignore,
-    lint,
-    type_check,
-    security,
     deps,
     docs,
-    usage,
+    lint,
     main,
+    run,
+    security,
+    type_check,
+    usage,
 )
 
 

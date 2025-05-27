@@ -3,7 +3,7 @@
 import logging
 import unittest
 from datetime import datetime
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from users.models import User
 

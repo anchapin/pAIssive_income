@@ -6,7 +6,6 @@ Workflow debug script to help identify common issues.
 import logging
 import os
 import platform
-import subprocess
 import sys
 from pathlib import Path
 
@@ -20,7 +19,7 @@ def check_environment():
     logger.info(f"Python version: {sys.version}")
     logger.info(f"Python executable: {sys.executable}")
     logger.info(f"Working directory: {os.getcwd()}")
-    
+
     # Check CI environment
     is_ci = os.environ.get("CI") == "true"
     is_github_actions = os.environ.get("GITHUB_ACTIONS") == "true"
@@ -30,11 +29,11 @@ def check_environment():
 def check_dependencies():
     """Check for required dependencies."""
     logger.info("=== Dependency Check ===")
-    
+
     required_packages = [
         "pytest", "ruff", "pyrefly", "safety", "bandit"
     ]
-    
+
     for package in required_packages:
         try:
             __import__(package)
@@ -45,14 +44,14 @@ def check_dependencies():
 def check_files():
     """Check for required files."""
     logger.info("=== File Check ===")
-    
+
     required_files = [
         "requirements.txt",
         "pytest.ini",
         "pyproject.toml",
         "run_tests.py"
     ]
-    
+
     for file_path in required_files:
         if Path(file_path).exists():
             logger.info(f"✓ {file_path} exists")

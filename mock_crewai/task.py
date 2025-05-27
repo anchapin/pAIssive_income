@@ -14,7 +14,7 @@ class Task:
     def __init__(
         self,
         description: str = "",
-        agent: Optional['AgentVar'] = None,
+        agent: Optional[AgentVar] = None,
         task_type: Optional[Any] = None,
         **kwargs,
     ) -> None:

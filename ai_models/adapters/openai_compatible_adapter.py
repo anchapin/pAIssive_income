@@ -1,11 +1,12 @@
 """openai_compatible_adapter - Module for ai_models/adapters.openai_compatible_adapter."""
 
 # Standard library imports
-import logging
 import asyncio
-import sys # Added sys import
+import logging
+import sys  # Added sys import
+
 logger = logging.getLogger(__name__)
-from typing import Dict, List, Any, Union
+from typing import Any, Dict, List, Union
 
 try:
     import aiohttp
@@ -24,12 +25,14 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
     """Adapter for connecting to OpenAI-compatible APIs, including local servers that implement the OpenAI API."""
 
     def __init__(self, base_url: str = "https://api.openai.com/v1", api_key: str = "sk-", timeout: int = 60):
-        """Initialize the OpenAI-compatible adapter.
+        """
+        Initialize the OpenAI-compatible adapter.
 
         Args:
             base_url: The base URL of the OpenAI-compatible API server
             api_key: API key for authentication
             timeout: Request timeout in seconds
+
         """
         self.base_url = base_url
         self.api_key = api_key
@@ -52,10 +55,12 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
         return self._session
 
     async def list_models(self) -> List[Dict[str, Any]]:
-        """List available models from the OpenAI-compatible API.
+        """
+        List available models from the OpenAI-compatible API.
 
         Returns:
             List of model information dictionaries
+
         """
         session = await self._get_session()
         try:
@@ -63,16 +68,16 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
                 if response.status == 200:
                     data = await response.json()
                     return data.get("data", [])
-                else:
-                    error_text = await response.text()
-                    logger.error(f"Failed to list models: {error_text}")
-                    return []
+                error_text = await response.text()
+                logger.error(f"Failed to list models: {error_text}")
+                return []
         except Exception as e:
             logger.exception(f"Error listing models: {e}")
             return []
 
     async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
-        """Generate text using the specified model.
+        """
+        Generate text using the specified model.
 
         Args:
             model: The name of the model to use
@@ -81,6 +86,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
 
         Returns:
             Response dictionary containing the generated text
+
         """
         session = await self._get_session()
         payload = {
@@ -100,16 +106,16 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             async with session.post(f"{self.base_url}/completions", json=payload) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    error_text = await response.text()
-                    logger.error(f"Failed to generate text: {error_text}")
-                    return {"error": error_text}
+                error_text = await response.text()
+                logger.error(f"Failed to generate text: {error_text}")
+                return {"error": error_text}
         except Exception as e:
             logger.exception(f"Error generating text: {e}")
             return {"error": str(e)}
 
     async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
-        """Generate chat completions using the specified model.
+        """
+        Generate chat completions using the specified model.
 
         Args:
             model: The name of the model to use
@@ -118,6 +124,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
 
         Returns:
             Response dictionary containing the generated chat completion
+
         """
         session = await self._get_session()
         payload = {
@@ -137,16 +144,16 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             async with session.post(f"{self.base_url}/chat/completions", json=payload) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    error_text = await response.text()
-                    logger.error(f"Failed to generate chat completion: {error_text}")
-                    return {"error": error_text}
+                error_text = await response.text()
+                logger.error(f"Failed to generate chat completion: {error_text}")
+                return {"error": error_text}
         except Exception as e:
             logger.exception(f"Error generating chat completion: {e}")
             return {"error": str(e)}
 
     async def create_embedding(self, model: str, input_text: Union[str, List[str]], **kwargs) -> Dict[str, Any]:
-        """Create embeddings for the given input text.
+        """
+        Create embeddings for the given input text.
 
         Args:
             model: The name of the model to use
@@ -155,6 +162,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
 
         Returns:
             Response dictionary containing the embeddings
+
         """
         session = await self._get_session()
         payload = {
@@ -167,10 +175,9 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             async with session.post(f"{self.base_url}/embeddings", json=payload) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    error_text = await response.text()
-                    logger.error(f"Failed to create embeddings: {error_text}")
-                    return {"error": error_text}
+                error_text = await response.text()
+                logger.error(f"Failed to create embeddings: {error_text}")
+                return {"error": error_text}
         except Exception as e:
             logger.exception(f"Error creating embeddings: {e}")
             return {"error": str(e)}

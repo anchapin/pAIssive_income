@@ -1,11 +1,11 @@
 """test_config_extended - Extended tests for common_utils/secrets/config.py."""
 
 # Standard library imports
+import json
 import logging
 import os
-import json
 import unittest
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import MagicMock, mock_open, patch
 
 # Third-party imports
 import pytest
@@ -78,7 +78,7 @@ class TestSecretConfigExtended(unittest.TestCase):
         assert config.config == {}
         mock_file.assert_not_called()
 
-    @patch("builtins.open", new_callable=mock_open, read_data='invalid json')
+    @patch("builtins.open", new_callable=mock_open, read_data="invalid json")
     @patch("os.path.exists", return_value=True)
     def test_init_with_invalid_json(self, mock_exists, mock_file):
         """Test initializing with invalid JSON in config file."""

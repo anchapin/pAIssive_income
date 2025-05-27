@@ -180,7 +180,7 @@ def main() -> None:
     """Execute the main script functionality."""
     # Configure logging at the start of main execution
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    
+
     args = parse_args()
 
     if not args.task:

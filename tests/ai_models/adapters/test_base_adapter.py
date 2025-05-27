@@ -2,10 +2,10 @@
 
 # Standard library imports
 import logging
+
 import pytest
 
 # Third-party imports
-
 # Local imports
 from ai_models.adapters import BaseModelAdapter
 

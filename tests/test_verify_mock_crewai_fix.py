@@ -1,9 +1,9 @@
 """Test module for verify_mock_crewai_fix.py."""
 
+import logging
 import os
 import sys
-import logging
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -11,7 +11,7 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the module under test
-from verify_mock_crewai_fix import verify_imports, verify_usage, main
+from verify_mock_crewai_fix import main, verify_imports, verify_usage
 
 
 class TestVerifyMockCrewAIFix:

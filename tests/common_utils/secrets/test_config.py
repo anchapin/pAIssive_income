@@ -1,10 +1,11 @@
 """Tests for the secrets config module."""
 
+import json
 import logging
 import os
-import json
+from unittest.mock import MagicMock, mock_open, patch
+
 import pytest
-from unittest.mock import patch, mock_open, MagicMock
 
 from common_utils.secrets.config import SecretConfig
 from common_utils.secrets.secrets_manager import SecretsBackend
@@ -75,7 +76,7 @@ class TestSecretConfig:
         assert config.config == {}
         mock_file.assert_not_called()
 
-    @patch("builtins.open", new_callable=mock_open, read_data='invalid json')
+    @patch("builtins.open", new_callable=mock_open, read_data="invalid json")
     @patch("os.path.exists", return_value=True)
     def test_init_with_invalid_json(self, mock_exists, mock_file):
         """Test initializing with invalid JSON in config file."""

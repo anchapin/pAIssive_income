@@ -22,7 +22,6 @@ import re
 from pathlib import Path
 from typing import Any, Pattern
 
-
 # Define patterns for potential secrets
 SECRET_PATTERNS = {
     "password": re.compile(r"(?i)(?:password|passwd|pwd)[\s]*[=:'\"][\s]*([^'\"]{8,})"),

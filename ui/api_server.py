@@ -13,9 +13,9 @@ import json
 import logging
 import os
 import socketserver
+import sys  # Added sys import
 from typing import Any
 from urllib.parse import urlparse
-import sys # Added sys import
 
 # Configure logging
 logger = logging.getLogger(__name__)

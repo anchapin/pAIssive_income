@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 try:
     import modelcontextprotocol as mcp
     # Verify that the module has the expected attributes
-    if not hasattr(mcp, 'Client'):
+    if not hasattr(mcp, "Client"):
         logger.warning("modelcontextprotocol module does not have Client class, attempting to create mock")
         mcp = None
 except ImportError:
@@ -29,8 +29,8 @@ if mcp is None:
     try:
         # Try to run the install_mcp_sdk.py script
         import os
-        import sys
         import subprocess
+        import sys
 
         logger.info("Attempting to install mock MCP SDK using install_mcp_sdk.py...")
 

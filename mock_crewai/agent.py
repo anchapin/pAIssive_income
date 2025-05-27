@@ -36,7 +36,7 @@ class Agent:
         self.agent_type = agent_type
         self.kwargs = kwargs
 
-    def execute_task(self, task: 'TaskVar', context=None) -> str:
+    def execute_task(self, task: TaskVar, context=None) -> str:
         """
         Execute a task and return a result.
 
@@ -49,7 +49,7 @@ class Agent:
 
         """
         # Handle case when task doesn't have a description attribute
-        task_description = getattr(task, 'description', 'Unknown task')
+        task_description = getattr(task, "description", "Unknown task")
 
         if context:
             return f"Executed task: {task_description} with context: {context}"

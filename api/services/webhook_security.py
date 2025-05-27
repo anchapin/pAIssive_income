@@ -7,7 +7,6 @@ import hmac
 import ipaddress
 
 # Third-party imports
-
 # Local imports
 from common_utils.logging import get_logger
 
@@ -18,7 +17,8 @@ class WebhookSignatureVerifier:
     """Utility for creating and verifying webhook signatures."""
 
     def create_signature(self, payload: str, secret: str) -> str:
-        """Create a signature for a webhook payload.
+        """
+        Create a signature for a webhook payload.
 
         Args:
             payload: The webhook payload as a string
@@ -26,6 +26,7 @@ class WebhookSignatureVerifier:
 
         Returns:
             Base64-encoded HMAC-SHA256 signature
+
         """
         # Create an HMAC with the secret and payload
         signature = hmac.new(
@@ -38,7 +39,8 @@ class WebhookSignatureVerifier:
         return base64.b64encode(signature).decode()
 
     def verify_signature(self, payload: str, signature: str, secret: str) -> bool:
-        """Verify a webhook signature.
+        """
+        Verify a webhook signature.
 
         Args:
             payload: The webhook payload as a string
@@ -47,6 +49,7 @@ class WebhookSignatureVerifier:
 
         Returns:
             True if the signature is valid, False otherwise
+
         """
         try:
             # Calculate the expected signature
@@ -63,15 +66,18 @@ class WebhookIPAllowlist:
     """Utility for managing IP allowlists for webhooks."""
 
     def __init__(self, db=None):
-        """Initialize the IP allowlist.
+        """
+        Initialize the IP allowlist.
 
         Args:
             db: Database connection object. If None, a default connection will be used.
+
         """
         self.db = db
 
     def add_ip(self, webhook_id: str, ip: str) -> bool:
-        """Add an IP address to the allowlist.
+        """
+        Add an IP address to the allowlist.
 
         Args:
             webhook_id: The ID of the webhook
@@ -79,13 +85,15 @@ class WebhookIPAllowlist:
 
         Returns:
             True if added successfully, False otherwise
+
         """
         if self.db:
             return self.db.add_ip_to_allowlist(webhook_id, ip)
         return False
 
     def add_network(self, webhook_id: str, network: str) -> bool:
-        """Add a network (CIDR notation) to the allowlist.
+        """
+        Add a network (CIDR notation) to the allowlist.
 
         Args:
             webhook_id: The ID of the webhook
@@ -93,6 +101,7 @@ class WebhookIPAllowlist:
 
         Returns:
             True if added successfully, False otherwise
+
         """
         try:
             # Validate the network
@@ -101,14 +110,14 @@ class WebhookIPAllowlist:
             # Add to the allowlist
             if self.db:
                 return self.db.add_ip_to_allowlist(webhook_id, network)
-            else:
-                return False
+            return False
         except ValueError:
             logger.exception("Invalid network format")
             return False
 
     def remove_ip(self, webhook_id: str, ip: str) -> bool:
-        """Remove an IP address from the allowlist.
+        """
+        Remove an IP address from the allowlist.
 
         Args:
             webhook_id: The ID of the webhook
@@ -116,13 +125,15 @@ class WebhookIPAllowlist:
 
         Returns:
             True if removed successfully, False otherwise
+
         """
         if self.db:
             return self.db.remove_ip_from_allowlist(webhook_id, ip)
         return False
 
     def remove_network(self, webhook_id: str, network: str) -> bool:
-        """Remove a network from the allowlist.
+        """
+        Remove a network from the allowlist.
 
         Args:
             webhook_id: The ID of the webhook
@@ -130,13 +141,15 @@ class WebhookIPAllowlist:
 
         Returns:
             True if removed successfully, False otherwise
+
         """
         if self.db:
             return self.db.remove_ip_from_allowlist(webhook_id, network)
         return False
 
     def is_allowed(self, webhook_id: str, ip: str) -> bool:
-        """Check if an IP address is allowed.
+        """
+        Check if an IP address is allowed.
 
         Args:
             webhook_id: The ID of the webhook
@@ -144,6 +157,7 @@ class WebhookIPAllowlist:
 
         Returns:
             True if the IP is allowed, False otherwise
+
         """
         if not self.db:
             return True  # If no DB, allow all

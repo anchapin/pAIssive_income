@@ -21,7 +21,6 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-
 # Directories to exclude
 EXCLUDE_DIRS = {
     ".git",

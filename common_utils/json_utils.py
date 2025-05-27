@@ -1,4 +1,5 @@
-"""JSON utility functions for the pAIssive_income project.
+"""
+JSON utility functions for the pAIssive_income project.
 
 This module provides common JSON processing functions used across the project.
 """
@@ -10,9 +11,8 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
 # Third-party imports
-
 # Local imports
-from common_utils.exceptions import MissingFileError, FilePermissionError
+from common_utils.exceptions import FilePermissionError, MissingFileError
 
 
 class DateTimeEncoder(json.JSONEncoder):
@@ -27,6 +27,7 @@ class DateTimeEncoder(json.JSONEncoder):
 
         Returns:
             The converted object
+
         """
         if isinstance(obj, datetime):
             return obj.isoformat()
@@ -61,13 +62,14 @@ def load_json_file(file_path: Union[str, Path], encoding: str = "utf-8") -> Any:
         >>> data
         {'key': 'value'}
         >>> os.unlink(temp_file)  # Clean up
+
     """
     path = Path(file_path)
     if not path.exists():
         raise MissingFileError(f"File {file_path} does not exist")
 
     try:
-        with open(path, "r", encoding=encoding) as f:
+        with open(path, encoding=encoding) as f:
             return json.load(f)
     except PermissionError as e:
         raise FilePermissionError(f"Cannot read file {file_path}: {e}") from e
@@ -107,6 +109,7 @@ def save_json_file(
         >>> "key" in content and "value" in content
         True
         >>> os.unlink(test_file)  # Clean up
+
     """
     path = Path(file_path)
 
@@ -144,6 +147,7 @@ def json_to_string(
         >>> json_str = json_to_string(data, indent=2)
         >>> "key" in json_str and "value" in json_str
         True
+
     """
     return json.dumps(data, cls=DateTimeEncoder, indent=indent, ensure_ascii=ensure_ascii)
 
@@ -168,6 +172,7 @@ def string_to_json(json_str: str) -> Any:
         'value'
         >>> data["list"]
         [1, 2, 3]
+
     """
     return json.loads(json_str)
 
@@ -189,6 +194,7 @@ def merge_json_objects(obj1: Dict[str, Any], obj2: Dict[str, Any]) -> Dict[str, 
         >>> merged = merge_json_objects(obj1, obj2)
         >>> merged
         {'a': 1, 'b': {'c': 4, 'd': 3, 'e': 5}, 'f': 6}
+
     """
     result = obj1.copy()
 
@@ -217,6 +223,7 @@ def flatten_json(obj: Dict[str, Any], delimiter: str = ".") -> Dict[str, Any]:
         >>> flattened = flatten_json(obj)
         >>> flattened
         {'a': 1, 'b.c': 2, 'b.d.e': 3}
+
     """
     result: Dict[str, Any] = {}
 
@@ -249,6 +256,7 @@ def unflatten_json(obj: Dict[str, Any], delimiter: str = ".") -> Dict[str, Any]:
         >>> unflattened = unflatten_json(obj)
         >>> unflattened
         {'a': 1, 'b': {'c': 2, 'd': {'e': 3}}}
+
     """
     result: Dict[str, Any] = {}
 

@@ -2,7 +2,7 @@
 
 import logging
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -18,7 +18,7 @@ class TestSecretsManagerFixes(unittest.TestCase):
         methods = [method for method in dir(SecretsManager) if callable(getattr(SecretsManager, method))]
 
         # Count occurrences of _sanitize_secrets_dict
-        sanitize_method_count = methods.count('_sanitize_secrets_dict')
+        sanitize_method_count = methods.count("_sanitize_secrets_dict")
 
         # There should be exactly one implementation of _sanitize_secrets_dict
         assert sanitize_method_count == 1, f"Expected 1 implementation of _sanitize_secrets_dict, found {sanitize_method_count}"

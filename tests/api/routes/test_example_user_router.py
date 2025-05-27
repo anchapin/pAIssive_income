@@ -1,9 +1,9 @@
 """test_example_user_router - Module for tests/api/routes.test_example_user_router."""
 
 # Standard library imports
-import logging
 import json
-from unittest.mock import patch, MagicMock, AsyncMock
+import logging
+from unittest.mock import AsyncMock, MagicMock, patch
 
 # Third-party imports
 import pytest
@@ -11,7 +11,7 @@ from fastapi import HTTPException, status
 from fastapi.testclient import TestClient
 
 # Local imports
-from api.routes.example_user_router import router, CreateUserModel
+from api.routes.example_user_router import CreateUserModel, router
 from common_utils.validation.core import ValidationError
 
 

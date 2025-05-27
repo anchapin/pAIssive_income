@@ -4,27 +4,27 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 import pytest
 
+from common_utils.exceptions import (
+    DirectoryNotFoundError,
+    DirectoryPermissionError,
+    FilePermissionError,
+    MissingFileError,
+)
 from common_utils.file_utils import (
+    copy_file,
+    create_temp_directory,
+    create_temp_file,
     ensure_directory_exists,
+    get_file_extension,
+    get_file_size,
     list_files,
     list_python_files,
     read_file,
     write_file,
-    copy_file,
-    get_file_size,
-    get_file_extension,
-    create_temp_file,
-    create_temp_directory,
-)
-from common_utils.exceptions import (
-    DirectoryPermissionError,
-    FilePermissionError,
-    DirectoryNotFoundError,
-    MissingFileError,
 )
 
 
@@ -177,7 +177,7 @@ class TestFileUtilsComprehensive:
         new_file = os.path.join(self.temp_dir, "new_file.txt")
         write_file(new_file, "New content")
 
-        with open(new_file, "r") as f:
+        with open(new_file) as f:
             content = f.read()
 
         assert content == "New content"
@@ -190,7 +190,7 @@ class TestFileUtilsComprehensive:
         assert os.path.isdir(os.path.join(self.temp_dir, "new_dir"))
         assert os.path.isfile(new_file)
 
-        with open(new_file, "r") as f:
+        with open(new_file) as f:
             content = f.read()
 
         assert content == "New content"
@@ -212,7 +212,7 @@ class TestFileUtilsComprehensive:
 
         assert os.path.isfile(dest_file)
 
-        with open(dest_file, "r") as f:
+        with open(dest_file) as f:
             content = f.read()
 
         assert content == "This is a test file."
@@ -225,7 +225,7 @@ class TestFileUtilsComprehensive:
         assert os.path.isdir(os.path.join(self.temp_dir, "new_dir"))
         assert os.path.isfile(dest_file)
 
-        with open(dest_file, "r") as f:
+        with open(dest_file) as f:
             content = f.read()
 
         assert content == "This is a test file."
@@ -282,7 +282,7 @@ class TestFileUtilsComprehensive:
         temp_file = create_temp_file("Test content", ".txt")
         assert os.path.isfile(temp_file)
 
-        with open(temp_file, "r") as f:
+        with open(temp_file) as f:
             content = f.read()
         assert content == "Test content"
 

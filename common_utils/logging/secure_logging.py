@@ -64,15 +64,15 @@ PATTERNS: dict[str, Pattern] = {
         re.IGNORECASE,
     ),
     # Added patterns to detect log injection attempts
-    "log_injection_newlines": re.compile(r'[\r\n]+'),
-    "log_injection_control_chars": re.compile(r'[\x00-\x1F\x7F]'),
+    "log_injection_newlines": re.compile(r"[\r\n]+"),
+    "log_injection_control_chars": re.compile(r"[\x00-\x1F\x7F]"),
     "password_pattern": re.compile(r'(password)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
     "api_key_pattern": re.compile(r'(api[_-]?key)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
     "token_pattern": re.compile(r'(token)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
     "secret_pattern": re.compile(r'(secret)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
     # Additional patterns for specific API key formats
-    "sk_api_key_pattern": re.compile(r'(sk_[a-zA-Z0-9_]{10,})', re.IGNORECASE),
-    "api_key_format": re.compile(r'API Key:?\s+([a-zA-Z0-9_\-\.]{10,})', re.IGNORECASE),
+    "sk_api_key_pattern": re.compile(r"(sk_[a-zA-Z0-9_]{10,})", re.IGNORECASE),
+    "api_key_format": re.compile(r"API Key:?\s+([a-zA-Z0-9_\-\.]{10,})", re.IGNORECASE),
     # Additional patterns for sensitive data
     "sensitive_data_pattern": re.compile(r'(sensitive_data)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
 }
@@ -131,6 +131,7 @@ def prevent_log_injection(data: object) -> object:
     Returns:
         The sanitized data with potentially dangerous characters removed or escaped.
         Returns the same type as the input data.
+
     """
     if data is None:
         return None
@@ -283,7 +284,7 @@ def _mask_pattern(
         full_match: str = match.group(0)
 
         # Handle patterns with different group structures
-        if pattern.pattern.startswith(r'(sk_') or pattern.pattern.startswith(r'API Key'):
+        if pattern.pattern.startswith(r"(sk_") or pattern.pattern.startswith(r"API Key"):
             # These patterns have only one capturing group for the sensitive value
             sensitive_value: str = match.group(1)
         else:
@@ -478,7 +479,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
 
         # Add [SECURE] prefix if secure_context is True
-        if kwargs.get('secure_context', False):
+        if kwargs.get("secure_context", False):
             masked_msg = f"[SECURE] {masked_msg}"
 
         self.logger.debug(masked_msg, *args, **kwargs)
@@ -498,7 +499,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
 
         # Add [SECURE] prefix if secure_context is True
-        if kwargs.get('secure_context', False):
+        if kwargs.get("secure_context", False):
             masked_msg = f"[SECURE] {masked_msg}"
 
         self.logger.info(masked_msg, *args, **kwargs)
@@ -518,7 +519,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
 
         # Add [SECURE] prefix if secure_context is True
-        if kwargs.get('secure_context', False):
+        if kwargs.get("secure_context", False):
             masked_msg = f"[SECURE] {masked_msg}"
 
         self.logger.warning(masked_msg, *args, **kwargs)
@@ -541,7 +542,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
 
         # Add [SECURE] prefix if secure_context is True
-        if kwargs.get('secure_context', False):
+        if kwargs.get("secure_context", False):
             masked_msg = f"[SECURE] {masked_msg}"
 
         self.logger.error(masked_msg, *args, **kwargs)
@@ -561,7 +562,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
 
         # Add [SECURE] prefix if secure_context is True
-        if kwargs.get('secure_context', False):
+        if kwargs.get("secure_context", False):
             masked_msg = f"[SECURE] {masked_msg}"
 
         self.logger.critical(masked_msg, *args, **kwargs)
@@ -584,7 +585,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
 
         # Add [SECURE] prefix if secure_context is True
-        if kwargs.get('secure_context', False):
+        if kwargs.get("secure_context", False):
             masked_msg = f"[SECURE] {masked_msg}"
 
         self.logger.exception(masked_msg, *args, **kwargs)
@@ -605,7 +606,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
 
         # Add [SECURE] prefix if secure_context is True
-        if kwargs.get('secure_context', False):
+        if kwargs.get("secure_context", False):
             masked_msg = f"[SECURE] {masked_msg}"
 
         self.logger.log(level, masked_msg, *args, **kwargs)

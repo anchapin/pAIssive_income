@@ -1,18 +1,21 @@
 """Tests for the app_flask/mcp_servers.py module."""
 
 import json
-import unittest
-from unittest.mock import patch, mock_open, MagicMock
-import sys
 import os
+import sys
+import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, mock_open, patch
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app_flask.mcp_servers import (
-    load_settings, save_settings, validate_server_data,
-    MCP_SERVERS_KEY, InvalidDataTypeError
+    MCP_SERVERS_KEY,
+    InvalidDataTypeError,
+    load_settings,
+    save_settings,
+    validate_server_data,
 )
 
 
@@ -98,29 +101,29 @@ class TestMcpServers(unittest.TestCase):
         self.assertTrue("Port must be between" in result[0])
         self.assertEqual(result[1], 400)
 
-    @patch('app_flask.mcp_servers.MCP_SETTINGS_FILE')
+    @patch("app_flask.mcp_servers.MCP_SETTINGS_FILE")
     def test_load_settings_file_not_exists(self, mock_settings_file):
         """Test loading settings when file doesn't exist."""
         mock_settings_file.exists.return_value = False
         result = load_settings()
         self.assertEqual(result, {MCP_SERVERS_KEY: []})
 
-    @patch('app_flask.mcp_servers.MCP_SETTINGS_FILE')
+    @patch("app_flask.mcp_servers.MCP_SETTINGS_FILE")
     def test_load_settings_file_too_large(self, mock_settings_file):
         """Test loading settings when file is too large."""
         mock_settings_file.exists.return_value = True
         mock_stat = MagicMock()
         mock_stat.st_size = 2 * 1024 * 1024  # 2MB (too large)
         mock_settings_file.stat.return_value = mock_stat
-        
+
         result = load_settings()
         self.assertEqual(result, {MCP_SERVERS_KEY: []})
 
-    @patch('app_flask.mcp_servers.MCP_SETTINGS_FILE')
+    @patch("app_flask.mcp_servers.MCP_SETTINGS_FILE")
     def test_save_settings_invalid_data_type(self, mock_settings_file):
         """Test saving settings with invalid data type."""
         data = {MCP_SERVERS_KEY: "not a list"}  # Invalid type
-        
+
         with self.assertRaises(InvalidDataTypeError):
             save_settings(data)
 

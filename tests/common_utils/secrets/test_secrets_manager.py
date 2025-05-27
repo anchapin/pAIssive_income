@@ -2,16 +2,17 @@
 
 import logging
 import os
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from common_utils.secrets.secrets_manager import (
     SecretsBackend,
     SecretsManager,
-    get_secret,
-    set_secret,
     delete_secret,
+    get_secret,
     list_secrets,
+    set_secret,
 )
 
 

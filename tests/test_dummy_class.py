@@ -5,6 +5,7 @@ This ensures 100% test coverage for the placeholder module.
 
 import logging
 import unittest
+
 from tests.test_coverage_placeholder import DummyClass
 
 

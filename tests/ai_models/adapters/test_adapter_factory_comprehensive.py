@@ -1,16 +1,17 @@
 """Comprehensive tests for the ai_models.adapters.adapter_factory module."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from ai_models.adapters.adapter_factory import (
     AdapterFactory,
-    get_adapter,
+    LMStudioAdapter,
     MCPAdapterNotAvailableError,
-    UnsupportedServerTypeError,
     OllamaAdapter,
     OpenAICompatibleAdapter,
-    LMStudioAdapter,
+    UnsupportedServerTypeError,
+    get_adapter,
 )
 
 

@@ -4,27 +4,27 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
+from common_utils.exceptions import (
+    DirectoryNotFoundError,
+    DirectoryPermissionError,
+    FilePermissionError,
+    MissingFileError,
+)
 from common_utils.file_utils import (
+    copy_file,
+    create_temp_directory,
+    create_temp_file,
     ensure_directory_exists,
+    get_file_extension,
+    get_file_size,
     list_files,
     list_python_files,
     read_file,
     write_file,
-    copy_file,
-    get_file_size,
-    get_file_extension,
-    create_temp_file,
-    create_temp_directory,
-)
-from common_utils.exceptions import (
-    DirectoryPermissionError,
-    FilePermissionError,
-    DirectoryNotFoundError,
-    MissingFileError,
 )
 
 
@@ -122,7 +122,7 @@ class TestFileUtilsAdditional:
         # Test with IOError using a context manager to patch open
         with patch("builtins.open") as mock_open_io:
             # Configure the mock to raise IOError when called
-            mock_open_io.side_effect = IOError("IO Error")
+            mock_open_io.side_effect = OSError("IO Error")
 
             # Test with IOError
             with pytest.raises(IOError):
@@ -152,7 +152,7 @@ class TestFileUtilsAdditional:
 
         # Verify the file was created
         assert os.path.isfile(nested_file)
-        with open(nested_file, "r") as f:
+        with open(nested_file) as f:
             assert f.read() == "Test content"
 
     def test_copy_file_without_create_dirs(self):
@@ -173,7 +173,7 @@ class TestFileUtilsAdditional:
 
         # Verify the file was copied
         assert os.path.isfile(dest_file)
-        with open(dest_file, "r") as f:
+        with open(dest_file) as f:
             assert f.read() == "Source content"
 
     def test_get_file_extension_with_multiple_dots(self):
@@ -200,7 +200,7 @@ class TestFileUtilsAdditional:
 
         # Verify the file was created with the correct content
         assert os.path.isfile(temp_file)
-        with open(temp_file, "r") as f:
+        with open(temp_file) as f:
             assert f.read() == "Test content"
 
         # Clean up

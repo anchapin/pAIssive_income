@@ -8,26 +8,26 @@ import socket
 import tempfile
 import threading
 import time
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from common_utils.logging.centralized_logging import (
     CentralizedLoggingService,
-    LoggingClient,
-    RemoteHandler,
-    LogLevel,
-    LogFilter,
-    LevelFilter,
-    SensitiveDataFilter,
-    LogOutput,
-    FileOutput,
     ElasticsearchOutput,
+    FileOutput,
+    LevelFilter,
+    LogFilter,
+    LoggingClient,
+    LogLevel,
+    LogOutput,
     LogstashOutput,
+    RemoteHandler,
+    SensitiveDataFilter,
+    _client,
     configure_centralized_logging,
     get_centralized_logger,
     stop_centralized_logging,
-    _client,
 )
 
 
@@ -148,7 +148,7 @@ class TestFileOutput:
         assert os.path.exists(log_file)
 
         # Check the log file contents
-        with open(log_file, "r") as f:
+        with open(log_file) as f:
             content = f.read()
             assert "2023-01-01T12:00:00" in content
             assert "test_app" in content
@@ -367,7 +367,7 @@ class TestCentralizedLoggingService:
         assert os.path.exists(log_file)
 
         # Verify the log file contents
-        with open(log_file, "r") as f:
+        with open(log_file) as f:
             log_content = f.read()
             assert "test_app" in log_content
             assert "test_logger" in log_content
@@ -626,10 +626,9 @@ class TestGetCentralizedLogger:
     def test_get_centralized_logger_with_client(self):
         """Test getting a centralized logger when a client is configured."""
         # Save the original client
-        from common_utils.logging.centralized_logging import _client as original_client
-
         # Set the global client to a mock using the module's namespace
         import common_utils.logging.centralized_logging
+        from common_utils.logging.centralized_logging import _client as original_client
         mock_client = MagicMock()
         common_utils.logging.centralized_logging._client = mock_client
 
@@ -654,10 +653,9 @@ class TestGetCentralizedLogger:
     def test_get_centralized_logger_without_client(self):
         """Test getting a centralized logger when no client is configured."""
         # Save the original client
-        from common_utils.logging.centralized_logging import _client as original_client
-
         # Set the global client to None using the module's namespace
         import common_utils.logging.centralized_logging
+        from common_utils.logging.centralized_logging import _client as original_client
         common_utils.logging.centralized_logging._client = None
 
         try:
@@ -685,10 +683,9 @@ class TestStopCentralizedLogging:
     def test_stop_centralized_logging(self):
         """Test stopping centralized logging."""
         # Save the original client
-        from common_utils.logging.centralized_logging import _client as original_client
-
         # Set the global client to a mock using the module's namespace
         import common_utils.logging.centralized_logging
+        from common_utils.logging.centralized_logging import _client as original_client
         mock_client = MagicMock()
         common_utils.logging.centralized_logging._client = mock_client
 

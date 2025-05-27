@@ -1,22 +1,22 @@
 """Integration tests for the secrets management system."""
 
+import json
 import logging
 import os
 import tempfile
-import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
+from common_utils.secrets.cli import handle_delete, handle_get, handle_list, handle_set
+from common_utils.secrets.config import SecretConfig
 from common_utils.secrets.secrets_manager import (
     SecretsBackend,
-    get_secret,
-    set_secret,
     delete_secret,
+    get_secret,
     list_secrets,
+    set_secret,
 )
-from common_utils.secrets.config import SecretConfig
-from common_utils.secrets.cli import handle_set, handle_get, handle_delete, handle_list
 
 
 class TestSecretsIntegration:

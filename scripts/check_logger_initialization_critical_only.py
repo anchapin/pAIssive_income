@@ -8,8 +8,7 @@ and acceptable patterns like function-level logger assignments.
 import ast
 import os
 import sys
-from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import List
 
 
 class LoggerIssue:
@@ -36,7 +35,7 @@ class SmartLoggerChecker(ast.NodeVisitor):
         self.in_class = False
         self.function_depth = 0
         self.class_depth = 0
-        
+
     def visit_Import(self, node: ast.Import) -> None:
         self.imports_seen = True
         for alias in node.names:
@@ -135,7 +134,7 @@ class SmartLoggerChecker(ast.NodeVisitor):
             # that's called at module level, it could be problematic
             # For now, we'll be lenient with function-level assignments
             return
-            
+
         # If we're at module level and this is after imports, check if it's the first logger
         if self.imports_seen and not self.logger_initialized:
             # This is the first module-level logger after imports - this is good
@@ -157,20 +156,20 @@ class SmartLoggerChecker(ast.NodeVisitor):
                 # This is a logging call - check if we're in an exception handler
                 # and if so, suggest using logger.exception instead
                 pass  # For now, we'll skip this check as it's not critical for CI
-        
+
         self.generic_visit(node)
 
 
 def check_file(file_path: str) -> List[LoggerIssue]:
     """Check a single Python file for critical logger initialization issues."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
-        
+
         tree = ast.parse(content)
         checker = SmartLoggerChecker(file_path)
         checker.visit(tree)
-        
+
         # Additional checks for missing logger when logging is imported
         if checker.logging_imported and not checker.logger_initialized:
             # Check if there are any logging calls without a logger
@@ -185,9 +184,9 @@ def check_file(file_path: str) -> List[LoggerIssue]:
                                 "logging module imported but no logger initialized - use logger = logging.getLogger(__name__)"
                             ))
                             break
-        
+
         return checker.issues
-        
+
     except Exception as e:
         return [LoggerIssue(file_path, 0, "PARSE_ERROR", f"Failed to parse file: {e}")]
 
@@ -197,12 +196,12 @@ def find_python_files(directory: str) -> List[str]:
     python_files = []
     for root, dirs, files in os.walk(directory):
         # Skip certain directories
-        dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ['__pycache__', 'node_modules', 'venv', 'env']]
-        
+        dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ["__pycache__", "node_modules", "venv", "env"]]
+
         for file in files:
-            if file.endswith('.py'):
+            if file.endswith(".py"):
                 python_files.append(os.path.join(root, file))
-    
+
     return python_files
 
 
@@ -212,40 +211,39 @@ def main():
         directory = sys.argv[1]
     else:
         directory = "."
-    
+
     python_files = find_python_files(directory)
     all_issues = []
-    
+
     for file_path in python_files:
         issues = check_file(file_path)
         all_issues.extend(issues)
-    
+
     # Group issues by type and severity
     critical_issues = [issue for issue in all_issues if issue.severity == "critical"]
-    
+
     if critical_issues:
         print(f"Found {len(critical_issues)} critical logger initialization issues:")
         print()
-        
+
         # Group by file
         issues_by_file = {}
         for issue in critical_issues:
             if issue.file_path not in issues_by_file:
                 issues_by_file[issue.file_path] = []
             issues_by_file[issue.file_path].append(issue)
-        
+
         for file_path, file_issues in sorted(issues_by_file.items()):
             print(f"{file_path}:")
             for issue in sorted(file_issues, key=lambda x: x.line_number):
                 print(f"  Line {issue.line_number}: {issue.issue_type} - {issue.description}")
             print()
-        
+
         print(f"Summary: {len(critical_issues)} critical issues in {len(issues_by_file)} files")
         return 1
-    else:
-        print("No critical logger initialization issues found!")
-        return 0
+    print("No critical logger initialization issues found!")
+    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())

@@ -33,7 +33,10 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the log aggregation utilities
-from common_utils.logging.log_aggregation import aggregate_logs, configure_log_aggregation
+from common_utils.logging.log_aggregation import (
+    aggregate_logs,
+    configure_log_aggregation,
+)
 from common_utils.logging.secure_logging import get_secure_logger
 
 # Configure logging
@@ -44,10 +47,12 @@ logger = get_secure_logger("log_aggregation_runner")
 
 
 def parse_args():
-    """Parse command line arguments.
+    """
+    Parse command line arguments.
     
     Returns:
         argparse.Namespace: Parsed arguments
+
     """
     parser = argparse.ArgumentParser(description="Log Aggregation Runner")
     parser.add_argument(
@@ -107,10 +112,10 @@ def main():
     """Main function."""
     # Parse command line arguments
     args = parse_args()
-    
+
     # Create the log directory if it doesn't exist
     os.makedirs(args.log_dir, exist_ok=True)
-    
+
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
@@ -120,7 +125,7 @@ def main():
             logging.FileHandler(os.path.join(args.log_dir, "log_aggregation.log")),
         ],
     )
-    
+
     try:
         if args.configure:
             # Configure log aggregation to run periodically
@@ -135,7 +140,7 @@ def main():
                 logstash_port=args.logstash_port,
                 output_file=args.output_file,
             )
-            
+
             # Keep the main thread alive
             import time
             while True:
@@ -156,7 +161,7 @@ def main():
     except Exception as e:
         logger.error("Error running log aggregation: %s", e)
         sys.exit(1)
-    
+
     return 0
 
 

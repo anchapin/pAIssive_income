@@ -2,11 +2,17 @@
 
 import logging
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch, Mock
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from users.services import UserExistsError, UserService, AuthenticationError, UserModelNotAvailableError, DatabaseSessionNotAvailableError
+from users.services import (
+    AuthenticationError,
+    DatabaseSessionNotAvailableError,
+    UserExistsError,
+    UserModelNotAvailableError,
+    UserService,
+)
 
 
 class MockUser:
@@ -62,7 +68,7 @@ class TestUserService:
         with pytest.raises(AuthenticationError):
             UserService(token_secret="")
 
-    @patch('users.services.UserModel', None)
+    @patch("users.services.UserModel", None)
     def test_create_user_no_user_model(self, user_service):
         """Test creating a user when UserModel is not available."""
         with pytest.raises(UserModelNotAvailableError):
@@ -72,8 +78,8 @@ class TestUserService:
                 auth_credential="password123"
             )
 
-    @patch('users.services.db_session', None)
-    @patch('users.services.UserModel')
+    @patch("users.services.db_session", None)
+    @patch("users.services.UserModel")
     def test_create_user_no_db_session(self, mock_user_model, user_service):
         """Test creating a user when db_session is not available."""
         # Mock the query to return no existing user
@@ -81,7 +87,7 @@ class TestUserService:
         mock_query.filter.return_value.first.return_value = None
         mock_user_model.query = mock_query
 
-        with patch('users.services.hash_credential', return_value="hashed_password"):
+        with patch("users.services.hash_credential", return_value="hashed_password"):
             with pytest.raises(DatabaseSessionNotAvailableError):
                 user_service.create_user(
                     username="testuser",
@@ -119,9 +125,9 @@ class TestUserService:
             )
         assert "Password is required" in str(exc_info.value)
 
-    @patch('users.services.hash_credential')
-    @patch('users.services.UserModel')
-    @patch('users.services.db_session')
+    @patch("users.services.hash_credential")
+    @patch("users.services.UserModel")
+    @patch("users.services.db_session")
     def test_create_user_success(self, mock_db_session, mock_user_model, mock_hash, user_service):
         """Test successful user creation."""
         # Setup mocks
@@ -200,7 +206,7 @@ class TestUserService:
         mock_session.add.assert_called_once()
         mock_session.commit.assert_called_once()
 
-    @patch('users.services.UserModel')
+    @patch("users.services.UserModel")
     def test_create_user_existing_username(self, mock_user_model, user_service):
         """Test creating a user with existing username."""
         # Mock existing user
@@ -240,7 +246,7 @@ class TestUserService:
                 auth_credential="test_credential"
             )
 
-    @patch('users.services.UserModel')
+    @patch("users.services.UserModel")
     def test_create_user_existing_email(self, mock_user_model, user_service):
         """Test creating a user with existing email."""
         # Mock existing user
@@ -261,13 +267,13 @@ class TestUserService:
             )
         assert "Email already exists" in str(exc_info.value)
 
-    @patch('users.services.UserModel', None)
+    @patch("users.services.UserModel", None)
     def test_authenticate_user_no_user_model(self, user_service):
         """Test authenticating a user when UserModel is not available."""
         with pytest.raises(UserModelNotAvailableError):
             user_service.authenticate_user("testuser", "password123")
 
-    @patch('users.services.UserModel')
+    @patch("users.services.UserModel")
     def test_authenticate_user_not_found(self, mock_user_model, user_service):
         """Test authenticating a non-existent user."""
         # Mock the query to return None (user not found)
@@ -300,8 +306,8 @@ class TestUserService:
         assert success is False
         assert result is None
 
-    @patch('users.services.verify_credential')
-    @patch('users.services.UserModel')
+    @patch("users.services.verify_credential")
+    @patch("users.services.UserModel")
     def test_authenticate_user_wrong_password(self, mock_user_model, mock_verify, user_service):
         """Test authenticating a user with wrong password."""
         # Mock user
@@ -346,9 +352,9 @@ class TestUserService:
         # Verify verify_credential was called
         mock_verify.assert_called_once_with("wrong_credential", "hashed_password")
 
-    @patch('users.services.verify_credential')
-    @patch('users.services.UserModel')
-    @patch('users.services.db_session')
+    @patch("users.services.verify_credential")
+    @patch("users.services.UserModel")
+    @patch("users.services.db_session")
     def test_authenticate_user_success(self, mock_db_session, mock_user_model, mock_verify, user_service):
         """Test successful user authentication."""
         # Mock user

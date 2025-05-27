@@ -7,12 +7,12 @@ from unittest.mock import patch
 import pytest
 
 from common_utils.string_utils import (
-    slugify,
     camel_to_snake,
+    format_number,
+    remove_html_tags,
+    slugify,
     snake_to_camel,
     truncate,
-    remove_html_tags,
-    format_number,
 )
 
 
@@ -50,7 +50,7 @@ class TestStringUtilsComprehensive:
         """Test slugify with allow_unicode=True."""
         # With allow_unicode=False (default), accents are removed
         assert slugify("Héllö Wörld") == "hello-world"
-        
+
         # With allow_unicode=True, accents are preserved
         assert "ö" in slugify("Héllö Wörld", allow_unicode=True)
         assert "é" in slugify("Héllö Wörld", allow_unicode=True)

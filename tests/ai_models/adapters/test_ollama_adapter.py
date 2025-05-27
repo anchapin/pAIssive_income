@@ -1,10 +1,10 @@
 """test_ollama_adapter - Module for tests/ai_models/adapters.test_ollama_adapter."""
 
 # Standard library imports
-import logging
-import json
 import asyncio
-from unittest.mock import patch, MagicMock, AsyncMock
+import json
+import logging
+from unittest.mock import AsyncMock, MagicMock, patch
 
 # Third-party imports
 import pytest

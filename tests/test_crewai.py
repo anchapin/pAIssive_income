@@ -3,7 +3,7 @@
 import logging
 import os
 import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -11,9 +11,9 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the crewai module directly
-import sys
 import importlib.util
 import os
+import sys
 
 # Get the absolute path to the crewai.py file
 crewai_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "crewai.py"))
@@ -38,7 +38,7 @@ class TestCrewAI:
         """Test that the __version__ attribute has the correct format."""
         import re
         # Check that the version follows semantic versioning (MAJOR.MINOR.PATCH)
-        version_pattern = re.compile(r'^\d+\.\d+\.\d+$')
+        version_pattern = re.compile(r"^\d+\.\d+\.\d+$")
         assert version_pattern.match(crewai.__version__) is not None
 
     def test_version_attribute_is_module_level(self):
@@ -101,7 +101,7 @@ class TestCrewAI:
         assert "Test goal" in agent_repr
         assert "Test backstory" in agent_repr
 
-    @patch('crewai.Agent.execute_task')
+    @patch("crewai.Agent.execute_task")
     def test_agent_execute_task(self, mock_execute_task):
         """Test the Agent.execute_task method."""
         # Set up the mock
@@ -196,7 +196,7 @@ class TestCrewAI:
         assert "memory" in crew.kwargs
         assert crew.kwargs["memory"] is True
 
-    @patch('crewai.Crew.kickoff')
+    @patch("crewai.Crew.kickoff")
     def test_crew_kickoff(self, mock_kickoff):
         """Test the Crew.kickoff method."""
         # Set up the mock

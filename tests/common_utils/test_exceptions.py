@@ -3,17 +3,18 @@
 # Standard library imports
 import logging
 import unittest
+
 import pytest
 
 # Local imports
 from common_utils.exceptions import (
-    DirectoryPermissionError,
-    FilePermissionError,
     DirectoryNotFoundError,
+    DirectoryPermissionError,
     FileNotPythonError,
+    FilePermissionError,
+    InvalidRotationIntervalError,
     MissingFileError,
     ScriptNotFoundError,
-    InvalidRotationIntervalError,
 )
 
 

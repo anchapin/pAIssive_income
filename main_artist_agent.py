@@ -4,8 +4,8 @@ Minimal ARTIST-style agent wrapper for agentic tool use.
 This agent can reason over a prompt, decide which tool to use, and invoke it.
 This is a scaffold for further expansion.
 """
-import logging # Added import
-import sys # Added import
+import logging  # Added import
+import sys  # Added import
 
 # Configure logging
 logger = logging.getLogger(__name__) # Added logger initialization

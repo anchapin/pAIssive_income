@@ -3,17 +3,17 @@
 import logging
 import os
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from common_utils.secrets.secrets_manager import (
     SecretsBackend,
     SecretsManager,
-    get_secret,
-    set_secret,
     delete_secret,
+    get_secret,
     list_secrets,
+    set_secret,
 )
 
 
@@ -259,7 +259,7 @@ class TestSecretsManagerExtended(unittest.TestCase):
         }
 
         # Patch the _sanitize_secrets_dict method to return a fixed dictionary
-        with patch.object(SecretsManager, '_sanitize_secrets_dict', return_value={
+        with patch.object(SecretsManager, "_sanitize_secrets_dict", return_value={
             "key1": "value1",
             "password": "********",
             "api_key": "********",

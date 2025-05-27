@@ -7,7 +7,7 @@ See: docs/input_validation_and_error_handling_standards.md
 
 from __future__ import annotations
 
-from typing import TypeVar, Dict, List, Any, Optional, Union
+from typing import Any, Dict, List, Optional, TypeVar, Union
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
@@ -25,6 +25,7 @@ class ValidationError(Exception):
         Args:
             message (str, optional): Error message. Defaults to "Input validation failed".
             details (List[Dict[str, Any]], optional): Additional error details. Defaults to None.
+
         """
         self.message = message
         self.details = details
@@ -58,6 +59,7 @@ def validate_input(model_cls: type[T], data: object) -> T:
 
     Raises:
         ValidationError: If validation fails.
+
     """
     try:
         model_instance = model_cls.model_validate(data)
@@ -84,6 +86,7 @@ def format_validation_error(error: PydanticValidationError) -> List[Dict[str, An
 
     Returns:
         List of formatted error details.
+
     """
     formatted_errors = []
 
@@ -114,6 +117,7 @@ def validation_error_response(error: Union[PydanticValidationError, ValidationEr
 
     Returns:
         Dictionary conforming to error response standards.
+
     """
     formatted_errors = []
     error_message = message or "An error occurred processing the request"

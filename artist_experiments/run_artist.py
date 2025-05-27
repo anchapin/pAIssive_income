@@ -6,7 +6,7 @@ This script provides a simple Flask application for running ARTIST experiments.
 
 import logging
 import os
-import sys # Added sys import
+import sys  # Added sys import
 from pathlib import Path
 
 logger = logging.getLogger(__name__)

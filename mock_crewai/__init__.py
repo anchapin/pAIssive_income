@@ -15,20 +15,21 @@ don't need the full CrewAI functionality.
 __version__ = "0.120.0"
 
 # Import types first to avoid circular imports
-from .types import AgentType, CrewType, TaskType
+from . import tools
 
 # Import classes in a specific order to avoid circular imports
 from .agent import Agent
-from .task import Task
 from .crew import Crew
-from . import tools
+from .task import Task
+from .types import AgentType, CrewType, TaskType
 
 # Define what should be exported
-__all__ = ["Agent", "Crew", "Task", "AgentType", "CrewType", "TaskType", "tools", "__version__"]
+__all__ = ["Agent", "AgentType", "Crew", "CrewType", "Task", "TaskType", "__version__", "tools"]
 
 # Ensure __version__ is accessible when importing the module
 # This is needed for compatibility with different import styles
 import sys
+
 sys.modules[__name__].__version__ = __version__
 
 # Mock CrewAI module for CI environments

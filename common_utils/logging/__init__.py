@@ -3,9 +3,8 @@ Common utilities for secure logging and log management.
 """
 
 import logging
-from typing import cast, Dict, Union
-
-import sys # Added sys import
+import sys  # Added sys import
+from typing import Dict, Union, cast
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -28,11 +27,11 @@ except ImportError:
 __all__ = [
     "SENSITIVE_FIELDS",
     "SecureLogger",
+    "_logger_cache",
     "get_logger",
     "get_secure_logger",
     "mask_sensitive_data",
     "secure_logger",
-    "_logger_cache",
 ]
 
 
@@ -43,7 +42,8 @@ _logger_cache: Dict[str, Union[SecureLogger, logging.Logger]] = {}
 secure_logger = get_secure_logger("secure_logger")
 
 def get_logger(name: str, secure: bool = True) -> Union[SecureLogger, logging.Logger]:
-    """Get a logger instance.
+    """
+    Get a logger instance.
 
     Args:
         name: Logger name
@@ -51,6 +51,7 @@ def get_logger(name: str, secure: bool = True) -> Union[SecureLogger, logging.Lo
 
     Returns:
         Logger instance (SecureLogger if secure=True)
+
     """
     if name in _logger_cache:
         return _logger_cache[name]

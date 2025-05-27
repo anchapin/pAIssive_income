@@ -2,13 +2,13 @@
 
 import logging
 import re
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from common_utils.logging.secure_logging import (
-    SENSITIVE_FIELDS,
     PATTERNS,
+    SENSITIVE_FIELDS,
     SecureLogger,
     _mask_if_sensitive,
     _mask_pattern,
@@ -154,7 +154,7 @@ class TestSecureLoggingComprehensive:
         mock_logger.reset_mock()
 
         # Test warn (alias for warning)
-        logger.warn(test_message)
+        logger.warning(test_message)
         assert mock_logger.warning.called
         called_args = mock_logger.warning.call_args[0][0]
         assert "secret" not in called_args

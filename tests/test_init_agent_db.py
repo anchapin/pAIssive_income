@@ -1,10 +1,10 @@
 """Tests for the init_agent_db module."""
 
-import unittest
-from unittest.mock import patch, MagicMock
+import logging
 import os
 import sys
-import logging
+import unittest
+from unittest.mock import MagicMock, patch
 
 from init_agent_db import init_agent_db
 
@@ -19,7 +19,7 @@ class TestInitAgentDB(unittest.TestCase):
         self.db_url_patcher.start()
 
         # Mock logger
-        self.logger_patcher = patch('init_agent_db.logger')
+        self.logger_patcher = patch("init_agent_db.logger")
         self.mock_logger = self.logger_patcher.start()
 
     def tearDown(self):
@@ -27,7 +27,7 @@ class TestInitAgentDB(unittest.TestCase):
         self.db_url_patcher.stop()
         self.logger_patcher.stop()
 
-    @patch('init_agent_db.psycopg2.connect')
+    @patch("init_agent_db.psycopg2.connect")
     def test_init_agent_db_success(self, mock_connect):
         """Test successful database initialization."""
         # Setup mock connection and cursor
@@ -64,7 +64,7 @@ class TestInitAgentDB(unittest.TestCase):
         # Verify success was logged
         self.mock_logger.info.assert_any_call("Agent database initialization completed successfully")
 
-    @patch('init_agent_db.psycopg2.connect')
+    @patch("init_agent_db.psycopg2.connect")
     def test_init_agent_db_tables_exist(self, mock_connect):
         """Test when tables already exist."""
         # Setup mock connection and cursor
@@ -97,7 +97,7 @@ class TestInitAgentDB(unittest.TestCase):
         # Verify existing records were logged
         self.mock_logger.info.assert_any_call("Agent table already has 5 records")
 
-    @patch('init_agent_db.psycopg2.connect')
+    @patch("init_agent_db.psycopg2.connect")
     def test_init_agent_db_no_records(self, mock_connect):
         """Test when tables exist but no records."""
         # Setup mock connection and cursor
@@ -136,7 +136,7 @@ class TestInitAgentDB(unittest.TestCase):
             # Verify error was logged
             self.mock_logger.error.assert_called_once_with("DATABASE_URL environment variable not set")
 
-    @patch('init_agent_db.psycopg2.connect')
+    @patch("init_agent_db.psycopg2.connect")
     def test_init_agent_db_exception(self, mock_connect):
         """Test when an exception occurs."""
         # Setup mock to raise an exception

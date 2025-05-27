@@ -7,9 +7,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from common_utils.logging.logger import (
+    _loggers,
     get_logger,
     setup_logger,
-    _loggers,
 )
 
 
@@ -103,7 +103,7 @@ class TestLogger:
         _loggers[logger_name] = logger
 
         # Call setup_logger
-        with patch.object(logger, 'removeHandler') as mock_remove_handler:
+        with patch.object(logger, "removeHandler") as mock_remove_handler:
             setup_logger(logger_name)
             mock_remove_handler.assert_called_once_with(handler)
 
@@ -141,7 +141,7 @@ class TestLogger:
         logger_name = "test_default_handler"
 
         # Call setup_logger without handlers
-        with patch('logging.StreamHandler') as mock_stream_handler:
+        with patch("logging.StreamHandler") as mock_stream_handler:
             mock_handler = MagicMock()
             mock_stream_handler.return_value = mock_handler
 

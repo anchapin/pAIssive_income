@@ -1,11 +1,14 @@
 """Tests for common_utils.logging.examples module."""
 
 import logging
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from common_utils.logging.examples import example_secure_logger, example_mask_sensitive_data
+from common_utils.logging.examples import (
+    example_mask_sensitive_data,
+    example_secure_logger,
+)
 
 
 class TestExamples:
@@ -29,24 +32,24 @@ class TestExamples:
 
         # Check that the first call contains the access token
         first_call_args = mock_logger.info.call_args_list[0][0]
-        assert "Using access token: %s" == first_call_args[0]
-        assert "DEMO_TOKEN_PLACEHOLDER" == first_call_args[1]
+        assert first_call_args[0] == "Using access token: %s"
+        assert first_call_args[1] == "DEMO_TOKEN_PLACEHOLDER"
 
         # Check that the second call contains the auth material
         second_call_args = mock_logger.info.call_args_list[1][0]
-        assert "Authentication material: %s" == second_call_args[0]
-        assert "DEMO_AUTH_PLACEHOLDER" == second_call_args[1]
+        assert second_call_args[0] == "Authentication material: %s"
+        assert second_call_args[1] == "DEMO_AUTH_PLACEHOLDER"
 
         # Check that the third call contains the user data
         third_call_args = mock_logger.info.call_args_list[2][0]
-        assert "User data: %s" == third_call_args[0]
+        assert third_call_args[0] == "User data: %s"
         # Check that the user_data dictionary is passed as expected
         user_data = third_call_args[1]
-        assert "john_doe" == user_data["username"]
-        assert "john@example.com" == user_data["email"]
-        assert "DEMO_AUTH_PLACEHOLDER" == user_data["auth_material"]
-        assert "DEMO_TOKEN_PLACEHOLDER" == user_data["secure_data"]["service_1"]
-        assert "EXAMPLE_AUTH_PLACEHOLDER_NOT_REAL" == user_data["secure_data"]["service_2"]
+        assert user_data["username"] == "john_doe"
+        assert user_data["email"] == "john@example.com"
+        assert user_data["auth_material"] == "DEMO_AUTH_PLACEHOLDER"
+        assert user_data["secure_data"]["service_1"] == "DEMO_TOKEN_PLACEHOLDER"
+        assert user_data["secure_data"]["service_2"] == "EXAMPLE_AUTH_PLACEHOLDER_NOT_REAL"
 
     @patch("common_utils.logging.examples.mask_sensitive_data")
     @patch("common_utils.logging.examples.logging.getLogger")
@@ -91,6 +94,7 @@ class TestExamples:
         """Test that logging is set up correctly in the module."""
         # Re-import the module to trigger the logging setup
         import importlib
+
         import common_utils.logging.examples
         importlib.reload(common_utils.logging.examples)
 

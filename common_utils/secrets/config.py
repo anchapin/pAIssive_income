@@ -16,7 +16,7 @@ from typing import Any, Optional
 # Local imports
 from common_utils.logging import get_logger
 
-from .secrets_manager import SecretsBackend, get_secret, set_secret, delete_secret
+from .secrets_manager import SecretsBackend, delete_secret, get_secret, set_secret
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -62,26 +62,30 @@ class SecretConfig:
         logger.info("Configuration manager initialized with file: %s", self.config_file)
 
     def _is_secret_reference(self, value: Any) -> bool:
-        """Check if a value is a secret reference.
+        """
+        Check if a value is a secret reference.
 
         Args:
             value: The value to check
 
         Returns:
             bool: True if the value is a secret reference, False otherwise
+
         """
         if not isinstance(value, str):
             return False
         return value.startswith("secret:")
 
     def _extract_secret_key(self, value: Any) -> Optional[str]:
-        """Extract the key from a secret reference.
+        """
+        Extract the key from a secret reference.
 
         Args:
             value: The value to extract the key from
 
         Returns:
             Optional[str]: The extracted key, or None if the value is not a secret reference
+
         """
         if not self._is_secret_reference(value):
             return None
@@ -193,9 +197,8 @@ class SecretConfig:
                 self._save_config()
                 logger.debug("Replaced entire configuration")
                 return
-            else:
-                logger.warning("Cannot set non-dict value as entire configuration")
-                return
+            logger.warning("Cannot set non-dict value as entire configuration")
+            return
 
         if use_secret:
             # Store the value as a secret and save a reference

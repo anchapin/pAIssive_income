@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 from typing import List
 
+
 # Configure logging for CI environments
 def setup_logging() -> None:
     """Set up logging configuration."""
@@ -112,7 +113,7 @@ def create_fallback_sarif() -> None:
     """Create fallback SARIF files for security scans."""
     security_dir = Path("security-reports")
     security_dir.mkdir(exist_ok=True)
-    
+
     empty_sarif = {
         "version": "2.1.0",
         "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
@@ -130,11 +131,11 @@ def create_fallback_sarif() -> None:
             }
         ],
     }
-    
+
     import json
     with open(security_dir / "bandit-results.sarif", "w") as f:
         json.dump(empty_sarif, f, indent=2)
-    
+
     # Also create at root level
     with open("empty-sarif.json", "w") as f:
         json.dump(empty_sarif, f, indent=2)
@@ -144,35 +145,35 @@ def run_pytest_strategy(test_args: List[str]) -> int:
     """Run tests using pytest directly."""
     try:
         logger.info("Attempting to run tests with pytest...")
-        
+
         # Filter out problematic test files
         filtered_args = []
         problematic_files = [
             "tests/ai_models/adapters/test_mcp_adapter.py",
-            "tests/test_mcp_import.py", 
+            "tests/test_mcp_import.py",
             "tests/test_mcp_top_level_import.py",
             "tests/test_crewai_agents.py",
             "ai_models/artist_rl/test_artist_rl.py"
         ]
-        
+
         for arg in test_args:
             if not any(prob in arg for prob in problematic_files):
                 filtered_args.append(arg)
-        
+
         # Add ignore flags for problematic files
         for prob_file in problematic_files:
             filtered_args.extend(["--ignore", prob_file])
-        
+
         # Add ignore flags for mock directories
         filtered_args.extend(["--ignore", "mock_mcp", "--ignore", "mock_crewai"])
-        
+
         # Ensure we use python -m pytest for better compatibility
         cmd = [sys.executable, "-m", "pytest", *filtered_args]
         logger.info(f"Running command: {' '.join(cmd)}")
-        
+
         # Set environment variables for better pytest execution
         env = os.environ.copy()
-        
+
         # Add current directory to PYTHONPATH
         current_pythonpath = env.get("PYTHONPATH", "")
         current_dir = str(Path.cwd())
@@ -180,22 +181,21 @@ def run_pytest_strategy(test_args: List[str]) -> int:
             env["PYTHONPATH"] = f"{current_pythonpath};{current_dir}"
         else:
             env["PYTHONPATH"] = current_dir
-        
+
         # Ensure user site-packages are available (don't set PYTHONNOUSERSITE)
         if "PYTHONNOUSERSITE" in env:
             del env["PYTHONNOUSERSITE"]
-        
+
         result = subprocess.run(cmd, check=False, capture_output=False, env=env)  # noqa: S603
-        
+
         if result.returncode == 0:
             logger.info("Tests completed successfully with pytest")
             return result.returncode
-        elif result.returncode == 1:
+        if result.returncode == 1:
             logger.warning("pytest completed with test failures (exit code 1)")
             return 0  # Don't fail CI on test failures
-        else:
-            logger.warning("pytest failed with return code %d", result.returncode)
-            return result.returncode
+        logger.warning("pytest failed with return code %d", result.returncode)
+        return result.returncode
     except subprocess.SubprocessError:
         logger.exception("pytest execution failed")
         return 1
@@ -216,12 +216,11 @@ def run_script_strategy(test_args: List[str]) -> int:
         if result.returncode == 0:
             logger.info("Tests completed successfully with run_tests.py")
             return result.returncode
-        elif result.returncode == 1:
+        if result.returncode == 1:
             logger.warning("run_tests.py completed with test failures (exit code 1)")
             return 0  # Don't fail CI on test failures
-        else:
-            logger.warning("run_tests.py failed with return code %d", result.returncode)
-            return result.returncode
+        logger.warning("run_tests.py failed with return code %d", result.returncode)
+        return result.returncode
     except subprocess.SubprocessError:
         logger.exception("run_tests.py execution failed")
         return 1
@@ -235,15 +234,15 @@ def run_discovery_strategy(test_args: List[str]) -> int:
         result = subprocess.run(cmd, check=False, capture_output=True, text=True)  # noqa: S603
         if result.returncode == 0:
             logger.info("Test discovery successful, running with basic options...")
-            
+
             # Filter test args to exclude problematic files
             filtered_args = [arg for arg in test_args if not any(
                 prob in arg for prob in [
-                    "test_mcp_adapter.py", "test_mcp_import.py", 
+                    "test_mcp_adapter.py", "test_mcp_import.py",
                     "test_mcp_top_level_import.py", "test_crewai_agents.py"
                 ]
             )]
-            
+
             cmd = [sys.executable, "-m", "pytest", "-v", "--tb=short", *filtered_args]
             result = subprocess.run(cmd, check=False, capture_output=False)  # noqa: S603
             return 0 if result.returncode in [0, 1] else result.returncode
@@ -265,7 +264,7 @@ def run_individual_files_strategy(test_args: List[str]) -> int:
         test_files = list(Path("tests").glob("test_*.py")) if Path("tests").exists() else []
         test_files = [str(f) for f in test_files if not any(
             prob in str(f) for prob in [
-                "test_mcp_adapter.py", "test_mcp_import.py", 
+                "test_mcp_adapter.py", "test_mcp_import.py",
                 "test_mcp_top_level_import.py", "test_crewai_agents.py"
             ]
         )]
@@ -343,7 +342,7 @@ def main() -> int:
     for arg in test_args:
         # Skip problematic files
         if any(prob in arg for prob in [
-            "test_mcp_adapter.py", "test_mcp_import.py", 
+            "test_mcp_adapter.py", "test_mcp_import.py",
             "test_mcp_top_level_import.py", "test_crewai_agents.py"
         ]):
             logger.info("Skipping problematic test file: %s", arg)

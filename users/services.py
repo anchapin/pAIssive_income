@@ -16,8 +16,8 @@ import jwt
 from sqlalchemy.exc import SQLAlchemyError
 
 from app_flask import db
-from users.auth import hash_credential, verify_credential
 from common_utils.logging import get_logger
+from users.auth import hash_credential, verify_credential
 
 
 # Define protocol for User model to help with type checking
@@ -131,6 +131,7 @@ class UserService:
 
         Raises:
             AuthenticationError: If token_secret is not provided
+
         """
         if not token_secret:
             logger.error("No token secret provided")
@@ -163,6 +164,7 @@ class UserService:
             UserExistsError: If username/email already exists
             UserModelNotAvailableError: If User model not available
             DatabaseSessionNotAvailableError: If db session not available
+
         """
         # Validate inputs
         if not username:
@@ -285,9 +287,9 @@ class UserService:
                 # Use db_session directly since we've checked it's not None
                 db = db_session
                 db.session.commit()
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             logger.exception("Database error updating last login")
-            if 'db' in locals():
+            if "db" in locals():
                 db.session.rollback()
             return False, None
 
@@ -315,6 +317,7 @@ class UserService:
 
         Returns:
             JWT token string
+
         """
         now = datetime.now(tz=timezone.utc)
         expiry = now + timedelta(seconds=self.__token_expiry)
@@ -397,8 +400,7 @@ class UserService:
             required_claims = ["sub"]
             if not all(claim in payload for claim in required_claims):
                 return False, None
-            else:
-                return True, payload
+            return True, payload
 
         except jwt.ExpiredSignatureError:
             logger.warning("Token expired")
@@ -419,6 +421,7 @@ class UserService:
 
         Raises:
             UserModelNotAvailableError: If User model not available
+
         """
         # Check if UserModel is available
         if UserModel is None:
@@ -454,6 +457,7 @@ class UserService:
 
         Raises:
             UserModelNotAvailableError: If User model not available
+
         """
         # Check if UserModel is available
         if UserModel is None:
@@ -491,6 +495,7 @@ class UserService:
         Raises:
             UserModelNotAvailableError: If User model not available
             DatabaseSessionNotAvailableError: If db session not available
+
         """
         # Check if UserModel is available
         if UserModel is None:
@@ -510,9 +515,9 @@ class UserService:
 
         # Update user fields
         for key, value in update_data.items():
-            if hasattr(user, key) and key not in ['id', 'password_hash']:
+            if hasattr(user, key) and key not in ["id", "password_hash"]:
                 setattr(user, key, value)
-            elif key == 'password' and value:
+            elif key == "password" and value:
                 # Hash password if provided
                 user.password_hash = hash_credential(str(value))
 
@@ -548,6 +553,7 @@ class UserService:
         Raises:
             UserModelNotAvailableError: If User model not available
             DatabaseSessionNotAvailableError: If db session not available
+
         """
         # Check if UserModel is available
         if UserModel is None:

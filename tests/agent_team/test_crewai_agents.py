@@ -1,23 +1,24 @@
 """Tests for the CrewAI agents module."""
 
 import logging
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 # Import the module to test
 from agent_team.crewai_agents import (
-    data_gatherer,
-    analyzer,
-    writer,
-    task_collect,
-    task_analyze,
-    task_report,
-    reporting_team,
-    CrewAIAgentTeam,
     CREWAI_AVAILABLE,
+    CrewAIAgentTeam,
+    analyzer,
+    data_gatherer,
+    reporting_team,
+    task_analyze,
+    task_collect,
+    task_report,
+    writer,
 )
 
 
@@ -316,17 +317,17 @@ class TestCrewAIAgents:
 
         # Mock the import to simulate CrewAI not being available
         def mock_import(name, *args, **kwargs):
-            if name == 'crewai':
+            if name == "crewai":
                 raise ImportError("No module named 'crewai'")
             return original_import(name, *args, **kwargs)
 
         # Apply the mock import
-        with patch('builtins.__import__', side_effect=mock_import):
-            with patch('warnings.warn') as mock_warn:
+        with patch("builtins.__import__", side_effect=mock_import):
+            with patch("warnings.warn") as mock_warn:
                 # Force reload of the module to trigger the warning
                 import importlib
-                if 'agent_team.crewai_agents' in sys.modules:
-                    del sys.modules['agent_team.crewai_agents']
+                if "agent_team.crewai_agents" in sys.modules:
+                    del sys.modules["agent_team.crewai_agents"]
                 import agent_team.crewai_agents
 
                 # Verify the warning was issued

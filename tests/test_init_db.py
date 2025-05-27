@@ -2,11 +2,11 @@
 
 import logging
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from init_db import init_db, generate_secure_password
+from init_db import generate_secure_password, init_db
 
 
 class TestInitDb:

@@ -2,16 +2,16 @@
 
 import logging
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from services.service_discovery.load_balancer import (
-    LoadBalancer,
-    RoundRobinStrategy,
-    RandomStrategy,
-    WeightedRandomStrategy,
     LeastConnectionsStrategy,
+    LoadBalancer,
+    RandomStrategy,
+    RoundRobinStrategy,
+    WeightedRandomStrategy,
 )
 
 

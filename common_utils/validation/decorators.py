@@ -9,22 +9,28 @@ from pydantic import BaseModel
 
 # Local imports
 from common_utils.logging import get_logger
-from common_utils.validation.core import ValidationError, validate_input, validation_error_response
+from common_utils.validation.core import (
+    ValidationError,
+    validate_input,
+    validation_error_response,
+)
 
 logger = get_logger(__name__)
 
 # Type variable for the model
-T = TypeVar('T', bound=BaseModel)
+T = TypeVar("T", bound=BaseModel)
 
 
 def validate_request_body(model_class: Type[T]) -> Callable:
-    """Decorator to validate request body against a Pydantic model.
+    """
+    Decorator to validate request body against a Pydantic model.
 
     Args:
         model_class: The Pydantic model class to validate against
 
     Returns:
         Decorated function
+
     """
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
@@ -61,13 +67,15 @@ def validate_request_body(model_class: Type[T]) -> Callable:
 
 
 def validate_query_params(model_class: Type[T]) -> Callable:
-    """Decorator to validate query parameters against a Pydantic model.
+    """
+    Decorator to validate query parameters against a Pydantic model.
 
     Args:
         model_class: The Pydantic model class to validate against
 
     Returns:
         Decorated function
+
     """
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
@@ -104,13 +112,15 @@ def validate_query_params(model_class: Type[T]) -> Callable:
 
 
 def validate_path_params(model_class: Type[T]) -> Callable:
-    """Decorator to validate path parameters against a Pydantic model.
+    """
+    Decorator to validate path parameters against a Pydantic model.
 
     Args:
         model_class: The Pydantic model class to validate against
 
     Returns:
         Decorated function
+
     """
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)

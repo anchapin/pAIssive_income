@@ -3,14 +3,15 @@
 # Standard library imports
 import logging
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import bcrypt
 
 # Third-party imports
 import pytest
-import bcrypt
 
 # Local imports
-from users.auth import hash_credential, verify_credential, hash_auth, verify_auth
+from users.auth import hash_auth, hash_credential, verify_auth, verify_credential
 
 
 class TestHashCredential(unittest.TestCase):
@@ -47,14 +48,14 @@ class TestHashCredential(unittest.TestCase):
         with pytest.raises(ValueError, match="Authentication credential cannot be empty"):
             hash_credential(credential)
 
-    @patch('bcrypt.gensalt')
-    @patch('bcrypt.hashpw')
+    @patch("bcrypt.gensalt")
+    @patch("bcrypt.hashpw")
     def test_hash_credential_implementation(self, mock_hashpw, mock_gensalt):
         """Test the implementation details of hash_credential."""
         # Arrange
         credential = "test_password123"
-        mock_salt = b'mock_salt'
-        mock_hash = b'mock_hash'
+        mock_salt = b"mock_salt"
+        mock_hash = b"mock_hash"
         mock_gensalt.return_value = mock_salt
         mock_hashpw.return_value = mock_hash
 
@@ -63,8 +64,8 @@ class TestHashCredential(unittest.TestCase):
 
         # Assert
         mock_gensalt.assert_called_once_with(rounds=12)
-        mock_hashpw.assert_called_once_with(credential.encode('utf-8'), mock_salt)
-        assert result == mock_hash.decode('utf-8')
+        mock_hashpw.assert_called_once_with(credential.encode("utf-8"), mock_salt)
+        assert result == mock_hash.decode("utf-8")
 
 
 class TestVerifyCredential(unittest.TestCase):
@@ -74,7 +75,7 @@ class TestVerifyCredential(unittest.TestCase):
         """Test verifying a valid credential that matches the hash."""
         # Arrange
         credential = "test_password123"
-        hashed = bcrypt.hashpw(credential.encode('utf-8'), bcrypt.gensalt())
+        hashed = bcrypt.hashpw(credential.encode("utf-8"), bcrypt.gensalt())
 
         # Act
         result = verify_credential(credential, hashed)
@@ -87,7 +88,7 @@ class TestVerifyCredential(unittest.TestCase):
         # Arrange
         credential = "test_password123"
         wrong_credential = "wrong_password"
-        hashed = bcrypt.hashpw(credential.encode('utf-8'), bcrypt.gensalt())
+        hashed = bcrypt.hashpw(credential.encode("utf-8"), bcrypt.gensalt())
 
         # Act
         result = verify_credential(wrong_credential, hashed)
@@ -135,8 +136,8 @@ class TestVerifyCredential(unittest.TestCase):
         """Test verifying with a string hash."""
         # Arrange
         credential = "test_password123"
-        hashed_bytes = bcrypt.hashpw(credential.encode('utf-8'), bcrypt.gensalt())
-        hashed_str = hashed_bytes.decode('utf-8')
+        hashed_bytes = bcrypt.hashpw(credential.encode("utf-8"), bcrypt.gensalt())
+        hashed_str = hashed_bytes.decode("utf-8")
 
         # Act
         result = verify_credential(credential, hashed_str)
@@ -188,7 +189,7 @@ class TestVerifyCredential(unittest.TestCase):
         # Check that logger.error was called with any arguments
         assert mock_logger.error.called
 
-    @patch('bcrypt.checkpw')
+    @patch("bcrypt.checkpw")
     def test_verify_credential_exception_handling(self, mock_checkpw):
         """Test exception handling in verify_credential."""
         # Arrange

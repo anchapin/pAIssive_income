@@ -9,9 +9,10 @@ from typing import Any, Dict, List, Optional
 # Third-party imports
 import requests
 
+from api.services.webhook_security import WebhookSignatureVerifier
+
 # Local imports
 from common_utils.logging import get_logger
-from api.services.webhook_security import WebhookSignatureVerifier
 
 logger = get_logger(__name__)
 
@@ -20,16 +21,19 @@ class WebhookService:
     """Service for managing and delivering webhooks."""
 
     def __init__(self, db=None):
-        """Initialize the webhook service.
+        """
+        Initialize the webhook service.
 
         Args:
             db: Database connection object. If None, a default connection will be used.
+
         """
         self.db = db
         self.signature_verifier = WebhookSignatureVerifier()
 
     def register_webhook(self, webhook_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Register a new webhook.
+        """
+        Register a new webhook.
 
         Args:
             webhook_data: Dictionary containing webhook configuration
@@ -41,6 +45,7 @@ class WebhookService:
 
         Returns:
             Dictionary containing the created webhook details
+
         """
         # Validate required fields
         if "url" not in webhook_data:
@@ -66,33 +71,38 @@ class WebhookService:
         return webhook
 
     def get_webhook(self, webhook_id: str) -> Optional[Dict[str, Any]]:
-        """Get a webhook by ID.
+        """
+        Get a webhook by ID.
 
         Args:
             webhook_id: The ID of the webhook to retrieve
 
         Returns:
             Dictionary containing webhook details or None if not found
+
         """
         if self.db:
             return self.db.get_webhook(webhook_id)
         return None
 
     def list_webhooks(self, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
-        """List all webhooks, optionally filtered.
+        """
+        List all webhooks, optionally filtered.
 
         Args:
             filters: Optional dictionary of filters
 
         Returns:
             List of webhook dictionaries
+
         """
         if self.db:
             return self.db.list_webhooks(filters)
         return []
 
     def update_webhook(self, webhook_id: str, update_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Update a webhook.
+        """
+        Update a webhook.
 
         Args:
             webhook_id: The ID of the webhook to update
@@ -100,26 +110,30 @@ class WebhookService:
 
         Returns:
             Updated webhook dictionary or None if not found
+
         """
         if self.db:
             return self.db.update_webhook(webhook_id, update_data)
         return None
 
     def delete_webhook(self, webhook_id: str) -> bool:
-        """Delete a webhook.
+        """
+        Delete a webhook.
 
         Args:
             webhook_id: The ID of the webhook to delete
 
         Returns:
             True if deleted successfully, False otherwise
+
         """
         if self.db:
             return self.db.delete_webhook(webhook_id)
         return False
 
     def deliver_webhook(self, webhook: Dict[str, Any], event_data: Dict[str, Any]) -> bool:
-        """Deliver an event to a webhook endpoint.
+        """
+        Deliver an event to a webhook endpoint.
 
         Args:
             webhook: Webhook configuration dictionary
@@ -127,6 +141,7 @@ class WebhookService:
 
         Returns:
             True if delivered successfully, False otherwise
+
         """
         try:
             # Prepare the payload
@@ -174,7 +189,8 @@ class WebhookService:
         return is_success
 
     def process_event(self, event_type: str, event_data: Dict[str, Any]) -> int:
-        """Process an event and deliver to all matching webhooks.
+        """
+        Process an event and deliver to all matching webhooks.
 
         Args:
             event_type: Type of event (e.g., "user.created")
@@ -182,6 +198,7 @@ class WebhookService:
 
         Returns:
             Number of webhooks successfully delivered
+
         """
         if not self.db:
             return 0

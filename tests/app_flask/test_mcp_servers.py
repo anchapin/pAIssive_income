@@ -5,20 +5,20 @@ import os
 import stat
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 from flask import Flask
 
 from app_flask import create_app
 from app_flask.mcp_servers import (
-    mcp_servers_api,
+    MCP_SERVERS_KEY,
+    MCP_SETTINGS_FILE,
+    InvalidDataTypeError,
     load_settings,
+    mcp_servers_api,
     save_settings,
     validate_server_data,
-    MCP_SETTINGS_FILE,
-    MCP_SERVERS_KEY,
-    InvalidDataTypeError,
 )
 
 

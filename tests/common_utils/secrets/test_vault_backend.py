@@ -2,8 +2,9 @@
 
 import logging
 import os
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from common_utils.secrets.vault_backend import VaultBackend
 
@@ -13,11 +14,9 @@ class TestVaultBackend:
 
     def setup_method(self):
         """Set up test environment."""
-        pass
 
     def teardown_method(self):
         """Clean up after tests."""
-        pass
 
     def test_init_default(self):
         """Test initializing with default values."""

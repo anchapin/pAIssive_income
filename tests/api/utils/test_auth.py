@@ -3,8 +3,8 @@
 # Standard library imports
 import logging
 import unittest
-from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timedelta, timezone
+from unittest.mock import AsyncMock, MagicMock, patch
 
 # Third-party imports
 import pytest
@@ -12,10 +12,10 @@ from fastapi import HTTPException
 
 # Local imports
 from api.utils.auth import (
-    get_current_user,
-    get_current_active_user,
-    verify_api_key,
     TokenData,
+    get_current_active_user,
+    get_current_user,
+    verify_api_key,
 )
 
 

@@ -1,8 +1,9 @@
 """Tests for the mock adapters module."""
 
 import logging
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 # Patch the logger at the module level
 patch_path = "ai_models.mock_adapters.logger"
@@ -16,13 +17,13 @@ def teardown_module():
     patcher.stop()
 
 from ai_models.mock_adapters import (
+    MockAdapterFactory,
     MockBaseModelAdapter,
-    MockOllamaAdapter,
     MockLMStudioAdapter,
+    MockMCPAdapter,
+    MockOllamaAdapter,
     MockOpenAICompatibleAdapter,
     MockTensorRTAdapter,
-    MockMCPAdapter,
-    MockAdapterFactory,
 )
 
 

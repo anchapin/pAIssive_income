@@ -1,7 +1,7 @@
 """Test module for common_utils.validation.decorators."""
 
-import logging
 import json
+import logging
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

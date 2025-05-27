@@ -4,12 +4,13 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 
-
 def create_error_monitoring_dashboard():
-    """Create an error monitoring dashboard.
+    """
+    Create an error monitoring dashboard.
     
     Returns:
         Dashboard layout components
+
     """
     return [
         dbc.Row(
@@ -111,10 +112,12 @@ def create_error_monitoring_dashboard():
 
 
 def create_performance_monitoring_dashboard():
-    """Create a performance monitoring dashboard.
+    """
+    Create a performance monitoring dashboard.
     
     Returns:
         Dashboard layout components
+
     """
     return [
         dbc.Row(
@@ -216,10 +219,12 @@ def create_performance_monitoring_dashboard():
 
 
 def create_security_monitoring_dashboard():
-    """Create a security monitoring dashboard.
+    """
+    Create a security monitoring dashboard.
     
     Returns:
         Dashboard layout components
+
     """
     return [
         dbc.Row(
@@ -321,10 +326,12 @@ def create_security_monitoring_dashboard():
 
 
 def create_service_health_dashboard():
-    """Create a service health dashboard.
+    """
+    Create a service health dashboard.
     
     Returns:
         Dashboard layout components
+
     """
     return [
         dbc.Row(
@@ -426,21 +433,22 @@ def create_service_health_dashboard():
 
 
 def get_dashboard_layout(dashboard_type):
-    """Get the layout for a specific dashboard type.
+    """
+    Get the layout for a specific dashboard type.
     
     Args:
         dashboard_type: Type of dashboard to create
         
     Returns:
         Dashboard layout components
+
     """
     if dashboard_type == "error_monitoring":
         return create_error_monitoring_dashboard()
-    elif dashboard_type == "performance_monitoring":
+    if dashboard_type == "performance_monitoring":
         return create_performance_monitoring_dashboard()
-    elif dashboard_type == "security_monitoring":
+    if dashboard_type == "security_monitoring":
         return create_security_monitoring_dashboard()
-    elif dashboard_type == "service_health":
+    if dashboard_type == "service_health":
         return create_service_health_dashboard()
-    else:
-        return html.Div("Unknown dashboard type")
+    return html.Div("Unknown dashboard type")

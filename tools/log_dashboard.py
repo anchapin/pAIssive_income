@@ -44,15 +44,23 @@ import re
 import sys
 import traceback
 from collections import Counter, defaultdict
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 # Import alert system
 from common_utils.logging.alert_system import (
-    AlertSystem,
-    AlertRule,
     AlertCondition,
+    AlertRule,
     AlertSeverity,
+    AlertSystem,
     InAppNotifier,
+)
+
+# Import dashboard authentication
+from common_utils.logging.dashboard_auth import (
+    DashboardAuth,
+    Role,
+    User,
+    require_permission,
 )
 
 # Import machine learning log analysis
@@ -60,25 +68,17 @@ from common_utils.logging.ml_log_analysis import (
     LogAnalyzer,
 )
 
-# Import dashboard authentication
-from common_utils.logging.dashboard_auth import (
-    DashboardAuth,
-    User,
-    Role,
-    require_permission,
-)
-
 # Configure logging
 
 try:
     import dash
-    from dash import dcc, html, dash_table
-    from dash.dependencies import Input, Output, State, ALL, MATCH
     import dash_bootstrap_components as dbc
-    import pandas as pd
     import numpy as np
+    import pandas as pd
     import plotly.express as px
     import plotly.graph_objects as go
+    from dash import dash_table, dcc, html
+    from dash.dependencies import ALL, MATCH, Input, Output, State
     from plotly.subplots import make_subplots
     from scipy import stats
 
@@ -115,7 +115,7 @@ LOG_COLORS = {
 }
 
 # JSON log pattern
-JSON_LOG_PATTERN = re.compile(r'^\s*\{.*\}\s*$')
+JSON_LOG_PATTERN = re.compile(r"^\s*\{.*\}\s*$")
 
 # Dashboard themes
 THEMES = {
@@ -157,7 +157,8 @@ ERROR_PATTERNS = [
 ]
 
 def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
-    """Parse a log file into a list of log entries.
+    """
+    Parse a log file into a list of log entries.
 
     Supports both standard log format and JSON logs.
 
@@ -166,11 +167,12 @@ def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
 
     Returns:
         List of dictionaries containing log entries
+
     """
     log_entries = []
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             for line in f:
                 # Try to parse as JSON first
                 if JSON_LOG_PATTERN.match(line.strip()):
@@ -253,13 +255,15 @@ def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
     return log_entries
 
 def get_log_files(log_dir: str) -> List[str]:
-    """Get all log files in the specified directory.
+    """
+    Get all log files in the specified directory.
 
     Args:
         log_dir: Directory containing log files
 
     Returns:
         List of log file paths
+
     """
     # Get all .log files
     log_files = glob.glob(os.path.join(log_dir, "*.log"))
@@ -277,13 +281,15 @@ def get_log_files(log_dir: str) -> List[str]:
     return sorted(log_files)
 
 def get_log_statistics(log_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Calculate statistics from log entries.
+    """
+    Calculate statistics from log entries.
 
     Args:
         log_entries: List of log entries
 
     Returns:
         Dictionary containing log statistics
+
     """
     if not log_entries:
         return {
@@ -405,7 +411,8 @@ def fetch_logs_from_elasticsearch(
     size: int = 1000,
     query: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, Any]]:
-    """Fetch logs from Elasticsearch.
+    """
+    Fetch logs from Elasticsearch.
 
     Args:
         es_host: Elasticsearch host
@@ -416,6 +423,7 @@ def fetch_logs_from_elasticsearch(
 
     Returns:
         List of log entries
+
     """
     if not ELASTICSEARCH_AVAILABLE:
         logger.warning("Elasticsearch package not installed. Cannot fetch logs from Elasticsearch.")
@@ -463,13 +471,15 @@ def fetch_logs_from_elasticsearch(
         return []
 
 def detect_log_patterns(log_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Detect patterns in log entries.
+    """
+    Detect patterns in log entries.
 
     Args:
         log_entries: List of log entries
 
     Returns:
         Dictionary containing pattern information
+
     """
     if not log_entries:
         return {
@@ -537,7 +547,8 @@ def create_dashboard(
     lockout_time: int = 300,
     audit_logging: bool = True,
 ) -> dash.Dash:
-    """Create the Dash application for the log dashboard.
+    """
+    Create the Dash application for the log dashboard.
 
     Args:
         log_dir: Directory containing log files
@@ -555,6 +566,7 @@ def create_dashboard(
 
     Returns:
         Dash application
+
     """
     # Create Dash app
     app = dash.Dash(
@@ -1679,7 +1691,7 @@ def create_dashboard(
                                                                                 id="theme-dropdown",
                                                                                 options=[
                                                                                     {"label": theme.capitalize(), "value": theme}
-                                                                                    for theme in THEMES.keys()
+                                                                                    for theme in THEMES
                                                                                 ],
                                                                                 value="light",
                                                                             ),
@@ -1882,7 +1894,8 @@ def create_dashboard(
         ],
     )
     def update_log_entries(log_file: str, n_intervals: int) -> Tuple[List[Dict[str, Any]], List[html.Div], List[Dict[str, str]]]:
-        """Update log entries when the log file changes or on interval.
+        """
+        Update log entries when the log file changes or on interval.
 
         Args:
             log_file: Selected log file
@@ -1890,6 +1903,7 @@ def create_dashboard(
 
         Returns:
             Tuple of (log entries, file info, module options)
+
         """
         if not log_file:
             return [], [], []
@@ -1934,7 +1948,8 @@ def create_dashboard(
         start_date: str,
         end_date: str,
     ) -> Tuple[go.Figure, go.Figure, go.Figure]:
-        """Update charts based on log entries and filters.
+        """
+        Update charts based on log entries and filters.
 
         Args:
             log_entries: List of log entries
@@ -1945,6 +1960,7 @@ def create_dashboard(
 
         Returns:
             Tuple of (level chart, module chart, time chart)
+
         """
         if not log_entries:
             empty_fig = go.Figure().update_layout(
@@ -2039,7 +2055,8 @@ def create_dashboard(
         n_clicks: int,
         search_query: str,
     ) -> List[html.Div]:
-        """Update log table based on log entries and filters.
+        """
+        Update log table based on log entries and filters.
 
         Args:
             log_entries: List of log entries
@@ -2052,6 +2069,7 @@ def create_dashboard(
 
         Returns:
             List of log entry divs
+
         """
         if not log_entries:
             return [html.Div("No log entries found", className="text-muted")]
@@ -2106,7 +2124,7 @@ def create_dashboard(
                                 ),
                                 html.Span(
                                     entry["level"],
-                                    className=f"badge me-2",
+                                    className="badge me-2",
                                     style={"backgroundColor": LOG_COLORS.get(entry["level"], "#6c757d")},
                                 ),
                                 html.Span(
@@ -2134,13 +2152,15 @@ def create_dashboard(
         [Input("alert-condition-dropdown", "value")],
     )
     def update_alert_condition_params(condition: str) -> List[html.Div]:
-        """Update alert condition parameters based on selected condition.
+        """
+        Update alert condition parameters based on selected condition.
 
         Args:
             condition: Selected alert condition
 
         Returns:
             List of parameter input components
+
         """
         if condition == "pattern":
             return [
@@ -2173,7 +2193,7 @@ def create_dashboard(
                     ],
                 ),
             ]
-        elif condition == "threshold":
+        if condition == "threshold":
             return [
                 dbc.Row(
                     [
@@ -2233,7 +2253,7 @@ def create_dashboard(
                     ],
                 ),
             ]
-        elif condition == "anomaly":
+        if condition == "anomaly":
             return [
                 dbc.Row(
                     [
@@ -2271,7 +2291,7 @@ def create_dashboard(
                     ],
                 ),
             ]
-        elif condition == "frequency":
+        if condition == "frequency":
             return [
                 dbc.Row(
                     [
@@ -2309,7 +2329,7 @@ def create_dashboard(
                     ],
                 ),
             ]
-        elif condition == "absence":
+        if condition == "absence":
             return [
                 dbc.Row(
                     [
@@ -2340,8 +2360,7 @@ def create_dashboard(
                     ],
                 ),
             ]
-        else:
-            return []
+        return []
 
     @app.callback(
         Output("alert-rules-list", "children"),
@@ -2375,10 +2394,12 @@ def create_dashboard(
         pattern, min_matches, metric, threshold, operator, sensitivity,
         frequency_threshold, level, absence_pattern, window
     ):
-        """Update alert rules list and add new rules when button is clicked.
+        """
+        Update alert rules list and add new rules when button is clicked.
 
         Returns:
             List of alert rule components
+
         """
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
@@ -2504,10 +2525,12 @@ def create_dashboard(
         [Input("alert-refresh-interval", "n_intervals")],
     )
     def update_active_alerts(n_intervals):
-        """Update active alerts list.
+        """
+        Update active alerts list.
 
         Returns:
             List of active alert components
+
         """
         if not hasattr(app, "alerts") or not app.alerts:
             return html.Div("No active alerts", className="text-muted")
@@ -2595,10 +2618,12 @@ def create_dashboard(
          State({"type": "dismiss-alert-button", "index": ALL}, "id")],
     )
     def handle_alert_actions(mark_read_clicks, dismiss_clicks, mark_read_ids, dismiss_ids):
-        """Handle alert actions (mark as read, dismiss).
+        """
+        Handle alert actions (mark as read, dismiss).
 
         Returns:
             Updated alerts data
+
         """
         ctx = dash.callback_context
         if not ctx.triggered:
@@ -2632,10 +2657,12 @@ def create_dashboard(
         prevent_initial_call=True,
     )
     def handle_remove_rule(n_clicks, button_ids):
-        """Handle remove rule button clicks.
+        """
+        Handle remove rule button clicks.
 
         Returns:
             Updated alert rules list
+
         """
         ctx = dash.callback_context
         if not ctx.triggered:
@@ -2718,7 +2745,8 @@ def create_dashboard(
     )
     @require_permission("run_ml_analysis")
     def run_ml_analysis(n_clicks, log_entries):
-        """Run machine learning analysis on log entries.
+        """
+        Run machine learning analysis on log entries.
 
         Args:
             n_clicks: Number of button clicks
@@ -2726,6 +2754,7 @@ def create_dashboard(
 
         Returns:
             Spinner children, status message, and analysis results
+
         """
         if not n_clicks:
             return None, "", None
@@ -2767,7 +2796,7 @@ def create_dashboard(
         except Exception as e:
             # Update status
             status = html.Div(
-                f"Error running analysis: {str(e)}",
+                f"Error running analysis: {e!s}",
                 className="text-danger",
             )
 
@@ -2778,13 +2807,15 @@ def create_dashboard(
         [Input("ml-analysis-store", "data")],
     )
     def update_anomaly_detection_results(analysis_results):
-        """Update anomaly detection results.
+        """
+        Update anomaly detection results.
 
         Args:
             analysis_results: Analysis results
 
         Returns:
             Anomaly detection results components
+
         """
         if not analysis_results or "anomalies" not in analysis_results:
             return html.Div("No anomaly detection results available", className="text-muted")
@@ -2865,13 +2896,15 @@ def create_dashboard(
         [Input("ml-analysis-store", "data")],
     )
     def update_pattern_recognition_results(analysis_results):
-        """Update pattern recognition results.
+        """
+        Update pattern recognition results.
 
         Args:
             analysis_results: Analysis results
 
         Returns:
             Pattern recognition results components
+
         """
         if not analysis_results or "patterns" not in analysis_results:
             return html.Div("No pattern recognition results available", className="text-muted")
@@ -2938,13 +2971,15 @@ def create_dashboard(
         [Input("ml-analysis-store", "data")],
     )
     def update_log_clustering_results(analysis_results):
-        """Update log clustering results.
+        """
+        Update log clustering results.
 
         Args:
             analysis_results: Analysis results
 
         Returns:
             Log clustering results components
+
         """
         if not analysis_results or "clusters" not in analysis_results:
             return html.Div("No log clustering results available", className="text-muted")
@@ -3008,13 +3043,15 @@ def create_dashboard(
     )
     @require_permission("manage_users")
     def update_role_options(data):
-        """Update role options for new user form.
+        """
+        Update role options for new user form.
 
         Args:
             data: User management data
 
         Returns:
             Role options
+
         """
         roles = list(app.auth.roles.values())
         return [{"label": role.name, "value": role.name} for role in roles]
@@ -3025,13 +3062,15 @@ def create_dashboard(
     )
     @require_permission("manage_roles")
     def update_permission_options(data):
-        """Update permission options for new role form.
+        """
+        Update permission options for new role form.
 
         Args:
             data: User management data
 
         Returns:
             Permission options
+
         """
         permissions = list(app.auth.permissions.values())
         return [{"label": perm.name, "value": perm.name} for perm in permissions]
@@ -3054,7 +3093,8 @@ def create_dashboard(
     )
     @require_permission("manage_users")
     def manage_users(add_clicks, refresh_clicks, username, password, roles, data):
-        """Manage users.
+        """
+        Manage users.
 
         Args:
             add_clicks: Add user button clicks
@@ -3066,6 +3106,7 @@ def create_dashboard(
 
         Returns:
             User list and updated data
+
         """
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
@@ -3170,7 +3211,8 @@ def create_dashboard(
     )
     @require_permission("manage_roles")
     def manage_roles(add_clicks, data, name, description, permissions):
-        """Manage roles.
+        """
+        Manage roles.
 
         Args:
             add_clicks: Add role button clicks
@@ -3181,6 +3223,7 @@ def create_dashboard(
 
         Returns:
             Role list and status
+
         """
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
@@ -3266,10 +3309,12 @@ def create_dashboard(
         ],
     )
     def switch_dashboard(*args):
-        """Switch between predefined dashboards based on dropdown selection.
+        """
+        Switch between predefined dashboards based on dropdown selection.
 
         Returns:
             Selected dashboard layout
+
         """
         ctx = dash.callback_context
         if not ctx.triggered:
@@ -3282,13 +3327,13 @@ def create_dashboard(
         # Return the appropriate dashboard layout based on the clicked item
         if button_id == "dashboard-error":
             return get_dashboard_layout("error_monitoring")
-        elif button_id == "dashboard-performance":
+        if button_id == "dashboard-performance":
             return get_dashboard_layout("performance_monitoring")
-        elif button_id == "dashboard-security":
+        if button_id == "dashboard-security":
             return get_dashboard_layout("security_monitoring")
-        elif button_id == "dashboard-service-health":
+        if button_id == "dashboard-service-health":
             return get_dashboard_layout("service_health")
-        elif button_id == "dashboard-main":
+        if button_id == "dashboard-main":
             # Return the main dashboard (could be a custom layout or empty)
             return html.Div([
                 html.H3("Main Dashboard", className="text-center mb-4"),
@@ -3304,13 +3349,15 @@ def create_dashboard(
         [Input("predefined-dashboards-tabs", "active_tab")],
     )
     def load_error_monitoring_dashboard(active_tab):
-        """Load the error monitoring dashboard.
+        """
+        Load the error monitoring dashboard.
 
         Args:
             active_tab: Active tab
 
         Returns:
             Dashboard layout
+
         """
         if active_tab == "tab-error-monitoring":
             return get_dashboard_layout("error_monitoring")
@@ -3321,13 +3368,15 @@ def create_dashboard(
         [Input("predefined-dashboards-tabs", "active_tab")],
     )
     def load_performance_monitoring_dashboard(active_tab):
-        """Load the performance monitoring dashboard.
+        """
+        Load the performance monitoring dashboard.
 
         Args:
             active_tab: Active tab
 
         Returns:
             Dashboard layout
+
         """
         if active_tab == "tab-performance-monitoring":
             return get_dashboard_layout("performance_monitoring")
@@ -3338,13 +3387,15 @@ def create_dashboard(
         [Input("predefined-dashboards-tabs", "active_tab")],
     )
     def load_security_monitoring_dashboard(active_tab):
-        """Load the security monitoring dashboard.
+        """
+        Load the security monitoring dashboard.
 
         Args:
             active_tab: Active tab
 
         Returns:
             Dashboard layout
+
         """
         if active_tab == "tab-security-monitoring":
             return get_dashboard_layout("security_monitoring")
@@ -3355,13 +3406,15 @@ def create_dashboard(
         [Input("predefined-dashboards-tabs", "active_tab")],
     )
     def load_service_health_dashboard(active_tab):
-        """Load the service health dashboard.
+        """
+        Load the service health dashboard.
 
         Args:
             active_tab: Active tab
 
         Returns:
             Dashboard layout
+
         """
         if active_tab == "tab-service-health":
             return get_dashboard_layout("service_health")
@@ -3375,22 +3428,24 @@ def create_dashboard(
         [Input("selected-dashboard-container", "children")],
     )
     def update_error_rate_graph(dashboard):
-        """Update the error rate graph.
+        """
+        Update the error rate graph.
 
         Args:
             dashboard: Selected dashboard
 
         Returns:
             Error rate graph figure
+
         """
         # This is a placeholder for actual implementation
         # In a real implementation, you would fetch data and create a figure
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3, 4, 5], y=[0.01, 0.03, 0.02, 0.05, 0.01],
-                                mode='lines+markers', name='Error Rate'))
-        fig.update_layout(title='Error Rate Over Time',
-                        xaxis_title='Time',
-                        yaxis_title='Error Rate')
+                                mode="lines+markers", name="Error Rate"))
+        fig.update_layout(title="Error Rate Over Time",
+                        xaxis_title="Time",
+                        yaxis_title="Error Rate")
         return fig
 
     @app.callback(
@@ -3398,22 +3453,24 @@ def create_dashboard(
         [Input("selected-dashboard-container", "children")],
     )
     def update_error_module_distribution(dashboard):
-        """Update the error module distribution graph.
+        """
+        Update the error module distribution graph.
 
         Args:
             dashboard: Selected dashboard
 
         Returns:
             Error module distribution figure
+
         """
         # This is a placeholder for actual implementation
         fig = go.Figure(data=[go.Bar(
-            x=['Module A', 'Module B', 'Module C', 'Module D'],
+            x=["Module A", "Module B", "Module C", "Module D"],
             y=[10, 5, 15, 8]
         )])
-        fig.update_layout(title='Error Distribution by Module',
-                        xaxis_title='Module',
-                        yaxis_title='Error Count')
+        fig.update_layout(title="Error Distribution by Module",
+                        xaxis_title="Module",
+                        yaxis_title="Error Count")
         return fig
 
     # Performance Monitoring Dashboard Callbacks
@@ -3422,21 +3479,23 @@ def create_dashboard(
         [Input("selected-dashboard-container", "children")],
     )
     def update_api_latency_graph(dashboard):
-        """Update the API latency graph.
+        """
+        Update the API latency graph.
 
         Args:
             dashboard: Selected dashboard
 
         Returns:
             API latency graph figure
+
         """
         # This is a placeholder for actual implementation
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3, 4, 5], y=[120, 150, 100, 180, 130],
-                                mode='lines+markers', name='API Latency'))
-        fig.update_layout(title='API Latency Over Time',
-                        xaxis_title='Time',
-                        yaxis_title='Latency (ms)')
+                                mode="lines+markers", name="API Latency"))
+        fig.update_layout(title="API Latency Over Time",
+                        xaxis_title="Time",
+                        yaxis_title="Latency (ms)")
         return fig
 
     # Security Monitoring Dashboard Callbacks
@@ -3445,20 +3504,22 @@ def create_dashboard(
         [Input("selected-dashboard-container", "children")],
     )
     def update_auth_attempts_graph(dashboard):
-        """Update the authentication attempts graph.
+        """
+        Update the authentication attempts graph.
 
         Args:
             dashboard: Selected dashboard
 
         Returns:
             Authentication attempts graph figure
+
         """
         # This is a placeholder for actual implementation
         fig = go.Figure()
-        fig.add_trace(go.Bar(x=['Success', 'Failure'], y=[85, 15], name='Authentication Attempts'))
-        fig.update_layout(title='Authentication Attempts',
-                        xaxis_title='Result',
-                        yaxis_title='Count')
+        fig.add_trace(go.Bar(x=["Success", "Failure"], y=[85, 15], name="Authentication Attempts"))
+        fig.update_layout(title="Authentication Attempts",
+                        xaxis_title="Result",
+                        yaxis_title="Count")
         return fig
 
     # Service Health Dashboard Callbacks
@@ -3467,27 +3528,29 @@ def create_dashboard(
         [Input("selected-dashboard-container", "children")],
     )
     def update_service_uptime_graph(dashboard):
-        """Update the service uptime graph.
+        """
+        Update the service uptime graph.
 
         Args:
             dashboard: Selected dashboard
 
         Returns:
             Service uptime graph figure
+
         """
         # This is a placeholder for actual implementation
         fig = go.Figure()
         fig.add_trace(go.Indicator(
             mode = "gauge+number",
             value = 99.8,
-            title = {'text': "Uptime (%)"},
+            title = {"text": "Uptime (%)"},
             gauge = {
-                'axis': {'range': [None, 100]},
-                'bar': {'color': "green"},
-                'steps': [
-                    {'range': [0, 90], 'color': "red"},
-                    {'range': [90, 99], 'color': "yellow"},
-                    {'range': [99, 100], 'color': "green"}
+                "axis": {"range": [None, 100]},
+                "bar": {"color": "green"},
+                "steps": [
+                    {"range": [0, 90], "color": "red"},
+                    {"range": [90, 99], "color": "yellow"},
+                    {"range": [99, 100], "color": "green"}
                 ]
             }
         ))
@@ -3500,13 +3563,15 @@ def create_dashboard(
     )
     @require_permission("manage_settings")
     def display_audit_logs(n_clicks):
-        """Display audit logs.
+        """
+        Display audit logs.
 
         Args:
             n_clicks: Refresh button clicks
 
         Returns:
             Audit log list
+
         """
         if not app.auth.audit_logging_enabled:
             return html.Div("Audit logging is not enabled", className="text-warning")

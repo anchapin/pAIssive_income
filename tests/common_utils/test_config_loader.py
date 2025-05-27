@@ -1,18 +1,18 @@
 """test_config_loader - Module for tests/common_utils.test_config_loader."""
 
 # Standard library imports
-import logging
 import json
+import logging
 import os
 import tempfile
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 # Third-party imports
 import pytest
 from pydantic import ValidationError as PydanticValidationError
 
 # Local imports
-from common_utils.config_loader import load_config, ExampleConfigModel
+from common_utils.config_loader import ExampleConfigModel, load_config
 from common_utils.validation.core import ValidationError
 
 
@@ -62,7 +62,7 @@ class TestConfigLoader:
             "max_connections": 50
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             json.dump(valid_config, temp_file)
             temp_path = temp_file.name
 
@@ -82,7 +82,7 @@ class TestConfigLoader:
     def test_load_config_invalid_json(self):
         """Test loading an invalid JSON file."""
         # Create a temporary file with invalid JSON
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             temp_file.write("This is not valid JSON")
             temp_path = temp_file.name
 
@@ -103,7 +103,7 @@ class TestConfigLoader:
             "max_connections": 50
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             json.dump(invalid_config, temp_file)
             temp_path = temp_file.name
 
@@ -115,8 +115,8 @@ class TestConfigLoader:
             # Clean up the temporary file
             os.unlink(temp_path)
 
-    @patch('common_utils.config_loader.validate_input')
-    @patch('common_utils.config_loader.logger')
+    @patch("common_utils.config_loader.validate_input")
+    @patch("common_utils.config_loader.logger")
     def test_load_config_logs_validation_error(self, mock_logger, mock_validate_input):
         """Test that validation errors are logged."""
         # Create a mock validation error
@@ -133,7 +133,7 @@ class TestConfigLoader:
             "max_connections": 50
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             json.dump(valid_config, temp_file)
             temp_path = temp_file.name
 
@@ -191,7 +191,7 @@ class TestConfigLoader:
         assert parsed_json["debug"] is True
         assert parsed_json["max_connections"] == 50
 
-    @patch('pathlib.Path.open')
+    @patch("pathlib.Path.open")
     def test_load_config_file_not_found(self, mock_open):
         """Test loading a configuration file that doesn't exist."""
         # Configure the mock to raise FileNotFoundError

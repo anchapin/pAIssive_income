@@ -2,8 +2,9 @@
 
 import logging
 import os
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from common_utils.secrets.file_backend import FileBackend
 

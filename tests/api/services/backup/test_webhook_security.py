@@ -1,16 +1,16 @@
 """Tests for the webhook security service."""
 
-import logging
-import unittest
-from unittest.mock import MagicMock, patch
 import base64
 import hashlib
 import hmac
 import ipaddress
+import logging
+import unittest
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from api.services.webhook_security import WebhookSignatureVerifier, WebhookIPAllowlist
+from api.services.webhook_security import WebhookIPAllowlist, WebhookSignatureVerifier
 
 
 class TestWebhookSignatureVerifier:
@@ -67,7 +67,7 @@ class TestWebhookSignatureVerifier:
     def test_verify_signature_exception(self):
         """Test signature verification with an exception."""
         # Arrange
-        with patch.object(self.verifier, 'create_signature', side_effect=Exception("Test error")):
+        with patch.object(self.verifier, "create_signature", side_effect=Exception("Test error")):
             # Act
             result = self.verifier.verify_signature(self.payload, "invalid-signature", self.secret)
 

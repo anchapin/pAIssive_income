@@ -5,10 +5,19 @@ This ensures 100% test coverage for the placeholder module.
 
 import logging
 import unittest
+
 import pytest
+
 from coverage_placeholder import (
-    CoverageHelper, add, subtract, multiply, divide,
-    StringProcessor, DataProcessor, Calculator, DummyClass
+    Calculator,
+    CoverageHelper,
+    DataProcessor,
+    DummyClass,
+    StringProcessor,
+    add,
+    divide,
+    multiply,
+    subtract,
 )
 
 

@@ -1,7 +1,7 @@
 """Fixtures for API tests."""
 
 import pytest
-from fastapi import FastAPI, Depends, HTTPException, status, Form
+from fastapi import Depends, FastAPI, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.testclient import TestClient
 from pydantic import BaseModel, EmailStr, Field

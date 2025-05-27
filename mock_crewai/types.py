@@ -18,6 +18,7 @@ CrewDict = Dict[str, Any]
 # Define enums for agent, task, and crew types
 class AgentType(Enum):
     """Enum for agent types."""
+
     DEFAULT = "default"
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
@@ -25,6 +26,7 @@ class AgentType(Enum):
 
 class TaskType(Enum):
     """Enum for task types."""
+
     DEFAULT = "default"
     SEQUENTIAL = "sequential"
     PARALLEL = "parallel"
@@ -32,6 +34,7 @@ class TaskType(Enum):
 
 class CrewType(Enum):
     """Enum for crew types."""
+
     DEFAULT = "default"
     HIERARCHICAL = "hierarchical"
     CUSTOM = "custom"

@@ -10,15 +10,15 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from common_utils.logging.log_aggregation import (
-    LogAggregator,
     ElasticsearchHandler,
-    LogstashHandler,
     FileRotatingHandler,
+    LogAggregator,
+    LogstashHandler,
     aggregate_logs,
     configure_log_aggregation,
-    parse_log_file,
     get_log_files,
     get_log_statistics,
+    parse_log_file,
 )
 
 
@@ -38,8 +38,8 @@ class TestLogAggregationFunctionsImproved:
             f.write("Invalid log line\n")
             f.write("2023-01-01 12:02:00 - test_app - ERROR - Test message 3\n")
             f.write("  Traceback (most recent call last):\n")
-            f.write("    File \"test.py\", line 1, in <module>\n")
-            f.write("      raise Exception(\"Test exception\")\n")
+            f.write('    File "test.py", line 1, in <module>\n')
+            f.write('      raise Exception("Test exception")\n')
             f.write("  Exception: Test exception\n")
 
     def teardown_method(self):
@@ -264,4 +264,3 @@ class TestLogAggregatorImproved:
                 self.aggregator.aggregate_log_file("nonexistent.log")
 
                 # We're not testing for errors here, just making sure the function runs
-                pass

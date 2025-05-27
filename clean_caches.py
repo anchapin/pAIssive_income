@@ -1,6 +1,7 @@
 import os
 import shutil
 
+
 def clean_caches():
     for root, dirs, files in os.walk("."):
         if "__pycache__" in dirs:

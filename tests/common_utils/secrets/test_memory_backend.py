@@ -1,8 +1,9 @@
 """Tests for the memory backend module."""
 
 import logging
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from common_utils.secrets.memory_backend import MemoryBackend
 

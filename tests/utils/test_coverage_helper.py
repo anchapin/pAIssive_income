@@ -4,13 +4,13 @@ import pytest
 
 from utils.coverage_helper import (
     add,
-    subtract,
-    multiply,
     divide,
+    format_string,
+    get_first_element,
     is_even,
     is_odd,
-    get_first_element,
-    format_string,
+    multiply,
+    subtract,
 )
 
 

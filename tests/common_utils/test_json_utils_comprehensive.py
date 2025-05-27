@@ -5,21 +5,21 @@ import os
 import tempfile
 from datetime import date, datetime
 from pathlib import Path
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
+from common_utils.exceptions import FilePermissionError, MissingFileError
 from common_utils.json_utils import (
     DateTimeEncoder,
-    load_json_file,
-    save_json_file,
-    json_to_string,
-    string_to_json,
-    merge_json_objects,
     flatten_json,
+    json_to_string,
+    load_json_file,
+    merge_json_objects,
+    save_json_file,
+    string_to_json,
     unflatten_json,
 )
-from common_utils.exceptions import MissingFileError, FilePermissionError
 
 
 class TestJsonUtilsComprehensive:
@@ -116,7 +116,7 @@ class TestJsonUtilsComprehensive:
         assert os.path.isfile(new_file)
 
         # Load and verify the content
-        with open(new_file, "r") as f:
+        with open(new_file) as f:
             loaded_data = json.load(f)
 
         assert loaded_data == self.test_data
@@ -131,7 +131,7 @@ class TestJsonUtilsComprehensive:
         assert os.path.isfile(new_file)
 
         # Load and verify the content
-        with open(new_file, "r") as f:
+        with open(new_file) as f:
             loaded_data = json.load(f)
 
         assert loaded_data == self.test_data
@@ -149,7 +149,7 @@ class TestJsonUtilsComprehensive:
         assert os.path.isfile(new_file)
 
         # Load and verify the content
-        with open(new_file, "r") as f:
+        with open(new_file) as f:
             loaded_data = json.load(f)
 
         assert loaded_data["datetime"] == "2023-01-15T12:30:45"
@@ -316,7 +316,7 @@ class TestJsonUtilsComprehensive:
         assert new_file.exists()
 
         # Load and verify the content
-        with open(new_file, "r") as f:
+        with open(new_file) as f:
             loaded_data = json.load(f)
 
         assert loaded_data == self.test_data
@@ -346,7 +346,7 @@ class TestJsonUtilsComprehensive:
 
     def test_string_to_json_with_complex_data(self):
         """Test string_to_json with complex nested data."""
-        complex_json = '''
+        complex_json = """
         {
             "string": "value",
             "number": 42,
@@ -360,7 +360,7 @@ class TestJsonUtilsComprehensive:
                 }
             }
         }
-        '''
+        """
 
         data = string_to_json(complex_json)
 

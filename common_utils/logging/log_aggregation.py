@@ -56,7 +56,6 @@ from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Optional
 
 # Import the secure logging utilities
-from common_utils.logging.secure_logging import get_secure_logger
 
 # Use the existing logger from line 3
 
@@ -70,18 +69,20 @@ LOG_PATTERN = re.compile(
 
 
 def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
-    """Parse a log file into a list of log entries.
+    """
+    Parse a log file into a list of log entries.
 
     Args:
         file_path: Path to the log file
 
     Returns:
         List of dictionaries containing log entries
+
     """
     log_entries = []
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             for line in f:
                 match = LOG_PATTERN.match(line.strip())
                 if match:
@@ -91,10 +92,9 @@ def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
                         "%Y-%m-%d %H:%M:%S"
                     ).isoformat()
                     log_entries.append(entry)
-                else:
-                    # Handle multi-line entries (e.g., tracebacks)
-                    if log_entries:
-                        log_entries[-1]["message"] += "\n" + line.strip()
+                # Handle multi-line entries (e.g., tracebacks)
+                elif log_entries:
+                    log_entries[-1]["message"] += "\n" + line.strip()
     except Exception as e:
         logger.error(f"Error parsing log file {file_path}: {e}")
 
@@ -102,26 +102,30 @@ def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
 
 
 def get_log_files(log_dir: str) -> List[str]:
-    """Get all log files in a directory.
+    """
+    Get all log files in a directory.
 
     Args:
         log_dir: Directory containing log files
 
     Returns:
         List of paths to log files
+
     """
     import glob
     return glob.glob(os.path.join(log_dir, "*.log"))
 
 
 def get_log_statistics(log_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Get statistics for a list of log entries.
+    """
+    Get statistics for a list of log entries.
 
     Args:
         log_entries: List of log entries
 
     Returns:
         Dictionary containing statistics
+
     """
     if not log_entries:
         return {
@@ -177,11 +181,13 @@ class LogAggregator:
         app_name: str,
         log_dir: str = "logs",
     ) -> None:
-        """Initialize the log aggregator.
+        """
+        Initialize the log aggregator.
 
         Args:
             app_name: Name of the application
             log_dir: Directory containing log files
+
         """
         self.app_name = app_name
         self.log_dir = log_dir
@@ -191,27 +197,33 @@ class LogAggregator:
         os.makedirs(log_dir, exist_ok=True)
 
     def add_handler(self, handler: Any) -> None:
-        """Add a handler for processing log entries.
+        """
+        Add a handler for processing log entries.
 
         Args:
             handler: Handler for processing log entries
+
         """
         self.handlers.append(handler)
 
     def remove_handler(self, handler: Any) -> None:
-        """Remove a handler.
+        """
+        Remove a handler.
 
         Args:
             handler: Handler to remove
+
         """
         if handler in self.handlers:
             self.handlers.remove(handler)
 
     def aggregate_log_entry(self, log_entry: Dict[str, Any]) -> None:
-        """Aggregate a single log entry.
+        """
+        Aggregate a single log entry.
 
         Args:
             log_entry: Log entry to aggregate
+
         """
         # Add the app name to the log entry if not already present
         if "app" not in log_entry:
@@ -225,10 +237,12 @@ class LogAggregator:
                 logger.error(f"Error handling log entry with {handler.__class__.__name__}: {e}")
 
     def aggregate_log_file(self, file_path: str) -> None:
-        """Aggregate logs from a file.
+        """
+        Aggregate logs from a file.
 
         Args:
             file_path: Path to the log file
+
         """
         # Parse the log file
         log_entries = parse_log_file(file_path)
@@ -240,10 +254,12 @@ class LogAggregator:
         logger.info(f"Aggregated {len(log_entries)} log entries from {file_path}")
 
     def aggregate_log_directory(self, directory: str) -> None:
-        """Aggregate logs from all files in a directory.
+        """
+        Aggregate logs from all files in a directory.
 
         Args:
             directory: Directory containing log files
+
         """
         # Get all log files in the directory
         log_files = glob.glob(os.path.join(directory, "*.log"))
@@ -263,20 +279,24 @@ class ElasticsearchHandler:
         es_client: Any,
         index_name: str = "logs",
     ) -> None:
-        """Initialize the Elasticsearch handler.
+        """
+        Initialize the Elasticsearch handler.
 
         Args:
             es_client: Elasticsearch client
             index_name: Name of the Elasticsearch index
+
         """
         self.es_client = es_client
         self.index_name = index_name
 
     def handle(self, log_entry: Dict[str, Any]) -> None:
-        """Handle a log entry by sending it to Elasticsearch.
+        """
+        Handle a log entry by sending it to Elasticsearch.
 
         Args:
             log_entry: Log entry to handle
+
         """
         try:
             # Index the log entry in Elasticsearch
@@ -297,22 +317,26 @@ class LogstashHandler:
         port: int = 5000,
         socket: Optional[socket.socket] = None,
     ) -> None:
-        """Initialize the Logstash handler.
+        """
+        Initialize the Logstash handler.
 
         Args:
             host: Logstash host
             port: Logstash port
             socket: Optional socket to use (for testing)
+
         """
         self.host = host
         self.port = port
         self.socket = socket
 
     def handle(self, log_entry: Dict[str, Any]) -> None:
-        """Handle a log entry by sending it to Logstash.
+        """
+        Handle a log entry by sending it to Logstash.
 
         Args:
             log_entry: Log entry to handle
+
         """
         try:
             # Convert the log entry to JSON
@@ -343,12 +367,14 @@ class FileRotatingHandler:
         max_bytes: int = 10485760,  # 10 MB
         backup_count: int = 5,
     ) -> None:
-        """Initialize the file rotating handler.
+        """
+        Initialize the file rotating handler.
 
         Args:
             filename: Name of the log file
             max_bytes: Maximum size of the log file before rotation
             backup_count: Number of backup files to keep
+
         """
         self.filename = filename
         self.max_bytes = max_bytes
@@ -368,14 +394,16 @@ class FileRotatingHandler:
 
     def close(self) -> None:
         """Close the file handler."""
-        if hasattr(self, 'handler') and self.handler:
+        if hasattr(self, "handler") and self.handler:
             self.handler.close()
 
     def handle(self, log_entry: Dict[str, Any]) -> None:
-        """Handle a log entry by writing it to the log file.
+        """
+        Handle a log entry by writing it to the log file.
 
         Args:
             log_entry: Log entry to handle
+
         """
         try:
             # Create a log record
@@ -405,7 +433,8 @@ def aggregate_logs(
     logstash_port: int = 5000,
     output_file: Optional[str] = None,
 ) -> None:
-    """Aggregate logs from multiple sources.
+    """
+    Aggregate logs from multiple sources.
 
     Args:
         app_name: Name of the application
@@ -416,6 +445,7 @@ def aggregate_logs(
         logstash_host: Logstash host (if None, Logstash is not used)
         logstash_port: Logstash port
         output_file: Output file for aggregated logs (if None, no file output)
+
     """
     # Create a log aggregator
     aggregator = LogAggregator(app_name=app_name, log_dir=log_dir)
@@ -469,7 +499,8 @@ def configure_log_aggregation(
     output_file: Optional[str] = None,
     test_mode: bool = False,
 ) -> threading.Thread:
-    """Configure log aggregation for the application.
+    """
+    Configure log aggregation for the application.
 
     This function sets up log aggregation and schedules it to run periodically.
 
@@ -486,6 +517,7 @@ def configure_log_aggregation(
 
     Returns:
         The created thread object
+
     """
 
     # Define the aggregation function

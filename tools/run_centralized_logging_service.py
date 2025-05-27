@@ -41,10 +41,12 @@ logger = get_secure_logger("centralized_logging_service_runner")
 
 
 def parse_args():
-    """Parse command line arguments.
+    """
+    Parse command line arguments.
     
     Returns:
         argparse.Namespace: Parsed arguments
+
     """
     parser = argparse.ArgumentParser(description="Centralized Logging Service Runner")
     parser.add_argument(
@@ -72,10 +74,10 @@ def main():
     """Main function."""
     # Parse command line arguments
     args = parse_args()
-    
+
     # Create the log directory if it doesn't exist
     os.makedirs(args.log_dir, exist_ok=True)
-    
+
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
@@ -85,28 +87,28 @@ def main():
             logging.FileHandler(os.path.join(args.log_dir, "centralized_logging_service.log")),
         ],
     )
-    
+
     # Create the centralized logging service
     service = CentralizedLoggingService(
         host=args.host,
         port=args.port,
         log_dir=args.log_dir,
     )
-    
+
     # Set up signal handlers for graceful shutdown
     def signal_handler(sig, frame):
         logger.info("Received signal %s, shutting down...", sig)
         service.stop()
         sys.exit(0)
-    
+
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    
+
     # Start the service
     try:
         logger.info("Starting centralized logging service on %s:%s", args.host, args.port)
         service.start()
-        
+
         # Keep the main thread alive
         while True:
             time.sleep(1)

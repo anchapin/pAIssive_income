@@ -12,7 +12,7 @@ then retrieves the most relevant context for a query.
 from __future__ import annotations
 
 import logging
-import sys # Added for sys.exit
+import sys  # Added for sys.exit
 
 # Configure logging
 logger = logging.getLogger(__name__)

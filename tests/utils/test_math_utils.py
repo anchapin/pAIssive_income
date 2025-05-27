@@ -3,7 +3,8 @@ Tests for the utils.math_utils module.
 """
 
 import pytest
-from utils.math_utils import add, subtract, multiply, divide, average
+
+from utils.math_utils import add, average, divide, multiply, subtract
 
 
 class TestMathUtils:

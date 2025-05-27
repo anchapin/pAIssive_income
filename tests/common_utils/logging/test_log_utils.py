@@ -6,10 +6,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from common_utils.logging.log_utils import (
-    log_user_input_safely,
-    log_exception_safely,
     configure_secure_logging,
+    log_exception_safely,
     log_user_id_safely,
+    log_user_input_safely,
     sanitize_user_input,
 )
 from common_utils.logging.secure_logging import SecureLogger

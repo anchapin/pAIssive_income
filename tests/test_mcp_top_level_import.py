@@ -1,10 +1,11 @@
 """Test that MCP adapter can be imported from the top-level package."""
 
+import importlib
 import logging
 import sys
-import importlib
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -50,5 +51,5 @@ def test_mcp_adapter_top_level_import():
                 assert TopLevelMCPAdapter.__name__ == "MCPAdapter"
 
             except Exception as e:
-                logging.error(f"Failed to import MCPAdapter from ai_models: {e}")
+                logging.exception(f"Failed to import MCPAdapter from ai_models: {e}")
                 pytest.skip("MCPAdapter not available in ai_models - skipping this test")

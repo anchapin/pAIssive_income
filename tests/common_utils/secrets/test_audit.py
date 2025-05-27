@@ -5,21 +5,21 @@ import os
 import re
 import tempfile
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from common_utils.secrets.audit import (
-    is_text_file,
-    is_example_code,
-    should_exclude,
+    DEFAULT_EXCLUDE_DIRS,
+    PATTERNS,
+    TEXT_FILE_EXTENSIONS,
     find_potential_secrets,
+    handle_file_error,
+    is_example_code,
+    is_text_file,
     process_file,
     scan_directory,
-    handle_file_error,
-    PATTERNS,
-    DEFAULT_EXCLUDE_DIRS,
-    TEXT_FILE_EXTENSIONS,
+    should_exclude,
 )
 
 

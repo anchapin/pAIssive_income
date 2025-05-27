@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from common_utils.logging.secure_logging import (
-    SENSITIVE_FIELDS,
     PATTERNS,
+    SENSITIVE_FIELDS,
     SecureLogger,
     _mask_if_sensitive,
     _mask_pattern,
@@ -200,14 +200,14 @@ class TestSecureLogging:
         result = prevent_log_injection(text)
         assert "\n" not in result
         assert "\r" not in result
-        assert "Line 1 Line 2 Line 3 Line 4" == result
+        assert result == "Line 1 Line 2 Line 3 Line 4"
 
         # Test with control characters
         text = "Hello\x00World\x1FTest"
         result = prevent_log_injection(text)
         assert "\x00" not in result
         assert "\x1F" not in result
-        assert "HelloWorldTest" == result
+        assert result == "HelloWorldTest"
 
     def test_prevent_log_injection_with_dict(self):
         """Test prevent_log_injection with dictionary input."""

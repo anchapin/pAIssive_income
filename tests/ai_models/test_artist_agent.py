@@ -1,8 +1,9 @@
 """Tests for the ARTIST-style agent wrapper."""
 
 import logging
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from ai_models.artist_agent import ArtistAgent
 

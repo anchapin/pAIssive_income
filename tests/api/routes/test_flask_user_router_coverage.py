@@ -2,7 +2,7 @@
 
 import json
 import logging
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from flask import Blueprint
@@ -16,9 +16,9 @@ from app_flask.models import User
 def app():
     """Create and configure a Flask app for testing."""
     test_config = {
-        'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
-        'SQLALCHEMY_TRACK_MODIFICATIONS': False
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False
     }
     app = create_app(test_config)
 
@@ -47,11 +47,11 @@ class TestFlaskUserRouterCoverage:
         caplog.set_level(logging.ERROR)
 
         # Mock User.query.all to raise an exception
-        with patch('api.routes.flask_user_router.User.query') as mock_query:
+        with patch("api.routes.flask_user_router.User.query") as mock_query:
             mock_query.all.side_effect = Exception("Database error")
 
             # Test the endpoint
-            response = client.get('/api/users/')
+            response = client.get("/api/users/")
 
             # Verify response
             assert response.status_code == 500
@@ -65,7 +65,7 @@ class TestFlaskUserRouterCoverage:
     def test_create_user_missing_json(self, client):
         """Test create_user with missing JSON data."""
         # Test with no JSON content
-        response = client.post('/api/users/')
+        response = client.post("/api/users/")
         assert response.status_code == 400
         data = json.loads(response.data)
         assert "error" in data
@@ -74,7 +74,7 @@ class TestFlaskUserRouterCoverage:
     def test_create_user_empty_json(self, client):
         """Test create_user with empty JSON data."""
         # Test with empty JSON
-        response = client.post('/api/users/', json={})
+        response = client.post("/api/users/", json={})
         assert response.status_code == 400
         data = json.loads(response.data)
         assert "error" in data
@@ -83,7 +83,7 @@ class TestFlaskUserRouterCoverage:
     def test_create_user_missing_fields(self, client):
         """Test create_user with missing fields."""
         # Test with partial data
-        response = client.post('/api/users/', json={"username": "testuser"})
+        response = client.post("/api/users/", json={"username": "testuser"})
         assert response.status_code == 400
         data = json.loads(response.data)
         assert "error" in data
@@ -91,11 +91,11 @@ class TestFlaskUserRouterCoverage:
 
     def test_create_user_runtime_error(self, client):
         """Test create_user with RuntimeError."""
-        with patch('api.routes.flask_user_router.user_service.create_user') as mock_create:
+        with patch("api.routes.flask_user_router.user_service.create_user") as mock_create:
             mock_create.side_effect = RuntimeError("Server error")
 
             response = client.post(
-                '/api/users/',
+                "/api/users/",
                 json={
                     "username": "testuser",
                     "email": "test@example.com",
@@ -109,11 +109,11 @@ class TestFlaskUserRouterCoverage:
 
     def test_create_user_validation_error(self, client):
         """Test create_user with validation error."""
-        with patch('api.routes.flask_user_router.user_service.create_user') as mock_create:
+        with patch("api.routes.flask_user_router.user_service.create_user") as mock_create:
             mock_create.side_effect = ValueError("Invalid input")
 
             response = client.post(
-                '/api/users/',
+                "/api/users/",
                 json={
                     "username": "testuser",
                     "email": "test@example.com",
@@ -134,17 +134,17 @@ class TestFlaskUserRouterCoverage:
                 super().__init__(message)
 
         # Mock the user service to raise the custom exception
-        with patch('api.routes.flask_user_router.user_service.create_user') as mock_create_user:
+        with patch("api.routes.flask_user_router.user_service.create_user") as mock_create_user:
             # Use a message that contains one of the safe terms
             mock_create_user.side_effect = ValidationError("Custom validation must be valid")
 
             # Test the endpoint
             response = client.post(
-                '/api/users/',
+                "/api/users/",
                 json={
-                    'username': 'newuser',
-                    'email': 'new@example.com',
-                    'password': 'password123'
+                    "username": "newuser",
+                    "email": "new@example.com",
+                    "password": "password123"
                 }
             )
 
@@ -163,17 +163,17 @@ class TestFlaskUserRouterCoverage:
                 super().__init__(message)
 
         # Mock the user service to raise an exception with safe terms
-        with patch('api.routes.flask_user_router.user_service.create_user') as mock_create_user:
+        with patch("api.routes.flask_user_router.user_service.create_user") as mock_create_user:
             # Use a message that contains one of the safe terms
             mock_create_user.side_effect = ValidationError("Email already exists")
 
             # Test the endpoint
             response = client.post(
-                '/api/users/',
+                "/api/users/",
                 json={
-                    'username': 'newuser',
-                    'email': 'new@example.com',
-                    'password': 'password123'
+                    "username": "newuser",
+                    "email": "new@example.com",
+                    "password": "password123"
                 }
             )
 
@@ -186,7 +186,7 @@ class TestFlaskUserRouterCoverage:
     def test_authenticate_user_missing_json(self, client):
         """Test authenticate_user with missing JSON data."""
         # Test with no JSON content
-        response = client.post('/api/users/authenticate')
+        response = client.post("/api/users/authenticate")
         assert response.status_code == 400
         data = json.loads(response.data)
         assert "error" in data
@@ -195,7 +195,7 @@ class TestFlaskUserRouterCoverage:
     def test_authenticate_user_empty_json(self, client):
         """Test authenticate_user with empty JSON data."""
         # Test with empty JSON
-        response = client.post('/api/users/authenticate', json={})
+        response = client.post("/api/users/authenticate", json={})
         assert response.status_code == 400
         data = json.loads(response.data)
         assert "error" in data
@@ -204,7 +204,7 @@ class TestFlaskUserRouterCoverage:
     def test_authenticate_user_missing_fields(self, client):
         """Test authenticate_user with missing fields."""
         # Test with partial data
-        response = client.post('/api/users/authenticate', json={"username_or_email": "testuser"})
+        response = client.post("/api/users/authenticate", json={"username_or_email": "testuser"})
         assert response.status_code == 400
         data = json.loads(response.data)
         assert "error" in data
@@ -214,11 +214,11 @@ class TestFlaskUserRouterCoverage:
         """Test authenticate_user with server error."""
         caplog.set_level(logging.ERROR)
 
-        with patch('api.routes.flask_user_router.user_service.authenticate_user') as mock_auth:
+        with patch("api.routes.flask_user_router.user_service.authenticate_user") as mock_auth:
             mock_auth.side_effect = Exception("Server error")
 
             response = client.post(
-                '/api/users/authenticate',
+                "/api/users/authenticate",
                 json={
                     "username_or_email": "testuser",
                     "password": "password123"
@@ -242,7 +242,7 @@ class TestFlaskUserRouterCoverage:
             user_id = user.id
 
         # Test with no JSON content
-        response = client.put(f'/api/users/{user_id}')
+        response = client.put(f"/api/users/{user_id}")
         assert response.status_code == 400
         data = json.loads(response.data)
         assert "error" in data
@@ -258,7 +258,7 @@ class TestFlaskUserRouterCoverage:
             user_id = user.id
 
         # Test with empty JSON
-        response = client.put(f'/api/users/{user_id}', json={})
+        response = client.put(f"/api/users/{user_id}", json={})
         assert response.status_code == 400
         data = json.loads(response.data)
         assert "error" in data
@@ -276,11 +276,11 @@ class TestFlaskUserRouterCoverage:
             user_id = user.id
 
         # Mock db.session.commit to raise an exception
-        with patch('api.routes.flask_user_router.db.session.commit') as mock_commit:
+        with patch("api.routes.flask_user_router.db.session.commit") as mock_commit:
             mock_commit.side_effect = Exception("Database error")
 
             response = client.put(
-                f'/api/users/{user_id}',
+                f"/api/users/{user_id}",
                 json={"username": "updateduser"}
             )
             assert response.status_code == 500

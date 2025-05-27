@@ -1,6 +1,7 @@
 """Test module for common_utils.validation.core."""
 
 import logging
+
 import pytest
 from pydantic import BaseModel, ValidationError
 

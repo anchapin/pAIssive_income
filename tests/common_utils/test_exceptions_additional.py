@@ -1,15 +1,17 @@
 """Additional tests for the common_utils.exceptions module to improve coverage."""
 
-import pytest
 import sys
+
+import pytest
+
 from common_utils.exceptions import (
-    DirectoryPermissionError,
-    FilePermissionError,
     DirectoryNotFoundError,
+    DirectoryPermissionError,
     FileNotPythonError,
+    FilePermissionError,
+    InvalidRotationIntervalError,
     MissingFileError,
     ScriptNotFoundError,
-    InvalidRotationIntervalError,
 )
 
 
@@ -92,7 +94,7 @@ class TestExceptionsAdditional:
         try:
             # Raise our custom exception
             raise FilePermissionError("test_file.txt")
-        except FilePermissionError as e:
+        except FilePermissionError:
             # Verify traceback information is present
             assert sys.exc_info()[2] is not None
 

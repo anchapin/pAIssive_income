@@ -9,9 +9,10 @@ Adapt and extend these scaffolds to fit your use-case.
 
 from __future__ import annotations
 
+import logging  # Ensure logging is imported before use
+
 # Check if crewai is installed
 from typing import Any, Union
-import logging # Ensure logging is imported before use
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -107,6 +108,7 @@ except ImportError:
 
             Returns:
                 A mock output string
+
             """
             return "Mock crew output"
 
@@ -140,6 +142,7 @@ class CrewAIAgentTeam:
 
         Args:
             llm_provider: The language model provider to use for agent interactions.
+
         """
         self.llm_provider = llm_provider
         self.agents = []
@@ -159,6 +162,7 @@ class CrewAIAgentTeam:
 
         Returns:
             The created Agent object.
+
         """
         agent = Agent(
             role=role,
@@ -181,6 +185,7 @@ class CrewAIAgentTeam:
 
         Returns:
             The created Task object.
+
         """
         # If agent is a string (role), look it up in the agent_map
         if isinstance(agent, str):
@@ -207,6 +212,7 @@ class CrewAIAgentTeam:
 
         Returns:
             A CrewAI Crew object.
+
         """
         return Crew(
             agents=self.agents,
@@ -223,6 +229,7 @@ class CrewAIAgentTeam:
 
         Returns:
             The result of the workflow execution.
+
         """
         if not CREWAI_AVAILABLE:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
@@ -237,12 +244,11 @@ class CrewAIAgentTeam:
 
         # Use kickoff() instead of run() for newer versions of CrewAI
         # Pass inputs if provided in kwargs
-        inputs = kwargs.pop('inputs', None)
-        if hasattr(crew, 'kickoff'):
+        inputs = kwargs.pop("inputs", None)
+        if hasattr(crew, "kickoff"):
             return crew.kickoff(inputs=inputs)
-        else:
-            # For older versions that use run() instead of kickoff()
-            return crew.run()
+        # For older versions that use run() instead of kickoff()
+        return crew.run()
 
 
 # Example: Define agent roles

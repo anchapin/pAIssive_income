@@ -2,16 +2,16 @@
 
 import logging
 import re
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from common_utils.logging.log_utils import (
-    get_logger,
-    log_user_input_safely,
-    log_exception_safely,
     configure_secure_logging,
+    get_logger,
+    log_exception_safely,
     log_user_id_safely,
+    log_user_input_safely,
     sanitize_user_input,
 )
 from common_utils.logging.secure_logging import SecureLogger

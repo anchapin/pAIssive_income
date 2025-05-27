@@ -13,6 +13,7 @@ Usage:
 Arguments:
     --fix       Attempt to fix issues automatically
     --verbose   Show detailed output
+
 """
 
 import argparse
@@ -28,12 +29,12 @@ logger = logging.getLogger(__name__)
 # Import the logger initialization checker
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.check_logger_initialization import (
-    check_file,
-    fix_file,
-    LoggerIssue,
     DEFAULT_EXCLUDE_DIRS,
     DEFAULT_EXCLUDE_FILES,
     DEFAULT_EXCLUDE_PATTERNS,
+    LoggerIssue,
+    check_file,
+    fix_file,
 )
 
 # Configure logging
@@ -41,10 +42,12 @@ from scripts.check_logger_initialization import (
 
 
 def get_modified_files() -> List[str]:
-    """Get the list of modified Python files in the current Git commit.
+    """
+    Get the list of modified Python files in the current Git commit.
 
     Returns:
         List of modified Python file paths
+
     """
     try:
         # Get staged files
@@ -75,7 +78,8 @@ def get_modified_files() -> List[str]:
 
 
 def should_check_file(file_path: str, exclude_dirs: Set[str], exclude_files: Set[str], exclude_patterns: List[str]) -> bool:
-    """Check if a file should be checked.
+    """
+    Check if a file should be checked.
 
     Args:
         file_path: Path to the file
@@ -85,6 +89,7 @@ def should_check_file(file_path: str, exclude_dirs: Set[str], exclude_files: Set
 
     Returns:
         True if the file should be checked, False otherwise
+
     """
     # Check if the file exists
     if not os.path.isfile(file_path):
@@ -109,7 +114,8 @@ def should_check_file(file_path: str, exclude_dirs: Set[str], exclude_files: Set
 
 
 def check_modified_files(fix: bool = False, verbose: bool = False) -> Tuple[List[LoggerIssue], int]:
-    """Check modified files for logger initialization issues.
+    """
+    Check modified files for logger initialization issues.
 
     Args:
         fix: Whether to fix issues automatically
@@ -117,6 +123,7 @@ def check_modified_files(fix: bool = False, verbose: bool = False) -> Tuple[List
 
     Returns:
         Tuple of (list of issues found, number of files fixed)
+
     """
     modified_files = get_modified_files()
     if verbose:
@@ -147,10 +154,12 @@ def check_modified_files(fix: bool = False, verbose: bool = False) -> Tuple[List
 
 
 def main() -> int:
-    """Main function.
+    """
+    Main function.
 
     Returns:
         Exit code (0 for success, non-zero for failure)
+
     """
     # Configure logging early in main
     logging.basicConfig(

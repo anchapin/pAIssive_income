@@ -138,8 +138,8 @@ class TestPasswordResetService(unittest.TestCase):
         assert service.user_repository == repo
         assert service.code_expiry == expiry
 
-    @patch('users.password_reset.generate_reset_code')
-    @patch('users.password_reset.datetime')
+    @patch("users.password_reset.generate_reset_code")
+    @patch("users.password_reset.datetime")
     def test_request_reset_success(self, mock_datetime, mock_generate_code):
         """Test requesting a reset successfully."""
         # Arrange
@@ -193,7 +193,7 @@ class TestPasswordResetService(unittest.TestCase):
         email = "nonexistent@example.com"
 
         # Act
-        with patch('time.sleep') as mock_sleep:  # Mock sleep to speed up test
+        with patch("time.sleep") as mock_sleep:  # Mock sleep to speed up test
             success, masked_code = self.service.request_reset(email)
 
         # Assert
@@ -201,7 +201,7 @@ class TestPasswordResetService(unittest.TestCase):
         assert masked_code is None
         mock_sleep.assert_called_once_with(0.2)  # Check that sleep was called
 
-    @patch('users.password_reset.hash_credential')
+    @patch("users.password_reset.hash_credential")
     def test_reset_auth_credential_success(self, mock_hash_credential):
         """Test resetting an authentication credential successfully."""
         # Arrange

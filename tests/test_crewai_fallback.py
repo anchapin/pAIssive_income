@@ -1,15 +1,16 @@
 """Test module for crewai.py fallback module."""
 
-import logging
-import pytest
 import importlib
-import sys
+import logging
 import os
-from unittest.mock import patch, MagicMock
+import sys
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Remove the mocked crewai module from sys.modules
-if 'crewai' in sys.modules:
-    del sys.modules['crewai']
+if "crewai" in sys.modules:
+    del sys.modules["crewai"]
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -278,7 +279,7 @@ class TestCrewAIFallback:
     def test_import_all_classes(self):
         """Test that all classes can be imported without errors."""
         # Import all classes
-        from crewai import Agent, Task, Crew
+        from crewai import Agent, Crew, Task
 
         # Verify the imports
         assert Agent.__name__ == "Agent"

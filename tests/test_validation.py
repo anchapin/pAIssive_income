@@ -5,16 +5,20 @@ All tests and validation logic must comply with:
 docs/input_validation_and_error_handling_standards.md
 """
 
-import logging
 import json
+import logging
 from typing import Any, Dict, List, Optional, Union
 
 import pytest
 from pydantic import BaseModel, Field
 
-from common_utils.validation.core import ValidationError, validate_input, validation_error_response
-from common_utils.validation.validators import validate_email, validate_url
+from common_utils.validation.core import (
+    ValidationError,
+    validate_input,
+    validation_error_response,
+)
 from common_utils.validation.decorators import validate_request_body
+from common_utils.validation.validators import validate_email, validate_url
 
 # Constants
 VALID_AGE = 35

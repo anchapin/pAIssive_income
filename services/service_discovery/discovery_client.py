@@ -2,10 +2,9 @@
 
 # Standard library imports
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 # Third-party imports
-
 # Local imports
 from services.service_discovery.load_balancer import LoadBalancer
 
@@ -16,11 +15,13 @@ class ConsulServiceRegistry:
     """Service registry implementation using Consul."""
 
     def __init__(self, host: str = "localhost", port: int = 8500):
-        """Initialize the Consul service registry.
+        """
+        Initialize the Consul service registry.
 
         Args:
             host: Consul host
             port: Consul port
+
         """
         self.host = host
         self.port = port
@@ -34,7 +35,8 @@ class ConsulServiceRegistry:
         tags: List[str] = None,
         metadata: Dict[str, str] = None,
     ) -> bool:
-        """Register a service with the registry.
+        """
+        Register a service with the registry.
 
         Args:
             service_name: Name of the service
@@ -45,6 +47,7 @@ class ConsulServiceRegistry:
 
         Returns:
             bool: True if registration was successful
+
         """
         # Fix for CodeQL "Unused local variable" issue
         # Initialize default values and actually use the variables
@@ -62,13 +65,15 @@ class ConsulServiceRegistry:
         return True
 
     def deregister_service(self, service_id: str) -> bool:
-        """Deregister a service from the registry.
+        """
+        Deregister a service from the registry.
 
         Args:
             service_id: ID of the service to deregister
 
         Returns:
             bool: True if deregistration was successful
+
         """
         # Using module logger. Original intent for direct logging.info was for test mocking.
         logger.info(f"Deregistering service {service_id}")
@@ -76,13 +81,15 @@ class ConsulServiceRegistry:
         return True
 
     def get_service_instances(self, service_name: str) -> List[Dict[str, Any]]:
-        """Get all instances of a service.
+        """
+        Get all instances of a service.
 
         Args:
             service_name: Name of the service to look up
 
         Returns:
             List of service instances
+
         """
         # Using module logger. Original intent for direct logging.info was for test mocking.
         logger.info(f"Looking up instances for service {service_name}")
@@ -108,7 +115,8 @@ class ServiceDiscoveryClient:
         registry_port: int = 8500,
         load_balancer_strategy: str = "round_robin",
     ):
-        """Initialize the service discovery client.
+        """
+        Initialize the service discovery client.
 
         Args:
             service_name: Name of this service
@@ -117,6 +125,7 @@ class ServiceDiscoveryClient:
             registry_host: Host of the service registry
             registry_port: Port of the service registry
             load_balancer_strategy: Strategy for load balancing
+
         """
         self.service_name = service_name
         self.port = port
@@ -131,18 +140,21 @@ class ServiceDiscoveryClient:
             )
 
     def discover_service(self, service_name: str) -> List[Dict[str, Any]]:
-        """Discover instances of a service.
+        """
+        Discover instances of a service.
 
         Args:
             service_name: Name of the service to discover
 
         Returns:
             List of service instances
+
         """
         return self.registry.get_service_instances(service_name)
 
     def get_service_url(self, service_name: str, path: str = "") -> Optional[str]:
-        """Get a URL for a service using load balancing.
+        """
+        Get a URL for a service using load balancing.
 
         Args:
             service_name: Name of the service
@@ -150,6 +162,7 @@ class ServiceDiscoveryClient:
 
         Returns:
             URL for the service or None if no instances are available
+
         """
         instances = self.discover_service(service_name)
         if not instances:
@@ -171,7 +184,8 @@ class ServiceDiscoveryClient:
         tags: List[str] = None,
         metadata: Dict[str, str] = None,
     ) -> bool:
-        """Register a service with the registry.
+        """
+        Register a service with the registry.
 
         Args:
             service_name: Name of the service
@@ -182,6 +196,7 @@ class ServiceDiscoveryClient:
 
         Returns:
             bool: True if registration was successful
+
         """
         if tags is None:
             tags = []
@@ -197,12 +212,14 @@ class ServiceDiscoveryClient:
         )
 
     def deregister_service(self, service_id: str) -> bool:
-        """Deregister a service from the registry.
+        """
+        Deregister a service from the registry.
 
         Args:
             service_id: ID of the service to deregister
 
         Returns:
             bool: True if deregistration was successful
+
         """
         return self.registry.deregister_service(service_id)

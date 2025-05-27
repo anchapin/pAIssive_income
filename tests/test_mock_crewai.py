@@ -1,11 +1,12 @@
 """Test module for mock_crewai module."""
 
-import logging
-import pytest
 import importlib
-import sys
+import logging
 import os
-from unittest.mock import patch, MagicMock
+import sys
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -150,7 +151,7 @@ class TestMockCrewAI:
     def test_import_all_classes(self):
         """Test that all classes can be imported without errors."""
         # Import all classes
-        from mock_crewai import Agent, Task, Crew, tools
+        from mock_crewai import Agent, Crew, Task, tools
 
         # Verify the imports
         assert Agent.__name__ == "Agent"
@@ -249,23 +250,23 @@ class TestMockCrewAI:
             goal="Test goal",
             backstory="Test backstory",
         )
-        
+
         # Create a task
         task = mock_crewai.Task(
             description="Test task",
             agent=agent,
         )
-        
+
         # Execute the task
         result = agent.execute_task(task)
         assert "Executed task: Test task" in result
-        
+
         # Execute the task with context
         context = {"key": "value"}
         result_with_context = agent.execute_task(task, context=context)
         assert "Executed task: Test task" in result_with_context
         assert "context" in result_with_context
-        
+
     def test_crew_run_alias(self):
         """Test that Crew.run is an alias for Crew.kickoff."""
         # Create a crew
@@ -273,43 +274,43 @@ class TestMockCrewAI:
             agents=[],
             tasks=[],
         )
-        
+
         # Test that run is an alias for kickoff
         assert crew.run == crew.kickoff
-        
+
         # Test run
         result = crew.run()
         assert result == "Mock crew output"
-        
+
         # Test run with inputs
         inputs = {"key": "value"}
         result = crew.run(inputs=inputs)
         assert result == f"Mock crew output with inputs: {inputs}"
-        
+
     def test_agent_type_enum(self):
         """Test the AgentType enum."""
         # Test that AgentType is an enum
         assert hasattr(mock_crewai, "AgentType")
-        
+
         # Test that AgentType has expected values
         assert hasattr(mock_crewai.AgentType, "DEFAULT")
         assert hasattr(mock_crewai.AgentType, "OPENAI")
         assert hasattr(mock_crewai.AgentType, "ANTHROPIC")
-        
+
     def test_crew_type_enum(self):
         """Test the CrewType enum."""
         # Test that CrewType is an enum
         assert hasattr(mock_crewai, "CrewType")
-        
+
         # Test that CrewType has expected values
         assert hasattr(mock_crewai.CrewType, "DEFAULT")
         assert hasattr(mock_crewai.CrewType, "HIERARCHICAL")
-        
+
     def test_task_type_enum(self):
         """Test the TaskType enum."""
         # Test that TaskType is an enum
         assert hasattr(mock_crewai, "TaskType")
-        
+
         # Test that TaskType has expected values
         assert hasattr(mock_crewai.TaskType, "DEFAULT")
         assert hasattr(mock_crewai.TaskType, "SEQUENTIAL")

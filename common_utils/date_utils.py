@@ -1,4 +1,5 @@
-"""Date utility functions for the pAIssive_income project.
+"""
+Date utility functions for the pAIssive_income project.
 
 This module provides common date manipulation functions used across the project.
 """
@@ -6,7 +7,7 @@ This module provides common date manipulation functions used across the project.
 # Standard library imports
 import datetime
 from datetime import date, datetime, timedelta, timezone
-from typing import Optional, Union, List, Tuple
+from typing import List, Optional, Tuple, Union
 
 # Third-party imports
 
@@ -23,6 +24,7 @@ def get_current_date() -> date:
     Examples:
         >>> isinstance(get_current_date(), date)
         True
+
     """
     return date.today()
 
@@ -40,6 +42,7 @@ def get_current_datetime(tz: Optional[timezone] = None) -> datetime:
     Examples:
         >>> isinstance(get_current_datetime(), datetime)
         True
+
     """
     if tz is None:
         return datetime.now(timezone.utc)
@@ -62,6 +65,7 @@ def format_date(dt: Union[date, datetime], format_str: str = "%Y-%m-%d") -> str:
         '2023-01-15'
         >>> format_date(date(2023, 1, 15), "%d/%m/%Y")
         '15/01/2023'
+
     """
     return dt.strftime(format_str)
 
@@ -85,6 +89,7 @@ def parse_date(date_str: str, format_str: str = "%Y-%m-%d") -> date:
         datetime.date(2023, 1, 15)
         >>> parse_date("15/01/2023", "%d/%m/%Y")
         datetime.date(2023, 1, 15)
+
     """
     return datetime.strptime(date_str, format_str).date()
 
@@ -106,6 +111,7 @@ def parse_datetime(datetime_str: str, format_str: str = "%Y-%m-%d %H:%M:%S") -> 
     Examples:
         >>> parse_datetime("2023-01-15 14:30:00")
         datetime.datetime(2023, 1, 15, 14, 30)
+
     """
     return datetime.strptime(datetime_str, format_str)
 
@@ -126,6 +132,7 @@ def add_days(dt: Union[date, datetime], days: int) -> Union[date, datetime]:
         datetime.date(2023, 1, 20)
         >>> add_days(date(2023, 1, 15), -5)
         datetime.date(2023, 1, 10)
+
     """
     return dt + timedelta(days=days)
 
@@ -144,6 +151,7 @@ def date_range(start_date: date, end_date: date) -> List[date]:
     Examples:
         >>> date_range(date(2023, 1, 1), date(2023, 1, 3))
         [datetime.date(2023, 1, 1), datetime.date(2023, 1, 2), datetime.date(2023, 1, 3)]
+
     """
     delta = end_date - start_date
     return [start_date + timedelta(days=i) for i in range(delta.days + 1)]
@@ -165,6 +173,7 @@ def get_month_start_end(year: int, month: int) -> Tuple[date, date]:
         (datetime.date(2023, 1, 1), datetime.date(2023, 1, 31))
         >>> get_month_start_end(2023, 2)
         (datetime.date(2023, 2, 1), datetime.date(2023, 2, 28))
+
     """
     start_date = date(year, month, 1)
 
@@ -194,6 +203,7 @@ def is_weekend(dt: Union[date, datetime]) -> bool:
         True
         >>> is_weekend(date(2023, 1, 16))  # Monday
         False
+
     """
     return dt.weekday() >= 5  # 5 = Saturday, 6 = Sunday
 
@@ -217,5 +227,6 @@ def get_quarter(dt: Union[date, datetime]) -> int:
         3
         >>> get_quarter(date(2023, 10, 15))
         4
+
     """
     return (dt.month - 1) // 3 + 1

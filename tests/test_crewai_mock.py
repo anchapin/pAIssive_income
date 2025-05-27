@@ -1,10 +1,10 @@
 """Test module for mock_crewai module."""
 
+import importlib
 import logging
 import os
 import sys
-import importlib
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -313,7 +313,7 @@ class TestCrewAIMock:
     def test_import_all_modules(self):
         """Test that all modules can be imported without errors."""
         # Import all modules
-        from mock_crewai import Agent, Task, Crew, tools
+        from mock_crewai import Agent, Crew, Task, tools
 
         # Verify the imports
         assert Agent.__name__ == "Agent"

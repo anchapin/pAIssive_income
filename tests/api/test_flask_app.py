@@ -1,15 +1,15 @@
 """test_flask_app - Test module for Flask app."""
 
-import logging
 import json
-import unittest
-import sys
+import logging
 import os
+import sys
+import unittest
 from importlib import import_module
 from unittest.mock import MagicMock, patch
 
 import pytest
-from flask import Flask, Blueprint, jsonify
+from flask import Blueprint, Flask, jsonify
 from sqlalchemy import text
 
 # Add the project root to the Python path
@@ -81,6 +81,7 @@ def mock_app():
 
     Returns:
         MockFlask: The configured mock Flask application
+
     """
     return MockFlask(__name__)
 
@@ -95,6 +96,7 @@ def mock_client(mock_app):
 
     Returns:
         MockClient: Test client for the mock Flask application
+
     """
     return mock_app.test_client()
 
@@ -152,8 +154,8 @@ def test_flask_route(mock_app, mock_client):
     assert data["success"] is True
 
 
-@patch('app_flask.models.db')
-@patch('app_flask.db')
+@patch("app_flask.models.db")
+@patch("app_flask.db")
 def test_create_app_function(mock_db, mock_models_db):
     """Test the create_app function."""
     # Test with custom config only to avoid connecting to real database
@@ -174,8 +176,8 @@ def test_create_app_function(mock_db, mock_models_db):
     assert app.config.get("SECRET_KEY") == "test_key"
 
 
-@patch('app_flask.models.db')
-@patch('app_flask.db')
+@patch("app_flask.models.db")
+@patch("app_flask.db")
 def test_db_initialization(mock_db, mock_models_db):
     """Test that the database is properly initialized."""
     # Create a mock app
@@ -198,10 +200,10 @@ def test_blueprint_registration():
     app = Flask(__name__)
 
     # Create a real blueprint
-    user_bp = Blueprint('user_bp', __name__, url_prefix='/api/users')
+    user_bp = Blueprint("user_bp", __name__, url_prefix="/api/users")
 
     # Add a route to the blueprint
-    @user_bp.route('/')
+    @user_bp.route("/")
     def index():
         return "User index"
 
@@ -212,14 +214,14 @@ def test_blueprint_registration():
     endpoints = [rule.endpoint for rule in app.url_map.iter_rules()]
 
     # The user blueprint should be registered with at least one endpoint
-    assert 'user_bp.index' in endpoints
+    assert "user_bp.index" in endpoints
 
 
 class TestFlaskApp(unittest.TestCase):
     """Test suite for the Flask application."""
 
-    @patch('app_flask.models.db')
-    @patch('app_flask.db')
+    @patch("app_flask.models.db")
+    @patch("app_flask.db")
     def setUp(self, mock_db, mock_models_db):
         """Set up test fixtures."""
         self.test_config = {
@@ -239,7 +241,6 @@ class TestFlaskApp(unittest.TestCase):
 
     def tearDown(self):
         """Tear down test fixtures."""
-        pass
 
     def test_app_context(self):
         """Test that the app context works properly."""
@@ -249,15 +250,15 @@ class TestFlaskApp(unittest.TestCase):
             # Use the imported current_app instead of Flask.current_app
             assert current_app is not None
             # Verify it's the correct app - the name will be the module name
-            assert current_app.name == 'tests.api.test_flask_app'
+            assert current_app.name == "tests.api.test_flask_app"
 
     def test_user_blueprint_routes(self):
         """Test that the user blueprint routes are registered."""
         # Create a mock blueprint
-        user_bp = Blueprint('user_bp', __name__, url_prefix='/api/users')
+        user_bp = Blueprint("user_bp", __name__, url_prefix="/api/users")
 
         # Add a route to the blueprint
-        @user_bp.route('/', methods=['POST'])
+        @user_bp.route("/", methods=["POST"])
         def create_user():
             return jsonify({"success": True}), 201
 
@@ -268,22 +269,22 @@ class TestFlaskApp(unittest.TestCase):
         with self.app.app_context():
             rules = [rule for rule in self.app.url_map.iter_rules()]
             # Look for any endpoint that might be related to users
-            user_endpoints = [rule.endpoint for rule in rules if 'user' in rule.endpoint.lower()]
+            user_endpoints = [rule.endpoint for rule in rules if "user" in rule.endpoint.lower()]
             assert len(user_endpoints) > 0, "No user-related endpoints found"
 
-    @patch('app_flask.models.User')
+    @patch("app_flask.models.User")
     def test_create_user_endpoint(self, mock_user):
         """Test the create user endpoint."""
         # Skip this test for now as we need to properly mock the user service
         self.skipTest("Skipping until user service is properly mocked")
 
-    @patch('app_flask.models.User')
+    @patch("app_flask.models.User")
     def test_authenticate_user_endpoint_success(self, mock_user):
         """Test the authenticate user endpoint with successful authentication."""
         # Skip this test for now as we need to properly mock the user service
         self.skipTest("Skipping until user service is properly mocked")
 
-    @patch('app_flask.models.User')
+    @patch("app_flask.models.User")
     def test_authenticate_user_endpoint_failure(self, mock_user):
         """Test the authenticate user endpoint with failed authentication."""
         # Skip this test for now as we need to properly mock the user service

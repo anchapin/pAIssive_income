@@ -3,13 +3,13 @@
 # Standard library imports
 import logging
 from datetime import datetime
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 # Third-party imports
 import pytest
 
 # Local imports
-from app_flask.models import User, Agent, Team
+from app_flask.models import Agent, Team, User
 
 
 class TestUser:

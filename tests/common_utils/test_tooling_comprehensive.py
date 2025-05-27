@@ -1,18 +1,19 @@
 """Comprehensive tests for the common_utils.tooling module."""
 
-import pytest
 import ast
 import operator
 import re
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from common_utils.tooling import (
-    register_tool,
-    get_tool,
-    list_tools,
-    calculator,
     _TOOL_REGISTRY,
     MAX_EXPONENT_VALUE,
+    calculator,
+    get_tool,
+    list_tools,
+    register_tool,
 )
 
 

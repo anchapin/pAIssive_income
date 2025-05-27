@@ -17,7 +17,8 @@ _loggers: Dict[str, logging.Logger] = {}
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Get a logger instance by name.
+    """
+    Get a logger instance by name.
 
     If a logger with the given name already exists, returns the existing instance.
     Otherwise, creates a new logger.
@@ -27,6 +28,7 @@ def get_logger(name: str) -> logging.Logger:
 
     Returns:
         A Logger instance
+
     """
     if name in _loggers:
         return _loggers[name]
@@ -43,7 +45,8 @@ def setup_logger(
     handlers: Optional[List[logging.Handler]] = None,
     propagate: bool = True,
 ) -> logging.Logger:
-    """Set up a logger with the specified configuration.
+    """
+    Set up a logger with the specified configuration.
 
     Args:
         name: The name of the logger
@@ -54,6 +57,7 @@ def setup_logger(
 
     Returns:
         The configured Logger instance
+
     """
     target_logger = get_logger(name)
     target_logger.setLevel(level)

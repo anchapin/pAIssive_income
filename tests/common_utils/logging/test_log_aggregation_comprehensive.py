@@ -8,20 +8,20 @@ import socket
 import tempfile
 import threading
 import time
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from common_utils.logging.log_aggregation import (
-    LogAggregator,
     ElasticsearchHandler,
-    LogstashHandler,
     FileRotatingHandler,
+    LogAggregator,
+    LogstashHandler,
     aggregate_logs,
     configure_log_aggregation,
-    parse_log_file,
     get_log_files,
     get_log_statistics,
+    parse_log_file,
 )
 
 
@@ -572,7 +572,7 @@ class TestFileRotatingHandler:
         assert os.path.exists(log_file)
 
         # Verify the log file contents
-        with open(log_file, "r") as f:
+        with open(log_file) as f:
             log_content = f.read()
             assert "test_logger" in log_content
             assert "INFO" in log_content

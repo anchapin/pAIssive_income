@@ -3,7 +3,8 @@
 import logging
 import os
 import unittest
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import MagicMock, Mock, patch
+
 
 # Create a simple test class that skips actual imports
 class TestRunUI(unittest.TestCase):

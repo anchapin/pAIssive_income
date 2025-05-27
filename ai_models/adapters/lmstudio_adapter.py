@@ -1,11 +1,12 @@
 """lmstudio_adapter - Module for ai_models/adapters.lmstudio_adapter."""
 
 # Standard library imports
-import logging
 import asyncio
-import sys # Added sys import
+import logging
+import sys  # Added sys import
+
 logger = logging.getLogger(__name__)
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 try:
     import aiohttp
@@ -24,13 +25,15 @@ class LMStudioAdapter(BaseModelAdapter):
     """Adapter for connecting to LM Studio, a local API server for running large language models."""
 
     def __init__(self, host_or_base_url: str = "http://localhost:1234/v1", port: int = None, api_key: str = "", timeout: int = 60):
-        """Initialize the LM Studio adapter.
+        """
+        Initialize the LM Studio adapter.
 
         Args:
             host_or_base_url: Either a full base URL or just the host (for backward compatibility)
             port: Port number (only used if host_or_base_url is just a host)
             api_key: API key (usually not required for local LM Studio)
             timeout: Request timeout in seconds
+
         """
         # Support both old interface (host, port) and new interface (base_url)
         if port is not None:
@@ -53,7 +56,7 @@ class LMStudioAdapter(BaseModelAdapter):
             else:
                 self.host = "localhost"
                 self.port = 1234
-        
+
         self.api_key = api_key
         self.timeout = timeout
         self._session = None
@@ -73,10 +76,12 @@ class LMStudioAdapter(BaseModelAdapter):
         return self._session
 
     async def list_models(self) -> List[Dict[str, Any]]:
-        """List available models from LM Studio.
+        """
+        List available models from LM Studio.
 
         Returns:
             List of model information dictionaries
+
         """
         session = await self._get_session()
         try:
@@ -84,16 +89,16 @@ class LMStudioAdapter(BaseModelAdapter):
                 if response.status == 200:
                     data = await response.json()
                     return data.get("data", [])
-                else:
-                    error_text = await response.text()
-                    logger.error(f"Failed to list models: {error_text}")
-                    return []
+                error_text = await response.text()
+                logger.error(f"Failed to list models: {error_text}")
+                return []
         except Exception as e:
             logger.exception(f"Error listing models: {e}")
             return []
 
     async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
-        """Generate text using the specified model.
+        """
+        Generate text using the specified model.
 
         Args:
             model: The name of the model to use
@@ -102,6 +107,7 @@ class LMStudioAdapter(BaseModelAdapter):
 
         Returns:
             Response dictionary containing the generated text
+
         """
         session = await self._get_session()
         payload = {
@@ -121,16 +127,16 @@ class LMStudioAdapter(BaseModelAdapter):
             async with session.post(f"{self.base_url}/completions", json=payload) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    error_text = await response.text()
-                    logger.error(f"Failed to generate text: {error_text}")
-                    return {"error": error_text}
+                error_text = await response.text()
+                logger.error(f"Failed to generate text: {error_text}")
+                return {"error": error_text}
         except Exception as e:
             logger.exception(f"Error generating text: {e}")
             return {"error": str(e)}
 
     async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
-        """Generate chat completions using the specified model.
+        """
+        Generate chat completions using the specified model.
 
         Args:
             model: The name of the model to use
@@ -139,6 +145,7 @@ class LMStudioAdapter(BaseModelAdapter):
 
         Returns:
             Response dictionary containing the generated chat completion
+
         """
         session = await self._get_session()
         payload = {
@@ -158,10 +165,9 @@ class LMStudioAdapter(BaseModelAdapter):
             async with session.post(f"{self.base_url}/chat/completions", json=payload) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    error_text = await response.text()
-                    logger.error(f"Failed to generate chat completion: {error_text}")
-                    return {"error": error_text}
+                error_text = await response.text()
+                logger.error(f"Failed to generate chat completion: {error_text}")
+                return {"error": error_text}
         except Exception as e:
             logger.exception(f"Error generating chat completion: {e}")
             return {"error": str(e)}

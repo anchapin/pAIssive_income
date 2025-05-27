@@ -187,10 +187,12 @@ class AdapterFactory:
 
     @classmethod
     def get_available_adapter_types(cls):
-        """Get a list of available adapter types.
+        """
+        Get a list of available adapter types.
 
         Returns:
             List of available adapter type names
+
         """
         if not cls._adapter_registry:
             cls._initialize_registry()
@@ -202,11 +204,13 @@ class AdapterFactory:
 
     @classmethod
     def register_adapter(cls, name: str, adapter_class):
-        """Register a new adapter type.
+        """
+        Register a new adapter type.
 
         Args:
             name: The name of the adapter type
             adapter_class: The adapter class to register
+
         """
         # Initialize registry if not already done
         if not cls._adapter_registry:
@@ -217,7 +221,8 @@ class AdapterFactory:
 
     @classmethod
     def create_adapter(cls, adapter_type: str, host: str, port: int, **kwargs):
-        """Create an adapter of the specified type.
+        """
+        Create an adapter of the specified type.
 
         Args:
             adapter_type: The type of adapter to create
@@ -231,6 +236,7 @@ class AdapterFactory:
         Raises:
             UnsupportedServerTypeError: If the adapter type is not supported
             MCPAdapterNotAvailableError: If MCP adapter is requested but not available
+
         """
         # Initialize registry if not already done
         if not cls._adapter_registry:
@@ -247,7 +253,7 @@ class AdapterFactory:
         # Special case for MCP adapter
         if adapter_type == "mcp" and MCPAdapter is None:
             logger.error("MCP adapter requested but not available.")
-            raise MCPAdapterNotAvailableError()
+            raise MCPAdapterNotAvailableError
 
         # Create and return the adapter
         adapter_class = cls._adapter_registry[adapter_type]

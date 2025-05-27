@@ -1,4 +1,5 @@
-"""Authentication and authorization for the logging dashboard.
+"""
+Authentication and authorization for the logging dashboard.
 
 This module provides functionality for securing the logging dashboard with
 authentication and authorization.
@@ -63,20 +64,20 @@ import hashlib
 import hmac
 import os
 import secrets
+import sys  # Added sys import
 import time
 import uuid
 from dataclasses import dataclass, field
 from functools import wraps
 from typing import Any, Dict, List, Optional, Set
-import sys # Added sys import
 
 try:
     import dash
     import flask
-    from dash import html, dcc
+    from dash import dcc, html
     from dash.dependencies import Input, Output, State
     from dash.exceptions import PreventUpdate
-    from flask import session, request, g
+    from flask import g, request, session
 except ImportError:
     print("Error: Dash or Flask module not found. Please install them (e.g., pip install dash flask).")
     sys.exit(1)
@@ -131,12 +132,14 @@ class DashboardAuth:
         session_expiry: int = 3600,  # 1 hour
         pepper: Optional[str] = None,
     ) -> None:
-        """Initialize the dashboard auth.
+        """
+        Initialize the dashboard auth.
 
         Args:
             secret_key: Secret key for session signing
             session_expiry: Session expiry time in seconds
             pepper: Pepper for password hashing
+
         """
         self.secret_key = secret_key or os.environ.get("DASHBOARD_SECRET_KEY") or secrets.token_hex(32)
         self.session_expiry = session_expiry
@@ -181,11 +184,13 @@ class DashboardAuth:
             self.add_permission(permission)
 
     def enable_rate_limiting(self, max_attempts: int = 5, lockout_time: int = 300) -> None:
-        """Enable rate limiting for authentication attempts.
+        """
+        Enable rate limiting for authentication attempts.
 
         Args:
             max_attempts: Maximum number of failed authentication attempts before lockout
             lockout_time: Lockout time in seconds after max failed attempts
+
         """
         self.rate_limiting_enabled = True
         self.max_auth_attempts = max_attempts
@@ -203,12 +208,14 @@ class DashboardAuth:
         logger.info("Enabled audit logging")
 
     def log_audit_event(self, event_type: str, username: Optional[str] = None, details: Optional[Dict[str, Any]] = None) -> None:
-        """Log an audit event.
+        """
+        Log an audit event.
 
         Args:
             event_type: Type of event (e.g., "login", "logout", "permission_denied")
             username: Username associated with the event
             details: Additional details about the event
+
         """
         if not self.audit_logging_enabled:
             return
@@ -227,7 +234,8 @@ class DashboardAuth:
         logger.info(f"Audit: {event_type}", extra={"audit": event})
 
     def get_audit_logs(self, limit: int = 100, event_type: Optional[str] = None, username: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Get audit logs.
+        """
+        Get audit logs.
 
         Args:
             limit: Maximum number of logs to return
@@ -236,6 +244,7 @@ class DashboardAuth:
 
         Returns:
             List of audit logs
+
         """
         filtered_logs = self.audit_logs
 
@@ -251,13 +260,15 @@ class DashboardAuth:
         return filtered_logs[:limit]
 
     def generate_csrf_token(self, session_id: str) -> str:
-        """Generate a CSRF token for a session.
+        """
+        Generate a CSRF token for a session.
 
         Args:
             session_id: Session ID
 
         Returns:
             str: CSRF token
+
         """
         if not self.csrf_protection_enabled:
             return ""
@@ -267,7 +278,8 @@ class DashboardAuth:
         return token
 
     def validate_csrf_token(self, session_id: str, token: str) -> bool:
-        """Validate a CSRF token.
+        """
+        Validate a CSRF token.
 
         Args:
             session_id: Session ID
@@ -275,6 +287,7 @@ class DashboardAuth:
 
         Returns:
             bool: True if the token is valid, False otherwise
+
         """
         if not self.csrf_protection_enabled:
             return True
@@ -286,13 +299,15 @@ class DashboardAuth:
         return hmac.compare_digest(expected_token, token)
 
     def check_rate_limit(self, username: str) -> bool:
-        """Check if a user is rate limited.
+        """
+        Check if a user is rate limited.
 
         Args:
             username: Username
 
         Returns:
             bool: True if the user is allowed to authenticate, False if rate limited
+
         """
         if not self.rate_limiting_enabled:
             return True
@@ -308,10 +323,12 @@ class DashboardAuth:
         return True
 
     def record_failed_attempt(self, username: str) -> None:
-        """Record a failed authentication attempt.
+        """
+        Record a failed authentication attempt.
 
         Args:
             username: Username
+
         """
         if not self.rate_limiting_enabled:
             return
@@ -332,10 +349,12 @@ class DashboardAuth:
             })
 
     def reset_failed_attempts(self, username: str) -> None:
-        """Reset failed authentication attempts for a user.
+        """
+        Reset failed authentication attempts for a user.
 
         Args:
             username: Username
+
         """
         if not self.rate_limiting_enabled:
             return
@@ -349,22 +368,26 @@ class DashboardAuth:
             del self.lockout_until[username]
 
     def add_user(self, user: User) -> None:
-        """Add a user.
+        """
+        Add a user.
 
         Args:
             user: User to add
+
         """
         self.users[user.username] = user
         logger.info(f"Added user: {user.username}")
 
     def remove_user(self, username: str) -> bool:
-        """Remove a user.
+        """
+        Remove a user.
 
         Args:
             username: Username of the user to remove
 
         Returns:
             bool: True if the user was removed, False if not found
+
         """
         if username in self.users:
             del self.users[username]
@@ -373,22 +396,26 @@ class DashboardAuth:
         return False
 
     def add_role(self, role: Role) -> None:
-        """Add a role.
+        """
+        Add a role.
 
         Args:
             role: Role to add
+
         """
         self.roles[role.name] = role
         logger.info(f"Added role: {role.name}")
 
     def remove_role(self, name: str) -> bool:
-        """Remove a role.
+        """
+        Remove a role.
 
         Args:
             name: Name of the role to remove
 
         Returns:
             bool: True if the role was removed, False if not found
+
         """
         if name in self.roles:
             del self.roles[name]
@@ -397,22 +424,26 @@ class DashboardAuth:
         return False
 
     def add_permission(self, permission: Permission) -> None:
-        """Add a permission.
+        """
+        Add a permission.
 
         Args:
             permission: Permission to add
+
         """
         self.permissions[permission.name] = permission
         logger.info(f"Added permission: {permission.name}")
 
     def remove_permission(self, name: str) -> bool:
-        """Remove a permission.
+        """
+        Remove a permission.
 
         Args:
             name: Name of the permission to remove
 
         Returns:
             bool: True if the permission was removed, False if not found
+
         """
         if name in self.permissions:
             del self.permissions[name]
@@ -421,13 +452,15 @@ class DashboardAuth:
         return False
 
     def hash_password(self, password: str) -> str:
-        """Hash a password.
+        """
+        Hash a password.
 
         Args:
             password: Password to hash
 
         Returns:
             str: Hashed password
+
         """
         # Add pepper to password
         peppered = password + self.pepper
@@ -448,7 +481,8 @@ class DashboardAuth:
         return f"{salt}${hash_hex}"
 
     def verify_password(self, password: str, password_hash: str) -> bool:
-        """Verify a password.
+        """
+        Verify a password.
 
         Args:
             password: Password to verify
@@ -456,6 +490,7 @@ class DashboardAuth:
 
         Returns:
             bool: True if the password is correct, False otherwise
+
         """
         # Add pepper to password
         peppered = password + self.pepper
@@ -476,7 +511,8 @@ class DashboardAuth:
         return hmac.compare_digest(hash_hex, new_hash_hex)
 
     def authenticate(self, username: str, password: str) -> bool:
-        """Authenticate a user.
+        """
+        Authenticate a user.
 
         Args:
             username: Username
@@ -484,6 +520,7 @@ class DashboardAuth:
 
         Returns:
             bool: True if authentication is successful, False otherwise
+
         """
         # Check rate limiting
         if not self.check_rate_limit(username):
@@ -523,13 +560,15 @@ class DashboardAuth:
         return True
 
     def get_user_permissions(self, username: str) -> Set[str]:
-        """Get permissions for a user.
+        """
+        Get permissions for a user.
 
         Args:
             username: Username
 
         Returns:
             Set[str]: Set of permission names
+
         """
         user = self.users.get(username)
         if not user:
@@ -544,7 +583,8 @@ class DashboardAuth:
         return permissions
 
     def has_permission(self, username: str, permission: str) -> bool:
-        """Check if a user has a permission.
+        """
+        Check if a user has a permission.
 
         Args:
             username: Username
@@ -552,17 +592,20 @@ class DashboardAuth:
 
         Returns:
             bool: True if the user has the permission, False otherwise
+
         """
         return permission in self.get_user_permissions(username)
 
     def create_session(self, username: str) -> Dict[str, Any]:
-        """Create a session for a user.
+        """
+        Create a session for a user.
 
         Args:
             username: Username
 
         Returns:
             Dict[str, Any]: Session data
+
         """
         now = int(time.time())
         expiry = now + self.session_expiry
@@ -576,13 +619,15 @@ class DashboardAuth:
         return session_data
 
     def validate_session(self, session_data: Dict[str, Any]) -> bool:
-        """Validate a session.
+        """
+        Validate a session.
 
         Args:
             session_data: Session data
 
         Returns:
             bool: True if the session is valid, False otherwise
+
         """
         if not session_data:
             return False
@@ -606,10 +651,12 @@ class DashboardAuth:
         return True
 
     def init_app(self, app: dash.Dash) -> None:
-        """Initialize the app with authentication.
+        """
+        Initialize the app with authentication.
 
         Args:
             app: Dash app
+
         """
         # Set secret key for Flask session
         app.server.secret_key = self.secret_key
@@ -720,8 +767,7 @@ class DashboardAuth:
                 self.log_audit_event("login_successful", username)
 
                 return "", {"authenticated": True}
-            else:
-                return "Invalid username or password", None
+            return "Invalid username or password", None
 
         # Add logout callback
         @app.callback(
@@ -794,9 +840,8 @@ class DashboardAuth:
 
                 # Show app content
                 return app._original_layout
-            else:
-                # Show login layout
-                return app.login_layout
+            # Show login layout
+            return app.login_layout
 
         # Store original layout
         app._original_layout = app.layout
@@ -831,13 +876,15 @@ class DashboardAuth:
 
 
 def require_auth(f):
-    """Decorator to require authentication for a callback.
+    """
+    Decorator to require authentication for a callback.
 
     Args:
         f: Callback function
 
     Returns:
         Wrapped callback function
+
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -865,13 +912,15 @@ def require_auth(f):
 
 
 def require_permission(permission):
-    """Decorator to require a permission for a callback.
+    """
+    Decorator to require a permission for a callback.
 
     Args:
         permission: Permission name
 
     Returns:
         Decorator function
+
     """
     def decorator(f):
         @wraps(f)

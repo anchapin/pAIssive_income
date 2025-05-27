@@ -22,7 +22,6 @@ from pathlib import Path
 from typing import Optional
 
 
-
 def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str, str]:
     """
     Run a command and return the exit code, stdout, and stderr.

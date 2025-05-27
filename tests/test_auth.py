@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import bcrypt
 import pytest
 
-from users.auth import hash_credential, verify_credential, hash_auth, verify_auth
+from users.auth import hash_auth, hash_credential, verify_auth, verify_credential
 
 
 class TestAuthFunctions(unittest.TestCase):
@@ -28,8 +28,8 @@ class TestAuthFunctions(unittest.TestCase):
         # Verify the hash can be verified with bcrypt
         self.assertTrue(
             bcrypt.checkpw(
-                credential.encode('utf-8'),
-                hashed.encode('utf-8')
+                credential.encode("utf-8"),
+                hashed.encode("utf-8")
             )
         )
 
@@ -58,9 +58,9 @@ class TestAuthFunctions(unittest.TestCase):
         # Create a hashed credential
         plain_credential = "password123"
         hashed_credential = bcrypt.hashpw(
-            plain_credential.encode('utf-8'),
+            plain_credential.encode("utf-8"),
             bcrypt.gensalt()
-        ).decode('utf-8')
+        ).decode("utf-8")
 
         # Verify the credential
         result = verify_credential(plain_credential, hashed_credential)
@@ -72,9 +72,9 @@ class TestAuthFunctions(unittest.TestCase):
         plain_credential = "password123"
         wrong_credential = "wrong_password"
         hashed_credential = bcrypt.hashpw(
-            plain_credential.encode('utf-8'),
+            plain_credential.encode("utf-8"),
             bcrypt.gensalt()
-        ).decode('utf-8')
+        ).decode("utf-8")
 
         # Verify with wrong credential
         result = verify_credential(wrong_credential, hashed_credential)
@@ -85,7 +85,7 @@ class TestAuthFunctions(unittest.TestCase):
         hashed_credential = bcrypt.hashpw(
             b"password123",
             bcrypt.gensalt()
-        ).decode('utf-8')
+        ).decode("utf-8")
 
         result = verify_credential("", hashed_credential)
         self.assertFalse(result)
@@ -100,7 +100,7 @@ class TestAuthFunctions(unittest.TestCase):
         hashed_credential = bcrypt.hashpw(
             b"password123",
             bcrypt.gensalt()
-        ).decode('utf-8')
+        ).decode("utf-8")
 
         result = verify_credential(None, hashed_credential)
         self.assertFalse(result)
@@ -114,7 +114,7 @@ class TestAuthFunctions(unittest.TestCase):
         """Test verifying with bytes hashed credential."""
         plain_credential = "password123"
         hashed_credential = bcrypt.hashpw(
-            plain_credential.encode('utf-8'),
+            plain_credential.encode("utf-8"),
             bcrypt.gensalt()
         )  # Keep as bytes
 
@@ -124,14 +124,14 @@ class TestAuthFunctions(unittest.TestCase):
 
     def test_verify_credential_invalid_format(self):
         """Test verifying with an invalid hashed credential format."""
-        with patch('users.auth.logger') as mock_logger:
+        with patch("users.auth.logger") as mock_logger:
             result = verify_credential("password123", "invalid_hash_format")
             self.assertFalse(result)
             mock_logger.error.assert_called_once()
 
     def test_verify_credential_exception(self):
         """Test handling of unexpected exceptions during verification."""
-        with patch('bcrypt.checkpw') as mock_checkpw, patch('users.auth.logger') as mock_logger:
+        with patch("bcrypt.checkpw") as mock_checkpw, patch("users.auth.logger") as mock_logger:
             mock_checkpw.side_effect = Exception("Unexpected error")
 
             result = verify_credential("password123", "hashed_password")
@@ -150,14 +150,14 @@ class TestAuthFunctions(unittest.TestCase):
         # Verify both can be verified with the original credential
         self.assertTrue(
             bcrypt.checkpw(
-                credential.encode('utf-8'),
-                hashed1.encode('utf-8')
+                credential.encode("utf-8"),
+                hashed1.encode("utf-8")
             )
         )
         self.assertTrue(
             bcrypt.checkpw(
-                credential.encode('utf-8'),
-                hashed2.encode('utf-8')
+                credential.encode("utf-8"),
+                hashed2.encode("utf-8")
             )
         )
 
@@ -165,9 +165,9 @@ class TestAuthFunctions(unittest.TestCase):
         """Test verify_auth alias function."""
         plain_credential = "password123"
         hashed_credential = bcrypt.hashpw(
-            plain_credential.encode('utf-8'),
+            plain_credential.encode("utf-8"),
             bcrypt.gensalt()
-        ).decode('utf-8')
+        ).decode("utf-8")
 
         # Verify using both functions
         result1 = verify_credential(plain_credential, hashed_credential)

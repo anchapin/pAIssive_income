@@ -1,11 +1,12 @@
-"""String utility functions for the pAIssive_income project.
+"""
+String utility functions for the pAIssive_income project.
 
 This module provides common string manipulation functions used across the project.
 """
 
 # Standard library imports
-import re
 import math
+import re
 import unicodedata
 from typing import Optional, Union
 
@@ -33,6 +34,7 @@ def slugify(text: Optional[Union[str, int, bool]], separator: str = "-", allow_u
         'hello_world'
         >>> slugify("Héllö Wörld", allow_unicode=True)
         'héllö-wörld'
+
     """
     if text is None:
         return ""
@@ -45,20 +47,20 @@ def slugify(text: Optional[Union[str, int, bool]], separator: str = "-", allow_u
 
     if not allow_unicode:
         # Remove accents
-        text = unicodedata.normalize('NFKD', text)
-        text = ''.join([c for c in text if not unicodedata.combining(c)])
+        text = unicodedata.normalize("NFKD", text)
+        text = "".join([c for c in text if not unicodedata.combining(c)])
     else:
         # Normalize, but keep Unicode characters
-        text = unicodedata.normalize('NFC', text)
+        text = unicodedata.normalize("NFC", text)
 
     # Replace non-alphanumeric characters with separator
     if not allow_unicode:
-        text = re.sub(r'[^\w\s-]', '', text).strip()
+        text = re.sub(r"[^\w\s-]", "", text).strip()
     else:
         # For Unicode, we need a more permissive pattern
-        text = re.sub(r'[^\w\s-]', '', text, flags=re.UNICODE).strip()
+        text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE).strip()
 
-    text = re.sub(r'[-\s]+', separator, text)
+    text = re.sub(r"[-\s]+", separator, text)
 
     return text
 
@@ -80,11 +82,12 @@ def camel_to_snake(text: str) -> str:
         'hello_world'
         >>> camel_to_snake("APIResponse")
         'api_response'
+
     """
     # Handle special case for acronyms (e.g., APIResponse -> api_response)
-    text = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', text)
+    text = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", text)
     # Insert underscore between lowercase and uppercase letters
-    text = re.sub(r'([a-z\d])([A-Z])', r'\1_\2', text)
+    text = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", text)
     # Convert to lowercase
     return text.lower()
 
@@ -107,12 +110,13 @@ def snake_to_camel(text: str, capitalize_first: bool = False) -> str:
         'HelloWorld'
         >>> snake_to_camel("api_response", capitalize_first=True)
         'ApiResponse'
+
     """
-    components = text.split('_')
+    components = text.split("_")
     # Capitalize all components except the first one (unless capitalize_first is True)
     if capitalize_first:
-        return ''.join(x.title() for x in components)
-    return components[0] + ''.join(x.title() for x in components[1:])
+        return "".join(x.title() for x in components)
+    return components[0] + "".join(x.title() for x in components[1:])
 
 
 def truncate(text: str, max_length: int, suffix: str = "...") -> str:
@@ -132,6 +136,7 @@ def truncate(text: str, max_length: int, suffix: str = "...") -> str:
         'He...'
         >>> truncate("Hello", 10)
         'Hello'
+
     """
     # If text is empty, return it as is
     if not text:
@@ -151,7 +156,7 @@ def truncate(text: str, max_length: int, suffix: str = "...") -> str:
 
     # For compatibility with existing tests, we need to handle different behaviors
     # between test files
-    
+
     # Special cases for test_string_utils.py
     if text == "Hello World" and max_length == 5 and suffix == "...":
         return "He..."
@@ -163,7 +168,7 @@ def truncate(text: str, max_length: int, suffix: str = "...") -> str:
         return "Hello"
     if text == "Hello World" and max_length == 5 and suffix == "...more":
         return "...more"
-    
+
     # Special cases for test_string_utils_comprehensive.py
     if text == "Hello World" and max_length == 5 and suffix == "...":
         # This conflicts with test_string_utils.py, but we'll handle it in the specific test case
@@ -173,7 +178,7 @@ def truncate(text: str, max_length: int, suffix: str = "...") -> str:
         return "Hell!"  # Default behavior
     if text == "Hello World" and max_length == 8 and suffix == " [more]":
         return "Hello [more]"
-    
+
     # Default behavior: truncate text to (max_length - len(suffix)) and add suffix
     keep_length = max_length - len(suffix)
     return text[:keep_length] + suffix
@@ -192,6 +197,7 @@ def remove_html_tags(text: str) -> str:
     Examples:
         >>> remove_html_tags("<p>Hello <b>World</b></p>")
         'Hello World'
+
     """
     # Handle empty strings
     if not text:
@@ -202,10 +208,10 @@ def remove_html_tags(text: str) -> str:
         return "Hello World"
 
     # Regular expression to remove HTML tags
-    return re.sub(r'<[^>]+>', '', text)
+    return re.sub(r"<[^>]+>", "", text)
 
 
-def format_number(number: Union[int, float], decimal_places: int = 2) -> str:
+def format_number(number: float, decimal_places: int = 2) -> str:
     """
     Format a number with thousands separators and fixed decimal places.
 
@@ -225,28 +231,29 @@ def format_number(number: Union[int, float], decimal_places: int = 2) -> str:
         '1,234.57'
         >>> format_number(1234, decimal_places=0)
         '1,234'
+
     """
     # Type checking for number
     if not isinstance(number, (int, float)):
         raise TypeError("Number must be an int or float")
-    
+
     # Type checking for decimal_places
     if not isinstance(decimal_places, int):
         raise TypeError("decimal_places must be an integer")
-    
+
     # Value checking for decimal_places
     if decimal_places < 0:
         raise ValueError("decimal_places must be a non-negative integer")
-    
+
     # Handle special float values
-    if number == float('inf'):
+    if number == float("inf"):
         return "inf"
-    if number == float('-inf'):
+    if number == float("-inf"):
         return "-inf"
     # Use math.isnan for more reliable NaN checking across Python versions
     if isinstance(number, float) and math.isnan(number):  # NaN check
         return "NaN"
-    
+
     # For decimal_places=0, we need to round first to avoid unexpected rounding
     if decimal_places == 0:
         number = round(number)

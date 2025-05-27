@@ -106,6 +106,7 @@ class SecretRotation:
         ------
             InvalidRotationIntervalError: If the interval is less than MIN_ROTATION_INTERVAL
                 or greater than MAX_ROTATION_INTERVAL
+
         """
         # Define constants for validation
         MIN_ROTATION_INTERVAL = 1  # Minimum rotation interval in days

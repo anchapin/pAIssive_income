@@ -9,15 +9,15 @@ import tempfile
 import threading
 import time
 import unittest
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from common_utils.logging.centralized_logging import (
-    ElasticsearchOutput,
-    LogstashOutput,
     CentralizedLoggingService,
+    ElasticsearchOutput,
     LoggingClient,
+    LogstashOutput,
 )
 
 

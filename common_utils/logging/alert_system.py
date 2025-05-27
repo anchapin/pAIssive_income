@@ -1,4 +1,5 @@
-"""Alert system for logging.
+"""
+Alert system for logging.
 
 This module provides functionality for setting up alerts based on log patterns,
 thresholds, and anomalies. It supports various notification channels such as
@@ -73,12 +74,12 @@ import json
 import logging
 import re
 import smtplib
+import sys  # Added sys import
 import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import sys # Added sys import
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -139,7 +140,7 @@ class AlertRule:
         """Check if the alert is in cooldown period."""
         if self.last_triggered is None:
             return False
-        
+
         elapsed = (datetime.datetime.now() - self.last_triggered).total_seconds()
         return elapsed < self.cooldown_period
 
@@ -152,16 +153,19 @@ class AlertNotifier(ABC):
     """Base class for alert notifiers."""
 
     def __init__(self, name: str) -> None:
-        """Initialize the notifier.
+        """
+        Initialize the notifier.
         
         Args:
             name: Name of the notifier
+
         """
         self.name = name
 
     @abstractmethod
     def send_alert(self, alert_rule: AlertRule, context: Dict[str, Any]) -> bool:
-        """Send an alert notification.
+        """
+        Send an alert notification.
         
         Args:
             alert_rule: The alert rule that triggered
@@ -169,8 +173,8 @@ class AlertNotifier(ABC):
             
         Returns:
             bool: True if the alert was sent successfully, False otherwise
+
         """
-        pass
 
 
 class EmailNotifier(AlertNotifier):
@@ -187,7 +191,8 @@ class EmailNotifier(AlertNotifier):
         use_tls: bool = True,
         name: str = "email",
     ) -> None:
-        """Initialize the email notifier.
+        """
+        Initialize the email notifier.
         
         Args:
             smtp_host: SMTP server host
@@ -198,6 +203,7 @@ class EmailNotifier(AlertNotifier):
             to_emails: List of recipient email addresses
             use_tls: Whether to use TLS
             name: Name of the notifier
+
         """
         super().__init__(name)
         self.smtp_host = smtp_host
@@ -209,7 +215,8 @@ class EmailNotifier(AlertNotifier):
         self.use_tls = use_tls
 
     def send_alert(self, alert_rule: AlertRule, context: Dict[str, Any]) -> bool:
-        """Send an email alert.
+        """
+        Send an email alert.
         
         Args:
             alert_rule: The alert rule that triggered
@@ -217,6 +224,7 @@ class EmailNotifier(AlertNotifier):
             
         Returns:
             bool: True if the alert was sent successfully, False otherwise
+
         """
         try:
             # Create message
@@ -264,13 +272,15 @@ class WebhookNotifier(AlertNotifier):
         timeout: int = 10,
         name: str = "webhook",
     ) -> None:
-        """Initialize the webhook notifier.
+        """
+        Initialize the webhook notifier.
         
         Args:
             url: Webhook URL
             headers: HTTP headers
             timeout: Request timeout in seconds
             name: Name of the notifier
+
         """
         super().__init__(name)
         self.url = url
@@ -278,7 +288,8 @@ class WebhookNotifier(AlertNotifier):
         self.timeout = timeout
 
     def send_alert(self, alert_rule: AlertRule, context: Dict[str, Any]) -> bool:
-        """Send a webhook alert.
+        """
+        Send a webhook alert.
         
         Args:
             alert_rule: The alert rule that triggered
@@ -286,6 +297,7 @@ class WebhookNotifier(AlertNotifier):
             
         Returns:
             bool: True if the alert was sent successfully, False otherwise
+
         """
         try:
             payload = {
@@ -321,17 +333,20 @@ class InAppNotifier(AlertNotifier):
         callback: Callable[[AlertRule, Dict[str, Any]], None],
         name: str = "in-app",
     ) -> None:
-        """Initialize the in-app notifier.
+        """
+        Initialize the in-app notifier.
         
         Args:
             callback: Callback function to handle in-app notifications
             name: Name of the notifier
+
         """
         super().__init__(name)
         self.callback = callback
 
     def send_alert(self, alert_rule: AlertRule, context: Dict[str, Any]) -> bool:
-        """Send an in-app alert.
+        """
+        Send an in-app alert.
         
         Args:
             alert_rule: The alert rule that triggered
@@ -339,6 +354,7 @@ class InAppNotifier(AlertNotifier):
             
         Returns:
             bool: True if the alert was sent successfully, False otherwise
+
         """
         try:
             self.callback(alert_rule, context)
@@ -360,10 +376,12 @@ class AlertSystem:
         self.lock = threading.Lock()
 
     def add_rule(self, rule: AlertRule) -> None:
-        """Add an alert rule.
+        """
+        Add an alert rule.
         
         Args:
             rule: The alert rule to add
+
         """
         with self.lock:
             # Check if rule with same ID already exists
@@ -379,13 +397,15 @@ class AlertSystem:
             _logger.info(f"Added alert rule: {rule.name}")
 
     def remove_rule(self, rule_id: str) -> bool:
-        """Remove an alert rule.
+        """
+        Remove an alert rule.
         
         Args:
             rule_id: ID of the rule to remove
             
         Returns:
             bool: True if the rule was removed, False if not found
+
         """
         with self.lock:
             for i, rule in enumerate(self.rules):
@@ -396,23 +416,27 @@ class AlertSystem:
             return False
 
     def add_notifier(self, notifier: AlertNotifier) -> None:
-        """Add a notifier.
+        """
+        Add a notifier.
         
         Args:
             notifier: The notifier to add
+
         """
         with self.lock:
             self.notifiers[notifier.name] = notifier
             _logger.info(f"Added notifier: {notifier.name}")
 
     def remove_notifier(self, name: str) -> bool:
-        """Remove a notifier.
+        """
+        Remove a notifier.
         
         Args:
             name: Name of the notifier to remove
             
         Returns:
             bool: True if the notifier was removed, False if not found
+
         """
         with self.lock:
             if name in self.notifiers:
@@ -423,13 +447,15 @@ class AlertSystem:
             return False
 
     def process_logs(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Process logs and trigger alerts.
+        """
+        Process logs and trigger alerts.
         
         Args:
             log_entries: List of log entries to process
             
         Returns:
             List[Dict[str, Any]]: List of triggered alerts
+
         """
         if not log_entries:
             return []
@@ -468,74 +494,79 @@ class AlertSystem:
         return triggered_alerts
 
     def _update_metrics_history(self, log_entries: List[Dict[str, Any]]) -> None:
-        """Update metrics history.
+        """
+        Update metrics history.
         
         Args:
             log_entries: List of log entries
+
         """
         # Extract timestamp from first entry
         if not log_entries:
             return
 
         timestamp = log_entries[0].get("timestamp", datetime.datetime.now())
-        
+
         # Calculate metrics
         metrics = self._calculate_metrics(log_entries)
-        
+
         # Add to history
         for metric_name, value in metrics.items():
             if metric_name not in self.metrics_history:
                 self.metrics_history[metric_name] = []
-                
+
             self.metrics_history[metric_name].append({
                 "timestamp": timestamp,
                 "value": value,
             })
-            
+
             # Limit history size (keep last 1000 entries)
             if len(self.metrics_history[metric_name]) > 1000:
                 self.metrics_history[metric_name] = self.metrics_history[metric_name][-1000:]
 
     def _calculate_metrics(self, log_entries: List[Dict[str, Any]]) -> Dict[str, float]:
-        """Calculate metrics from log entries.
+        """
+        Calculate metrics from log entries.
         
         Args:
             log_entries: List of log entries
             
         Returns:
             Dict[str, float]: Dictionary of metrics
+
         """
         metrics = {}
-        
+
         # Calculate error rate
         error_count = sum(1 for entry in log_entries if entry.get("level") in ["ERROR", "CRITICAL"])
         metrics["error_rate"] = error_count / len(log_entries) if log_entries else 0
-        
+
         # Calculate log frequency
         metrics["log_frequency"] = len(log_entries)
-        
+
         # Extract performance metrics
         # This is a simplified example - in a real system, you would extract
         # metrics based on your application's specific log format
         for entry in log_entries:
             message = entry.get("message", "")
-            
+
             # Example: Extract API latency
             api_latency_match = re.search(r"API request completed in (\d+\.?\d*) ms", message)
             if api_latency_match:
                 metrics["api_latency"] = float(api_latency_match.group(1))
-                
+
             # Example: Extract database query time
             db_time_match = re.search(r"Database query took (\d+\.?\d*) ms", message)
             if db_time_match:
                 metrics["db_query_time"] = float(db_time_match.group(1))
-        
+
         return metrics
 
     def _check_rule_condition(
         self, rule: AlertRule, log_entries: List[Dict[str, Any]]
     ) -> tuple[bool, Dict[str, Any]]:
-        """Check if a rule condition is met.
+        """
+        Check if a rule condition is met.
         
         Args:
             rule: The alert rule to check
@@ -543,31 +574,32 @@ class AlertSystem:
             
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
+
         """
         context = {
             "log_count": len(log_entries),
             "first_log_time": log_entries[0].get("timestamp") if log_entries else None,
             "last_log_time": log_entries[-1].get("timestamp") if log_entries else None,
         }
-        
+
         if rule.condition == AlertCondition.PATTERN:
             return self._check_pattern_condition(rule, log_entries, context)
-        elif rule.condition == AlertCondition.THRESHOLD:
+        if rule.condition == AlertCondition.THRESHOLD:
             return self._check_threshold_condition(rule, context)
-        elif rule.condition == AlertCondition.ANOMALY:
+        if rule.condition == AlertCondition.ANOMALY:
             return self._check_anomaly_condition(rule, context)
-        elif rule.condition == AlertCondition.FREQUENCY:
+        if rule.condition == AlertCondition.FREQUENCY:
             return self._check_frequency_condition(rule, log_entries, context)
-        elif rule.condition == AlertCondition.ABSENCE:
+        if rule.condition == AlertCondition.ABSENCE:
             return self._check_absence_condition(rule, log_entries, context)
-        else:
-            _logger.warning(f"Unknown alert condition: {rule.condition}")
-            return False, context
+        _logger.warning(f"Unknown alert condition: {rule.condition}")
+        return False, context
 
     def _check_pattern_condition(
         self, rule: AlertRule, log_entries: List[Dict[str, Any]], context: Dict[str, Any]
     ) -> tuple[bool, Dict[str, Any]]:
-        """Check pattern condition.
+        """
+        Check pattern condition.
         
         Args:
             rule: The alert rule
@@ -576,29 +608,30 @@ class AlertSystem:
             
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
+
         """
         pattern = rule.parameters.get("pattern", "")
         if not pattern:
             return False, context
-            
+
         # Compile regex pattern
         try:
             regex = re.compile(pattern)
         except re.error:
             _logger.error(f"Invalid regex pattern in rule {rule.name}: {pattern}")
             return False, context
-            
+
         # Check for matches
         matches = []
         for entry in log_entries:
             message = entry.get("message", "")
             if regex.search(message):
                 matches.append(entry)
-                
+
         # Check if threshold is met
         min_matches = rule.parameters.get("min_matches", 1)
         is_triggered = len(matches) >= min_matches
-        
+
         # Update context
         context.update({
             "pattern": pattern,
@@ -606,13 +639,14 @@ class AlertSystem:
             "min_matches": min_matches,
             "matching_logs": matches[:10],  # Limit to first 10 matches
         })
-        
+
         return is_triggered, context
 
     def _check_threshold_condition(
         self, rule: AlertRule, context: Dict[str, Any]
     ) -> tuple[bool, Dict[str, Any]]:
-        """Check threshold condition.
+        """
+        Check threshold condition.
         
         Args:
             rule: The alert rule
@@ -620,18 +654,19 @@ class AlertSystem:
             
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
+
         """
         metric_name = rule.parameters.get("metric")
         threshold = rule.parameters.get("threshold")
         operator = rule.parameters.get("operator", ">")
         window = rule.parameters.get("window", 300)  # 5 minutes in seconds
-        
+
         if not metric_name or threshold is None:
             return False, context
-            
+
         # Get metric history
         history = self.metrics_history.get(metric_name, [])
-        
+
         # Filter by time window
         now = datetime.datetime.now()
         window_start = now - datetime.timedelta(seconds=window)
@@ -639,13 +674,13 @@ class AlertSystem:
             item for item in history
             if item["timestamp"] >= window_start
         ]
-        
+
         if not window_history:
             return False, context
-            
+
         # Calculate current value (average over window)
         current_value = sum(item["value"] for item in window_history) / len(window_history)
-        
+
         # Check threshold
         is_triggered = False
         if operator == ">":
@@ -660,7 +695,7 @@ class AlertSystem:
             is_triggered = current_value == threshold
         elif operator == "!=":
             is_triggered = current_value != threshold
-            
+
         # Update context
         context.update({
             "metric": metric_name,
@@ -670,13 +705,14 @@ class AlertSystem:
             "window_seconds": window,
             "data_points": len(window_history),
         })
-        
+
         return is_triggered, context
 
     def _check_anomaly_condition(
         self, rule: AlertRule, context: Dict[str, Any]
     ) -> tuple[bool, Dict[str, Any]]:
-        """Check anomaly condition.
+        """
+        Check anomaly condition.
         
         Args:
             rule: The alert rule
@@ -684,18 +720,19 @@ class AlertSystem:
             
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
+
         """
         metric_name = rule.parameters.get("metric")
         sensitivity = rule.parameters.get("sensitivity", 3.0)  # z-score threshold
         window = rule.parameters.get("window", 3600)  # 1 hour in seconds
         min_data_points = rule.parameters.get("min_data_points", 10)
-        
+
         if not metric_name:
             return False, context
-            
+
         # Get metric history
         history = self.metrics_history.get(metric_name, [])
-        
+
         # Filter by time window
         now = datetime.datetime.now()
         window_start = now - datetime.timedelta(seconds=window)
@@ -703,30 +740,30 @@ class AlertSystem:
             item for item in history
             if item["timestamp"] >= window_start
         ]
-        
+
         if len(window_history) < min_data_points:
             return False, context
-            
+
         # Extract values
         values = [item["value"] for item in window_history]
-        
+
         # Calculate z-score for the most recent value
         if len(values) >= 2:
             # Calculate mean and standard deviation excluding the most recent value
             historical_values = values[:-1]
             recent_value = values[-1]
-            
+
             mean = np.mean(historical_values)
             std = np.std(historical_values)
-            
+
             # Avoid division by zero
             if std == 0:
                 z_score = 0
             else:
                 z_score = abs((recent_value - mean) / std)
-                
+
             is_triggered = z_score > sensitivity
-            
+
             # Update context
             context.update({
                 "metric": metric_name,
@@ -738,15 +775,16 @@ class AlertSystem:
                 "window_seconds": window,
                 "data_points": len(window_history),
             })
-            
+
             return is_triggered, context
-            
+
         return False, context
 
     def _check_frequency_condition(
         self, rule: AlertRule, log_entries: List[Dict[str, Any]], context: Dict[str, Any]
     ) -> tuple[bool, Dict[str, Any]]:
-        """Check frequency condition.
+        """
+        Check frequency condition.
         
         Args:
             rule: The alert rule
@@ -755,17 +793,18 @@ class AlertSystem:
             
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
+
         """
         threshold = rule.parameters.get("threshold", 100)
         level = rule.parameters.get("level")
         window = rule.parameters.get("window", 60)  # 1 minute in seconds
-        
+
         # Filter logs by level if specified
         if level:
             filtered_logs = [entry for entry in log_entries if entry.get("level") == level]
         else:
             filtered_logs = log_entries
-            
+
         # Filter logs by time window
         now = datetime.datetime.now()
         window_start = now - datetime.timedelta(seconds=window)
@@ -773,11 +812,11 @@ class AlertSystem:
             entry for entry in filtered_logs
             if entry.get("timestamp", now) >= window_start
         ]
-        
+
         # Check frequency
         frequency = len(window_logs)
         is_triggered = frequency > threshold
-        
+
         # Update context
         context.update({
             "frequency": frequency,
@@ -785,13 +824,14 @@ class AlertSystem:
             "level": level,
             "window_seconds": window,
         })
-        
+
         return is_triggered, context
 
     def _check_absence_condition(
         self, rule: AlertRule, log_entries: List[Dict[str, Any]], context: Dict[str, Any]
     ) -> tuple[bool, Dict[str, Any]]:
-        """Check absence condition.
+        """
+        Check absence condition.
         
         Args:
             rule: The alert rule
@@ -800,17 +840,18 @@ class AlertSystem:
             
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
+
         """
         pattern = rule.parameters.get("pattern", "")
         level = rule.parameters.get("level")
         window = rule.parameters.get("window", 300)  # 5 minutes in seconds
-        
+
         # Filter logs by level if specified
         if level:
             filtered_logs = [entry for entry in log_entries if entry.get("level") == level]
         else:
             filtered_logs = log_entries
-            
+
         # Filter logs by time window
         now = datetime.datetime.now()
         window_start = now - datetime.timedelta(seconds=window)
@@ -818,7 +859,7 @@ class AlertSystem:
             entry for entry in filtered_logs
             if entry.get("timestamp", now) >= window_start
         ]
-        
+
         # Check for pattern matches
         if pattern:
             try:
@@ -832,10 +873,10 @@ class AlertSystem:
                 matches = []
         else:
             matches = window_logs
-            
+
         # Check absence
         is_triggered = len(matches) == 0
-        
+
         # Update context
         context.update({
             "pattern": pattern,
@@ -843,15 +884,17 @@ class AlertSystem:
             "window_seconds": window,
             "logs_in_window": len(window_logs),
         })
-        
+
         return is_triggered, context
 
     def _send_notifications(self, rule: AlertRule, context: Dict[str, Any]) -> None:
-        """Send notifications for a triggered alert.
+        """
+        Send notifications for a triggered alert.
         
         Args:
             rule: The triggered alert rule
             context: Alert context
+
         """
         for notifier_name in rule.notifiers:
             if notifier_name in self.notifiers:

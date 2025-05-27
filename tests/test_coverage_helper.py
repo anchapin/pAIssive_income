@@ -5,9 +5,19 @@ These tests ensure 100% coverage of the module.
 
 import logging
 import unittest
-import pytest
-from utils.coverage_helper import add, subtract, multiply, divide, is_even, is_odd, get_first_element, format_string
 
+import pytest
+
+from utils.coverage_helper import (
+    add,
+    divide,
+    format_string,
+    get_first_element,
+    is_even,
+    is_odd,
+    multiply,
+    subtract,
+)
 
 # The CoverageHelper class has been removed, so we only test the math functions now
 

@@ -48,7 +48,7 @@ def sample_log_entries():
             "timestamp": datetime.datetime(2023, 1, 1, 12, 3, 0),
             "level": "ERROR",
             "name": "test",
-            "message": "Another error message with exception\nTraceback (most recent call last):\n  File \"test.py\", line 10, in <module>\n    raise Exception(\"Test exception\")\nException: Test exception",
+            "message": 'Another error message with exception\nTraceback (most recent call last):\n  File "test.py", line 10, in <module>\n    raise Exception("Test exception")\nException: Test exception',
         },
         {
             "timestamp": datetime.datetime(2023, 1, 1, 12, 4, 0),
@@ -103,15 +103,15 @@ class TestAnomalyDetector:
         """Test feature extraction."""
         detector = AnomalyDetector()
         features = detector.extract_features(sample_log_entries)
-        
+
         # Check feature shape
         assert features.shape == (len(sample_log_entries), 13)
-        
+
         # Check feature names
         assert len(detector.feature_names) == 13
         assert "hour" in detector.feature_names
         assert "is_error" in detector.feature_names
-        
+
         # Check feature values
         assert features[2, detector.feature_names.index("is_error")] == 1  # ERROR entry
         assert features[0, detector.feature_names.index("is_error")] == 0  # INFO entry
@@ -120,7 +120,7 @@ class TestAnomalyDetector:
         """Test training."""
         detector = AnomalyDetector()
         detector.train(sample_log_entries)
-        
+
         assert detector.trained is True
         assert detector.model is not None
         assert isinstance(detector.model, IsolationForest)
@@ -129,12 +129,12 @@ class TestAnomalyDetector:
         """Test anomaly detection."""
         detector = AnomalyDetector(contamination=0.2)  # Higher contamination for testing
         detector.train(sample_log_entries)
-        
+
         anomalies = detector.detect(sample_log_entries)
-        
+
         # Check that anomalies were detected
         assert len(anomalies) > 0
-        
+
         # Check anomaly structure
         for anomaly in anomalies:
             assert "anomaly_score" in anomaly
@@ -146,7 +146,7 @@ class TestAnomalyDetector:
         """Test detection without training."""
         detector = AnomalyDetector()
         anomalies = detector.detect(sample_log_entries)
-        
+
         assert anomalies == []
 
 
@@ -163,7 +163,7 @@ class TestPatternRecognizer:
         """Test training."""
         recognizer = PatternRecognizer()
         recognizer.train(sample_log_entries)
-        
+
         assert recognizer.trained is True
         assert isinstance(recognizer.vectorizer, TfidfVectorizer)
 
@@ -171,12 +171,12 @@ class TestPatternRecognizer:
         """Test pattern recognition."""
         recognizer = PatternRecognizer(min_pattern_count=2)
         recognizer.train(sample_log_entries)
-        
+
         patterns = recognizer.recognize(sample_log_entries)
-        
+
         # Check that patterns were recognized
         assert len(patterns) > 0
-        
+
         # Check pattern structure
         for pattern in patterns:
             assert "pattern" in pattern
@@ -190,7 +190,7 @@ class TestPatternRecognizer:
         """Test recognition without training."""
         recognizer = PatternRecognizer()
         patterns = recognizer.recognize(sample_log_entries)
-        
+
         assert patterns == []
 
 
@@ -208,7 +208,7 @@ class TestLogClusterer:
         """Test training."""
         clusterer = LogClusterer()
         clusterer.train(sample_log_entries)
-        
+
         assert clusterer.trained is True
         assert isinstance(clusterer.model, DBSCAN)
 
@@ -216,12 +216,12 @@ class TestLogClusterer:
         """Test log clustering."""
         clusterer = LogClusterer(eps=0.7, min_samples=2)
         clusterer.train(sample_log_entries)
-        
+
         clusters = clusterer.cluster(sample_log_entries)
-        
+
         # Check that clusters were found
         assert len(clusters) > 0
-        
+
         # Check cluster structure
         for cluster in clusters:
             assert "cluster_id" in cluster
@@ -237,7 +237,7 @@ class TestLogClusterer:
         """Test clustering without training."""
         clusterer = LogClusterer()
         clusters = clusterer.cluster(sample_log_entries)
-        
+
         assert clusters == []
 
     def test_extract_common_terms(self):
@@ -248,9 +248,9 @@ class TestLogClusterer:
             "Database query took 150 ms",
             "Database query took 200 ms",
         ]
-        
+
         common_terms = clusterer._extract_common_terms(messages)
-        
+
         assert "database" in common_terms
         assert "query" in common_terms
         assert "took" in common_terms
@@ -270,56 +270,56 @@ class TestLogAnalyzer:
         """Test training anomaly detector."""
         analyzer = LogAnalyzer()
         analyzer.train_anomaly_detector(sample_log_entries)
-        
+
         assert analyzer.anomaly_detector.trained is True
 
     def test_detect_anomalies(self, sample_log_entries):
         """Test detecting anomalies."""
         analyzer = LogAnalyzer()
         analyzer.train_anomaly_detector(sample_log_entries)
-        
+
         anomalies = analyzer.detect_anomalies(sample_log_entries)
-        
+
         assert isinstance(anomalies, list)
 
     def test_train_pattern_recognizer(self, sample_log_entries):
         """Test training pattern recognizer."""
         analyzer = LogAnalyzer()
         analyzer.train_pattern_recognizer(sample_log_entries)
-        
+
         assert analyzer.pattern_recognizer.trained is True
 
     def test_recognize_patterns(self, sample_log_entries):
         """Test recognizing patterns."""
         analyzer = LogAnalyzer()
         analyzer.train_pattern_recognizer(sample_log_entries)
-        
+
         patterns = analyzer.recognize_patterns(sample_log_entries)
-        
+
         assert isinstance(patterns, list)
 
     def test_train_log_clusterer(self, sample_log_entries):
         """Test training log clusterer."""
         analyzer = LogAnalyzer()
         analyzer.train_log_clusterer(sample_log_entries)
-        
+
         assert analyzer.log_clusterer.trained is True
 
     def test_cluster_logs(self, sample_log_entries):
         """Test clustering logs."""
         analyzer = LogAnalyzer()
         analyzer.train_log_clusterer(sample_log_entries)
-        
+
         clusters = analyzer.cluster_logs(sample_log_entries)
-        
+
         assert isinstance(clusters, list)
 
     def test_analyze_logs(self, sample_log_entries):
         """Test analyzing logs."""
         analyzer = LogAnalyzer()
-        
+
         results = analyzer.analyze_logs(sample_log_entries)
-        
+
         assert "anomalies" in results
         assert "patterns" in results
         assert "clusters" in results
@@ -334,24 +334,24 @@ class TestConvenienceFunctions:
     def test_train_anomaly_detector(self, sample_log_entries):
         """Test train_anomaly_detector function."""
         detector = train_anomaly_detector(sample_log_entries)
-        
+
         assert isinstance(detector, AnomalyDetector)
         assert detector.trained is True
 
     def test_detect_anomalies(self, sample_log_entries):
         """Test detect_anomalies function."""
         anomalies = detect_anomalies(sample_log_entries)
-        
+
         assert isinstance(anomalies, list)
 
     def test_recognize_patterns(self, sample_log_entries):
         """Test recognize_patterns function."""
         patterns = recognize_patterns(sample_log_entries)
-        
+
         assert isinstance(patterns, list)
 
     def test_cluster_logs(self, sample_log_entries):
         """Test cluster_logs function."""
         clusters = cluster_logs(sample_log_entries)
-        
+
         assert isinstance(clusters, list)

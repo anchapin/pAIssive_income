@@ -1,12 +1,12 @@
 """Tests for the common_utils/config_loader.py module."""
 
-import unittest
 import json
-import tempfile
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import sys
+import tempfile
+import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -39,7 +39,7 @@ class TestConfigLoader(unittest.TestCase):
         self.assertFalse(config.debug)  # Default value
         self.assertEqual(config.max_connections, 50)
 
-    @patch('common_utils.config_loader.validate_input')
+    @patch("common_utils.config_loader.validate_input")
     def test_load_config_success(self, mock_validate_input):
         """Test load_config with valid configuration."""
         # Create a temporary config file
@@ -53,7 +53,7 @@ class TestConfigLoader(unittest.TestCase):
         mock_config = ExampleConfigModel(**config_data)
         mock_validate_input.return_value = mock_config
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             json.dump(config_data, temp_file)
             temp_file_path = temp_file.name
 
@@ -72,7 +72,7 @@ class TestConfigLoader(unittest.TestCase):
             # Clean up the temporary file
             os.unlink(temp_file_path)
 
-    @patch('common_utils.config_loader.validate_input')
+    @patch("common_utils.config_loader.validate_input")
     def test_load_config_validation_error(self, mock_validate_input):
         """Test load_config with invalid configuration."""
         # Create a temporary config file
@@ -86,7 +86,7 @@ class TestConfigLoader(unittest.TestCase):
         validation_error = ValidationError("Validation failed", {"details": "Invalid config"})
         mock_validate_input.side_effect = validation_error
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             json.dump(config_data, temp_file)
             temp_file_path = temp_file.name
 

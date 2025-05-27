@@ -7,23 +7,23 @@ from pathlib import Path
 
 import pytest
 
+from common_utils.exceptions import (
+    DirectoryNotFoundError,
+    DirectoryPermissionError,
+    FilePermissionError,
+    MissingFileError,
+)
 from common_utils.file_utils import (
+    copy_file,
+    create_temp_directory,
+    create_temp_file,
     ensure_directory_exists,
+    get_file_extension,
+    get_file_size,
     list_files,
     list_python_files,
     read_file,
     write_file,
-    copy_file,
-    get_file_size,
-    get_file_extension,
-    create_temp_file,
-    create_temp_directory,
-)
-from common_utils.exceptions import (
-    DirectoryPermissionError,
-    FilePermissionError,
-    DirectoryNotFoundError,
-    MissingFileError,
 )
 
 
@@ -135,19 +135,19 @@ class TestFileUtils:
         new_file = os.path.join(self.temp_dir, "new_file.txt")
         write_file(new_file, "This is a new file.")
         assert os.path.exists(new_file)
-        with open(new_file, "r") as f:
+        with open(new_file) as f:
             assert f.read() == "This is a new file."
 
         # Test overwriting an existing file
         write_file(new_file, "This is updated content.")
-        with open(new_file, "r") as f:
+        with open(new_file) as f:
             assert f.read() == "This is updated content."
 
         # Test creating directories if they don't exist
         nested_file = os.path.join(self.temp_dir, "nested", "dir", "file.txt")
         write_file(nested_file, "This is a nested file.")
         assert os.path.exists(nested_file)
-        with open(nested_file, "r") as f:
+        with open(nested_file) as f:
             assert f.read() == "This is a nested file."
 
     def test_copy_file(self):
@@ -156,7 +156,7 @@ class TestFileUtils:
         dest_file = os.path.join(self.temp_dir, "copy.txt")
         copy_file(self.test_txt_file, dest_file)
         assert os.path.exists(dest_file)
-        with open(dest_file, "r") as f:
+        with open(dest_file) as f:
             assert f.read() == "This is a test file."
 
         # Test with non-existent source file
@@ -167,7 +167,7 @@ class TestFileUtils:
         nested_dest = os.path.join(self.temp_dir, "nested", "dir", "copy.txt")
         copy_file(self.test_txt_file, nested_dest)
         assert os.path.exists(nested_dest)
-        with open(nested_dest, "r") as f:
+        with open(nested_dest) as f:
             assert f.read() == "This is a test file."
 
     def test_get_file_size(self):
@@ -211,7 +211,7 @@ class TestFileUtils:
         temp_file_with_content = create_temp_file("This is content.", ".log")
         assert os.path.exists(temp_file_with_content)
         assert temp_file_with_content.endswith(".log")
-        with open(temp_file_with_content, "r") as f:
+        with open(temp_file_with_content) as f:
             assert f.read() == "This is content."
 
         # Clean up

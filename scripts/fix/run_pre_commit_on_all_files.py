@@ -15,7 +15,6 @@ import sys
 from pathlib import Path
 
 
-
 def find_python_files() -> list[str]:
     """Find all Python files in the repository, excluding the .venv directory."""
     exclude_patterns = [

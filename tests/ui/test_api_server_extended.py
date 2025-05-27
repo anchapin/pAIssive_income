@@ -1,7 +1,7 @@
 """Extended test module for ui.api_server."""
 
-import logging
 import json
+import logging
 import socket
 import threading
 import time
@@ -80,7 +80,7 @@ class TestAPIHandlerExtended:
         # Patch urlparse to raise an exception
         with patch("urllib.parse.urlparse", side_effect=Exception("Test exception")):
             # We need to patch the handler's do_GET method to use our mocked _send_response
-            with patch.object(self.handler, 'do_GET', wraps=self.handler.do_GET):
+            with patch.object(self.handler, "do_GET", wraps=self.handler.do_GET):
                 try:
                     # This will fail because urlparse raises an exception
                     self.handler.do_GET()

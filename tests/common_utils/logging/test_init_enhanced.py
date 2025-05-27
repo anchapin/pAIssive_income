@@ -8,11 +8,11 @@ import pytest
 from common_utils.logging import (
     SENSITIVE_FIELDS,
     SecureLogger,
+    _logger_cache,
     get_logger,
     get_secure_logger,
     mask_sensitive_data,
     secure_logger,
-    _logger_cache,
 )
 
 
@@ -27,17 +27,17 @@ class TestLoggingInitEnhanced:
     def test_get_logger_secure_exception_fallback(self):
         """Test get_logger falls back to standard logger when SecureLogger raises an exception."""
         # Mock SecureLogger to raise an exception
-        with patch('common_utils.logging.SecureLogger', side_effect=Exception("Test exception")):
+        with patch("common_utils.logging.SecureLogger", side_effect=Exception("Test exception")):
             # Mock standard logger
             mock_logger = MagicMock()
-            with patch('common_utils.logging.logging.getLogger', return_value=mock_logger):
+            with patch("common_utils.logging.logging.getLogger", return_value=mock_logger):
                 # Call get_logger
                 logger = get_logger("test_fallback_logger")
-                
+
                 # Verify standard logger was used
                 assert logger is mock_logger
                 mock_logger.setLevel.assert_called_once_with(logging.INFO)
-                
+
                 # Verify logger was cached
                 assert "test_fallback_logger" in _logger_cache
                 assert _logger_cache["test_fallback_logger"] is mock_logger
@@ -47,13 +47,13 @@ class TestLoggingInitEnhanced:
         # Get a secure logger
         secure_logger_instance = get_logger("test_secure_param", secure=True)
         assert isinstance(secure_logger_instance, SecureLogger)
-        
+
         # Clear cache to test with secure=False
         _logger_cache.clear()
-        
+
         # Mock standard logger
         mock_std_logger = MagicMock()
-        with patch('common_utils.logging.logging.getLogger', return_value=mock_std_logger):
+        with patch("common_utils.logging.logging.getLogger", return_value=mock_std_logger):
             # Get a non-secure logger
             non_secure_logger = get_logger("test_secure_param", secure=False)
             assert non_secure_logger is mock_std_logger
@@ -61,7 +61,7 @@ class TestLoggingInitEnhanced:
     def test_all_exports(self):
         """Test that __all__ contains all expected exports."""
         from common_utils.logging import __all__
-        
+
         expected_exports = [
             "SENSITIVE_FIELDS",
             "SecureLogger",
@@ -69,25 +69,25 @@ class TestLoggingInitEnhanced:
             "get_secure_logger",
             "mask_sensitive_data",
         ]
-        
+
         for export in expected_exports:
             assert export in __all__
 
     def test_secure_logger_global_instance_methods(self):
         """Test methods of the global secure_logger instance."""
-        with patch.object(SecureLogger, 'info') as mock_info:
+        with patch.object(SecureLogger, "info") as mock_info:
             secure_logger.info("Test info message")
             mock_info.assert_called_once_with("Test info message")
-            
-        with patch.object(SecureLogger, 'warning') as mock_warning:
+
+        with patch.object(SecureLogger, "warning") as mock_warning:
             secure_logger.warning("Test warning message")
             mock_warning.assert_called_once_with("Test warning message")
-            
-        with patch.object(SecureLogger, 'error') as mock_error:
+
+        with patch.object(SecureLogger, "error") as mock_error:
             secure_logger.error("Test error message")
             mock_error.assert_called_once_with("Test error message")
-            
-        with patch.object(SecureLogger, 'debug') as mock_debug:
+
+        with patch.object(SecureLogger, "debug") as mock_debug:
             secure_logger.debug("Test debug message")
             mock_debug.assert_called_once_with("Test debug message")
 
@@ -96,26 +96,26 @@ class TestLoggingInitEnhanced:
         # Get a secure logger
         secure_logger_instance = get_logger("test_same_name", secure=True)
         assert isinstance(secure_logger_instance, SecureLogger)
-        
+
         # Try to get a non-secure logger with the same name
         # It should return the cached secure logger
         logger2 = get_logger("test_same_name", secure=False)
-        
+
         # Verify the same logger was returned
         assert logger2 is secure_logger_instance
-        
+
         # Clear cache and try the opposite order
         _logger_cache.clear()
-        
+
         # Mock standard logger
         mock_std_logger = MagicMock()
-        with patch('common_utils.logging.logging.getLogger', return_value=mock_std_logger):
+        with patch("common_utils.logging.logging.getLogger", return_value=mock_std_logger):
             # Get a non-secure logger first
             non_secure_logger = get_logger("test_same_name2", secure=False)
-            
+
             # Try to get a secure logger with the same name
             # It should return the cached non-secure logger
             logger2 = get_logger("test_same_name2", secure=True)
-            
+
             # Verify the same logger was returned
             assert logger2 is non_secure_logger

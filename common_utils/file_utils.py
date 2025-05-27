@@ -1,4 +1,5 @@
-"""File utility functions for the pAIssive_income project.
+"""
+File utility functions for the pAIssive_income project.
 
 This module provides common file handling functions used across the project.
 """
@@ -11,12 +12,11 @@ from pathlib import Path
 from typing import List, Union
 
 # Third-party imports
-
 # Local imports
 from common_utils.exceptions import (
+    DirectoryNotFoundError,
     DirectoryPermissionError,
     FilePermissionError,
-    DirectoryNotFoundError,
     MissingFileError,
 )
 
@@ -42,6 +42,7 @@ def ensure_directory_exists(directory_path: Union[str, Path]) -> Path:
         >>> os.path.isdir(test_dir)
         True
         >>> os.rmdir(test_dir)  # Clean up
+
     """
     path = Path(directory_path)
     try:
@@ -87,6 +88,7 @@ def list_files(
         >>> str(files[0]).endswith("test.txt")
         True
         >>> shutil.rmtree(test_dir)  # Clean up
+
     """
     path = Path(directory_path)
     if not path.exists():
@@ -125,6 +127,7 @@ def list_python_files(directory_path: Union[str, Path], recursive: bool = True) 
         >>> str(files[0]).endswith("test.py")
         True
         >>> shutil.rmtree(test_dir)  # Clean up
+
     """
     return list_files(directory_path, "*.py", recursive)
 
@@ -154,13 +157,14 @@ def read_file(file_path: Union[str, Path], encoding: str = "utf-8") -> str:
         >>> content
         'test content'
         >>> os.unlink(temp_file)  # Clean up
+
     """
     path = Path(file_path)
     if not path.exists():
         raise MissingFileError(f"File {file_path} does not exist")
 
     try:
-        with open(path, "r", encoding=encoding) as f:
+        with open(path, encoding=encoding) as f:
             return f.read()
     except PermissionError as e:
         raise FilePermissionError(f"Cannot read file {file_path}: {e}") from e
@@ -194,6 +198,7 @@ def write_file(
         >>> content
         'test content'
         >>> os.unlink(test_file)  # Clean up
+
     """
     path = Path(file_path)
 
@@ -239,6 +244,7 @@ def copy_file(
         'test content'
         >>> os.unlink(source_file)  # Clean up
         >>> os.unlink(dest_file)  # Clean up
+
     """
     source = Path(source_path)
     destination = Path(destination_path)
@@ -278,6 +284,7 @@ def get_file_size(file_path: Union[str, Path]) -> int:
         >>> size
         12
         >>> os.unlink(temp_file)  # Clean up
+
     """
     path = Path(file_path)
     if not path.exists():
@@ -303,6 +310,7 @@ def get_file_extension(file_path: Union[str, Path]) -> str:
         'gz'
         >>> get_file_extension("test")
         ''
+
     """
     path = Path(file_path)
     return path.suffix.lstrip(".")
@@ -326,6 +334,7 @@ def create_temp_file(content: str = "", suffix: str = ".txt") -> str:
         >>> content
         'test content'
         >>> os.unlink(temp_file)  # Clean up
+
     """
     fd, path = tempfile.mkstemp(suffix=suffix)
     os.close(fd)
@@ -349,5 +358,6 @@ def create_temp_directory() -> str:
         >>> os.path.isdir(temp_dir)
         True
         >>> os.rmdir(temp_dir)  # Clean up
+
     """
     return tempfile.mkdtemp()
