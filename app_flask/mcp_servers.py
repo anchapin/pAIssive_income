@@ -140,6 +140,7 @@ def save_settings(data: dict[str, Any]) -> None:
     # Type checking is handled by the function signature
 
     # Continue with the save operation
+    temp_file = None
     try:
         # Ensure parent directory exists
         MCP_SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -168,7 +169,7 @@ def save_settings(data: dict[str, Any]) -> None:
     except (OSError, PermissionError):
         logger.exception("Error writing settings file '%s'", MCP_SETTINGS_FILE)
         # Clean up temporary file if it exists
-        if "temp_file" in locals() and temp_file.exists():
+        if temp_file is not None and temp_file.exists():
             try:
                 temp_file.unlink()
             except OSError as cleanup_error:

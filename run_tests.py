@@ -350,9 +350,8 @@ def check_venv_exists() -> bool:
 
         # Method 4: Check for common virtual environment directories
         for venv_dir in [".venv", "venv", "env", ".env"]:
-            if os.path.isdir(venv_dir) and os.path.isfile(
-                os.path.join(venv_dir, "pyvenv.cfg")
-            ):
+            venv_path = Path(venv_dir)
+            if venv_path.is_dir() and (venv_path / "pyvenv.cfg").is_file():
                 return True
 
         # Not in a virtual environment
@@ -574,8 +573,8 @@ def main() -> None:
                 logger.info("Pytest stdout: %s", result.stdout)
             if result.stderr:
                 logger.error("Pytest stderr: %s", result.stderr)
-    except subprocess.TimeoutExpired as timeout_error:
-        logger.error("Pytest execution timed out after 1 hour: %s", timeout_error)
+    except subprocess.TimeoutExpired:
+        logger.exception("Pytest execution timed out after 1 hour")
         sys.exit(2)
     except subprocess.SubprocessError:
         logger.exception("Error running pytest")

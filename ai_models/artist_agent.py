@@ -101,25 +101,25 @@ class ArtistAgent:
             # For calculator, try to extract the mathematical expression
             # Try to find the mathematical part of the prompt
             # Look for patterns like "What is 12 * 8?" -> extract "12 * 8"
-            calc_match = re.search(r'(?:what\s+is\s+|calculate\s+|compute\s+)?([0-9\+\-\*/\(\)\.\s%]+)', prompt, re.IGNORECASE)
+            calc_match = re.search(r"(?:what\s+is\s+|calculate\s+|compute\s+)?([0-9\+\-\*/\(\)\.\s%]+)", prompt, re.IGNORECASE)
             if calc_match:
                 expression = calc_match.group(1).strip()
                 # Validate that it contains at least one operator
-                if any(op in expression for op in ['+', '-', '*', '/', '%']):
+                if any(op in expression for op in ["+", "-", "*", "/", "%"]):
                     return expression
 
             # Fallback: extract any sequence of numbers and operators
-            math_parts = re.findall(r'[0-9\+\-\*/\(\)\.\s%]+', prompt)
+            math_parts = re.findall(r"[0-9\+\-\*/\(\)\.\s%]+", prompt)
             if math_parts:
                 # Take the longest match that contains operators
                 for part in sorted(math_parts, key=len, reverse=True):
                     part = part.strip()
-                    if any(op in part for op in ['+', '-', '*', '/', '%']) and len(part) > 1:
+                    if any(op in part for op in ["+", "-", "*", "/", "%"]) and len(part) > 1:
                         return part
 
             # Final fallback to the entire prompt
             return prompt
-        elif tool_name == "text_analyzer":
+        if tool_name == "text_analyzer":
             # For text analysis, try to extract the text to analyze
             # Look for patterns like "analyze this: 'text'" or "sentiment of 'text'"
 

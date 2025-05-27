@@ -14,6 +14,7 @@ Message Types:
         Receives: 'summarize' with payload {'data': str, 'original_sender': str}
         Sends: 'summary_result' with payload {'summary': str}
 """
+from __future__ import annotations
 
 import logging
 import os
@@ -200,6 +201,7 @@ def create_agents(use_memory: bool = False, user_id: Optional[str] = None) -> tu
 
     Returns:
         A tuple containing (data_gatherer, summarizer) agents
+
     """
     if use_memory and MEM0_AVAILABLE:
         if not user_id:

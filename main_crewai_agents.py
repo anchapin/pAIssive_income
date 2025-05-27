@@ -9,9 +9,11 @@ Adapt and extend these scaffolds to fit your use-case.
 - mem0 Docs: https://mem0.ai
 """
 
+from __future__ import annotations
+
 import logging
 import os
-from typing import Optional
+import sys
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -66,6 +68,7 @@ def create_team(use_memory: bool = False, user_id: Optional[str] = None) -> obje
 
     Returns:
         A CrewAI team or memory-enhanced team
+
     """
     if use_memory and MEM0_AVAILABLE:
         if not user_id:
@@ -111,45 +114,43 @@ def create_team(use_memory: bool = False, user_id: Optional[str] = None) -> obje
         )
 
         return team
-    else:
-        if use_memory and not MEM0_AVAILABLE:
-            logger.warning("mem0 not available, falling back to standard team")
+    if use_memory and not MEM0_AVAILABLE:
+        logger.warning("mem0 not available, falling back to standard team")
 
-        logger.info("Creating standard team without memory enhancement")
-        data_gatherer = Agent(
-            role="Data Gatherer",
-            goal="Collect relevant information and data for the project",
-            backstory="An AI specialized in data collection from APIs and databases.",
-        )
+    logger.info("Creating standard team without memory enhancement")
+    data_gatherer = Agent(
+        role="Data Gatherer",
+        goal="Collect relevant information and data for the project",
+        backstory="An AI specialized in data collection from APIs and databases.",
+    )
 
-        analyzer = Agent(
-            role="Analyzer",
-            goal="Analyze collected data and extract actionable insights",
-            backstory="An AI expert in analytics and pattern recognition.",
-        )
+    analyzer = Agent(
+        role="Analyzer",
+        goal="Analyze collected data and extract actionable insights",
+        backstory="An AI expert in analytics and pattern recognition.",
+    )
 
-        writer = Agent(
-            role="Writer",
-            goal="Generate clear, readable reports from analyzed data",
-            backstory="An AI that excels at communicating insights in natural language.",
-        )
+    writer = Agent(
+        role="Writer",
+        goal="Generate clear, readable reports from analyzed data",
+        backstory="An AI that excels at communicating insights in natural language.",
+    )
 
-        task_collect = Task(
-            description="Gather all relevant data from internal and external sources.",
-            agent=data_gatherer,
-        )
-        task_analyze = Task(
-            description="Analyze gathered data for trends and anomalies.", agent=analyzer
-        )
-        task_report = Task(
-            description="Write a summary report based on analysis.", agent=writer
-        )
+    task_collect = Task(
+        description="Gather all relevant data from internal and external sources.",
+        agent=data_gatherer,
+    )
+    task_analyze = Task(
+        description="Analyze gathered data for trends and anomalies.", agent=analyzer
+    )
+    task_report = Task(
+        description="Write a summary report based on analysis.", agent=writer
+    )
 
-        reporting_team = Crew(
-            agents=[data_gatherer, analyzer, writer],
-            tasks=[task_collect, task_analyze, task_report],
-        )
-        return reporting_team
+    return Crew(
+        agents=[data_gatherer, analyzer, writer],
+        tasks=[task_collect, task_analyze, task_report],
+    )
 
 
 if __name__ == "__main__":
@@ -161,7 +162,7 @@ if __name__ == "__main__":
     # Check if dependencies are available
     if not CREWAI_AVAILABLE:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
-        exit(1)
+        sys.exit(1)
 
     if not MEM0_AVAILABLE:
         logger.warning("mem0 is not installed. Install with: pip install mem0ai")
