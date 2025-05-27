@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import logging
+import os
+import re
+import sys
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -7,10 +11,6 @@ logger = logging.getLogger(__name__)
 """
 Script to add logging import to test files.
 """
-
-import os
-import re
-import sys
 
 
 

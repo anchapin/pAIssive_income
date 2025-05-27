@@ -1,16 +1,14 @@
 #!/usr/bin/env python
-
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
-"""Script to clean up .egg-info directories before building packages."""
-
 from __future__ import annotations
 
 import logging
 import shutil
 from pathlib import Path
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+"""Script to clean up .egg-info directories before building packages."""
 
 # Set up a dedicated logger for this module
 

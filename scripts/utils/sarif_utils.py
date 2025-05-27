@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
+import json
+import logging
+import sys
+from pathlib import Path
+from typing import Any, Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -11,14 +17,6 @@ This module provides utilities for creating and manipulating SARIF files
 without any external dependencies. It's designed to be used in CI/CD workflows
 where installing additional packages might be problematic.
 """
-
-from __future__ import annotations
-
-import json
-import logging
-import sys
-from pathlib import Path
-from typing import Any, Optional
 
 
 

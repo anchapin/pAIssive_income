@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
+import logging
+import os
+import sys
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 """init_agent_db.py - Initialize the agent database with test data."""
-
-import logging
-import os
-import sys
 
 try:
     import psycopg2

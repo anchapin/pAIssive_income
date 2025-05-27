@@ -1,16 +1,4 @@
 #!/usr/bin/env python3
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
-
-"""
-Script to run pre-commit with proper exclusions for .venv directory.
-
-This script finds all Python files in the repository, excluding those in the .venv directory,
-and runs pre-commit on them.
-"""
-
 from __future__ import annotations
 
 import logging
@@ -18,6 +6,16 @@ import os
 import subprocess
 import sys
 from typing import Optional
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+"""
+Script to run pre-commit with proper exclusions for .venv directory.
+
+This script finds all Python files in the repository, excluding those in the .venv directory,
+and runs pre-commit on them.
+"""
 
 # Configure logging
 

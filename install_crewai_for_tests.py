@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
+import logging
+import subprocess
+import sys
+from pathlib import Path
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -10,13 +15,6 @@ Install CrewAI and its dependencies for tests.
 This script handles the installation of CrewAI with the correct dependency constraints
 to avoid conflicts with other packages.
 """
-
-from __future__ import annotations
-
-import logging
-import subprocess
-import sys
-from pathlib import Path
 
 # Logger will be configured in main() or when first used if not in main.
 # This avoids configuring it at import time if this script is imported as a module.

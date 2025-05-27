@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
+import logging
+import sys
+from pathlib import Path
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -10,12 +14,6 @@ Verify that the mock_crewai package works correctly without circular import issu
 This script imports and uses the mock_crewai package to verify that the
 circular import issues have been resolved.
 """
-
-from __future__ import annotations
-
-import logging
-import sys
-from pathlib import Path
 
 
 

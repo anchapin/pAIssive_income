@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
-"""init_db.py - Initialize the database with tables and initial data."""
-
 from __future__ import annotations
 
 import logging
@@ -14,6 +7,11 @@ import string
 import sys
 from secrets import randbelow
 from typing import Any
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+"""init_db.py - Initialize the database with tables and initial data."""
 
 # Configure logging
 

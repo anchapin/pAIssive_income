@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
+import argparse
+import logging
+import subprocess
+import sys
+from typing import Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -18,14 +24,6 @@ Usage:
     python manage.py microservices
     python manage.py help
 """
-
-from __future__ import annotations
-
-import argparse
-import logging
-import subprocess
-import sys
-from typing import Optional
 
 # Configure logging
 

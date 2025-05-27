@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
+import logging
+import sys
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -14,11 +17,6 @@ files for Bandit security scanning.
 Usage:
     python generate_bandit_config.py [run_id]
 """
-
-from __future__ import annotations
-
-import logging
-import sys
 
 try:
     from pathlib import Path

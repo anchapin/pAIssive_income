@@ -18,7 +18,7 @@ This document summarizes all the fixes applied to address failing workflows in P
 - ✅ **Timeout Management**: Extended timeout to 60 minutes
 - ✅ **Type Checker**: Switched from pyrefly to pyright (more reliable)
 - ✅ **Error Resilience**: Added continue-on-error to prevent workflow failures
-- ✅ **Dependency Handling**: CI-friendly requirements with MCP package exclusions
+- ✅ **Dependency Installation**: CI-friendly requirements with MCP package exclusions
 - ✅ **Test Execution**: Multiple fallback strategies for test running
 - ✅ **Security Scans**: Improved error handling and fallback SARIF files
 

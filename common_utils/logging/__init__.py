@@ -31,11 +31,16 @@ __all__ = [
     "get_logger",
     "get_secure_logger",
     "mask_sensitive_data",
+    "secure_logger",
+    "_logger_cache",
 ]
 
 
 # Logger cache to avoid creating duplicate loggers
 _logger_cache: Dict[str, Union[SecureLogger, logging.Logger]] = {}
+
+# Create a default secure logger instance
+secure_logger = get_secure_logger("secure_logger")
 
 def get_logger(name: str, secure: bool = True) -> Union[SecureLogger, logging.Logger]:
     """Get a logger instance.

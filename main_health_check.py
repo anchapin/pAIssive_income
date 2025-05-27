@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
+import logging
+import shutil
+import subprocess
+import sys
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -22,13 +27,6 @@ Usage:
 Requires tools: ruff, mypy, bandit, uv (with pip audit functionality),
 sphinx-build (optional).
 """
-
-from __future__ import annotations
-
-import logging
-import shutil
-import subprocess
-import sys
 
 try:
     from pathlib import Path
