@@ -50,7 +50,9 @@ class TestUserService:
     @patch("users.services.hash_credential", return_value="hashed_credential")
     @patch("users.services.UserModel")
     @patch("users.services.db_session")
-    def test_create_user_success(self, mock_db_session, mock_user_model, mock_hash, mock_user):
+    def test_create_user_success(
+        self, mock_db_session, mock_user_model, mock_hash, mock_user
+    ):
         """Test creating a user successfully."""
         # Setup mocks
         mock_query = MagicMock()
@@ -69,7 +71,7 @@ class TestUserService:
         result = service.create_user(
             username="testuser",
             email="test@example.com",
-            auth_credential="test_credential"
+            auth_credential="test_credential",
         )
 
         # Assertions
@@ -100,7 +102,7 @@ class TestUserService:
             user_service.create_user(
                 username="testuser",
                 email="test@example.com",
-                auth_credential="test_credential"
+                auth_credential="test_credential",
             )
 
     @patch("users.services.verify_credential", return_value=True)
@@ -117,8 +119,7 @@ class TestUserService:
         # Create service and call method
         service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
         success, result = service.authenticate_user(
-            username_or_email="testuser",
-            auth_credential="test_credential"
+            username_or_email="testuser", auth_credential="test_credential"
         )
 
         # Assertions
@@ -133,7 +134,9 @@ class TestUserService:
 
     @patch("users.services.verify_credential", return_value=False)
     @patch("users.services.UserModel")
-    def test_authenticate_user_invalid_credentials(self, mock_user_model, mock_verify, mock_user):
+    def test_authenticate_user_invalid_credentials(
+        self, mock_user_model, mock_verify, mock_user
+    ):
         """Test authenticating a user with invalid credentials."""
         # Setup mocks
         mock_query = MagicMock()
@@ -145,8 +148,7 @@ class TestUserService:
         # Create service and call method
         service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
         success, result = service.authenticate_user(
-            username_or_email="testuser",
-            auth_credential="wrong_credential"
+            username_or_email="testuser", auth_credential="wrong_credential"
         )
 
         # Assertions
@@ -169,8 +171,7 @@ class TestUserService:
         # Create service and call method
         service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
         success, result = service.authenticate_user(
-            username_or_email="nonexistent",
-            auth_credential="test_credential"
+            username_or_email="nonexistent", auth_credential="test_credential"
         )
 
         # Assertions

@@ -4,8 +4,9 @@ Script to ensure CodeQL configuration files exist.
 This script creates the necessary CodeQL configuration files for security scanning.
 """
 
-import os
 import json
+import os
+
 
 def ensure_directory(directory):
     """Ensure the directory exists."""
@@ -15,6 +16,7 @@ def ensure_directory(directory):
     else:
         print(f"Directory already exists: {directory}")
 
+
 def create_codeql_config(filename, config_name, os_name=None):
     """Create a CodeQL configuration file with the given parameters."""
     config = {
@@ -22,7 +24,7 @@ def create_codeql_config(filename, config_name, os_name=None):
         "queries": [
             {"uses": "security-and-quality"},
             {"uses": "security-extended"},
-            {"uses": "security"}
+            {"uses": "security"},
         ],
         "disable-default-queries": False,
         "paths-ignore": [
@@ -32,17 +34,18 @@ def create_codeql_config(filename, config_name, os_name=None):
             "**/*.test.py",
             "**/*.spec.py",
             "tests/**",
-            "test_mem0_integration.py"
-        ]
+            "test_mem0_integration.py",
+        ],
     }
 
     if os_name:
         config["os"] = os_name
 
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         json.dump(config, f, indent=2)
 
     print(f"Created CodeQL configuration file: {filename}")
+
 
 def main():
     """Main function to create CodeQL configuration files."""
@@ -52,7 +55,9 @@ def main():
 
     # Create the Ubuntu configuration
     ubuntu_config = os.path.join(codeql_dir, "security-os-ubuntu.yml")
-    create_codeql_config(ubuntu_config, "CodeQL Configuration for Ubuntu", "ubuntu-latest")
+    create_codeql_config(
+        ubuntu_config, "CodeQL Configuration for Ubuntu", "ubuntu-latest"
+    )
 
     # Create the macOS configuration
     macos_config = os.path.join(codeql_dir, "security-os-macos.yml")
@@ -63,6 +68,7 @@ def main():
     create_codeql_config(unified_config, "Unified CodeQL Configuration")
 
     print("All CodeQL configuration files created successfully.")
+
 
 if __name__ == "__main__":
     main()

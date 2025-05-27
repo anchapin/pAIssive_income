@@ -45,17 +45,18 @@ Provides:
 - KnowledgeIntegrationLayer that handles fallback and aggregation logic.
 - Extensible and decoupled design.
 
-KnowledgeIntegrationLayer uses the KnowledgeStrategy Enum for setting the strategy, 
+KnowledgeIntegrationLayer uses the KnowledgeStrategy Enum for setting the strategy,
 making it robust and type-safe.
 
-NOTE: 
+Note:
 - This code stubs out Mem0 and ChromaDB initializations; see actual integration guides for details.
 - No code references files or directories in .gitignore.
+
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Protocol, Union
 from enum import Enum
+from typing import Any, Dict, List
 
 
 class KnowledgeSource(ABC):
@@ -76,8 +77,8 @@ class KnowledgeSource(ABC):
 
         Returns:
             A list of dictionaries with search results.
+
         """
-        pass
 
     @abstractmethod
     def add(self, content: str, user_id: str, **kwargs) -> Any:
@@ -91,8 +92,8 @@ class KnowledgeSource(ABC):
 
         Returns:
             Source-specific result or metadata.
+
         """
-        pass
 
     def update(self, content_id: str, new_content: str, user_id: str, **kwargs) -> Any:
         """
@@ -106,6 +107,7 @@ class KnowledgeSource(ABC):
 
         Returns:
             Source-specific result or metadata.
+
         """
         raise NotImplementedError("Update not implemented for this source.")
 
@@ -120,6 +122,7 @@ class KnowledgeSource(ABC):
 
         Returns:
             Source-specific result or metadata.
+
         """
         raise NotImplementedError("Delete not implemented for this source.")
 
@@ -133,6 +136,7 @@ class Mem0KnowledgeSource(KnowledgeSource):
         """
         Args:
             mem0_client: Initialized client for mem0's Memory API.
+
         """
         self.mem0_client = mem0_client  # Stub: Replace with actual mem0 client
 
@@ -164,6 +168,7 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
         """
         Args:
             vector_client: Initialized vector DB client (e.g., ChromaDB).
+
         """
         self.vector_client = vector_client  # Stub: Replace with actual vector DB client
 
@@ -190,8 +195,10 @@ class KnowledgeStrategy(Enum):
     """
     Enum for strategy options in KnowledgeIntegrationLayer.
     """
+
     FALLBACK = "fallback"
     AGGREGATE = "aggregate"
+
 
 class KnowledgeIntegrationLayer:
     """
@@ -214,6 +221,7 @@ class KnowledgeIntegrationLayer:
             strategy: Aggregation logic. One of:
                 - KnowledgeStrategy.FALLBACK: Try sources in order, return first with results.
                 - KnowledgeStrategy.AGGREGATE: Query all sources and merge results.
+
         """
         self.sources = sources
         if isinstance(strategy, str):
@@ -233,6 +241,7 @@ class KnowledgeIntegrationLayer:
 
         Returns:
             List of search results (may be merged across sources).
+
         """
         if self.strategy == KnowledgeStrategy.FALLBACK:
             for source in self.sources:
@@ -240,13 +249,12 @@ class KnowledgeIntegrationLayer:
                 if results:
                     return results
             return []
-        elif self.strategy == KnowledgeStrategy.AGGREGATE:
+        if self.strategy == KnowledgeStrategy.AGGREGATE:
             aggregated: List[Dict[str, Any]] = []
             for source in self.sources:
                 aggregated.extend(source.search(query, user_id, **kwargs))
             return aggregated
-        else:
-            raise ValueError(f"Unknown integration strategy: {self.strategy}")
+        raise ValueError(f"Unknown integration strategy: {self.strategy}")
 
     def add(self, content: str, user_id: str, **kwargs) -> List[Any]:
         """
@@ -254,6 +262,7 @@ class KnowledgeIntegrationLayer:
 
         Returns:
             List of source-specific add results.
+
         """
         results = []
         for source in self.sources:
