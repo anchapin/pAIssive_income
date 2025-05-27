@@ -33,11 +33,21 @@ on:
       - 'scripts/run/run_mcp_tests.py'
       - 'scripts/setup/install_mcp_sdk.py'
       - '.github/workflows/mcp-adapter-tests.yml'
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
+      - dev
+      - master
+      - develop
 
 jobs:
   test-mcp-adapter:
     name: Test MCP Adapter
     runs-on: ${{ matrix.os }}
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]

@@ -43,6 +43,15 @@ on:
   schedule:
     - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
+      - dev
+      - master
+      - develop
 
 # Limit concurrent runs to conserve resources
 concurrency:
@@ -61,6 +70,8 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
     timeout-minutes: 90  # Increased timeout for larger codebases
+    # Only run if auto-fix workflow completed successfully, or if triggered by other events
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
 
     strategy:
       fail-fast: false
@@ -76,7 +87,7 @@ jobs:
       # Set up pnpm first for JavaScript/TypeScript analysis
       - name: Setup pnpm
         if: matrix.language == 'javascript-typescript'
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v4
         with:
           version: '8.15.4'
           run_install: false

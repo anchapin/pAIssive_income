@@ -26,11 +26,21 @@ on:
           - mock
           - fixed
           - ci
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
+      - develop
+      - master
 
 jobs:
   e2e:
     runs-on: ${{ (github.event.inputs.platform == 'both' || github.event.inputs.platform == '') && 'ubuntu-latest' || format('{0}-latest', github.event.inputs.platform) }}
     timeout-minutes: 60
+    # Only run if auto-fix workflow completed successfully, or if triggered by other events
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
 
     defaults:
       run:
