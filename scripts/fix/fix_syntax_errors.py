@@ -1,10 +1,9 @@
 """fix_syntax_errors - Script to find and potentially fix syntax errors."""
 
 # Standard library imports
-import sys
-
 # Third-party imports
 import logging
+import sys
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -20,6 +19,7 @@ def main() -> int:
     # Placeholder for actual syntax fixing logic
     logger.info("Syntax error fixing logic not yet implemented.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

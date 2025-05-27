@@ -20,6 +20,7 @@ Arguments:
     --fix       Attempt to fix issues automatically
     --verbose   Show detailed output
     path1, path2, ... Paths to scan (default: current directory)
+
 """
 
 import argparse
@@ -73,9 +74,10 @@ class LoggerIssue:
         issue_type: str,
         line_number: int,
         message: str,
-        fixable: bool = False
+        fixable: bool = False,
     ):
-        """Initialize a logger issue.
+        """
+        Initialize a logger issue.
 
         Args:
             file_path: Path to the file with the issue
@@ -83,6 +85,7 @@ class LoggerIssue:
             line_number: Line number where the issue was found
             message: Description of the issue
             fixable: Whether the issue can be fixed automatically
+
         """
         self.file_path = file_path
         self.issue_type = issue_type
@@ -99,10 +102,12 @@ class LoggerChecker(ast.NodeVisitor):
     """AST visitor to check for logger initialization issues."""
 
     def __init__(self, file_path: str):
-        """Initialize the logger checker.
+        """
+        Initialize the logger checker.
 
         Args:
             file_path: Path to the file being checked
+
         """
         self.file_path = file_path
         self.issues: List[LoggerIssue] = []
@@ -120,10 +125,12 @@ class LoggerChecker(ast.NodeVisitor):
         self.has_try_except_import = False
 
     def visit_Import(self, node: ast.Import) -> None:
-        """Visit an import node.
+        """
+        Visit an import node.
 
         Args:
             node: The AST node being visited
+
         """
         for name in node.names:
             if name.name == "logging":
@@ -132,10 +139,12 @@ class LoggerChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        """Visit an import from node.
+        """
+        Visit an import from node.
 
         Args:
             node: The AST node being visited
+
         """
         if node.module == "logging":
             self.logging_imported = True
@@ -143,10 +152,12 @@ class LoggerChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_Assign(self, node: ast.Assign) -> None:
-        """Visit an assignment node.
+        """
+        Visit an assignment node.
 
         Args:
             node: The AST node being visited
+
         """
         # Check for logger initialization
         if isinstance(node.value, ast.Call):
@@ -157,7 +168,11 @@ class LoggerChecker(ast.NodeVisitor):
                 and node.value.func.attr == "getLogger"
             ):
                 self.logger_initialized = True
-                self.logger_name = node.targets[0].id if isinstance(node.targets[0], ast.Name) else None
+                self.logger_name = (
+                    node.targets[0].id
+                    if isinstance(node.targets[0], ast.Name)
+                    else None
+                )
 
                 # Check if logger is initialized after it's used
                 if self.logging_used_before_init:
@@ -167,7 +182,7 @@ class LoggerChecker(ast.NodeVisitor):
                             "LATE_LOGGER_INIT",
                             node.lineno,
                             f"Logger initialized after it's used (first use at line {self.first_logging_use_line})",
-                            fixable=True
+                            fixable=True,
                         )
                     )
 
@@ -179,16 +194,18 @@ class LoggerChecker(ast.NodeVisitor):
                             "LOGGER_INIT_TOO_LATE",
                             node.lineno,
                             "Logger should be initialized immediately after imports",
-                            fixable=True
+                            fixable=True,
                         )
                     )
         self.generic_visit(node)
 
     def visit_Expr(self, node: ast.Expr) -> None:
-        """Visit an expression node.
+        """
+        Visit an expression node.
 
         Args:
             node: The AST node being visited
+
         """
         # Check for module docstring
         if (
@@ -200,17 +217,20 @@ class LoggerChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_Call(self, node: ast.Call) -> None:
-        """Visit a function call node.
+        """
+        Visit a function call node.
 
         Args:
             node: The AST node being visited
+
         """
         # Check for direct use of logging module
         if (
             isinstance(node.func, ast.Attribute)
             and isinstance(node.func.value, ast.Name)
             and node.func.value.id == "logging"
-            and node.func.attr in ["debug", "info", "warning", "error", "critical", "exception"]
+            and node.func.attr
+            in ["debug", "info", "warning", "error", "critical", "exception"]
         ):
             self.root_logger_used = True
             if not self.first_logging_use_line:
@@ -225,12 +245,16 @@ class LoggerChecker(ast.NodeVisitor):
                     "ROOT_LOGGER_USED",
                     node.lineno,
                     f"Using root logger directly: logging.{node.func.attr}()",
-                    fixable=True
+                    fixable=True,
                 )
             )
 
             # Check for string concatenation in logging calls
-            if node.args and isinstance(node.args[0], ast.BinOp) and isinstance(node.args[0].op, ast.Add):
+            if (
+                node.args
+                and isinstance(node.args[0], ast.BinOp)
+                and isinstance(node.args[0].op, ast.Add)
+            ):
                 self.string_concat_in_logging = True
                 self.string_concat_line = node.lineno
                 self.issues.append(
@@ -239,7 +263,7 @@ class LoggerChecker(ast.NodeVisitor):
                         "STRING_CONCAT_IN_LOGGING",
                         node.lineno,
                         "Using string concatenation in logging call instead of formatting",
-                        fixable=True
+                        fixable=True,
                     )
                 )
 
@@ -251,32 +275,42 @@ class LoggerChecker(ast.NodeVisitor):
             and node.func.attr == "basicConfig"
         ):
             self.logging_basicConfig_used = True
-            
-            # 'node' is ast.Call. Its parent should be ast.Expr. Parent of ast.Expr is the scope-defining node.
-            parent_expr = getattr(node, 'parent', None) # Parent of Call node (should be ast.Expr)
-            scope_defining_node = getattr(parent_expr, 'parent', None) if parent_expr else None # Parent of Expr node
 
-            is_in_function = isinstance(scope_defining_node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            # 'node' is ast.Call. Its parent should be ast.Expr. Parent of ast.Expr is the scope-defining node.
+            parent_expr = getattr(
+                node, "parent", None
+            )  # Parent of Call node (should be ast.Expr)
+            scope_defining_node = (
+                getattr(parent_expr, "parent", None) if parent_expr else None
+            )  # Parent of Expr node
+
+            is_in_function = isinstance(
+                scope_defining_node, (ast.FunctionDef, ast.AsyncFunctionDef)
+            )
             is_in_main_guard = False
 
             if isinstance(scope_defining_node, ast.If):
                 # Check if this 'If' node is 'if __name__ == "__main__":'
                 # and this 'If' node itself is at the module level (its parent is ast.Module).
-                if_node_is_top_level = isinstance(getattr(scope_defining_node, 'parent', None), ast.Module)
+                if_node_is_top_level = isinstance(
+                    getattr(scope_defining_node, "parent", None), ast.Module
+                )
 
                 if if_node_is_top_level:
                     test_expr = scope_defining_node.test
                     if (
-                        isinstance(test_expr, ast.Compare) and
-                        isinstance(test_expr.left, ast.Name) and test_expr.left.id == "__name__" and
-                        isinstance(test_expr.ops[0], ast.Eq) and
-                        len(test_expr.comparators) == 1 and isinstance(test_expr.comparators[0], ast.Constant) and
-                        test_expr.comparators[0].value == "__main__"
+                        isinstance(test_expr, ast.Compare)
+                        and isinstance(test_expr.left, ast.Name)
+                        and test_expr.left.id == "__name__"
+                        and isinstance(test_expr.ops[0], ast.Eq)
+                        and len(test_expr.comparators) == 1
+                        and isinstance(test_expr.comparators[0], ast.Constant)
+                        and test_expr.comparators[0].value == "__main__"
                     ):
                         # Check if the parent_expr (which contains basicConfig call) is directly in the body of this If node
                         if parent_expr in scope_defining_node.body:
                             is_in_main_guard = True
-            
+
             # If not in a function and not in a recognized main guard, then it's considered global/problematic.
             if not is_in_function and not is_in_main_guard:
                 self.issues.append(
@@ -285,7 +319,7 @@ class LoggerChecker(ast.NodeVisitor):
                         "GLOBAL_BASICCONFIG",
                         node.lineno,
                         "logging.basicConfig should be used in a main guard or function, not in global scope",
-                        fixable=False
+                        fixable=False,
                     )
                 )
 
@@ -294,7 +328,8 @@ class LoggerChecker(ast.NodeVisitor):
             isinstance(node.func, ast.Attribute)
             and isinstance(node.func.value, ast.Name)
             and node.func.value.id == "logger"
-            and node.func.attr in ["debug", "info", "warning", "error", "critical", "exception"]
+            and node.func.attr
+            in ["debug", "info", "warning", "error", "critical", "exception"]
             and node.args
             and isinstance(node.args[0], ast.BinOp)
             and isinstance(node.args[0].op, ast.Add)
@@ -307,23 +342,25 @@ class LoggerChecker(ast.NodeVisitor):
                     "STRING_CONCAT_IN_LOGGING",
                     node.lineno,
                     "Using string concatenation in logging call instead of formatting",
-                    fixable=True
+                    fixable=True,
                 )
             )
 
         self.generic_visit(node)
 
     def get_parents(self, node: ast.AST) -> List[ast.AST]:
-        """Get the parent nodes of a node.
+        """
+        Get the parent nodes of a node.
 
         Args:
             node: The AST node to get parents for
 
         Returns:
             List of parent nodes
+
         """
         parents = []
-        with open(self.file_path, "r", encoding="utf-8") as f:
+        with open(self.file_path, encoding="utf-8") as f:
             file_content = f.read()
             for parent in ast.walk(ast.parse(file_content)):
                 for child in ast.iter_child_nodes(parent):
@@ -332,10 +369,12 @@ class LoggerChecker(ast.NodeVisitor):
         return parents
 
     def visit_Try(self, node: ast.Try) -> None:
-        """Visit a try/except node.
+        """
+        Visit a try/except node.
 
         Args:
             node: The AST node being visited
+
         """
         # Check for try/except blocks around imports
         for stmt in node.body:
@@ -346,10 +385,12 @@ class LoggerChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
     def check(self) -> List[LoggerIssue]:
-        """Check for logger initialization issues.
+        """
+        Check for logger initialization issues.
 
         Returns:
             List of logger issues found
+
         """
         if self.logging_imported and not self.logger_initialized:
             self.issues.append(
@@ -358,29 +399,31 @@ class LoggerChecker(ast.NodeVisitor):
                     "MISSING_LOGGER",
                     self.imports_end_line,
                     "Logging module imported but no logger initialized",
-                    fixable=True
+                    fixable=True,
                 )
             )
 
         # Check if the module has imports but no try/except blocks around them
         if self.logging_imported and not self.has_try_except_import:
             # Only suggest try/except for third-party imports
-            with open(self.file_path, "r", encoding="utf-8") as f:
+            with open(self.file_path, encoding="utf-8") as f:
                 content = f.read()
-                if "import " in content and not content.count("import") == content.count("import logging"):
+                if "import " in content and not content.count(
+                    "import"
+                ) == content.count("import logging"):
                     self.issues.append(
                         LoggerIssue(
                             self.file_path,
                             "NO_TRY_EXCEPT_IMPORT",
                             self.imports_end_line,
                             "Consider using try/except blocks around third-party imports",
-                            fixable=False
+                            fixable=False,
                         )
                     )
 
         # Check if the module has a logger but doesn't use it for exception handling
         if self.logger_initialized:
-            with open(self.file_path, "r", encoding="utf-8") as f:
+            with open(self.file_path, encoding="utf-8") as f:
                 content = f.read()
                 if "except " in content and "logger.exception" not in content:
                     self.issues.append(
@@ -389,7 +432,7 @@ class LoggerChecker(ast.NodeVisitor):
                             "NO_LOGGER_EXCEPTION",
                             0,
                             "Module has exception handling but doesn't use logger.exception()",
-                            fixable=False
+                            fixable=False,
                         )
                     )
 
@@ -397,16 +440,18 @@ class LoggerChecker(ast.NodeVisitor):
 
 
 def check_file(file_path: str) -> List[LoggerIssue]:
-    """Check a file for logger initialization issues.
+    """
+    Check a file for logger initialization issues.
 
     Args:
         file_path: Path to the file to check
 
     Returns:
         List of logger issues found
+
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
             tree = ast.parse(content, filename=file_path)
@@ -414,7 +459,7 @@ def check_file(file_path: str) -> List[LoggerIssue]:
             # Add parent pointers to all nodes in the AST
             for node_obj in ast.walk(tree):
                 for child_node in ast.iter_child_nodes(node_obj):
-                    child_node.parent = node_obj # type: ignore[attr-defined]
+                    child_node.parent = node_obj  # type: ignore[attr-defined]
 
             checker = LoggerChecker(file_path)
             checker.visit(tree)
@@ -427,24 +472,21 @@ def check_file(file_path: str) -> List[LoggerIssue]:
                 "SYNTAX_ERROR",
                 e.lineno or 0,
                 f"Syntax error: {e}",
-                fixable=False
+                fixable=False,
             )
         ]
     except Exception as e:
         logger.warning(f"Error checking {file_path}: {e}")
         return [
             LoggerIssue(
-                file_path,
-                "CHECK_ERROR",
-                0,
-                f"Error checking file: {e}",
-                fixable=False
+                file_path, "CHECK_ERROR", 0, f"Error checking file: {e}", fixable=False
             )
         ]
 
 
 def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
-    """Fix logger initialization issues in a file.
+    """
+    Fix logger initialization issues in a file.
 
     Args:
         file_path: Path to the file to fix
@@ -452,9 +494,10 @@ def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
 
     Returns:
         True if any fixes were applied, False otherwise
+
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             lines = f.readlines()
 
         fixed = False
@@ -462,7 +505,10 @@ def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
         # Find the right place to insert logger initialization
         insert_line = 0
         for issue in issues:
-            if issue.issue_type == "MISSING_LOGGER" or issue.issue_type == "LOGGER_INIT_TOO_LATE":
+            if (
+                issue.issue_type == "MISSING_LOGGER"
+                or issue.issue_type == "LOGGER_INIT_TOO_LATE"
+            ):
                 # Find the end of imports
                 import_pattern = re.compile(r"^(import|from)\s+")
                 for i, line in enumerate(lines):
@@ -476,8 +522,14 @@ def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
 
         # Replace root logger usage with module logger
         for i, line in enumerate(lines):
-            if "logging.debug(" in line or "logging.info(" in line or "logging.warning(" in line or \
-               "logging.error(" in line or "logging.critical(" in line or "logging.exception(" in line:
+            if (
+                "logging.debug(" in line
+                or "logging.info(" in line
+                or "logging.warning(" in line
+                or "logging.error(" in line
+                or "logging.critical(" in line
+                or "logging.exception(" in line
+            ):
                 lines[i] = line.replace("logging.", "logger.")
                 fixed = True
 
@@ -499,7 +551,9 @@ def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
                             after_quote = parts[2]
 
                             if " + " in after_quote and ")" in after_quote:
-                                var_part = after_quote.split(" + ")[1].split(")")[0].strip()
+                                var_part = (
+                                    after_quote.split(" + ")[1].split(")")[0].strip()
+                                )
                                 new_line = f'{before_quote}f"{string_content}{{{var_part}}}"))\n'
                                 lines[line_number] = new_line
                                 fixed = True
@@ -521,9 +575,10 @@ def scan_directory(
     exclude_files: Set[str],
     exclude_patterns: List[str],
     fix: bool = False,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> Tuple[List[LoggerIssue], int]:
-    """Scan a directory for Python files and check for logger initialization issues.
+    """
+    Scan a directory for Python files and check for logger initialization issues.
 
     Args:
         directory: Directory to scan
@@ -535,13 +590,14 @@ def scan_directory(
 
     Returns:
         Tuple of (list of issues found, number of files fixed)
+
     """
     issues = []
     fixed_count = 0
 
     for root, dirs, files in os.walk(directory):
         # Skip excluded directories and any directory starting with a dot
-        dirs[:] = [d for d in dirs if d not in exclude_dirs and not d.startswith('.')]
+        dirs[:] = [d for d in dirs if d not in exclude_dirs and not d.startswith(".")]
 
         for file in files:
             if not file.endswith(".py"):
@@ -571,28 +627,58 @@ def scan_directory(
 
 
 def main() -> int:
-    """Main function.
+    """
+    Main function.
 
     Returns:
         Exit code (0 for success, non-zero for failure)
+
     """
     # Configure logging early in main
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(levelname)s: %(message)s"
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    parser = argparse.ArgumentParser(
+        description="Check for proper logger initialization in Python files"
     )
-    
-    parser = argparse.ArgumentParser(description="Check for proper logger initialization in Python files")
-    parser.add_argument("paths", nargs="*", default=["."], help="Paths to scan (default: current directory)")
-    parser.add_argument("--fix", action="store_true", help="Attempt to fix issues automatically")
+    parser.add_argument(
+        "paths",
+        nargs="*",
+        default=["."],
+        help="Paths to scan (default: current directory)",
+    )
+    parser.add_argument(
+        "--fix", action="store_true", help="Attempt to fix issues automatically"
+    )
     parser.add_argument("--verbose", action="store_true", help="Show detailed output")
-    parser.add_argument("--exclude-dir", action="append", help="Additional directories to exclude")
-    parser.add_argument("--exclude-file", action="append", help="Additional files to exclude")
-    parser.add_argument("--exclude-pattern", action="append", help="Additional file patterns to exclude")
-    parser.add_argument("--check-string-concat", action="store_true", help="Check for string concatenation in logging calls")
-    parser.add_argument("--check-try-except", action="store_true", help="Check for try/except blocks around imports")
-    parser.add_argument("--check-exception-logging", action="store_true", help="Check for proper exception logging")
-    parser.add_argument("--check-basicconfig", action="store_true", help="Check for proper basicConfig usage")
+    parser.add_argument(
+        "--exclude-dir", action="append", help="Additional directories to exclude"
+    )
+    parser.add_argument(
+        "--exclude-file", action="append", help="Additional files to exclude"
+    )
+    parser.add_argument(
+        "--exclude-pattern", action="append", help="Additional file patterns to exclude"
+    )
+    parser.add_argument(
+        "--check-string-concat",
+        action="store_true",
+        help="Check for string concatenation in logging calls",
+    )
+    parser.add_argument(
+        "--check-try-except",
+        action="store_true",
+        help="Check for try/except blocks around imports",
+    )
+    parser.add_argument(
+        "--check-exception-logging",
+        action="store_true",
+        help="Check for proper exception logging",
+    )
+    parser.add_argument(
+        "--check-basicconfig",
+        action="store_true",
+        help="Check for proper basicConfig usage",
+    )
     parser.add_argument("--check-all", action="store_true", help="Enable all checks")
     args = parser.parse_args()
 
@@ -621,7 +707,7 @@ def main() -> int:
                 exclude_files,
                 exclude_patterns,
                 args.fix,
-                args.verbose
+                args.verbose,
             )
             all_issues.extend(issues)
             total_fixed += fixed_count

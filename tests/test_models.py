@@ -72,7 +72,7 @@ def test_user_model(app: Flask) -> None:
             "email": "new@example.com",
             "password_hash": "new_hash",
             "is_admin": True,
-            "is_active": False
+            "is_active": False,
         }
         new_user = User.from_dict(new_user_data)
         assert new_user.username == "newuser"
@@ -173,9 +173,9 @@ def test_user_update_last_login_error(app):
         from sqlalchemy.exc import SQLAlchemyError
 
         # Mock the db.session.commit method to raise an exception
-        with patch.object(db.session, 'commit', side_effect=SQLAlchemyError("Database error")), \
-             patch.object(db.session, 'rollback') as mock_rollback:
-
+        with patch.object(
+            db.session, "commit", side_effect=SQLAlchemyError("Database error")
+        ), patch.object(db.session, "rollback") as mock_rollback:
             # Call the method and check that it handles the exception
             with pytest.raises(SQLAlchemyError):
                 user.update_last_login()

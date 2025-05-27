@@ -6,21 +6,22 @@ This script tests the tool registry and individual tools including
 the calculator and text_analyzer tools.
 """
 
+import ast
 import logging
 import re
-import ast
-import pytest
-from typing import Callable, Dict, Any
+from typing import Any, Callable, Dict
 from unittest.mock import patch
 
+import pytest
+
 from common_utils.tooling import (
-    register_tool,
-    get_tool,
-    list_tools,
-    calculator,
-    text_analyzer,
     _TOOL_REGISTRY,
     MAX_EXPONENT_VALUE,
+    calculator,
+    get_tool,
+    list_tools,
+    register_tool,
+    text_analyzer,
 )
 
 
@@ -42,6 +43,7 @@ class TestToolRegistry:
 
     def test_register_tool(self, clean_registry):
         """Test register_tool function."""
+
         # Define a test function
         def test_func(x: int) -> int:
             return x * 2
@@ -55,6 +57,7 @@ class TestToolRegistry:
 
     def test_get_tool(self, clean_registry):
         """Test get_tool function."""
+
         # Define a test function
         def test_func(x: int) -> int:
             return x * 2
@@ -77,6 +80,7 @@ class TestToolRegistry:
 
     def test_list_tools(self, clean_registry):
         """Test list_tools function."""
+
         # Define test functions
         def test_func1(x: int) -> int:
             return x * 2
@@ -110,6 +114,7 @@ class TestToolRegistry:
 
     def test_register_tool_overwrite(self, clean_registry):
         """Test register_tool function with overwriting an existing tool."""
+
         # Define test functions
         def test_func1(x: int) -> int:
             return x * 2
@@ -143,6 +148,7 @@ class TestToolRegistry:
 
     def test_register_and_get_tool(self):
         """Test registering and retrieving a tool."""
+
         def dummy_tool(x: str) -> str:
             return f"processed: {x}"
 
@@ -323,7 +329,7 @@ class TestTextAnalyzerTool:
     def test_error_handling(self):
         """Test error handling in text analyzer."""
         # Mock an exception to test error handling
-        with patch('common_utils.tooling.len', side_effect=Exception("Test error")):
+        with patch("common_utils.tooling.len", side_effect=Exception("Test error")):
             result = text_analyzer("test text")
             assert "Error analyzing text" in result
 

@@ -7,10 +7,11 @@ import logging
 import os
 import re
 import stat
+import sys  # Added sys import
 import threading
 from pathlib import Path
 from typing import Any, Optional
-import sys # Added sys import
+
 logger = logging.getLogger(__name__)
 
 try:

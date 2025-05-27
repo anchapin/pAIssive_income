@@ -1,6 +1,7 @@
 """test_basic - Basic tests for the Flask application."""
 
 import logging
+
 import pytest
 from flask import Flask
 

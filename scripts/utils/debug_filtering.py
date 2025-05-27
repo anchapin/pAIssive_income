@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 # Third-party imports
 # Local imports
-from common_utils.logging import get_logger
 
 # Configure logging
 logger = logging.getLogger(__name__)

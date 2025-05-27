@@ -1,8 +1,8 @@
 """Application models module."""
 
-from datetime import datetime
 import uuid
-from typing import TypeVar, Dict, Any
+from datetime import datetime
+from typing import Any, Dict, TypeVar
 
 from sqlalchemy import Column, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship
@@ -16,7 +16,9 @@ ModelType = TypeVar("ModelType", bound="db.Model")  # type: ignore[name-defined]
 
 # Re-export hash_credential for tests
 from users.auth import hash_credential as _hash_credential
+
 hash_credential = _hash_credential
+
 
 class User(db.Model):  # type: ignore[name-defined]
     """User model for authentication and user management."""
@@ -32,9 +34,17 @@ class User(db.Model):  # type: ignore[name-defined]
     is_active = Column(String(5), default="true", nullable=False)
     is_admin = Column(String(5), default="false", nullable=False)
 
-    def __init__(self, username: str, email: str, password_hash: str = None, password: str = None,
-                 is_active: bool = True, is_admin: bool = False):
-        """Initialize user model.
+    def __init__(
+        self,
+        username: str,
+        email: str,
+        password_hash: str = None,
+        password: str = None,
+        is_active: bool = True,
+        is_admin: bool = False,
+    ):
+        """
+        Initialize user model.
 
         Args:
             username: User's username
@@ -43,6 +53,7 @@ class User(db.Model):  # type: ignore[name-defined]
             password: User's plaintext password (will be hashed)
             is_active: Whether the user is active
             is_admin: Whether the user is an admin
+
         """
         self.username = username
         self.email = email
@@ -53,6 +64,7 @@ class User(db.Model):  # type: ignore[name-defined]
             self.password_hash = password_hash
         elif password is not None:
             from users.auth import hash_credential
+
             self.password_hash = hash_credential(password)
 
         self.created_at = datetime.utcnow()
@@ -68,13 +80,15 @@ class User(db.Model):  # type: ignore[name-defined]
         return f"<User {self.username}>"
 
     def to_dict(self, include_profile=False) -> Dict[str, Any]:
-        """Convert user model to dictionary.
+        """
+        Convert user model to dictionary.
 
         Args:
             include_profile: Whether to include profile data
 
         Returns:
             Dictionary with user data
+
         """
         result = {
             "id": self.id,
@@ -83,10 +97,10 @@ class User(db.Model):  # type: ignore[name-defined]
             "is_active": self.is_active == "true",
             "is_admin": self.is_admin == "true",
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "last_login": self.last_login.isoformat() if self.last_login else None
+            "last_login": self.last_login.isoformat() if self.last_login else None,
         }
 
-        if include_profile and hasattr(self, 'profile') and self.profile:
+        if include_profile and hasattr(self, "profile") and self.profile:
             result["profile"] = self.profile.to_dict()
 
         return result
@@ -118,6 +132,7 @@ class Team(db.Model):  # type: ignore[name-defined]
         """
         return f"<Team {self.name}>"
 
+
 class Agent(db.Model):  # type: ignore[name-defined]
     """Agent model for AI agents that belong to teams."""
 
@@ -127,14 +142,24 @@ class Agent(db.Model):  # type: ignore[name-defined]
     name = Column(String(100), nullable=False)
     role = Column(String(100))
     description = Column(String(1000))
-    team_id = Column(String(36), ForeignKey('teams.id'))
+    team_id = Column(String(36), ForeignKey("teams.id"))
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    updated_at = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
 
     team = relationship("Team", back_populates="agents")
 
-    def __init__(self, name: str, role: str = None, description: str = None, team_id: str = None, team = None):
-        """Initialize agent model.
+    def __init__(
+        self,
+        name: str,
+        role: str = None,
+        description: str = None,
+        team_id: str = None,
+        team=None,
+    ):
+        """
+        Initialize agent model.
 
         Args:
             name: Agent name
@@ -142,6 +167,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
             description: Optional agent description
             team_id: ID of team
             team: Team object
+
         """
         self.name = name
         self.role = role
@@ -172,6 +198,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
 
         Returns:
             Dictionary with agent data
+
         """
         return {
             "id": self.id,
@@ -180,12 +207,13 @@ class Agent(db.Model):  # type: ignore[name-defined]
             "description": self.description,
             "team_id": self.team_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any], team=None) -> "Agent":
-        """Create agent from dictionary.
+        """
+        Create agent from dictionary.
 
         Args:
             data: Dictionary with agent data
@@ -193,6 +221,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
 
         Returns:
             Agent instance
+
         """
         # Set team_id from team object if provided
         team_id = data.get("team_id")
@@ -204,7 +233,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
             role=data.get("role"),
             description=data.get("description"),
             team_id=team_id,
-            team=team
+            team=team,
         )
 
         if "id" in data:

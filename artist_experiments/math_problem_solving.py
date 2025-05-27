@@ -8,21 +8,26 @@ from __future__ import annotations
 
 import logging
 import re
-import sys # Added sys import
+import sys  # Added sys import
+
 logger = logging.getLogger(__name__)
 
 try:
     import sympy as sp
     from sympy.parsing.sympy_parser import parse_expr
 except ImportError:
-    logger.exception("Sympy library not found. Please install it using 'pip install sympy'")
+    logger.exception(
+        "Sympy library not found. Please install it using 'pip install sympy'"
+    )
     sys.exit(1)
 
 try:
     from ai_models.artist_agent import ArtistAgent
     from common_utils import tooling
 except ImportError:
-    logger.exception("Failed to import local modules (ArtistAgent or tooling). Ensure they are in PYTHONPATH.")
+    logger.exception(
+        "Failed to import local modules (ArtistAgent or tooling). Ensure they are in PYTHONPATH."
+    )
     sys.exit(1)
 
 

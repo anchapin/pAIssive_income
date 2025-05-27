@@ -27,7 +27,6 @@ except ImportError:
     sys.exit(1)
 
 
-
 def ensure_directory(directory: str) -> None:
     """
     Ensure a directory exists.
@@ -263,9 +262,7 @@ def main() -> int:
                 )
                 logger.info("Converted Bandit results to SARIF format")
             except Exception:
-                logger.exception(
-                    "Failed to convert Bandit results to SARIF format"
-                )
+                logger.exception("Failed to convert Bandit results to SARIF format")
     except Exception:
         logger.exception("Error converting to SARIF")
 

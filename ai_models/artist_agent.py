@@ -7,10 +7,10 @@ This is a scaffold for further expansion.
 
 from __future__ import annotations
 
+import logging  # Added import
+import os  # Added import for os.environ check
 import re
 from typing import Any, Callable
-import logging # Added import
-import os # Added import for os.environ check
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -20,10 +20,13 @@ logger = logging.getLogger(__name__)
 
 try:
     import anthropic
+
     ANTHROPIC_AVAILABLE = True
 except ImportError as e:
-    logger.exception(f"Anthropic SDK not found or import failed: {e}. Optional features depending on Anthropic will be unavailable.")
-    anthropic = None # type: ignore
+    logger.exception(
+        f"Anthropic SDK not found or import failed: {e}. Optional features depending on Anthropic will be unavailable."
+    )
+    anthropic = None  # type: ignore
     ANTHROPIC_AVAILABLE = False
 
 from common_utils import tooling
@@ -101,7 +104,11 @@ class ArtistAgent:
             # For calculator, try to extract the mathematical expression
             # Try to find the mathematical part of the prompt
             # Look for patterns like "What is 12 * 8?" -> extract "12 * 8"
-            calc_match = re.search(r"(?:what\s+is\s+|calculate\s+|compute\s+)?([0-9\+\-\*/\(\)\.\s%]+)", prompt, re.IGNORECASE)
+            calc_match = re.search(
+                r"(?:what\s+is\s+|calculate\s+|compute\s+)?([0-9\+\-\*/\(\)\.\s%]+)",
+                prompt,
+                re.IGNORECASE,
+            )
             if calc_match:
                 expression = calc_match.group(1).strip()
                 # Validate that it contains at least one operator
@@ -114,7 +121,10 @@ class ArtistAgent:
                 # Take the longest match that contains operators
                 for part in sorted(math_parts, key=len, reverse=True):
                     part = part.strip()
-                    if any(op in part for op in ["+", "-", "*", "/", "%"]) and len(part) > 1:
+                    if (
+                        any(op in part for op in ["+", "-", "*", "/", "%"])
+                        and len(part) > 1
+                    ):
                         return part
 
             # Final fallback to the entire prompt
@@ -129,11 +139,19 @@ class ArtistAgent:
                 return quoted_match.group(1)
 
             # Try to find text after "analyze" or "sentiment of"
-            analyze_match = re.search(r"analyze(?:\s+the)?\s+(?:sentiment\s+of\s+)?(?:this\s+)?(?:phrase:?\s*)?(.+)", prompt, re.IGNORECASE)
+            analyze_match = re.search(
+                r"analyze(?:\s+the)?\s+(?:sentiment\s+of\s+)?(?:this\s+)?(?:phrase:?\s*)?(.+)",
+                prompt,
+                re.IGNORECASE,
+            )
             if analyze_match:
                 return analyze_match.group(1).strip()
 
-            sentiment_match = re.search(r"sentiment\s+of\s+(?:this\s+)?(?:phrase:?\s*)?(.+)", prompt, re.IGNORECASE)
+            sentiment_match = re.search(
+                r"sentiment\s+of\s+(?:this\s+)?(?:phrase:?\s*)?(.+)",
+                prompt,
+                re.IGNORECASE,
+            )
             if sentiment_match:
                 return sentiment_match.group(1).strip()
 

@@ -15,17 +15,19 @@ logger = logging.getLogger("install_mcp_sdk")
 
 
 def verify_mock_installation() -> bool:
-    """Verify that the mock MCP SDK is properly installed.
+    """
+    Verify that the mock MCP SDK is properly installed.
 
     Returns:
         True if the mock is properly installed, False otherwise
+
     """
     try:
         # Try to import the module
         import modelcontextprotocol as mcp
 
         # Verify that it has the expected attributes
-        if not hasattr(mcp, 'Client'):
+        if not hasattr(mcp, "Client"):
             logger.error("Mock MCP SDK is missing Client class")
             return False
 
@@ -45,6 +47,8 @@ def verify_mock_installation() -> bool:
     except Exception as e:
         logger.exception(f"Error verifying mock MCP SDK: {e}")
         return False
+
+
 def _setup_environment() -> None:
     """Set up the environment variables for MCP SDK installation."""
     os.environ["CI"] = "true"

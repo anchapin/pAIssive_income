@@ -35,23 +35,25 @@ try:
     from adk.communication import Message
     from adk.memory import SimpleMemory
     from adk.skill import Skill
+
     ADK_AVAILABLE = True
 except ImportError:
     ADK_AVAILABLE = False
+
     # Define placeholder classes for type hints
     class Agent:
         """Placeholder for Agent class when ADK is not installed."""
 
         def __init__(self, name: str) -> None:
             self.name = name
-        
-        def handle_message(self, message: "Message") -> Optional["Message"]:
+
+        def handle_message(self, message: Message) -> Optional[Message]:
             """Handle a received message. Override in subclasses."""
             return None
-        
-        def add_skill(self, name: str, skill: "Skill") -> None:
+
+        def add_skill(self, name: str, skill: Skill) -> None:
             """Add a skill to the agent."""
-            if not hasattr(self, 'skills'):
+            if not hasattr(self, "skills"):
                 self.skills = {}
             self.skills[name] = skill
 
@@ -75,9 +77,11 @@ except ImportError:
         def run(self, *args: Any, **kwargs: Any) -> Any:
             pass
 
+
 # Import mem0 components
 try:
     from mem0 import Memory
+
     MEM0_AVAILABLE = True
 except ImportError:
     MEM0_AVAILABLE = False
@@ -115,6 +119,7 @@ else:
             return f"Summary of data: {data[:50]}..."
 
 # logger is now initialized globally earlier
+
 
 class MemoryEnhancedAgent(Agent):
     """
@@ -158,13 +163,14 @@ class MemoryEnhancedAgent(Agent):
         # Store agent creation in memory
         self._store_memory(f"Agent {name} created with user ID: {user_id}")
 
-    def add_skill(self, name: str, skill: "Skill") -> None:
+    def add_skill(self, name: str, skill: Skill) -> None:
         """
         Add a skill to the agent.
 
         Args:
             name: The name of the skill
             skill: The skill instance
+
         """
         self.skills[name] = skill
 
@@ -227,7 +233,9 @@ class MemoryEnhancedAgent(Agent):
         # Default to message type as query
         return f"Message of type {message.type} from {message.sender}"
 
-    def _enhance_message_with_memories(self, message: Message, memories: List[Dict[str, Any]]) -> Message:
+    def _enhance_message_with_memories(
+        self, message: Message, memories: List[Dict[str, Any]]
+    ) -> Message:
         """
         Enhance a message with relevant memories.
 
@@ -259,7 +267,7 @@ class MemoryEnhancedAgent(Agent):
         # Create a conversation-style memory
         conversation = [
             {"role": "user", "content": f"{message.type}: {message.payload}"},
-            {"role": "assistant", "content": f"{response.type}: {response.payload}"}
+            {"role": "assistant", "content": f"{response.type}: {response.payload}"},
         ]
 
         # Store in memory
@@ -268,11 +276,15 @@ class MemoryEnhancedAgent(Agent):
             metadata={
                 "message_type": message.type,
                 "response_type": response.type,
-                "sender": message.sender
-            }
+                "sender": message.sender,
+            },
         )
 
-    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Optional[Dict[str, str]] = None) -> None:
+    def _store_memory(
+        self,
+        content: Union[str, List[Dict[str, str]]],
+        metadata: Optional[Dict[str, str]] = None,
+    ) -> None:
         """
         Store a memory using mem0.
 
@@ -285,16 +297,18 @@ class MemoryEnhancedAgent(Agent):
             return
 
         try:
-            self.memory.add(
-                content,
-                user_id=self.user_id,
-                metadata=metadata or {}
+            self.memory.add(content, user_id=self.user_id, metadata=metadata or {})
+            logger.debug(
+                f"Memory stored: {content[:50]}..."
+                if isinstance(content, str)
+                else "Conversation stored"
             )
-            logger.debug(f"Memory stored: {content[:50]}..." if isinstance(content, str) else "Conversation stored")
         except Exception as e:
             logger.exception(f"Error storing memory: {e}")
 
-    def _retrieve_relevant_memories(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+    def _retrieve_relevant_memories(
+        self, query: str, limit: int = 5
+    ) -> List[Dict[str, Any]]:
         """
         Retrieve relevant memories for a query.
 
@@ -311,11 +325,7 @@ class MemoryEnhancedAgent(Agent):
 
         try:
             # Search for relevant memories
-            return self.memory.search(
-                query=query,
-                user_id=self.user_id,
-                limit=limit
-            )
+            return self.memory.search(query=query, user_id=self.user_id, limit=limit)
         except Exception as e:
             logger.exception(f"Error retrieving memories: {e}")
             return []
@@ -346,7 +356,7 @@ class MemoryEnhancedDataGathererAgent(MemoryEnhancedAgent):
         # Store agent specialization in memory
         self._store_memory(
             f"Agent {name} specialized in data gathering",
-            metadata={"specialization": "data_gathering"}
+            metadata={"specialization": "data_gathering"},
         )
 
 
@@ -375,7 +385,7 @@ class MemoryEnhancedSummarizerAgent(MemoryEnhancedAgent):
         # Store agent specialization in memory
         self._store_memory(
             f"Agent {name} specialized in data summarization",
-            metadata={"specialization": "summarization"}
+            metadata={"specialization": "summarization"},
         )
 
 
@@ -384,7 +394,7 @@ if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     try:
         # Check if dependencies are available
@@ -394,14 +404,16 @@ if __name__ == "__main__":
             logger.error("mem0 is not installed. Install with: pip install mem0ai")
         else:
             # Create memory-enhanced agents
-            gatherer = MemoryEnhancedDataGathererAgent(name="DataGatherer", user_id="example_user")
-            summarizer = MemoryEnhancedSummarizerAgent(name="Summarizer", user_id="example_user")
+            gatherer = MemoryEnhancedDataGathererAgent(
+                name="DataGatherer", user_id="example_user"
+            )
+            summarizer = MemoryEnhancedSummarizerAgent(
+                name="Summarizer", user_id="example_user"
+            )
 
             # Create a gather message
             gather_message = Message(
-                type="gather",
-                payload={"query": "AI memory systems"},
-                sender="user"
+                type="gather", payload={"query": "AI memory systems"}, sender="user"
             )
 
             # Process the message
@@ -415,14 +427,19 @@ if __name__ == "__main__":
                 logger.info("Forwarding data to summarizer agent")
                 summarize_message = Message(
                     type="summarize",
-                    payload={"data": response.payload.get("data", ""), "original_sender": "DataGatherer"},
-                    sender="DataGatherer"
+                    payload={
+                        "data": response.payload.get("data", ""),
+                        "original_sender": "DataGatherer",
+                    },
+                    sender="DataGatherer",
                 )
 
                 summary_response = summarizer.handle_message(summarize_message)
 
                 if summary_response:
-                    logger.info(f"Received summary: {summary_response.payload.get('summary', '')}")
+                    logger.info(
+                        f"Received summary: {summary_response.payload.get('summary', '')}"
+                    )
             else:
                 logger.error("No response received from data gatherer agent")
     except Exception as e:

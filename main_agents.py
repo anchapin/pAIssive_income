@@ -14,6 +14,7 @@ Message Types:
         Receives: 'summarize' with payload {'data': str, 'original_sender': str}
         Sends: 'summary_result' with payload {'summary': str}
 """
+
 from __future__ import annotations
 
 import logging
@@ -45,14 +46,14 @@ try:
     )
 except ImportError:
     MEM0_AVAILABLE = False
+
     # If adk_demo.mem0_enhanced_adk_agents is not available,
     # create dummy classes to avoid NameError later.
     class MemoryEnhancedDataGathererAgent:  # type: ignore[no-redef]
         pass
+
     class MemoryEnhancedSummarizerAgent:  # type: ignore[no-redef]
         pass
-
-
 
 
 class DataGathererSkill(Skill):
@@ -191,7 +192,9 @@ class SummarizerAgent(Agent):
             )
 
 
-def create_agents(use_memory: bool = False, user_id: Optional[str] = None) -> tuple[Agent, Agent]:
+def create_agents(
+    use_memory: bool = False, user_id: Optional[str] = None
+) -> tuple[Agent, Agent]:
     """
     Create and return a pair of agents, optionally using memory enhancement.
 
@@ -209,7 +212,9 @@ def create_agents(use_memory: bool = False, user_id: Optional[str] = None) -> tu
             logger.warning("No user_id provided, using 'default_user'")
 
         logger.info(f"Creating memory-enhanced agents with user_id: {user_id}")
-        data_gatherer = MemoryEnhancedDataGathererAgent(name="data_gatherer", user_id=user_id)
+        data_gatherer = MemoryEnhancedDataGathererAgent(
+            name="data_gatherer", user_id=user_id
+        )
         summarizer = MemoryEnhancedSummarizerAgent(name="summarizer", user_id=user_id)
     else:
         if use_memory and not MEM0_AVAILABLE:
@@ -248,7 +253,7 @@ if __name__ == "__main__":
             sender="user",
             receiver="data_gatherer",
             type="gather",
-            payload={"query": "AI memory systems"}
+            payload={"query": "AI memory systems"},
         )
     )
 

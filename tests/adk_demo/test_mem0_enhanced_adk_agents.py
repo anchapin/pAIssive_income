@@ -85,7 +85,8 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
 
         # Add handle_message method to Agent class if it doesn't exist
         from adk_demo.mem0_enhanced_adk_agents import Agent
-        if not hasattr(Agent, 'handle_message'):
+
+        if not hasattr(Agent, "handle_message"):
             Agent.handle_message = MagicMock(return_value=self.response_mock)
             self._added_handle_message = True
         else:
@@ -123,8 +124,9 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
         # Remove dynamically added handle_message method if we added it
         if self._added_handle_message:
             from adk_demo.mem0_enhanced_adk_agents import Agent
-            if hasattr(Agent, 'handle_message'):
-                delattr(Agent, 'handle_message')
+
+            if hasattr(Agent, "handle_message"):
+                delattr(Agent, "handle_message")
 
         # Re-enable logging
         logging.disable(logging.NOTSET)
@@ -230,7 +232,10 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
         self.memory_mock.add.assert_called_once_with(
             [
                 {"role": "user", "content": "gather: {'query': 'Test query'}"},
-                {"role": "assistant", "content": "gather_result: {'data': 'Test data'}"},
+                {
+                    "role": "assistant",
+                    "content": "gather_result: {'data': 'Test data'}",
+                },
             ],
             user_id="test-user",
             metadata={

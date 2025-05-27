@@ -3,19 +3,21 @@
 from __future__ import annotations
 
 import functools
-import re
-import time
 import logging
+import re
+import sys  # Added sys import
+import time
 from typing import Any, Callable, TypeVar, cast
-import sys # Added sys import
 
-logger = logging.getLogger(__name__) # Initialize logger
+logger = logging.getLogger(__name__)  # Initialize logger
 
 try:
     from flask.globals import current_app, g
     from werkzeug.local import LocalProxy
 except ImportError:
-    logger.exception("Error: Flask or Werkzeug module not found. Please install them (e.g., pip install Flask Werkzeug).")
+    logger.exception(
+        "Error: Flask or Werkzeug module not found. Please install them (e.g., pip install Flask Werkzeug)."
+    )
     sys.exit(1)
 
 
@@ -162,14 +164,18 @@ def structured_log(
         else:
             # If the string level name is not recognized, default to INFO
             # and log a warning about the unrecognized level.
-            logger.warning(f"Unrecognized log level string: '{level}'. Defaulting to INFO.")
+            logger.warning(
+                f"Unrecognized log level string: '{level}'. Defaulting to INFO."
+            )
             numeric_level = logging.INFO
     elif isinstance(level, int):
         numeric_level = level
     else:
         # This case should ideally not be reached due to type hints,
         # but as a fallback, default to INFO and log a warning.
-        logger.warning(f"Invalid type for log level: {type(level)}. Defaulting to INFO.")
+        logger.warning(
+            f"Invalid type for log level: {type(level)}. Defaulting to INFO."
+        )
         numeric_level = logging.INFO
 
     log.log(numeric_level, safe_message, extra=log_data)

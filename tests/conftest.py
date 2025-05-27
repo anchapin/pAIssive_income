@@ -17,7 +17,9 @@ import pytest
 # Try to import Flask-related modules, but provide mocks if they're not available
 try:
     from sqlalchemy import text
+
     from app_flask import create_app, db
+
     FLASK_AVAILABLE = True
 except ImportError:
     # Create mocks for Flask-related imports
@@ -30,12 +32,14 @@ except ImportError:
     db.session = MagicMock()
     db.create_scoped_session = MagicMock(return_value=MagicMock())
 
+
 # Mock crewai module for testing
 class MockCrewAI:
     """Mock for the crewai module."""
 
     class Agent:
         """Mock Agent class."""
+
         def __init__(self, role=None, goal=None, backstory=None, **kwargs):
             self.role = role
             self.goal = goal
@@ -48,6 +52,7 @@ class MockCrewAI:
 
     class Task:
         """Mock Task class."""
+
         def __init__(self, description=None, agent=None, **kwargs):
             self.description = description
             self.agent = agent
@@ -55,6 +60,7 @@ class MockCrewAI:
 
     class Crew:
         """Mock Crew class."""
+
         def __init__(self, agents=None, tasks=None, **kwargs):
             self.agents = agents or []
             self.tasks = tasks or []
@@ -69,11 +75,12 @@ class MockCrewAI:
         # Alias for backward compatibility
         run = kickoff
 
+
 # Add mock modules to sys.modules
-sys.modules['crewai'] = MagicMock()
-sys.modules['crewai'].Agent = MockCrewAI.Agent
-sys.modules['crewai'].Task = MockCrewAI.Task
-sys.modules['crewai'].Crew = MockCrewAI.Crew
+sys.modules["crewai"] = MagicMock()
+sys.modules["crewai"].Agent = MockCrewAI.Agent
+sys.modules["crewai"].Task = MockCrewAI.Task
+sys.modules["crewai"].Crew = MockCrewAI.Crew
 
 # Set up logger
 logger = logging.getLogger(__name__)

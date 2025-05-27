@@ -28,15 +28,19 @@ logger = logging.getLogger(__name__)
 try:
     # Import standard CrewAI components
     from crewai import Agent, Crew, Task
+
     CREWAI_AVAILABLE = True
 except ImportError:
     CREWAI_AVAILABLE = False
+
     # Define dummy classes if crewai is not available to avoid NameErrors
-    class Agent: # type: ignore
+    class Agent:  # type: ignore
         pass
-    class Crew: # type: ignore
+
+    class Crew:  # type: ignore
         pass
-    class Task: # type: ignore
+
+    class Task:  # type: ignore
         pass
 
 
@@ -48,15 +52,16 @@ try:
     )
 except ImportError:
     MEM0_AVAILABLE = False
-    # Define a dummy class if not available
-    class MemoryEnhancedCrewAIAgentTeam: # type: ignore
-        pass
 
+    # Define a dummy class if not available
+    class MemoryEnhancedCrewAIAgentTeam:  # type: ignore
+        pass
 
 
 # Example: Define agent roles
 
 # Example: Assemble into a Crew (team)
+
 
 def create_team(use_memory: bool = False, user_id: Optional[str] = None) -> object:
     """
@@ -82,35 +87,34 @@ def create_team(use_memory: bool = False, user_id: Optional[str] = None) -> obje
         data_gatherer = team.add_agent(
             role="Data Gatherer",
             goal="Collect relevant information and data for the project",
-            backstory="An AI specialized in data collection from APIs and databases."
+            backstory="An AI specialized in data collection from APIs and databases.",
         )
 
         analyzer = team.add_agent(
             role="Analyzer",
             goal="Analyze collected data and extract actionable insights",
-            backstory="An AI expert in analytics and pattern recognition."
+            backstory="An AI expert in analytics and pattern recognition.",
         )
 
         writer = team.add_agent(
             role="Writer",
             goal="Generate clear, readable reports from analyzed data",
-            backstory="An AI that excels at communicating insights in natural language."
+            backstory="An AI that excels at communicating insights in natural language.",
         )
 
         # Add tasks
         team.add_task(
             description="Gather all relevant data from internal and external sources.",
-            agent=data_gatherer
+            agent=data_gatherer,
         )
 
         team.add_task(
             description="Analyze gathered data for trends and anomalies.",
-            agent=analyzer
+            agent=analyzer,
         )
 
         team.add_task(
-            description="Write a summary report based on analysis.",
-            agent=writer
+            description="Write a summary report based on analysis.", agent=writer
         )
 
         return team
@@ -175,7 +179,7 @@ if __name__ == "__main__":
 
     # Example: Run the workflow (for demonstration; adapt as needed)
     try:
-        if CREWAI_AVAILABLE: # Check if CrewAI is available before running
+        if CREWAI_AVAILABLE:  # Check if CrewAI is available before running
             result = team.run()
             logger.info("CrewAI workflow completed successfully")
             logger.info(f"Result: {result}")

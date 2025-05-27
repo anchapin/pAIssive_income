@@ -55,6 +55,7 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     # Register blueprints
     try:
         from api.routes.flask_user_router import user_bp
+
         app.register_blueprint(user_bp)
     except ImportError:
         # Skip blueprint registration if not available

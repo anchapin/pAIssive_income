@@ -7,8 +7,8 @@ They use mocking to avoid actual API calls to mem0 or CrewAI.
 
 import logging
 import unittest
+from typing import Any, Dict, List, Optional
 from unittest.mock import MagicMock, patch
-from typing import List, Dict, Any, Optional
 
 import pytest
 
@@ -18,7 +18,6 @@ from agent_team.mem0_enhanced_agents import (
     MEM0_AVAILABLE,
     MemoryEnhancedCrewAIAgentTeam,
 )
-
 
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(
@@ -144,7 +143,9 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Check that a memory was stored
         assert self.memory_mock.add.call_count >= 3  # Init, add_agent, add_task
         args, kwargs = self.memory_mock.add.call_args
-        assert "Research AI memory systems" in str(args) or "Research AI memory systems" in str(kwargs)
+        assert "Research AI memory systems" in str(
+            args
+        ) or "Research AI memory systems" in str(kwargs)
 
     def test_run(self):
         """Test running the team workflow."""

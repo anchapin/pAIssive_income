@@ -89,14 +89,10 @@ def calculator(expression: str) -> object:  # noqa: C901
         # Disallow potentially dangerous patterns
         if "**" in expression and any(
             n > MAX_EXPONENT_VALUE
-            for n in [
-                float(x) for x in re.findall(r"\d+", expression)
-                if x.isdigit()
-            ]
+            for n in [float(x) for x in re.findall(r"\d+", expression) if x.isdigit()]
         ):
             return (
-                f"Error: Exponentiation with values > "
-                f"{MAX_EXPONENT_VALUE} not allowed"
+                f"Error: Exponentiation with values > {MAX_EXPONENT_VALUE} not allowed"
             )
 
         # Try to use ast.literal_eval for simple expressions
@@ -131,9 +127,7 @@ def calculator(expression: str) -> object:  # noqa: C901
                         return operators["**"](left, right)
                     if isinstance(node.op, ast.Mod):
                         return operators["%"](left, right)
-                    error_msg = (
-                        f"Unsupported operator: {type(node.op).__name__}"
-                    )
+                    error_msg = f"Unsupported operator: {type(node.op).__name__}"
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
@@ -146,10 +140,7 @@ def calculator(expression: str) -> object:  # noqa: C901
                         return -operand
                     if isinstance(node.op, ast.UAdd):
                         return operand
-                    error_msg = (
-                        f"Unsupported unary operator: "
-                        f"{type(node.op).__name__}"
-                    )
+                    error_msg = f"Unsupported unary operator: {type(node.op).__name__}"
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
@@ -166,9 +157,7 @@ def calculator(expression: str) -> object:  # noqa: C901
 
                 def generic_visit(self, node: ast.AST) -> None:
                     """Handle unsupported node types."""
-                    error_msg = (
-                        f"Unsupported node type: {type(node).__name__}"
-                    )
+                    error_msg = f"Unsupported node type: {type(node).__name__}"
                     raise ValueError(error_msg)
 
             # Parse and evaluate the expression
@@ -202,8 +191,29 @@ def text_analyzer(text: str) -> str:
     """
     try:
         # Basic sentiment analysis using simple keyword matching
-        positive_words = ["good", "great", "excellent", "fantastic", "amazing", "wonderful", "love", "like", "happy", "positive"]
-        negative_words = ["bad", "terrible", "awful", "hate", "dislike", "sad", "negative", "horrible", "worst"]
+        positive_words = [
+            "good",
+            "great",
+            "excellent",
+            "fantastic",
+            "amazing",
+            "wonderful",
+            "love",
+            "like",
+            "happy",
+            "positive",
+        ]
+        negative_words = [
+            "bad",
+            "terrible",
+            "awful",
+            "hate",
+            "dislike",
+            "sad",
+            "negative",
+            "horrible",
+            "worst",
+        ]
 
         text_lower = text.lower()
         positive_count = sum(1 for word in positive_words if word in text_lower)
