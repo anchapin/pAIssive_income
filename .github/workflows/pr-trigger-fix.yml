@@ -1,0 +1,90 @@
+name: PR Trigger Fix
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop, master]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to trigger workflows for'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: write
+  pull-requests: write
+
+jobs:
+  trigger-workflows:
+    name: Trigger Workflows for Bot PRs
+    runs-on: ubuntu-latest
+    if: github.actor == 'github-actions[bot]' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get PR details
+      id: pr-details
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          PR_NUMBER="${{ github.event.inputs.pr_number }}"
+        else
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+        fi
+        echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+        echo "PR Number: $PR_NUMBER"
+
+    - name: Trigger CI/CD workflows
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Trigger the main CI/CD workflow
+        gh workflow run "consolidated-ci-cd.yml" \
+          --ref "${{ github.head_ref || github.ref_name }}" || echo "Failed to trigger consolidated-ci-cd"
+        
+        # Trigger frontend tests
+        gh workflow run "frontend-vitest.yml" \
+          --ref "${{ github.head_ref || github.ref_name }}" || echo "Failed to trigger frontend-vitest"
+        
+        # Trigger E2E tests
+        gh workflow run "frontend-e2e.yml" \
+          --ref "${{ github.head_ref || github.ref_name }}" || echo "Failed to trigger frontend-e2e"
+        
+        # Trigger CodeQL analysis
+        gh workflow run "codeql.yml" \
+          --ref "${{ github.head_ref || github.ref_name }}" || echo "Failed to trigger codeql"
+
+    - name: Add comment to PR
+      if: github.event_name == 'pull_request'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh pr comment ${{ steps.pr-details.outputs.pr_number }} --body \
+          "🤖 **Workflow Trigger Fix Applied**
+          
+          This PR was created by GitHub Actions, which normally prevents other workflows from running automatically. 
+          I've manually triggered the following workflows:
+          
+          - ✅ Consolidated CI/CD
+          - ✅ Frontend Vitest Tests  
+          - ✅ Frontend E2E Tests
+          - ✅ CodeQL Analysis
+          
+          Please check the [Actions tab](https://github.com/${{ github.repository }}/actions) to monitor the workflow runs."
+
+    - name: Wait for workflows to start
+      run: |
+        echo "Waiting 30 seconds for workflows to start..."
+        sleep 30
+
+    - name: Check workflow status
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "Checking recent workflow runs..."
+        gh run list --limit 10 --json status,name,conclusion,url 

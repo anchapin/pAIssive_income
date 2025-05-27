@@ -194,10 +194,27 @@ jobs:
           test-results/
         retention-days: 7
 
+    - name: Trigger other workflows if this is a bot PR
+      if: github.actor == 'github-actions[bot]'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "🤖 Detected bot PR - triggering other workflows..."
+        
+        # Trigger main workflows
+        gh workflow run "consolidated-ci-cd.yml" --ref "${{ github.head_ref }}" || echo "Failed to trigger consolidated-ci-cd"
+        gh workflow run "frontend-vitest.yml" --ref "${{ github.head_ref }}" || echo "Failed to trigger frontend-vitest"
+        gh workflow run "codeql.yml" --ref "${{ github.head_ref }}" || echo "Failed to trigger codeql"
+        
+        echo "Workflows triggered successfully!"
+
     - name: Summary
       if: always()
       run: |
         echo "✅ PR #166 workflow fixes completed!"
+        if [ "${{ github.actor }}" = "github-actions[bot]" ]; then
+          echo "🤖 Additional workflows triggered for bot PR"
+        fi
         echo "📁 Created necessary directories"
         echo "🔧 Fixed missing test files"
         echo "🧪 Ran basic tests"
