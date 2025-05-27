@@ -59,9 +59,9 @@ def coordinator():
 
 def test_only_mem0_returns_results(fake_mem0_result, coordinator):
     """Test that results are returned and merged correctly when only mem0 returns results."""
-    with patch.object(coordinator, 'mem0_query', return_value=fake_mem0_result), \
-         patch.object(coordinator, 'chroma_query', return_value=[]):
-        
+    with patch.object(coordinator, "mem0_query", return_value=fake_mem0_result), \
+         patch.object(coordinator, "chroma_query", return_value=[]):
+
         res = coordinator.query("deadline", "user1")
         merged = res["merged_results"]
         assert len(merged) == 2
@@ -73,9 +73,9 @@ def test_only_mem0_returns_results(fake_mem0_result, coordinator):
 
 def test_only_chroma_returns_results(fake_chroma_result, coordinator):
     """Test that results are returned and merged correctly when only Chroma returns results."""
-    with patch.object(coordinator, 'mem0_query', return_value=[]), \
-         patch.object(coordinator, 'chroma_query', return_value=fake_chroma_result):
-        
+    with patch.object(coordinator, "mem0_query", return_value=[]), \
+         patch.object(coordinator, "chroma_query", return_value=fake_chroma_result):
+
         res = coordinator.query("deadline", "user2")
         merged = res["merged_results"]
         assert len(merged) == 2
@@ -87,9 +87,9 @@ def test_only_chroma_returns_results(fake_chroma_result, coordinator):
 
 def test_both_return_with_duplicates(fake_mem0_result, fake_chroma_result, coordinator):
     """Test that duplicates/conflicts between mem0 and Chroma are resolved (prefer high relevance or recent)."""
-    with patch.object(coordinator, 'mem0_query', return_value=fake_mem0_result), \
-         patch.object(coordinator, 'chroma_query', return_value=fake_chroma_result):
-        
+    with patch.object(coordinator, "mem0_query", return_value=fake_mem0_result), \
+         patch.object(coordinator, "chroma_query", return_value=fake_chroma_result):
+
         res = coordinator.query("deadline", "userX")
         merged = res["merged_results"]
         # Should have results from both sources
@@ -101,9 +101,9 @@ def test_both_return_with_duplicates(fake_mem0_result, fake_chroma_result, coord
 
 def test_metrics_are_included(fake_mem0_result, fake_chroma_result, coordinator):
     """Test that timing/cost metrics are included for each subsystem."""
-    with patch.object(coordinator, 'mem0_query', return_value=fake_mem0_result), \
-         patch.object(coordinator, 'chroma_query', return_value=fake_chroma_result):
-        
+    with patch.object(coordinator, "mem0_query", return_value=fake_mem0_result), \
+         patch.object(coordinator, "chroma_query", return_value=fake_chroma_result):
+
         res = coordinator.query("anything", "userZ")
         metrics = res["subsystem_metrics"]
         assert "mem0" in metrics

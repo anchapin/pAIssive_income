@@ -68,7 +68,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         """Test memory storage functionality."""
         test_content = "Test memory content"
         self.team._store_memory(test_content)
-        
+
         # Verify that memory.add was called
         self.memory_mock.add.assert_called_once()
 
@@ -86,7 +86,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
 
         # Test retrieval
         memories = self.team._retrieve_relevant_memories("test query")
-        
+
         # Verify results
         assert len(memories) == 2
         assert any("Test memory" in m["text"] for m in memories)
