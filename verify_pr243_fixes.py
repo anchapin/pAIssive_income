@@ -4,12 +4,13 @@ Comprehensive verification script for PR #243 workflow fixes.
 This script validates all the fixes applied to resolve GitHub Actions failures.
 """
 
-import os
-import sys
-import subprocess
 import json
-import yaml
+import subprocess
+import sys
 from pathlib import Path
+
+import yaml
+
 
 def run_command(cmd, capture_output=True, timeout=30):
     """Run a command and return the result."""
@@ -19,7 +20,7 @@ def run_command(cmd, capture_output=True, timeout=30):
             shell=True,
             capture_output=capture_output,
             text=True,
-            timeout=timeout
+            timeout=timeout, check=False
         )
         return result.returncode == 0, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
@@ -34,7 +35,7 @@ def check_file_exists(filepath):
 def validate_yaml_file(filepath):
     """Validate YAML file syntax."""
     try:
-        with open(filepath, 'r') as f:
+        with open(filepath) as f:
             yaml.safe_load(f)
         return True, "Valid YAML"
     except Exception as e:
@@ -43,7 +44,7 @@ def validate_yaml_file(filepath):
 def validate_json_file(filepath):
     """Validate JSON file syntax."""
     try:
-        with open(filepath, 'r') as f:
+        with open(filepath) as f:
             json.load(f)
         return True, "Valid JSON"
     except Exception as e:
@@ -103,7 +104,7 @@ def main():
             print(f"✅ package.json - {message}")
 
             # Check for required test scripts
-            with open("package.json", 'r') as f:
+            with open("package.json") as f:
                 pkg_data = json.load(f)
 
             if "test" in pkg_data.get("scripts", {}):
@@ -244,11 +245,10 @@ def main():
         print("✅ PR #243 workflow fixes are properly implemented")
         print("✅ Ready for GitHub Actions execution")
         return 0
-    else:
-        print("⚠️  SOME CHECKS FAILED")
-        print("❌ Please review the failed checks above")
-        print("ℹ️  Some failures may be environment-specific and won't affect CI")
-        return 1
+    print("⚠️  SOME CHECKS FAILED")
+    print("❌ Please review the failed checks above")
+    print("ℹ️  Some failures may be environment-specific and won't affect CI")
+    return 1
 
 if __name__ == "__main__":
     sys.exit(main())
