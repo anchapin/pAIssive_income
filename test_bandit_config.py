@@ -11,6 +11,7 @@ import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
+
 from logging_config import configure_logging
 
 # Configure logging

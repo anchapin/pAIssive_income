@@ -2,6 +2,7 @@
 """Test if Python is working correctly."""
 
 import sys
+
 from logging_config import configure_logging
 
 

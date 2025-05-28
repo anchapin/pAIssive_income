@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import sys
+
 from logging_config import configure_logging
 
 # Configure logging

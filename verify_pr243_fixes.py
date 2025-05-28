@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 
 import yaml
+
 from logging_config import configure_logging
 
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import sys
+
 from logging_config import configure_logging
 
 try:

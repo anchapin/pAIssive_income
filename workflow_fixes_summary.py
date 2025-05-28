@@ -4,6 +4,7 @@ Summary of GitHub Actions workflow fixes applied.
 """
 
 from pathlib import Path
+
 from logging_config import configure_logging
 
 

@@ -3,6 +3,7 @@
 import logging
 import sys
 
+
 def configure_logging(
     level=logging.INFO,
     format_str="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -13,6 +14,7 @@ def configure_logging(
     Args:
         level: Logging level (default: logging.INFO)
         format_str: Log message format
+
     """
     root_logger = logging.getLogger()
     root_logger.setLevel(level)

@@ -25,6 +25,7 @@ import os
 import signal
 import sys
 import time
+
 from logging_config import configure_logging
 
 # Add the project root to the Python path

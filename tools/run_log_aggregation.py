@@ -18,12 +18,14 @@ Arguments:
     --logstash-host LOGSTASH_HOST   Logstash host (if not provided, Logstash is not used)
     --logstash-port LOGSTASH_PORT   Logstash port (default: 5000)
     --output-file OUTPUT_FILE       Output file for aggregated logs (if not provided, no file output)
+
 """
 
 import argparse
 import logging
 import os
 import sys
+
 from logging_config import configure_logging
 
 # Add the project root to the Python path

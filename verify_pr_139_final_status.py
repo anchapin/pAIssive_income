@@ -7,6 +7,7 @@ Confirms all critical fixes are in place and working correctly.
 import subprocess
 import sys
 from pathlib import Path
+
 from logging_config import configure_logging
 
 
