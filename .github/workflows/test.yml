@@ -51,6 +51,10 @@ jobs:
         # Activate virtual environment
         source .venv/bin/activate
 
+        # After creating the venv, ensure pip is installed
+        python -m ensurepip --upgrade || true
+        python -m pip install --upgrade pip setuptools wheel
+
         # Install dependencies with uv
         uv pip install pytest pytest-cov pytest-xdist pytest-asyncio || {
           echo "Failed to install test dependencies with uv pip. Installing uv in the virtual environment..."

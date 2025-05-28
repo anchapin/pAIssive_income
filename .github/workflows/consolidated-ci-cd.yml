@@ -933,3 +933,11 @@ target-version = 'py310'
 
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache'
     timeout-minutes: 30
+
+    # After creating the venv, ensure pip is installed
+    - name: Ensure pip in venv (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        source .venv/bin/activate
+        python -m ensurepip --upgrade || true
+        python -m pip install --upgrade pip setuptools wheel
