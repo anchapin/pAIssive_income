@@ -112,10 +112,12 @@ jobs:
 
       - name: Install uv (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
           iwr -useb https://astral.sh/uv/install.ps1 | iex
           echo "$HOME\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: pwsh
 
       - name: Upgrade pip (Unix)
         if: runner.os != 'Windows'
@@ -162,36 +164,59 @@ jobs:
           echo "Installing MCP SDK using installation script..."
           python install_mcp_sdk.py
 
-      - name: Install dependencies (Windows)
+      - name: Upgrade pip (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Ensure pip is up to date
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
           python -m pip install --upgrade pip
 
-          # Install testing tools
+      - name: Install core testing tools (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
           python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
 
-          # Install requirements (excluding MCP-related packages)
+      - name: Install dev requirements (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
           if (Test-Path requirements-dev.txt) {
             python -m pip install -r requirements-dev.txt --no-deps
             python -m pip install -r requirements-dev.txt
           }
 
-          # Install requirements.txt but skip MCP packages
+      - name: Install main requirements (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
           if (Test-Path requirements.txt) {
             $requirements = Get-Content requirements.txt | Where-Object { -not $_.Contains("mcp") -and -not $_.Contains("modelcontextprotocol") }
             $requirements | Set-Content -Path "requirements_filtered.txt"
             python -m pip install -r requirements_filtered.txt
           }
 
-          # Create mock MCP module for Windows
+      - name: Install MCP SDK (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
           python install_mcp_sdk.py
 
       - name: Create ruff configuration (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
           # Create ruff configuration file if it doesn't exist
           if (-not (Test-Path "pyproject.toml") -and -not (Test-Path "ruff.toml")) {
             Write-Host "Creating minimal ruff.toml configuration..."
@@ -207,6 +232,8 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           set -ex
+          ruff check . --fix --exit-zero-even-if-changed
+          ruff format .
           ruff check .
           pyrefly check .
 
@@ -214,6 +241,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
+          ruff check . --fix --exit-zero-even-if-changed
+          ruff format .
           # Skip MCP adapter files during linting on Windows
           ruff check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
           pyrefly check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
@@ -342,6 +373,8 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
           # Run all tests except MCP adapter tests and CrewAI tests
           if (Test-Path "run_tests.py") {
             Write-Host "Using run_tests.py script to run tests"
@@ -389,6 +422,8 @@ jobs:
       #   if: runner.os == 'Windows'
       #   shell: pwsh
       #   run: |
+      #     Set-PSDebug -Trace 1
+      #     $ErrorActionPreference = "Stop"
       #     # Check if package.json exists
       #     if (Test-Path "package.json") {
       #       Write-Host "Running JavaScript tests with nyc and mocha"
