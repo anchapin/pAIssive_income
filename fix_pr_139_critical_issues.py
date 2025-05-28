@@ -14,11 +14,14 @@ import logging
 import sys
 from pathlib import Path
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
+
+# Example third-party import with try/except
+try:
+    import requests
+except ImportError as e:
+    logger.exception("Failed to import requests")
+    raise
 
 
 def fix_mock_crewai_module():
@@ -408,6 +411,7 @@ def run_tests():
         return 0  # Don't fail CI
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
     sys.exit(run_tests())
 '''
 
@@ -576,4 +580,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
     sys.exit(main())

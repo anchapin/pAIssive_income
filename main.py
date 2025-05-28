@@ -8,11 +8,11 @@ logger = logging.getLogger(__name__)
 
 # Third-party imports
 # Example:
-# try:
-#     import requests
-# except ImportError:
-#     print("Error: requests module not found. Please install it.")
-#     sys.exit(1)
+try:
+    import requests
+except ImportError as e:
+    logger.exception("Failed to import requests")
+    raise
 
 # Local imports
 

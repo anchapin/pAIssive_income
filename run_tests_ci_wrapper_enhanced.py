@@ -9,8 +9,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Example third-party import with try/except
+try:
+    import requests
+except ImportError as e:
+    logger.exception("Failed to import requests")
+    raise
 
 def create_mock_modules():
     """Ensure mock modules exist."""
@@ -115,4 +121,5 @@ def run_tests():
         return 0  # Don't fail CI
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     sys.exit(run_tests())

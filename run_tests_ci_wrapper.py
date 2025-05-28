@@ -15,15 +15,15 @@ from pathlib import Path
 from typing import List
 
 
-# Configure logging for CI environments
-def setup_logging() -> None:
-    """Set up logging configuration."""
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-    )
-
 # Initialize logger after imports
 logger = logging.getLogger(__name__)
+
+# Example third-party import with try/except
+try:
+    import requests
+except ImportError as e:
+    logger.exception("Failed to import requests")
+    raise
 
 
 def is_ci_environment() -> bool:
@@ -322,7 +322,9 @@ def run_tests_with_fallback(test_args: List[str]) -> int:
 
 def main() -> int:
     """Run the main test execution logic."""
-    setup_logging()
+    if __name__ == "__main__":
+        setup_logging()
+        sys.exit(main())
 
     if is_ci_environment():
         logger.info("Detected CI environment, using CI-friendly test execution")
@@ -353,4 +355,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    setup_logging()
     sys.exit(main())

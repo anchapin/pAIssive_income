@@ -17,11 +17,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
+
+# Example third-party import with try/except
+try:
+    import requests
+except ImportError as e:
+    logger.exception("Failed to import requests")
+    raise
 
 
 def install_missing_dependencies():
@@ -299,4 +302,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
     sys.exit(main())
