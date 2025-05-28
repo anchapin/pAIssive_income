@@ -86,8 +86,12 @@ jobs:
         cache: pnpm
     - name: Install Node.js dependencies and build Tailwind CSS
       run: |
-        pnpm install
-        pnpm tailwind:build
+        if ! which pnpm; then
+          echo "pnpm not found, installing globally with npm..."
+          npm install -g pnpm
+        fi
+        pnpm install || (echo "pnpm install failed, trying npm install..." && npm install)
+        pnpm tailwind:build || (echo "pnpm tailwind:build failed, trying npm run tailwind:build..." && npm run tailwind:build)
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -109,7 +113,10 @@ jobs:
         curl -LsSf https://astral.sh/uv/install.sh | sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
         # Verify uv is installed and in PATH
-        which uv || echo "uv not found in PATH"
+        if ! which uv; then
+          echo "uv not found in PATH after install, falling back to pip."
+          python -m pip install --upgrade pip
+        fi
     - name: Install uv (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
@@ -175,26 +182,23 @@ jobs:
       run: |
         # Ensure pip is up to date
         python -m pip install --upgrade pip
-
         # Install uv if not already available
-        which uv || python -m pip install uv
-
+        if ! which uv; then
+          python -m pip install uv
+        fi
         # Install testing tools
         python -m pip install ruff pyright pytest pytest-cov pytest-xdist pytest-asyncio
         python -m pip install protobuf==5.29.4 # Ensure compatible protobuf
-
         # Install requirements
         if [ -f requirements-dev.txt ]; then
-          python -m pip install -r requirements-dev.txt || echo "Some requirements failed, continuing..."
+          uv pip install -r requirements-dev.txt || python -m pip install -r requirements-dev.txt || echo "Some requirements failed, continuing..."
         fi
         if [ -f requirements.txt ]; then
-          python -m pip install -r requirements.txt || echo "Some requirements failed, continuing..."
+          uv pip install -r requirements.txt || python -m pip install -r requirements.txt || echo "Some requirements failed, continuing..."
         fi
-
         # Install MCP SDK using the installation script
         echo "Installing MCP SDK using installation script..."
         python install_mcp_sdk.py
-
         # Install CI environment detection script
         if [ -f scripts/ci/detect_ci_environment.py ]; then
           echo "Installing CI environment detection script dependencies..."
@@ -209,7 +213,6 @@ jobs:
       run: |
         # Ensure pip is up to date
         python -m pip install --upgrade pip
-
         # Set CI environment variables with enhanced environment detection
         echo "CI=true" >> $env:GITHUB_ENV
         echo "CI_ENVIRONMENT=true" >> $env:GITHUB_ENV
@@ -222,46 +225,45 @@ jobs:
         echo "CI_NODE_VERSION=$(node --version)" >> $env:GITHUB_ENV
         echo "CI_RUNNER_OS=${{ runner.os }}" >> $env:GITHUB_ENV
         echo "CI_WORKSPACE=${{ github.workspace }}" >> $env:GITHUB_ENV
-
         # Set Flask environment for testing
         echo "FLASK_ENV=development" >> $env:GITHUB_ENV
         echo "DATABASE_URL=sqlite:///:memory:" >> $env:GITHUB_ENV
         echo "TESTING=true" >> $env:GITHUB_ENV
-
         # Set container environment detection variables
         echo "DOCKER_ENVIRONMENT=false" >> $env:GITHUB_ENV
         echo "KUBERNETES_ENVIRONMENT=false" >> $env:GITHUB_ENV
         echo "DOCKER_COMPOSE=false" >> $env:GITHUB_ENV
         echo "DOCKER_SWARM=false" >> $env:GITHUB_ENV
-
         # Install testing tools
         python -m pip install ruff pyright pytest pytest-cov pytest-xdist pytest-asyncio
         python -m pip install protobuf==5.29.4 # Ensure compatible protobuf
-
         # Install requirements (excluding MCP-related packages)
         if (Test-Path requirements-dev.txt) {
-          python -m pip install -r requirements-dev.txt --no-deps || echo "Some requirements failed, continuing..."
-          python -m pip install -r requirements-dev.txt || echo "Some requirements failed, continuing..."
+          try {
+            uv pip install -r requirements-dev.txt
+          } catch {
+            python -m pip install -r requirements-dev.txt --no-deps || echo "Some requirements failed, continuing..."
+            python -m pip install -r requirements-dev.txt || echo "Some requirements failed, continuing..."
+          }
         }
-
         # Install requirements.txt but skip MCP packages
         if (Test-Path requirements.txt) {
           $requirements = Get-Content requirements.txt |
             Where-Object { -not $_.Contains("mcp") -and -not $_.Contains("modelcontextprotocol") }
           $requirements |
             Set-Content -Path "requirements_filtered.txt"
-          python -m pip install -r requirements_filtered.txt || echo "Some requirements failed, continuing..."
+          try {
+            uv pip install -r requirements_filtered.txt
+          } catch {
+            python -m pip install -r requirements_filtered.txt || echo "Some requirements failed, continuing..."
+          }
         }
-
         # Create mock MCP module for Windows
         python install_mcp_sdk.py
-
         # Run the CI environment detection script if available
         if (Test-Path "scripts/ci/detect_ci_environment.py") {
           Write-Host "Installing CI environment detection script dependencies..."
-
           python -m pip install pyyaml
-
           # Run the CI environment detection script
           Write-Host "Running CI environment detection script..."
           $env: PYTHONIOENCODING = "UTF-8"
@@ -273,22 +275,20 @@ jobs:
       run: |
         if (-not (Test-Path "pyproject.toml") -and -not (Test-Path "ruff.toml")) {
           Write-Host "Creating minimal ruff.toml configuration..."
-          $content = @"
-[tool.ruff]
-exclude = [
-  '.git',
-  '.github',
-  '.venv',
-  'venv',
-  'node_modules',
-  '__pycache__',
-  'build',
-  'dist'
-]
-line-length = 100
-target-version = 'py310'
-"@
-          $content | Out-File -FilePath "ruff.toml" -Encoding utf8
+          Remove-Item -Path "ruff.toml" -ErrorAction SilentlyContinue
+          Add-Content -Path "ruff.toml" -Value "[tool.ruff]"
+          Add-Content -Path "ruff.toml" -Value "exclude = ["
+          Add-Content -Path "ruff.toml" -Value "  '.git',"
+          Add-Content -Path "ruff.toml" -Value "  '.github',"
+          Add-Content -Path "ruff.toml" -Value "  '.venv',"
+          Add-Content -Path "ruff.toml" -Value "  'venv',"
+          Add-Content -Path "ruff.toml" -Value "  'node_modules',"
+          Add-Content -Path "ruff.toml" -Value "  '__pycache__',"
+          Add-Content -Path "ruff.toml" -Value "  'build',"
+          Add-Content -Path "ruff.toml" -Value "  'dist'"
+          Add-Content -Path "ruff.toml" -Value "]"
+          Add-Content -Path "ruff.toml" -Value "line-length = 100"
+          Add-Content -Path "ruff.toml" -Value "target-version = 'py310'"
           Write-Host "Created ruff.toml with basic configuration"
         }
     - name: Run linting (Unix)
@@ -353,48 +353,61 @@ target-version = 'py310'
           echo "script_exists=false" >> $env:GITHUB_OUTPUT
         }
 
+    - name: Ensure required test directories (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        mkdir -p logs
+        mkdir -p coverage
+        mkdir -p playwright-report
+        mkdir -p test-results
+        mkdir -p ci-reports/github
+    - name: Ensure required test directories (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path logs
+        New-Item -ItemType Directory -Force -Path coverage
+        New-Item -ItemType Directory -Force -Path playwright-report
+        New-Item -ItemType Directory -Force -Path test-results
+        New-Item -ItemType Directory -Force -Path ci-reports/github
     - name: Create mock CrewAI test script (Unix)
       if: runner.os != 'Windows' && steps.check_script.outputs.script_exists == 'false'
       run: |
         echo '#!/usr/bin/env python3' > run_crewai_tests.py
-        echo '"""Mock CrewAI test script."""' > run_crewai_tests.py
-        echo 'import sys' > run_crewai_tests.py
-        echo 'print("Mock CrewAI test script")' > run_crewai_tests.py
-        echo 'print("CrewAI tests skipped - script not found")' > run_crewai_tests.py
-        echo 'sys.exit(0)' > run_crewai_tests.py
-        '
+        echo '"""Mock CrewAI test script."""' >> run_crewai_tests.py
+        echo 'import sys' >> run_crewai_tests.py
+        echo 'print("Mock CrewAI test script")' >> run_crewai_tests.py
+        echo 'print("CrewAI tests skipped - script not found")' >> run_crewai_tests.py
+        echo 'sys.exit(0)' >> run_crewai_tests.py
     - name: Create mock CrewAI test script (Windows)
       if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists
       shell: pwsh
       run: |
-        $content = '#!/usr/bin/env python3
-""Mock CrewAI test script."""
-        import sys
-        print("Mock CrewAI test script")
-        print("CrewAI tests skipped - script not found")
-        sys.exit(0)'
-        Set-Content -Path run_crewai_tests.py -Value $content -Encoding utf8
-        '
+        Remove-Item -Path run_crewai_tests.py -ErrorAction SilentlyContinue
+        Add-Content -Path run_crewai_tests.py -Value "#!/usr/bin/env python3"
+        Add-Content -Path run_crewai_tests.py -Value '"""Mock CrewAI test script."""'
+        Add-Content -Path run_crewai_tests.py -Value "import sys"
+        Add-Content -Path run_crewai_tests.py -Value 'print("Mock CrewAI test script")'
+        Add-Content -Path run_crewai_tests.py -Value 'print("CrewAI tests skipped - script not found")'
+        Add-Content -Path run_crewai_tests.py -Value 'sys.exit(0)'
     - name: Run CrewAI tests (Unix)
       if: runner.os != 'Windows'
-      continue-on-error: true
       run: |
         # Run CrewAI tests separately using the custom script
         if [ -f "run_tests.py" ]; then
           echo "Using run_tests.py script to run CrewAI tests"
-          python run_tests.py -v tests/test_crewai_agents.py || echo "CrewAI tests failed, but continuing"
+          python run_tests.py -v tests/test_crewai_agents.py
         elif [ -f "run_tests.sh" ]; then
           echo "Using run_tests.sh script to run CrewAI tests"
           chmod +x run_tests.sh
-          ./run_tests.sh -v tests/test_crewai_agents.py || echo "CrewAI tests failed, but continuing"
+          ./run_tests.sh -v tests/test_crewai_agents.py
         else
           echo "Using run_crewai_tests.py script"
-          python run_crewai_tests.py || echo "CrewAI tests failed, but continuing"
+          python run_crewai_tests.py
         fi
 
     - name: Run CrewAI tests (Windows)
       if: runner.os == 'Windows'
-      continue-on-error: true
       shell: pwsh
       run: |
         # Run CrewAI tests separately using the custom script
@@ -412,6 +425,10 @@ target-version = 'py310'
           python run_crewai_tests.py
         }
     - name: Run other tests (Unix)
+      env:
+        FLASK_ENV: development
+        DATABASE_URL: 'sqlite:///:memory:'
+        TESTING: 'true'
       if: runner.os != 'Windows'
       run: |
         # Run all tests except MCP adapter tests and CrewAI tests
@@ -424,20 +441,21 @@ target-version = 'py310'
           ./run_tests.sh -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
         else
           echo "Using pytest directly"
-
-          # Set environment variables to bypass virtual environment checks
           export PYTHONNOUSERSITE=1
           export SKIP_VENV_CHECK=1
           pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
         fi
     - name: Run other tests (Windows)
+      env:
+        FLASK_ENV: development
+        DATABASE_URL: 'sqlite:///:memory:'
+        TESTING: 'true'
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
         # Run all tests except MCP adapter tests and CrewAI tests
         if (Test-Path "run_tests.py") {
           Write-Host "Using run_tests.py script to run tests"
-
           python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
         } elseif (Test-Path "run_tests.ps1") {
           Write-Host "Using run_tests.ps1 script to run tests"
@@ -821,9 +839,9 @@ target-version = 'py310'
         platforms: linux/amd64,linux/arm64
         build-args: 'BUILDKIT_INLINE_CACHE=1'
     - name: Move Docker cache
-      run: |
-        rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      run: 'rm -rf /tmp/.buildx-cache
+
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache'
 
     - name: Upload Playwright report
       if: always()
@@ -913,8 +931,7 @@ target-version = 'py310'
       uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: '${{ runner.os }}-buildx-
+        key: ${{ runner.os }}-buildx-
 
           '
     - name: Build and push Docker image
@@ -932,12 +949,3 @@ target-version = 'py310'
       run: 'rm -rf /tmp/.buildx-cache
 
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache'
-    timeout-minutes: 30
-
-    # After creating the venv, ensure pip is installed
-    - name: Ensure pip in venv (Unix)
-      if: runner.os != 'Windows'
-      run: |
-        source .venv/bin/activate
-        python -m ensurepip --upgrade || true
-        python -m pip install --upgrade pip setuptools wheel

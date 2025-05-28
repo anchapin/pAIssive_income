@@ -19,6 +19,10 @@ jobs:
   vitest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      CI: true
+      GITHUB_ACTIONS: true
+      CI_ENVIRONMENT: true
     defaults:
       run:
         working-directory: ui/react_frontend
@@ -43,7 +47,15 @@ jobs:
     - name: Check pnpm version
       run: pnpm --version
     - name: Install dependencies
-      run: pnpm install
+      run: |
+        pnpm install || (echo "pnpm install failed, trying npm install..." && npm install)
+    - name: Create required test directories
+      run: |
+        mkdir -p logs
+        mkdir -p coverage
+        mkdir -p playwright-report
+        mkdir -p test-results
+        mkdir -p ci-reports/github
     - name: Create coverage directory
       run: mkdir -p coverage
     - name: Create dummy test file if it doesn't exist
@@ -107,7 +119,6 @@ jobs:
         echo "Environment summary created at coverage/environment-summary.txt"
     - name: Run Vitest unit tests with parallel execution
       id: run_tests
-      continue-on-error: true
       run: |
         # Set enhanced environment variables
         export CI=true
@@ -128,14 +139,7 @@ jobs:
         echo "Using $WORKERS workers for parallel test execution"
 
         # Run tests with parallel execution and proper error handling
-        pnpm run test:unit --threads=$WORKERS --reporter=verbose || {
-          echo "Tests failed with exit code $?"
-          echo "Creating error report..."
-          echo "Test execution failed at $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" > coverage/test-error-report.txt
-          echo "Exit code: $?" >> coverage/test-error-report.txt
-          echo "Workers: $WORKERS" >> coverage/test-error-report.txt
-          echo "Tests failed but continuing workflow"
-        }
+        pnpm run test:unit --threads=$WORKERS --reporter=verbose
     - name: Create minimal coverage report if tests fail
       if: steps.run_tests.outcome != 'success'
       run: |

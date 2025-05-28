@@ -13,6 +13,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      CI: true
+      GITHUB_ACTIONS: true
+      CI_ENVIRONMENT: true
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
@@ -72,6 +76,8 @@ jobs:
         uv pip install -e . -v
     - name: Create junit directory
       run: mkdir -p junit
+    - name: Create coverage directory
+      run: mkdir -p coverage
     - name: Run tests
       env:
         PYTHONPATH: ${{ github.workspace }}
