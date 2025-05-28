@@ -15,8 +15,6 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -87,7 +85,6 @@ def _prepare_test_command() -> list[str]:
                 logger.info("Using alternative path: %s", alt_path)
             else:
                 logger.warning("Test file not found at %s or %s", path, alt_path)
-
     # Use absolute path for the executable when possible
     if shutil.which(sys.executable):
         cmd[0] = shutil.which(sys.executable)
@@ -283,8 +280,6 @@ def _handle_test_failure(return_code: int, execution_success: bool) -> int:
         return 1
 
     return 0
-
-
 def run_mcp_tests() -> int:
     """
     Run MCP adapter tests without loading the main conftest.py.
@@ -293,6 +288,8 @@ def run_mcp_tests() -> int:
         int: The return code from the test run (0 for success, non-zero for failure)
 
     """
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     logger.info("Running MCP adapter tests...")
     logger.info("Platform: %s", platform.system())
     logger.info("Python version: %s", sys.version)
@@ -433,7 +430,6 @@ setup(
         finally:
             # Don't remove the temp directory as it contains the installed package
             pass
-
     except Exception:
         logger.exception("Failed to create mock modelcontextprotocol module")
 
@@ -576,8 +572,6 @@ def _recreate_mock_module() -> None:
             logger.info("Still failed to find modelcontextprotocol after recreation")
     except ImportError as e:
         logger.info("Error checking for modelcontextprotocol after recreation: %s", e)
-
-
 def diagnose_mcp_import_issues() -> None:
     """Diagnose issues with importing the modelcontextprotocol module."""
     try:
@@ -600,7 +594,6 @@ def diagnose_mcp_import_issues() -> None:
 
         # Try to create the mock module again
         _recreate_mock_module()
-
     except Exception:
         logger.exception("Error during diagnosis")
 

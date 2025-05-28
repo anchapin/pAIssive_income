@@ -2,6 +2,92 @@
 
 ## Current Status
 
+### Test Coverage Improvement Plan (Added June 12, 2024)
+
+#### Current Status
+- Current test coverage: 16.97%
+- Target test coverage: 80% within 2 weeks
+- Current date: June 12, 2024
+- Target date: June 26, 2024
+
+#### Approach
+We will incrementally improve test coverage by focusing on the most critical modules first, then expanding to cover more of the codebase. The plan is structured to achieve steady progress while ensuring that the most important functionality is well-tested.
+
+#### Week 1 (June 12 - June 19): Reach 50% Coverage
+
+##### Day 1-2: Core Utilities (Target: 25%)
+- [ ] Complete tests for `common_utils/logging/secure_logging.py` (currently at 29%)
+- [ ] Add tests for `common_utils/logging/log_utils.py`
+- [ ] Add tests for `common_utils/logging/logger.py`
+- [ ] Add tests for `common_utils/file_utils.py`
+- [ ] Add tests for `common_utils/string_utils.py`
+- [ ] Add tests for `common_utils/validation_utils.py`
+
+##### Day 3-4: Database and Caching (Target: 35%)
+- [ ] Add tests for `common_utils/db/factory.py`
+- [ ] Add tests for `common_utils/db/interfaces.py`
+- [ ] Add tests for `common_utils/db/sql_adapter.py`
+- [ ] Add tests for `common_utils/db/nosql_adapter.py`
+- [ ] Add tests for `common_utils/caching/cache_service.py`
+- [ ] Add tests for `common_utils/caching/decorators.py`
+
+##### Day 5-7: AI Models (Target: 50%)
+- [ ] Add tests for `ai_models/adapters/base_adapter.py`
+- [ ] Add tests for `ai_models/adapters/exceptions.py`
+- [ ] Add tests for `ai_models/model_base_types.py`
+- [ ] Add tests for `ai_models/model_config.py`
+- [ ] Add tests for `ai_models/model_manager.py`
+- [ ] Add tests for `ai_models/schemas.py`
+
+#### Week 2 (June 19 - June 26): Reach 80% Coverage
+
+##### Day 8-10: Agent Team and CrewAI (Target: 65%)
+- [ ] Add tests for `agent_team/crewai_agents.py`
+- [ ] Add tests for `agent_team/team_config.py`
+- [ ] Add tests for `agent_team/schemas.py`
+- [ ] Add tests for `agent_team/errors.py`
+- [ ] Add tests for `agent_team/agent_profiles/*.py` (all profile modules)
+
+##### Day 11-12: Monitoring and Metrics (Target: 75%)
+- [ ] Add tests for `common_utils/monitoring/health.py`
+- [ ] Add tests for `common_utils/monitoring/metrics.py`
+- [ ] Add tests for `common_utils/monitoring/system.py`
+- [ ] Add tests for `ai_models/metrics/api.py`
+- [ ] Add tests for `ai_models/metrics/enhanced_metrics.py`
+
+##### Day 13-14: Main Applications and Integration (Target: 80%)
+- [ ] Add tests for `main_health_check.py`
+- [ ] Add tests for `check_api_server.py`
+- [ ] Add tests for `main_crewai_agents.py`
+- [ ] Add tests for `main_demo_vector_rag.py`
+- [ ] Add tests for `init_agent_db.py`
+
+#### Testing Strategies
+
+##### Unit Testing
+- Focus on testing individual functions and methods in isolation
+- Use mocking to isolate dependencies
+- Ensure high coverage of edge cases and error handling
+
+##### Integration Testing
+- Test interactions between components
+- Focus on API boundaries and data flow
+- Verify correct behavior of integrated systems
+
+##### Test-Driven Development
+- For new features, write tests before implementation
+- For existing code, write tests that document current behavior before making changes
+
+#### Monitoring Progress
+- Run coverage reports daily to track progress
+- Update this plan as needed based on findings
+- Prioritize fixing any failing tests before adding new ones
+
+#### Long-term Maintenance
+- Add tests for all new code
+- Maintain the 80% coverage threshold
+- Regularly review and update tests as the codebase evolves
+
 ### Webhook Schema Tests
 - **File**: `tests/api/test_webhook_schema.py`
 - **Status**: ✅ All tests passing

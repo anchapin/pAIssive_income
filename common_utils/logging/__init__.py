@@ -1,58 +1,74 @@
 """
 Common utilities for secure logging and log management.
-
-This package provides tools for secure logging, ensuring sensitive information
-is not logged in clear text.
 """
 
-# Standard library imports
 import logging
-from typing import cast
+import sys  # Added sys import
+from typing import Dict, Union, cast
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 
 # Third-party imports
 # Local imports
-from .secure_logging import (
-    SENSITIVE_FIELDS,
-    SecureLogger,
-    get_secure_logger,
-    mask_sensitive_data,
-)
+try:
+    from .secure_logging import (
+        SENSITIVE_FIELDS,
+        SecureLogger,
+        get_secure_logger,
+        mask_sensitive_data,
+    )
+except ImportError:
+    print("Error: .secure_logging module not found. Ensure it's in the PYTHONPATH and the current package.")
+    sys.exit(1)
+
 
 __all__ = [
     "SENSITIVE_FIELDS",
     "SecureLogger",
+    "_logger_cache",
     "get_logger",
     "get_secure_logger",
     "mask_sensitive_data",
+    "secure_logger",
 ]
 
 
-def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger with the given name.
+# Logger cache to avoid creating duplicate loggers
+_logger_cache: Dict[str, Union[SecureLogger, logging.Logger]] = {}
 
-    This is a convenience function that returns a secure logger by default,
-    which automatically masks sensitive information.
+# Create a default secure logger instance
+secure_logger = get_secure_logger("secure_logger")
+
+def get_logger(name: str, secure: bool = True) -> Union[SecureLogger, logging.Logger]:
+    """
+    Get a logger instance.
 
     Args:
-    ----
-        name: Name of the logger
+        name: Logger name
+        secure: Whether to return a secure logger (default True)
 
     Returns:
-    -------
-        logging.Logger: The secure logger or a standard logger as fallback
+        Logger instance (SecureLogger if secure=True)
 
     """
-    try:
-        # Return a SecureLogger that masks sensitive information
-        logger = get_secure_logger(name)
-        # Cast to logging.Logger to satisfy type checking
-        return cast("logging.Logger", logger)
-    except (ImportError, AttributeError) as e:
-        # Fall back to standard logger if secure logger is not available
-        setup_logger = logging.getLogger("logging_setup")
-        setup_logger.warning(
-            "Failed to create secure logger, falling back to standard logger: %s",
-            str(e),
-        )
-        return logging.getLogger(name)
+    if name in _logger_cache:
+        return _logger_cache[name]
+
+    if secure:
+        try:
+            logger_instance = SecureLogger(name) # Renamed to avoid conflict with module-level logger
+        except Exception:
+            # Fall back to standard logger if secure logger fails
+            logger.exception("Failed to initialize SecureLogger, falling back to standard logger.") # Use logger.exception
+            logger_instance = logging.getLogger(name)
+            logger_instance.setLevel(logging.INFO)
+    else:
+        logger_instance = logging.getLogger(name)
+        logger_instance.setLevel(logging.INFO)
+
+    _logger_cache[name] = logger_instance
+    return logger_instance
+
+# Note: secure_logger can be created on-demand using get_logger("secure_logger")

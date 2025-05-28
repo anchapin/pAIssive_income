@@ -23,13 +23,17 @@ from app_flask import create_app
 from app_flask.middleware.logging_middleware import setup_request_logging
 from config import Config
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Type variable for generic typing
 T = TypeVar("T")
 
 # Type hint for Flask app logger
 FlaskLogger = logging.Logger
 
-logger = LocalProxy[logging.Logger](lambda: current_app.logger)
+# Logger will be initialized after setup_logging() is called
+app_logger = LocalProxy[logging.Logger](lambda: current_app.logger)
 
 
 class CompressedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):

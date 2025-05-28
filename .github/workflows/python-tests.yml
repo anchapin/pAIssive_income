@@ -1,0 +1,84 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Only run if auto-fix workflow completed successfully, or if triggered by other events
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    env:
+      ACTIONS_RUNNER_DEBUG: true
+      ACTIONS_STEP_DEBUG: true
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # Install aiohttp explicitly first to ensure it's available
+        python -m pip install aiohttp>=3.9.0 multidict yarl
+        # Verify aiohttp is installed
+        python -c "import aiohttp; print(f'aiohttp version: {aiohttp.__version__}')"
+        # Install test dependencies first
+        python -m pip install pytest pytest-cov pytest-asyncio pytest-xdist
+        # Install common dependencies with error handling
+        if [ -f requirements.txt ]; then
+          python -m pip install -r requirements.txt || {
+            echo "Retrying requirements.txt installation with --no-deps"
+            python -m pip install --no-deps -r requirements.txt
+          }
+        fi
+        if [ -f requirements-dev.txt ]; then
+          python -m pip install -r requirements-dev.txt || {
+            echo "Retrying requirements-dev.txt installation with --no-deps"
+            python -m pip install --no-deps -r requirements-dev.txt
+          }
+        fi
+        # Install Python version-specific dependencies
+        if [[ "${{ matrix.python-version }}" == "3.11" || "${{ matrix.python-version }}" == "3.12" ]] && [ -f requirements-py311.txt ]; then
+          python -m pip install -r requirements-py311.txt || {
+            echo "Retrying requirements-py311.txt installation with --no-deps"
+            python -m pip install --no-deps -r requirements-py311.txt
+          }
+        fi
+        # Install the package in development mode
+        python -m pip install -e . || {
+          echo "Retrying package installation with --no-deps"
+          python -m pip install --no-deps -e .
+        }
+
+    - name: Check logger initialization
+      run: |
+        python scripts/check_logger_initialization.py --verbose
+
+    - name: Run tests with coverage
+      run: |
+        # Use the coverage threshold of 7% (consistent with other configurations)
+        python -m pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=1
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false

@@ -1,5 +1,7 @@
 """Tests for the math_utils module."""
 
+import logging
+
 import pytest
 
 from utils.math_utils import add, average, divide, multiply, subtract
@@ -53,7 +55,7 @@ class TestMathUtils:
 
     def test_divide_by_zero(self):
         """Test that divide raises ZeroDivisionError when dividing by zero."""
-        with pytest.raises(ZeroDivisionError):
+        with pytest.raises(ZeroDivisionError, match="Cannot divide by zero"):
             divide(5, 0)
 
     def test_average(self):

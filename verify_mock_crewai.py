@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
+import logging
+import sys
+from pathlib import Path
+from logging_config import configure_logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Verify that the mock_crewai package works correctly without circular import issues.
 
@@ -6,15 +16,7 @@ This script imports and uses the mock_crewai package to verify that the
 circular import issues have been resolved.
 """
 
-from __future__ import annotations
 
-import logging
-import sys
-from pathlib import Path
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
 
 # Add the parent directory to sys.path to ensure mock_crewai can be imported
 current_dir = Path(__file__).resolve().parent
@@ -111,4 +113,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    configure_logging()
     sys.exit(main())
