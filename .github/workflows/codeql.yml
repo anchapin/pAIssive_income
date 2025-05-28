@@ -89,7 +89,7 @@ jobs:
         if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.11.1' # Specify a patch version
 
       # Add pnpm to PATH for Linux/macOS
       - name: Add pnpm to PATH (Linux/macOS)

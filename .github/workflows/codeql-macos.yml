@@ -95,7 +95,7 @@ jobs:
         if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.11.1' # Specify a patch version
           # Disable cache to avoid potential issues with pnpm
           # cache: 'pnpm'
 

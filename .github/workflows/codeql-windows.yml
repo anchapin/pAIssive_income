@@ -30,7 +30,7 @@ jobs:
         if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.11.1' # Specify a patch version
 
       - name: Setup Python
         if: matrix.language == 'python'

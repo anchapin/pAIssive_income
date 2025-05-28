@@ -42,6 +42,8 @@ To work with ARTIST in this repository, familiarize yourself with these key loca
 
 ## 3. Setup Instructions
 
+**Important Note:** The `requirements-artist.txt` file, mentioned below for ARTIST-specific setup, is currently a placeholder. The actual dependencies required for ARTIST experiments need to be identified and added to this file. Until then, the ARTIST-specific setup instructions may not result in a functional environment.
+
 ### A. Using `uv` (Preferred) or venv
 
 1. **Clone the repository and navigate to the root:**
@@ -63,7 +65,7 @@ To work with ARTIST in this repository, familiarize yourself with these key loca
      source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 
      # Install ARTIST dependencies using uv
-     uv pip install -r requirements-artist.txt
+     uv pip install -r requirements-artist.txt (ensure this file is populated with necessary dependencies)
      ```
 
    - **For full project development (including ARTIST integration):**  
@@ -71,7 +73,7 @@ To work with ARTIST in this repository, familiarize yourself with these key loca
      ```bash
      ./setup_with_uv.sh  # or setup_with_uv.ps1 on Windows
      ```
-     > **Note:** The general setup script does **not** install ARTIST-specific dependencies from `requirements-artist.txt` by default. If you plan to work on both the core project and ARTIST experiments, you may need to run both, but be aware this could result in package version conflicts. In such cases, consider using separate virtual environments for ARTIST and the main project.
+     > **Note:** The general setup script does **not** install ARTIST-specific dependencies from `requirements-artist.txt` (once populated) by default. If you plan to work on both the core project and ARTIST experiments, you may need to run both, but be aware this could result in package version conflicts. In such cases, consider using separate virtual environments for ARTIST and the main project.
 
 **Tip:**  
 If you are focusing solely on ARTIST experiments, you can safely skip running `./setup_with_uv.sh`. Conversely, if developing for the whole project, run both steps but keep dependency overlap in mind. Future improvements may include an option/flag in `setup_with_uv.sh` for ARTIST-specific installs.
@@ -82,8 +84,8 @@ If you are focusing solely on ARTIST experiments, you can safely skip running `.
    ```bash
    docker compose up --build
    ```
-   - For ARTIST-specific experiments, use the dedicated `artist_experiments/Dockerfile.artist`. This Dockerfile is pre-configured to use `requirements-artist.txt` and is recommended for isolated ARTIST experiment execution.
-   - If, for some reason, you need to run ARTIST experiments from the main project Dockerfile, you may need to customize it to ensure it installs dependencies from `requirements-artist.txt`. However, using `artist_experiments/Dockerfile.artist` is generally preferred for ARTIST-related workflows.
+   - For ARTIST-specific experiments, use the dedicated `artist_experiments/Dockerfile.artist`. This Dockerfile is pre-configured to use `requirements-artist.txt` (once populated) and is recommended for isolated ARTIST experiment execution.
+   - If, for some reason, you need to run ARTIST experiments from the main project Dockerfile, you may need to customize it to ensure it installs dependencies from `requirements-artist.txt` (once populated). However, using `artist_experiments/Dockerfile.artist` is generally preferred for ARTIST-related workflows.
 
 2. **Environment and .gitignore Best Practices**
 
@@ -140,7 +142,7 @@ pytest
 ## 5. Troubleshooting & FAQ
 
 **Q1: "ModuleNotFoundError" or import errors**
-- Make sure you’ve activated your virtual environment and installed with `uv` using `requirements-artist.txt`.
+- Make sure you’ve activated your virtual environment and installed with `uv` using `requirements-artist.txt` (ensure this file is populated with necessary dependencies).
 - If using Docker, rebuild the container (`docker compose build`).
 
 **Q2: Dependency version conflicts**
@@ -149,8 +151,8 @@ pytest
 
 **Q3: Docker issues (missing dependencies, agent errors)**
 - Ensure you are using the correct Dockerfile for your use case:
-  - For ARTIST experiments, the recommended approach is to use `artist_experiments/Dockerfile.artist`, which is already set up to install dependencies from `requirements-artist.txt`.
-  - If running via a different Dockerfile, make sure it also installs the necessary dependencies from `requirements-artist.txt`.
+  - For ARTIST experiments, the recommended approach is to use `artist_experiments/Dockerfile.artist`, which is already set up to install dependencies from `requirements-artist.txt` (once populated).
+  - If running via a different Dockerfile, make sure it also installs the necessary dependencies from `requirements-artist.txt` (once populated).
 - Rebuild images on requirements changes.
 
 **Q4: Experiment/test failures**
