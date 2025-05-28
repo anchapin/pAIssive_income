@@ -298,17 +298,17 @@ jobs:
           # Run all tests except MCP adapter tests and CrewAI tests
           if [ -f "run_tests.py" ]; then
             echo "Using run_tests.py script to run tests"
-            python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            python run_tests.py -v --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           elif [ -f "run_tests.sh" ]; then
             echo "Using run_tests.sh script to run tests"
             chmod +x run_tests.sh
-            ./run_tests.sh -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            ./run_tests.sh -v --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           else
             echo "Using pytest directly"
             # Set environment variables to bypass virtual environment checks
             export PYTHONNOUSERSITE=1
             export SKIP_VENV_CHECK=1
-            pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            pytest -v --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           fi
 
       - name: Run other tests (Windows)
@@ -318,19 +318,19 @@ jobs:
           # Run all tests except MCP adapter tests and CrewAI tests
           if (Test-Path "run_tests.py") {
             Write-Host "Using run_tests.py script to run tests"
-            python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            python run_tests.py -v --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           } elseif (Test-Path "run_tests.ps1") {
             Write-Host "Using run_tests.ps1 script to run tests"
-            .\run_tests.ps1 -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            .\run_tests.ps1 -v --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           } elseif (Test-Path "run_tests.bat") {
             Write-Host "Using run_tests.bat script to run tests"
-            .\run_tests.bat -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            .\run_tests.bat -v --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           } else {
             Write-Host "Using pytest directly"
             # Set environment variables to bypass virtual environment checks
             $env:PYTHONNOUSERSITE = "1"
             $env:SKIP_VENV_CHECK = "1"
-            pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            pytest -v --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           }
 
       - name: Run JavaScript tests (Unix)
