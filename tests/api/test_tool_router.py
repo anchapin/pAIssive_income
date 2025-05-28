@@ -1,15 +1,16 @@
 import pytest
 from fastapi.testclient import TestClient
 import os
-# Set a default TOOL_API_KEY for tests if not already set
-# This ensures tool_router.py can import without raising an immediate ValueError
+# Set a default TOOL_API_KEY for tests if not already set in the environment.
+# This ensures that api/routes/tool_router.py can be imported without
+# raising a ValueError if TOOL_API_KEY is not externally set.
 if os.getenv("TOOL_API_KEY") is None:
-    os.environ["TOOL_API_KEY"] = "test_default_key"
+    os.environ["TOOL_API_KEY"] = "test_default_key_for_import"
 from api.app import app
 
 client = TestClient(app)
-# TEST_CLIENT_API_KEY can be different from TOOL_API_KEY if needed,
-# but for these tests, it should match what TOOL_API_KEY is set to.
+# The test client will use the TOOL_API_KEY that is set in the environment.
+# This ensures consistency with what the application (api.app) expects.
 TEST_CLIENT_API_KEY = os.getenv("TOOL_API_KEY")
 HEADERS = {"x-api-key": TEST_CLIENT_API_KEY}
 
