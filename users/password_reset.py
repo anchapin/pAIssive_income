@@ -11,7 +11,7 @@ import hashlib
 import secrets
 import string
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import TypeAlias
 
 from common_utils.logging import get_logger
@@ -112,7 +112,7 @@ class PasswordResetService:
 
         # Generate a secure reset code with high entropy
         reset_code = generate_reset_code(48)  # Use longer code for better security
-        expiry = datetime.now(tz=datetime.timezone.utc) + timedelta(
+        expiry = datetime.now(tz=timezone.utc) + timedelta(
             seconds=self.code_expiry
         )
 
@@ -190,7 +190,7 @@ class PasswordResetService:
             return False
 
         expiry = datetime.fromisoformat(user["auth_reset_expires"])
-        if expiry < datetime.now(tz=datetime.timezone.utc):
+        if expiry < datetime.now(tz=timezone.utc):
             logger.warning(
                 "Expired authentication reset attempt", extra={"user_id": user["id"]}
             )
@@ -208,7 +208,7 @@ class PasswordResetService:
                 "auth_hash": hashed_credential,
                 "auth_reset_token": None,
                 "auth_reset_expires": None,
-                "updated_at": datetime.now(tz=datetime.timezone.utc).isoformat(),
+                "updated_at": datetime.now(tz=timezone.utc).isoformat(),
             },
         )
 

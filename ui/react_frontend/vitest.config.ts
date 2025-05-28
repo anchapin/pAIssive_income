@@ -1,16 +1,46 @@
-import { defineConfig } from "vitest/config";
+/// <reference types="vitest" />
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+// Configure Vitest (https://vitest.dev/config/)
 export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: "jsdom",
-    setupFiles: "./tests/setup.ts",
-    include: ["src/**/*.{test,spec}.{js,ts,jsx,tsx}", "tests/**/*.{test,spec}.{js,ts,jsx,tsx}"],
-    exclude: ["**/tests/e2e/**", "**/node_modules/**", "**/tests/mock_api_server.test.js"],
+    environment: 'jsdom',
+    setupFiles: ['./src/setupTests.js'],
+    include: ['**/*.{test,spec}.{js,jsx,ts,tsx}'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', 'tests/e2e/**'],
     coverage: {
-      reporter: ["text", "json", "html"],
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'node_modules',
+        'dist',
+        'build',
+        '**/*.d.ts',
+        'setupTests.js',
+        'tests/setup.ts',
+        'tests/mocks/**',
+        'coverage/**',
+        'tests/e2e/**'
+      ],
+      thresholds: {
+        branches: 90,
+        functions: 90,
+        lines: 90,
+        statements: 90
+      }
     },
+    transformMode: {
+      web: [/\.[jt]sx$/]
+    }
   },
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
+  },
+  define: {
+    'process.env': {}
+  }
 });

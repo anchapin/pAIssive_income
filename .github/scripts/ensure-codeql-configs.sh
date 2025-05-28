@@ -312,11 +312,7 @@ database:
   # Exclude files with too many AST nodes
   max-ast-nodes: 500000
   # Extraction timeout per file
-  extraction-timeout: 300
-  # Windows-specific settings
-  windows:
-    # Increase timeout for Windows
-    extraction-timeout: 600'
+  extraction-timeout: 300'
 
 # Function to check and create a configuration file
 ensure_config_file() {

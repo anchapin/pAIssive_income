@@ -1,5 +1,6 @@
 """Tests for the MCP adapter."""
 
+import logging
 from unittest.mock import MagicMock, patch
 
 import pytest

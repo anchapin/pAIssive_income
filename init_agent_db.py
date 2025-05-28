@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
-"""init_agent_db.py - Initialize the agent database with test data."""
 
 import logging
 import os
 import sys
 
-import psycopg2
-from psycopg2.extras import RealDictCursor
-
-# Set up logger with more detailed formatting
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+# Configure logging
 logger = logging.getLogger(__name__)
+
+"""init_agent_db.py - Initialize the agent database with test data."""
+
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+except ImportError:
+    print("Error: psycopg2 module not found. Please install it.")
+    sys.exit(1)
+
 
 
 def init_agent_db() -> bool:
@@ -109,6 +111,11 @@ def init_agent_db() -> bool:
 
 
 if __name__ == "__main__":
+    # Set up logger with more detailed formatting
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     success = init_agent_db()
     if not success:
         sys.exit(1)

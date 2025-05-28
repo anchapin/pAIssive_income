@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Fix Bandit Security Scan Issues for GitHub Actions.
 
@@ -16,12 +21,6 @@ import logging
 import shutil
 import sys
 from pathlib import Path
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 # Define the base configuration template
 CONFIG_TEMPLATE = """# Bandit Configuration for {platform} (Run ID: {run_id})
@@ -94,6 +93,10 @@ EMPTY_SARIF = {
 
 def main() -> None:
     """Fix Bandit security scan issues for GitHub Actions."""
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     # Get run ID from command line argument or use default
     run_id = sys.argv[1] if len(sys.argv) > 1 else "15053076509"  # Default run ID
 
