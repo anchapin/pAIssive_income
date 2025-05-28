@@ -14,14 +14,13 @@ import sys
 from pathlib import Path
 from typing import List
 
-
 # Initialize logger after imports
 logger = logging.getLogger(__name__)
 
 # Example third-party import with try/except
 try:
     import requests
-except ImportError as e:
+except ImportError:
     logger.exception("Failed to import requests")
     raise
 

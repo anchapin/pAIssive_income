@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 # Example:
 try:
     import requests
-except ImportError as e:
+except ImportError:
     logger.exception("Failed to import requests")
     raise
 
