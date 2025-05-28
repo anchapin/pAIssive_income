@@ -60,7 +60,7 @@ try {
 // Test 4: Enhanced mock path-to-regexp
 console.log('\n=== Test 4: Enhanced Mock Path-to-RegExp ===');
 try {
-  const mockPathToRegexp = require('./tests/enhanced_mock_path_to_regexp');
+  require('./tests/enhanced_mock_path_to_regexp');
 
   console.log('✅ Enhanced mock path-to-regexp loaded successfully');
 } catch (error) {
