@@ -4,6 +4,7 @@ Summary of GitHub Actions workflow fixes applied.
 """
 
 from pathlib import Path
+from logging_config import configure_logging
 
 
 def check_file_exists(file_path):
@@ -117,4 +118,5 @@ def main():
     print("=" * 60)
 
 if __name__ == "__main__":
+    configure_logging()
     main()

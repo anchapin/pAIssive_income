@@ -1,5 +1,20 @@
 # Advanced Logging Features
 
+> **Global Logging Configuration Standard**
+>
+> All main entry points and scripts should use the global logging configuration provided by `logging_config.py`.
+> At the start of your main script (before any logger usage), add:
+>
+> ```python
+> from logging_config import configure_logging
+>
+> if __name__ == "__main__":
+>     configure_logging()
+>     # ... your main logic ...
+> ```
+>
+> This ensures consistent logging format, level, and handler setup across the project.
+
 This document describes the advanced logging features available in the pAIssive_income project, including centralized logging, log aggregation, and integration with the ELK stack.
 
 ## Table of Contents
@@ -192,6 +207,20 @@ The log dashboard includes:
 - Real-time updates
 
 ## Best Practices
+
+### Global Logging Initialization
+
+- Always call `configure_logging()` from `logging_config.py` at the start of your main entry point (before any logger usage):
+
+```python
+from logging_config import configure_logging
+
+if __name__ == "__main__":
+    configure_logging()
+    # ... your main logic ...
+```
+
+- This sets up the root logger, prevents duplicate handlers, and ensures all logs follow the project standard.
 
 ### Choosing the Right Logging Solution
 

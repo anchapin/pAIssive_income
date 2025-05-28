@@ -15,8 +15,9 @@ except ImportError:
     raise
 
 # Local imports
+from logging_config import configure_logging
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    configure_logging()
     logger.info("Main application started.")
     # Add your main application logic here

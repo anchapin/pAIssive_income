@@ -16,6 +16,7 @@ import socketserver
 import sys  # Added sys import
 from typing import Any
 from urllib.parse import urlparse
+from logging_config import configure_logging
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -336,10 +337,7 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
 
 
 if __name__ == "__main__":
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    configure_logging()
     # Get port from environment variable or use default
     port_str = os.environ.get("PORT", "8000")
     try:

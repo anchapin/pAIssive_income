@@ -15,6 +15,7 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
+from logging_config import configure_logging
 
 # Set up logging
 logging.basicConfig(
@@ -382,4 +383,5 @@ def run_comprehensive_test():
 
 
 if __name__ == "__main__":
+    configure_logging()
     sys.exit(run_comprehensive_test())

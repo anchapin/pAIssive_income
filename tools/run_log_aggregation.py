@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
 """
 Log Aggregation Runner
 
@@ -28,6 +24,7 @@ import argparse
 import logging
 import os
 import sys
+from logging_config import configure_logging
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -39,9 +36,6 @@ from common_utils.logging.log_aggregation import (
 )
 from common_utils.logging.secure_logging import get_secure_logger
 
-# Configure logging
-
-
 # Set up logging
 logger = get_secure_logger("log_aggregation_runner")
 
@@ -49,7 +43,7 @@ logger = get_secure_logger("log_aggregation_runner")
 def parse_args():
     """
     Parse command line arguments.
-    
+
     Returns:
         argparse.Namespace: Parsed arguments
 
@@ -166,4 +160,5 @@ def main():
 
 
 if __name__ == "__main__":
+    configure_logging()
     sys.exit(main())

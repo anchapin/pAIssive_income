@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 
 import yaml
+from logging_config import configure_logging
 
 
 def run_command(cmd, capture_output=True, timeout=30):
@@ -251,4 +252,5 @@ def main():
     return 1
 
 if __name__ == "__main__":
+    configure_logging()
     sys.exit(main())

@@ -2,6 +2,7 @@
 """Test if Python is working correctly."""
 
 import sys
+from logging_config import configure_logging
 
 
 def main() -> None:
@@ -11,4 +12,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    configure_logging()
     main()

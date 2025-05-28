@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from logging_config import configure_logging
 
 # Configure logging
 logging.basicConfig(
@@ -59,6 +60,7 @@ def test_mem0_basic_functionality() -> bool | None:
 
 
 if __name__ == "__main__":
+    configure_logging()
     logger.info("Testing mem0 integration...")
 
     import_success = test_mem0_import()

@@ -29,6 +29,17 @@ Framework for generating passive income by utilizing a team of AI agents to gene
 - **Getting Started:**
   See [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md) for installation and setup instructions.
 
+- **Global Logging Configuration:**
+  All main scripts should use the project-wide logging setup. At the start of your main script, add:
+  ```python
+  from logging_config import configure_logging
+
+  if __name__ == "__main__":
+      configure_logging()
+      # ... your main logic ...
+  ```
+  This ensures consistent logging across all modules.
+
 ---
 
 ## 📚 Documentation

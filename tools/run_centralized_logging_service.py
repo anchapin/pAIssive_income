@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -20,11 +21,11 @@ Arguments:
 """
 
 import argparse
-import logging
 import os
 import signal
 import sys
 import time
+from logging_config import configure_logging
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -43,7 +44,7 @@ logger = get_secure_logger("centralized_logging_service_runner")
 def parse_args():
     """
     Parse command line arguments.
-    
+
     Returns:
         argparse.Namespace: Parsed arguments
 
@@ -119,4 +120,5 @@ def main():
 
 
 if __name__ == "__main__":
+    configure_logging()
     main()

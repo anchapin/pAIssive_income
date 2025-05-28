@@ -7,6 +7,7 @@ Confirms all critical fixes are in place and working correctly.
 import subprocess
 import sys
 from pathlib import Path
+from logging_config import configure_logging
 
 
 def check_file_exists(filepath, description):
@@ -233,4 +234,5 @@ def main():
     return 1
 
 if __name__ == "__main__":
+    configure_logging()
     sys.exit(main())

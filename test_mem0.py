@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import sys
+from logging_config import configure_logging
 
 try:
     from mem0 import Memory
@@ -35,6 +36,7 @@ def test_mem0_basic_operations() -> bool | None:
         return False
 
 if __name__ == "__main__":
+    configure_logging()
     # Check if OpenAI API key is set (required by mem0)
     if "OPENAI_API_KEY" not in os.environ:
         pass

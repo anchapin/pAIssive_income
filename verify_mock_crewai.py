@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
+from logging_config import configure_logging
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -112,6 +113,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    # Configure logging
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    configure_logging()
     sys.exit(main())
