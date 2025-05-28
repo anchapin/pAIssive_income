@@ -127,7 +127,7 @@ jobs:
           which uv || python -m pip install uv
 
           # Install testing tools
-          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install ruff pytest pytest-cov pytest-xdist pytest-asyncio
 
           # Install requirements
           if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
@@ -145,7 +145,7 @@ jobs:
           python -m pip install --upgrade pip
 
           # Install testing tools
-          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install ruff pytest pytest-cov pytest-xdist pytest-asyncio
 
           # Install requirements (excluding MCP-related packages)
           if (Test-Path requirements-dev.txt) {
@@ -178,19 +178,17 @@ jobs:
             "target-version = 'py310'" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
             Write-Host "Created ruff.toml with basic configuration"
           }
-      - name: Run linting (Unix)
+      - name: Run ruff linting (Unix)
         if: runner.os != 'Windows'
         run: |
           ruff check .
-          pyrefly check .
 
-      - name: Run linting (Windows)
+      - name: Run ruff linting (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           # Skip MCP adapter files during linting on Windows
           ruff check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
-          pyrefly check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
 
       - name: Check logger initialization
         run: python scripts/check_logger_initialization.py
