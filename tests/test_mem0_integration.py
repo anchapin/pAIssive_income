@@ -37,7 +37,6 @@ except ImportError as e:  # mem0 or agent frameworks not available, skip test
 try:
     from adk.agent import Agent
     # SimpleMemory is not used, so we don't import it
-    # from adk.memory import SimpleMemory
 except ImportError as e:
     # Mock ADK if not available
     logger.warning(f"ADK not available: {e}, using mock implementation")

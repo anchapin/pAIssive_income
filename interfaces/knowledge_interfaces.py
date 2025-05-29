@@ -54,9 +54,11 @@ Note:
 
 """
 
+from __future__ import annotations # Already present, but good to ensure
+
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 
 
 class KnowledgeSource(ABC):
@@ -66,7 +68,7 @@ class KnowledgeSource(ABC):
     """
 
     @abstractmethod
-    def search(self, query: str, user_id: str, **kwargs) -> List[Dict[str, Any]]:
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
         """
         Search for relevant information given a query and user context.
 
@@ -81,7 +83,7 @@ class KnowledgeSource(ABC):
         """
 
     @abstractmethod
-    def add(self, content: str, user_id: str, **kwargs) -> Any:
+    def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
         """
         Add new knowledge/content to the source.
 
@@ -95,9 +97,8 @@ class KnowledgeSource(ABC):
 
         """
 
-    def update(self, content_id: str, new_content: str, user_id: str, **kwargs) -> Any:
-        """
-        Optionally update existing knowledge entry.
+    def update(self, content_id: str, new_content: str, user_id: str, **kwargs: Any) -> Any:
+        """Update existing knowledge entry.
 
         Args:
             content_id: Identifier of content to update.
@@ -109,11 +110,11 @@ class KnowledgeSource(ABC):
             Source-specific result or metadata.
 
         """
-        raise NotImplementedError("Update not implemented for this source.")
+        msg = "Update not implemented for this source."
+        raise NotImplementedError(msg)
 
-    def delete(self, content_id: str, user_id: str, **kwargs) -> Any:
-        """
-        Optionally delete an entry.
+    def delete(self, content_id: str, user_id: str, **kwargs: Any) -> Any:
+        """Delete an entry.
 
         Args:
             content_id: Identifier of content to delete.
@@ -124,7 +125,8 @@ class KnowledgeSource(ABC):
             Source-specific result or metadata.
 
         """
-        raise NotImplementedError("Delete not implemented for this source.")
+        msg = "Delete not implemented for this source."
+        raise NotImplementedError(msg)
 
 
 class Mem0KnowledgeSource(KnowledgeSource):
@@ -133,29 +135,21 @@ class Mem0KnowledgeSource(KnowledgeSource):
     """
 
     def __init__(self, mem0_client: Any):
-        """
+        """Initialize Mem0KnowledgeSource.
+
         Args:
             mem0_client: Initialized client for mem0's Memory API.
-
         """
         self.mem0_client = mem0_client  # Stub: Replace with actual mem0 client
 
-    def search(self, query: str, user_id: str, **kwargs) -> List[Dict[str, Any]]:
-        """
-        Search mem0 for relevant memories.
-        """
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+        """Search mem0 for relevant memories."""
         # Stub: Replace with actual call to mem0's Memory API
-        # Example:
-        # return self.mem0_client.search(query, user_id, **kwargs)
         return [{"source": "mem0", "content": f"Stub memory for '{query}'"}]
 
-    def add(self, content: str, user_id: str, **kwargs) -> Any:
-        """
-        Add new content to mem0.
-        """
+    def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
+        """Add new content to mem0."""
         # Stub: Replace with actual call to mem0's add API
-        # Example:
-        # return self.mem0_client.add(content, user_id, **kwargs)
         return {"source": "mem0", "status": "added", "content": content}
 
 
@@ -165,36 +159,26 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
     """
 
     def __init__(self, vector_client: Any):
-        """
+        """Initialize VectorRAGKnowledgeSource.
+
         Args:
             vector_client: Initialized vector DB client (e.g., ChromaDB).
-
         """
         self.vector_client = vector_client  # Stub: Replace with actual vector DB client
 
-    def search(self, query: str, user_id: str, **kwargs) -> List[Dict[str, Any]]:
-        """
-        Search vector DB for relevant documents.
-        """
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+        """Search vector DB for relevant documents."""
         # Stub: Replace with actual vector DB search
-        # Example:
-        # return self.vector_client.query(query, user_id, **kwargs)
         return [{"source": "vector_rag", "content": f"Stub vector match for '{query}'"}]
 
-    def add(self, content: str, user_id: str, **kwargs) -> Any:
-        """
-        Add new content to vector DB.
-        """
+    def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
+        """Add new content to vector DB."""
         # Stub: Replace with actual vector DB add
-        # Example:
-        # return self.vector_client.add(content, user_id, **kwargs)
         return {"source": "vector_rag", "status": "added", "content": content}
 
 
 class KnowledgeStrategy(Enum):
-    """
-    Enum for strategy options in KnowledgeIntegrationLayer.
-    """
+    """Enum for strategy options in KnowledgeIntegrationLayer."""
 
     FALLBACK = "fallback"
     AGGREGATE = "aggregate"
@@ -212,16 +196,16 @@ class KnowledgeIntegrationLayer:
 
     def __init__(
         self,
-        sources: List[KnowledgeSource],
+        sources: list[KnowledgeSource],
         strategy: "KnowledgeStrategy" = KnowledgeStrategy.FALLBACK,
     ):
-        """
+        """Initialize KnowledgeIntegrationLayer.
+
         Args:
             sources: List of KnowledgeSource implementations.
             strategy: Aggregation logic. One of:
                 - KnowledgeStrategy.FALLBACK: Try sources in order, return first with results.
                 - KnowledgeStrategy.AGGREGATE: Query all sources and merge results.
-
         """
         self.sources = sources
         if isinstance(strategy, str):
@@ -229,20 +213,16 @@ class KnowledgeIntegrationLayer:
             try:
                 self.strategy = KnowledgeStrategy(strategy.lower())
             except ValueError:
-                raise ValueError(f"Unknown integration strategy: {strategy}")
+                msg = f"Unknown integration strategy: {strategy}"
+                raise ValueError(msg)
         elif isinstance(strategy, KnowledgeStrategy):
             self.strategy = strategy
         else:
-            raise TypeError(f"Invalid strategy type: {type(strategy)}")
+            msg = f"Invalid strategy type: {type(strategy)}"
+            raise TypeError(msg)
 
-    def search(self, query: str, user_id: str, **kwargs) -> List[Dict[str, Any]]:
-        """
-        Search using the configured integration strategy.
-
-        Returns:
-            List of search results (may be merged across sources).
-
-        """
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+        """Search using the configured integration strategy."""
         if self.strategy == KnowledgeStrategy.FALLBACK:
             for source in self.sources:
                 results = source.search(query, user_id, **kwargs)
@@ -250,27 +230,16 @@ class KnowledgeIntegrationLayer:
                     return results
             return []
         if self.strategy == KnowledgeStrategy.AGGREGATE:
-            aggregated: List[Dict[str, Any]] = []
+            aggregated: list[dict[str, Any]] = []
             for source in self.sources:
                 aggregated.extend(source.search(query, user_id, **kwargs))
             return aggregated
-        raise ValueError(f"Unknown integration strategy: {self.strategy}")
+        msg = f"Unknown integration strategy: {self.strategy}"
+        raise ValueError(msg)
 
-    def add(self, content: str, user_id: str, **kwargs) -> List[Any]:
-        """
-        Add content to all sources.
-
-        Returns:
-            List of source-specific add results.
-
-        """
+    def add(self, content: str, user_id: str, **kwargs: Any) -> list[Any]:
+        """Add content to all sources."""
         results = []
         for source in self.sources:
             results.append(source.add(content, user_id, **kwargs))
         return results
-
-    # Optionally implement update/delete as integration logic demands
-
-    # Extensibility notes:
-    # - To add a new knowledge source, create a subclass of KnowledgeSource and add it to the sources list.
-    # - To add new integration strategies, extend logic in search/add/etc.

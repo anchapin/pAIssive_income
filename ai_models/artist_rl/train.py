@@ -4,10 +4,12 @@ RL training script for ArtistRLEnv.
 This script sets up argument parsing, environment creation, and the main RL training loop.
 """
 
+from __future__ import annotations
+
 import argparse
 
 
-def main():
+def main() -> None:
     """
     Main entry point for RL training.
     Parses arguments, initializes environment, and runs the training loop.

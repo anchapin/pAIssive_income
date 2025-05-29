@@ -13,7 +13,7 @@ from typing import Any, Protocol
 
 # Third-party imports
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -490,7 +490,7 @@ class SecretsManager:
 
         """
         # Import secure logging utilities with enhanced sensitive field patterns
-        from common_utils.logging.secure_logging import (
+        from common_utils.custom_logging.secure_logging import (
             is_sensitive_key,
             mask_sensitive_data,
         )

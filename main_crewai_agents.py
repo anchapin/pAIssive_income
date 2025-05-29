@@ -9,9 +9,12 @@ Adapt and extend these scaffolds to fit your use-case.
 - mem0 Docs: https://mem0.ai
 """
 
+from __future__ import annotations
+
 import logging
 import os
-from typing import Optional
+import sys # Added for sys.exit()
+# Optional will be replaced by | None
 
 # Import standard CrewAI components
 from crewai import Agent, Crew, Task
@@ -36,7 +39,7 @@ logger = logging.getLogger(__name__)
 # Example: Assemble into a Crew (team)
 
 
-def create_team(use_memory: bool = False, user_id: Optional[str] = None) -> object:
+def create_team(use_memory: bool = False, user_id: str | None = None) -> object:
     """
     Create and return a CrewAI team, optionally using memory enhancement.
 
@@ -141,7 +144,7 @@ if __name__ == "__main__":
     # Check if dependencies are available
     if not CREWAI_AVAILABLE:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
-        exit(1)
+        sys.exit(1) # PLR1722
 
     if not MEM0_AVAILABLE:
         logger.warning("mem0 is not installed. Install with: pip install mem0ai")

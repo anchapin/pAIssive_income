@@ -27,7 +27,7 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Union
+from typing import Any
 
 # Import CrewAI components
 try:
@@ -45,7 +45,7 @@ try:
     MEM0_AVAILABLE = True
 except ImportError:
     MEM0_AVAILABLE = False
-    Memory = None  # type: ignore
+    Memory = None  # type: ignore[assignment]
 
 # Import base CrewAI agent team
 from agent_team.crewai_agents import CrewAIAgentTeam
@@ -65,7 +65,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     - Team execution
     """
 
-    def __init__(self, llm_provider: object = None, user_id: str = None) -> None:
+    def __init__(self, llm_provider: object = None, user_id: str | None = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
 
@@ -198,7 +198,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         return result
 
     def _store_memory(
-        self, content: Union[str, List[Dict[str, str]]], metadata: Dict[str, str] = None
+        self, content: str | list[dict[str, str]], metadata: dict[str, str] | None = None
     ) -> None:
         """
         Store a memory using mem0.
@@ -218,12 +218,12 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
                 if isinstance(content, str)
                 else "Conversation stored"
             )
-        except Exception as e:
-            logger.error(f"Error storing memory: {e}")
+        except Exception:
+            logger.exception("Error storing memory:")
 
     def _retrieve_relevant_memories(
-        self, query: str = None, limit: int = 5
-    ) -> List[Dict[str, Any]]:
+        self, query: str | None = None, limit: int = 5
+    ) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories for the current context.
 
@@ -249,8 +249,8 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
                 query=query, user_id=self.user_id, limit=limit
             )
             return memories
-        except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+        except Exception:
+            logger.exception("Error retrieving memories:")
             return []
 
     def _enhance_context_with_memories(self, context: str) -> str:
@@ -341,5 +341,5 @@ if __name__ == "__main__":
         try:
             result = team.run()
             logger.info(f"Workflow result: {result}")
-        except Exception as e:
-            logger.error(f"Error running workflow: {e}")
+        except Exception:
+            logger.exception("Error running workflow:")

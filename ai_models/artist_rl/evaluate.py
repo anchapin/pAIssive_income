@@ -4,10 +4,13 @@ Evaluation script for Artist RL module.
 Measures performance of baseline and trained agents on multi-step tool-use tasks.
 """
 
+from __future__ import annotations
+
 import argparse
+from typing import Any # Added for Any
 
 
-def evaluate_agent(env, agent, episodes: int, max_steps: int):
+def evaluate_agent(env: Any, agent: Any, episodes: int, max_steps: int) -> dict:
     """
     Evaluate the agent on the environment.
 
@@ -38,7 +41,7 @@ def evaluate_agent(env, agent, episodes: int, max_steps: int):
     return {"avg_reward": avg_reward, "all_rewards": rewards}
 
 
-def main():
+def main() -> None:
     """
     Main entry point for evaluation.
     """

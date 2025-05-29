@@ -124,8 +124,8 @@ def run_example() -> None:
         result = team.run()
         logger.info("Workflow completed successfully")
         logger.info(f"Result: {result}")
-    except Exception as e:
-        logger.error(f"Error running workflow: {e}")
+        except Exception:
+            logger.exception("Error running workflow:")
 
     # Demonstrate memory retrieval (old, direct use)
     if team.memory is not None:
@@ -140,8 +140,8 @@ def run_example() -> None:
             logger.info(f"Retrieved {len(memories)} memories (direct):")
             for i, memory in enumerate(memories):
                 logger.info(f"Memory {i + 1}: {memory.get('text', 'No text')[:100]}...")
-        except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+        except Exception:
+            logger.exception("Error retrieving memories:")
 
     # --- New: Demonstrate retrieval using KnowledgeIntegrationLayer ---
     logger.info(
@@ -158,19 +158,19 @@ def run_example() -> None:
 
         # Stub/mock clients for demonstration (replace with real clients as needed)
         class DummyMem0Client:
-            def search(self, query, user_id, **kwargs):
+            def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, str]]:
                 return [{"source": "mem0", "content": f"dummy mem0 for '{query}'"}]
 
-            def add(self, content, user_id, **kwargs):
+            def add(self, content: str, user_id: str, **kwargs: Any) -> dict[str, str]:
                 return {"status": "added", "content": content}
 
         class DummyVectorClient:
-            def query(self, query, user_id, **kwargs):
+            def query(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, str]]:
                 return [
                     {"source": "vector_rag", "content": f"dummy vector for '{query}'"}
                 ]
 
-            def add(self, content, user_id, **kwargs):
+            def add(self, content: str, user_id: str, **kwargs: Any) -> dict[str, str]:
                 return {"status": "added", "content": content}
 
         mem0_source = Mem0KnowledgeSource(DummyMem0Client())
@@ -195,8 +195,8 @@ def run_example() -> None:
 
         # This is the new recommended pattern for agent/team knowledge retrieval:
         # Use KnowledgeIntegrationLayer as a unified, extensible interface to search across all sources.
-    except Exception as e:
-        logger.error(f"Error using KnowledgeIntegrationLayer: {e}")
+    except Exception:
+        logger.exception("Error using KnowledgeIntegrationLayer:")
 
 
 def main() -> None:

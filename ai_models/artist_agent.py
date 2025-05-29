@@ -34,37 +34,39 @@ class ArtistAgent:
             str: Name of the tool to use.
 
         """
-        if any(
-            k in prompt.lower()
-            for k in [
-                "calculate",
-                "add",
-                "subtract",
-                "multiply",
-                "divide",
-                "+",
-                "-",
-                "*",
-                "/",
-            ]
-        ):
-            return "calculator"
+        prompt_lower = prompt.lower()
+        tool_keywords = [
+            (
+                [
+                    "calculate",
+                    "add",
+                    "subtract",
+                    "multiply",
+                    "divide",
+                    "+",
+                    "-",
+                    "*",
+                    "/",
+                ],
+                "calculator",
+            ),
+            (
+                [
+                    "analyze",
+                    "sentiment",
+                    "text",
+                    "phrase",
+                    "analyze the",
+                    "sentiment of",
+                ],
+                "text_analyzer",
+            ),
+            # Add more heuristics for other tools here as (keywords_list, tool_name) tuples
+        ]
 
-        # Check for text analysis keywords
-        if any(
-            k in prompt.lower()
-            for k in [
-                "analyze",
-                "sentiment",
-                "text",
-                "phrase",
-                "analyze the",
-                "sentiment of",
-            ]
-        ):
-            return "text_analyzer"
-
-        # Add more heuristics for other tools here
+        for keywords, tool_name_candidate in tool_keywords:
+            if any(k in prompt_lower for k in keywords):
+                return tool_name_candidate
         return ""
 
     def extract_relevant_expression(self, prompt: str, tool_name: str) -> str:
@@ -100,13 +102,13 @@ class ArtistAgent:
             math_parts = re.findall(r"[0-9\+\-\*/\(\)\.\s%]+", prompt)
             if math_parts:
                 # Take the longest match that contains operators
-                for part in sorted(math_parts, key=len, reverse=True):
-                    part = part.strip()
+                for p in sorted(math_parts, key=len, reverse=True): # PLW2901: Renamed part to p
+                    part_stripped = p.strip()
                     if (
-                        any(op in part for op in ["+", "-", "*", "/", "%"])
-                        and len(part) > 1
+                        any(op in part_stripped for op in ["+", "-", "*", "/", "%"])
+                        and len(part_stripped) > 1
                     ):
-                        return part
+                        return part_stripped
 
             # Final fallback to the entire prompt
             return prompt

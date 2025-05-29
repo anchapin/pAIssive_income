@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Demonstration script for the ArtistAgent's agentic tool use.
 
@@ -10,6 +11,7 @@ Demonstration script for the ArtistAgent's agentic tool use.
 
 import argparse
 import sys
+import logging
 from pathlib import Path
 
 # Add the parent directory to the path to ensure we can import modules
@@ -19,8 +21,13 @@ if str(project_root) not in sys.path:
 
 from ai_models.artist_agent import ArtistAgent
 
+# Initialize logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 
 def main():
+    """Run the main function."""
     parser = argparse.ArgumentParser(
         description="Demo for ArtistAgent: agentic tool use (calculator, text analyzer, fallback)."
     )
@@ -32,25 +39,25 @@ def main():
     )
     args = parser.parse_args()
 
-    print("=== ArtistAgent Tool Use Demo ===")
+    logger.info("=== ArtistAgent Tool Use Demo ===")
     agent = ArtistAgent()
 
     # Print available tools
-    print("\nAvailable tools:")
-    for tool_name in agent.tools.keys():
-        print(f"  - {tool_name}")
+    logger.info("\nAvailable tools:")
+    for tool_name in agent.tools: # SIM118: Removed .keys()
+        logger.info("  - %s", tool_name)
 
     if args.interactive:
-        print(
+        logger.info(
             "\nInteractive mode. Type your prompt and press Enter. Type 'exit' to quit."
         )
         while True:
             prompt = input("\nPrompt: ")
             if prompt.strip().lower() in {"exit", "quit"}:
-                print("Exiting interactive mode.")
+                logger.info("Exiting interactive mode.")
                 break
             response = agent.run(prompt)
-            print(f"Agent output: {response}")
+            logger.info("Agent output: %s", response)
     else:
         # Example prompts
         prompts = [
@@ -60,10 +67,10 @@ def main():
         ]
 
         for prompt in prompts:
-            print("\n-----------------------------")
-            print(f"Prompt: {prompt}")
+            logger.info("\n-----------------------------")
+            logger.info("Prompt: %s", prompt)
             response = agent.run(prompt)
-            print(f"Agent output: {response}")
+            logger.info("Agent output: %s", response)
 
 
 if __name__ == "__main__":

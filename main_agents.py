@@ -15,9 +15,11 @@ Message Types:
         Sends: 'summary_result' with payload {'summary': str}
 """
 
+from __future__ import annotations
+
 import logging
 import os
-from typing import Optional
+# Any is not used, so it can be removed.
 
 # Import standard ADK components
 from adk.agent import Agent
@@ -176,7 +178,7 @@ class SummarizerAgent(Agent):
 
 
 def create_agents(
-    use_memory: bool = False, user_id: Optional[str] = None
+    use_memory: bool = False, user_id: str | None = None
 ) -> tuple[Agent, Agent]:
     """
     Create and return a pair of agents, optionally using memory enhancement.

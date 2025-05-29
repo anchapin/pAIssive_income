@@ -21,7 +21,7 @@ import hashlib
 import json
 import logging
 import unicodedata
-from typing import List, Optional, Tuple
+from typing import Any # Assuming Any might be used elsewhere, or to be safe
 
 import chromadb
 from chromadb.config import Settings
@@ -44,8 +44,8 @@ client = chromadb.Client(
 
 
 def canonicalize_text(text: str) -> str:
-    """
-    Normalize and canonicalize text for deduplication.
+    """Normalize and canonicalize text for deduplication.
+
     - Lowercase, strip, remove extra whitespace, apply NFC unicode normalization.
     """
     text = unicodedata.normalize("NFC", text.lower().strip())
@@ -54,8 +54,8 @@ def canonicalize_text(text: str) -> str:
 
 
 def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
-    """
-    Create a canonical hash for deduplication.
+    """Create a canonical hash for deduplication.
+
     Uses user_id, canonicalized content, and metadata['source'] if present.
     """
     content_canon = canonicalize_text(content)
@@ -66,12 +66,12 @@ def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
 
 def prepare_document(
     doc: dict,
-    user_id: Optional[str] = None,
-    default_metadata: Optional[dict] = None,
-    embedding: Optional[List[float]] = None,
+    user_id: str | None = None,
+    default_metadata: dict | None = None,
+    embedding: list[float] | None = None,
 ) -> dict:
-    """
-    Ensure the document follows the unified schema.
+    """Ensure the document follows the unified schema.
+
     If fields are missing, fill with defaults.
     """
     doc_out = {}
@@ -147,13 +147,13 @@ collection = client.get_or_create_collection("demo_rag")
 
 # 6. Canonicalization and deduplication logic before inserting documents
 def embed_and_insert_documents_with_dedup(
-    docs: List[dict],
+    docs: list[dict],
     embedder_model: SentenceTransformer,
     collection: chromadb.Collection,
     user_id_default: str = "global",
-) -> Tuple[List[dict], List[str]]:
-    """
-    Embed documents, canonicalize, deduplicate, and insert into collection.
+) -> tuple[list[dict], list[str]]:
+    """Embed documents, canonicalize, deduplicate, and insert into collection.
+
     Returns: (inserted_docs, skipped_duplicate_ids)
     """
     stored_hashes = set()
@@ -222,12 +222,12 @@ logger.info(f"\nInserted {len(inserted)} documents, skipped {len(skipped)} dupli
 def query_with_metadata_filter(
     collection: chromadb.Collection,
     query: str,
-    user_id: Optional[str] = None,
-    metadata_filter: Optional[dict] = None,
+    user_id: str | None = None,
+    metadata_filter: dict | None = None,
     n_results: int = 3,
 ) -> dict:
-    """
-    Query the vector DB with optional user_id and metadata filter.
+    """Query the vector DB with optional user_id and metadata filter.
+
     Returns the matching results.
     """
     query_embedding = embedder.encode([canonicalize_text(query)])[0].tolist()
@@ -269,10 +269,10 @@ for i, doc in enumerate(all_facts["documents"]):
 # 8. Test block: Verify deduplication and filtering
 
 
-def test_deduplication_and_metadata():
-    """
-    Test deduplication (should not insert duplicates)
-    and metadata filtering (should return only filtered docs).
+def test_deduplication_and_metadata() -> None:
+    """Test deduplication (should not insert duplicates).
+
+    Also tests metadata filtering (should return only filtered docs).
     """
     # Try to re-insert a duplicate doc
     duplicate = {
