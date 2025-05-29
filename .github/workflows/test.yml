@@ -1,15 +1,11 @@
 name: Python Tests (Reusable)
 
 on:
-  workflow_call:
-    inputs:
-      python-version:
-        required: true
-        type: string
-      test-path:
-        required: false
-        type: string
-        default: "tests/"
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
   workflow_run:
     workflows: ["Auto Fix (Linting & CodeQL Issues)"]
     types:

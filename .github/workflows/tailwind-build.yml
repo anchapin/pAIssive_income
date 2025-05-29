@@ -15,6 +15,13 @@ on:
       - "tailwind.config.js"
       - "package.json"
       - ".github/workflows/tailwind-build.yml"
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
 
 jobs:
   build:
@@ -52,7 +59,7 @@ jobs:
 
       - name: Upload Tailwind CSS output as artifact
         uses: actions/upload-artifact@v4
-        if: success()
+        if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
         with:
           name: tailwind-output-css
           path: ui/static/css/tailwind.output.css

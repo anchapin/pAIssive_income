@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
   workflow_run:
     workflows: ["Auto Fix (Linting & CodeQL Issues)"]
     types:
@@ -61,7 +62,6 @@ jobs:
           files: ./coverage/lcov.info
           flags: js, node${{ matrix.node-version }}
           fail_ci_if_error: false
-          strict: false   # Don't fail CI if coverage drops vs. base branch
 
       - name: Upload HTML coverage report as artifact
         uses: actions/upload-artifact@v4

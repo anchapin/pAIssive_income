@@ -1,21 +1,17 @@
 name: Gradual Lint Check
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
-    branches: [ main, develop ]
-    paths:
-      - '**.py'
-      - 'ruff.toml'
-      - '.ruff.toml'
-      - 'pyproject.toml'
-      - '.github/workflows/gradual-lint-check.yml'
+    branches: [ main ]
+  workflow_dispatch:
   workflow_run:
     workflows: ["Auto Fix (Linting & CodeQL Issues)"]
     types:
       - completed
     branches:
       - main
-      - develop
 
 permissions:
   contents: write

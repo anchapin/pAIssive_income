@@ -2,9 +2,16 @@ name: Docker Compose Integration Tests
 
 on:
   push:
-    branches: [ main, develop, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, develop, master ]
+    branches: [ main ]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
 
 jobs:
   integration-test:
@@ -13,6 +20,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
       fail-fast: false
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Initial disk space check
