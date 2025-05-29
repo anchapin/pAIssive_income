@@ -885,6 +885,7 @@ def require_auth(f=None, *, context_getter=None):
 
     Returns:
         Wrapped callback function
+
     """
     if context_getter is None:
         import dash
@@ -928,6 +929,7 @@ def require_permission(permission, *, context_getter=None):
 
     Returns:
         Decorator function
+
     """
     if context_getter is None:
         import dash

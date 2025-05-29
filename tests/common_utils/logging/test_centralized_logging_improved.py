@@ -7,7 +7,7 @@ import socket
 import tempfile
 import threading
 import time
-from unittest.mock import MagicMock, patch, ANY
+from unittest.mock import ANY, MagicMock, patch
 
 import pytest
 

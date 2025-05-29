@@ -99,7 +99,7 @@ class TestOpenAICompatibleAdapterComprehensive:
             mock_session_class.return_value = mock_session
             adapter = OpenAICompatibleAdapter(base_url="https://api.example.com/v1", api_key="test-key")
             models = await adapter.list_models()
-            mock_session.get.assert_called_once_with(f"https://api.example.com/v1/models")
+            mock_session.get.assert_called_once_with("https://api.example.com/v1/models")
             assert len(models) == 2
             assert models[0]["id"] == "gpt-4"
             assert models[1]["id"] == "gpt-3.5-turbo"

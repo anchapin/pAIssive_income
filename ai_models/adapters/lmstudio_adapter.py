@@ -99,7 +99,7 @@ class LMStudioAdapter(BaseModelAdapter):
             raise Exception(f"Failed to connect to LMStudio server: {e}")
         except asyncio.TimeoutError:
             raise Exception("Request to LMStudio server timed out")
-        except Exception as e:
+        except Exception:
             raise
 
     async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
@@ -141,7 +141,7 @@ class LMStudioAdapter(BaseModelAdapter):
             raise Exception(f"Failed to connect to LMStudio server: {e}")
         except asyncio.TimeoutError:
             raise Exception("Request to LMStudio server timed out")
-        except Exception as e:
+        except Exception:
             raise
 
     async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
@@ -183,7 +183,7 @@ class LMStudioAdapter(BaseModelAdapter):
             raise Exception(f"Failed to connect to LMStudio server: {e}")
         except asyncio.TimeoutError:
             raise Exception("Request to LMStudio server timed out")
-        except Exception as e:
+        except Exception:
             raise
 
     async def close(self):

@@ -74,9 +74,9 @@ try:
     import dash
     import dash_bootstrap_components as dbc
     import numpy as np
-    import polars as pl
     import plotly.express as px
     import plotly.graph_objects as go
+    import polars as pl
     from dash import dash_table, dcc, html
     from dash.dependencies import ALL, MATCH, Input, Output, State
     from plotly.subplots import make_subplots

@@ -115,9 +115,9 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         )
 
         # Check that the agent was created (compare attributes, not object identity)
-        assert getattr(agent, 'role', None) == "Researcher"
-        assert getattr(agent, 'goal', None) == "Find information"
-        assert getattr(agent, 'backstory', None) == "Expert researcher"
+        assert getattr(agent, "role", None) == "Researcher"
+        assert getattr(agent, "goal", None) == "Find information"
+        assert getattr(agent, "backstory", None) == "Expert researcher"
 
         # Check that the agent was added to the team
         assert agent in self.team.agents
@@ -143,8 +143,8 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         )
 
         # Check that the task was created (compare attributes, not object identity)
-        assert getattr(task, 'description', None) == "Research AI memory systems"
-        assert getattr(task, 'agent', None) == agent
+        assert getattr(task, "description", None) == "Research AI memory systems"
+        assert getattr(task, "agent", None) == agent
 
         # Check that the task was added to the team
         assert task in self.team.tasks

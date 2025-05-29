@@ -38,7 +38,6 @@ Usage:
 import datetime
 import logging
 import re
-import sys  # Added sys import
 from collections import Counter, defaultdict
 from typing import Any, Dict, List, Optional
 
@@ -74,6 +73,7 @@ class AnomalyDetector:
 
         Args:
             threshold: Z-score threshold for anomaly detection
+
         """
         self.threshold = threshold
         self.trained = False
@@ -180,6 +180,7 @@ class AnomalyDetector:
 
 class PatternRecognizer:
     """Pattern recognizer for log entries using pure Python TF-IDF."""
+
     def __init__(self, min_pattern_count: int = 3) -> None:
         self.min_pattern_count = min_pattern_count
         self.trained = False
@@ -246,6 +247,7 @@ class PatternRecognizer:
 
 class LogClusterer:
     """Clusterer for log entries using pure numpy k-means."""
+
     def __init__(self, n_clusters: int = 3, max_iter: int = 100) -> None:
         self.n_clusters = n_clusters
         self.max_iter = max_iter

@@ -2,13 +2,13 @@
 
 import datetime
 import time
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
 
 import dash
+import dash._callback_context
 import pytest
 from dash import html
 from dash.exceptions import PreventUpdate
-import dash._callback_context
 
 from common_utils.logging.dashboard_auth import (
     DashboardAuth,

@@ -118,7 +118,7 @@ class TestAnomalyDetector:
         detector.train(sample_log_entries)
 
         assert detector.trained is True
-        assert hasattr(detector, 'threshold')
+        assert hasattr(detector, "threshold")
 
     def test_detect(self, sample_log_entries):
         """Test anomaly detection."""
@@ -160,8 +160,8 @@ class TestPatternRecognizer:
         recognizer.train(sample_log_entries)
 
         assert recognizer.trained is True
-        assert hasattr(recognizer, 'vocab')
-        assert hasattr(recognizer, 'idf')
+        assert hasattr(recognizer, "vocab")
+        assert hasattr(recognizer, "idf")
 
     def test_recognize(self, sample_log_entries):
         """Test pattern recognition."""
@@ -205,10 +205,10 @@ class TestLogClusterer:
         clusterer.train(sample_log_entries)
 
         assert clusterer.trained is True
-        assert hasattr(clusterer, 'centroids')
-        assert hasattr(clusterer, 'labels_')
-        assert hasattr(clusterer, 'vocab')
-        assert hasattr(clusterer, 'idf')
+        assert hasattr(clusterer, "centroids")
+        assert hasattr(clusterer, "labels_")
+        assert hasattr(clusterer, "vocab")
+        assert hasattr(clusterer, "idf")
 
     def test_cluster(self, sample_log_entries):
         """Test log clustering."""

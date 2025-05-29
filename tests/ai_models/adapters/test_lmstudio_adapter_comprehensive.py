@@ -1,11 +1,11 @@
 """Comprehensive tests for the ai_models.adapters.lmstudio_adapter module."""
 
+import asyncio
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
-import asyncio
 
 from ai_models.adapters.lmstudio_adapter import LMStudioAdapter
 

@@ -190,7 +190,12 @@ class TestMCPAdapter:
 
     def test_custom_exceptions(self):
         """Test custom exception classes for correct message and attributes."""
-        from ai_models.adapters.mcp_adapter import HostFormatError, PortRangeError, MCPConnectionError, MCPCommunicationError
+        from ai_models.adapters.mcp_adapter import (
+            HostFormatError,
+            MCPCommunicationError,
+            MCPConnectionError,
+            PortRangeError,
+        )
         # HostFormatError
         err = HostFormatError()
         assert "Host must contain only alphanumeric characters" in str(err)
