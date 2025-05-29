@@ -64,6 +64,8 @@ jobs:
     # Platform-specific analysis is handled by dedicated workflows
     runs-on: ubuntu-latest
     timeout-minutes: 90  # Increased timeout for larger codebases
+    env:
+      TOOL_API_KEY: "ci-test-api-key-for-github-actions"
 
     strategy:
       fail-fast: false

@@ -16,6 +16,8 @@ jobs:
       actions: read
       contents: read
       security-events: write
+    env:
+      TOOL_API_KEY: "ci-test-api-key-for-github-actions"
 
     strategy:
       fail-fast: false
