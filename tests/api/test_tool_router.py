@@ -1,9 +1,12 @@
+import os
 import pytest
 from fastapi.testclient import TestClient
 from api.app import app
 
 client = TestClient(app)
-TOOL_API_KEY = "supersecretkey"
+
+# Use TOOL_API_KEY from environment for consistency and security.
+TOOL_API_KEY = os.getenv("TOOL_API_KEY", "dummy-test-api-key-local-dev-only")
 HEADERS = {"x-api-key": TOOL_API_KEY}
 
 def test_add_success():
