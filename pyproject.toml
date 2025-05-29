@@ -29,6 +29,14 @@ dependencies = [
     "redis>=4.5.0",
     "flask>=2.0.1",
     "httpx>=0.24.0",
+    # OpenTelemetry dependencies (pinned to avoid conflicts)
+    "opentelemetry-api>=1.30.0,<1.32.0",
+    "opentelemetry-sdk>=1.30.0,<1.32.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.30.0,<1.32.0",
+    "opentelemetry-exporter-otlp-proto-http>=1.30.0,<1.32.0",
+    "opentelemetry-semantic-conventions>=0.51b0,<0.54b0",
+    "wrapt>=1.14.0,<1.16.0",
+    "backoff>=1.10.0,<2.0.0",
     # Add other dependencies as needed
 ]
 
@@ -70,6 +78,7 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 target-version = "py310"

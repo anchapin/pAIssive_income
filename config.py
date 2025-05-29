@@ -13,9 +13,11 @@ class Config:
     LOG_DIR = APP_DIR / "logs"
 
     # Database settings
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb"
-    )
+    def __init__(self):
+        """Initialize configuration with environment variables."""
+        self.SQLALCHEMY_DATABASE_URI = os.environ.get(
+            "DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb"
+        )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Logging settings

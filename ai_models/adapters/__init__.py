@@ -4,13 +4,28 @@
 from __future__ import annotations
 
 import importlib.util
+import logging
 import sys
 from typing import Any, Type
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
 
 # Third-party imports
 # Local imports
 # Export the exception classes first (these should always be available)
-from .exceptions import AdapterError, ModelContextProtocolError
+try:
+    from .exceptions import AdapterError, ModelContextProtocolError
+except ImportError as e:
+    logger.exception(f"Failed to import core exception classes: {e}")
+    # If these critical exceptions can't be imported, re-raise or exit
+    # For now, we'll let them be None and rely on downstream checks
+    AdapterError = None # type: ignore
+    ModelContextProtocolError = None # type: ignore
+
 
 # Define adapter classes as optional
 # We'll try to import them, but if they're not available, they'll remain None
@@ -43,14 +58,15 @@ def _safe_import(module_name: str, class_name: str) -> object | None:
             )
             # Get the class from the module
             return getattr(module, class_name, None)
-    except (ImportError, AttributeError):
-        pass
+    except (ImportError, AttributeError) as e:
+        logger.debug("Failed to import %s.%s: %s", module_name, class_name, e, exc_info=False)
 
     # Return None if any of the above fails
     return None
 
 
 # Import adapters safely
+BaseModelAdapter = _safe_import("base_adapter", "BaseModelAdapter")
 OllamaAdapter = _safe_import("ollama_adapter", "OllamaAdapter")
 OpenAICompatibleAdapter = _safe_import(
     "openai_compatible_adapter", "OpenAICompatibleAdapter"
@@ -58,3 +74,16 @@ OpenAICompatibleAdapter = _safe_import(
 LMStudioAdapter = _safe_import("lmstudio_adapter", "LMStudioAdapter")
 TensorRTAdapter = _safe_import("tensorrt_adapter", "TensorRTAdapter")
 MCPAdapter = _safe_import("mcp_adapter", "MCPAdapter")
+AdapterFactory = _safe_import("adapter_factory", "AdapterFactory")
+
+__all__ = [
+    "AdapterError",
+    "AdapterFactory",
+    "BaseModelAdapter",
+    "LMStudioAdapter",
+    "MCPAdapter",
+    "ModelContextProtocolError",
+    "OllamaAdapter",
+    "OpenAICompatibleAdapter",
+    "TensorRTAdapter",
+]

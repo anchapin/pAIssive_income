@@ -1,0 +1,1 @@
+Couldn't parse 'C:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\scripts\fix\fix_all_files.py' as Python source: 'from __future__ imports must occur at the beginning of the file' at line 9
