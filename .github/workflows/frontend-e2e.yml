@@ -150,60 +150,57 @@ jobs:
 
         # Set environment variables
 
-        echo "REACT_APP_API_BASE_URL=http://localhost: 8000/api" |
-          Out-File -FilePath
-        $env: GITHUB_ENV -Append
+        echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" |
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "REACT_APP_AG_UI_ENABLED=true" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "CI=true" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "VERBOSE_LOGGING=true" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         # Set enhanced environment detection variables
 
         echo "GITHUB_ACTIONS=true" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "CI_ENVIRONMENT=true" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "CI_PLATFORM=github" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "CI_TYPE=github" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
-        echo "CI_RUNNER_OS=$env: OS" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+        echo "CI_RUNNER_OS=$env:OS" |
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
-        echo "CI_WORKSPACE=$env: GITHUB_WORKSPACE" |
-          Out-File -FilePath $env: GITHUB_ENV
-        -Append
+        echo "CI_WORKSPACE=$env:GITHUB_WORKSPACE" |
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         # Set container environment detection variables
 
         echo "DOCKER_ENVIRONMENT=false" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "KUBERNETES_SERVICE_HOST=" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "RKT_ENVIRONMENT=false" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "SINGULARITY_ENVIRONMENT=false" |
-          Out-File -FilePath $env: GITHUB_ENV
-        -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "DOCKER_COMPOSE=false" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         echo "DOCKER_SWARM=" |
-          Out-File -FilePath $env: GITHUB_ENV -Append
+          Out-File -FilePath $env:GITHUB_ENV -Append
 
         '
     - name: Run tests (Linux/macOS)

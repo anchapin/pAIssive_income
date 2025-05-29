@@ -152,10 +152,10 @@ jobs:
         echo "TESTING=true" >> $GITHUB_ENV
 
         # Set container environment detection variables
-        echo "DOCKER_ENVIRONMENT=false" >> $env:GITHUB_ENV
-        echo "KUBERNETES_ENVIRONMENT=false" >> $env:GITHUB_ENV
-        echo "DOCKER_COMPOSE=false" >> $env:GITHUB_ENV
-        echo "DOCKER_SWARM=false" >> $env:GITHUB_ENV
+        echo "DOCKER_ENVIRONMENT=false" >> $GITHUB_ENV
+        echo "KUBERNETES_ENVIRONMENT=false" >> $GITHUB_ENV
+        echo "DOCKER_COMPOSE=false" >> $GITHUB_ENV
+        echo "DOCKER_SWARM=false" >> $GITHUB_ENV
 
         # Generate environment report
         {
@@ -266,7 +266,7 @@ jobs:
           python -m pip install pyyaml
           # Run the CI environment detection script
           Write-Host "Running CI environment detection script..."
-          $env: PYTHONIOENCODING = "UTF-8"
+          $env:PYTHONIOENCODING = "UTF-8"
           python scripts/ci/detect_ci_environment.py --verbose --create-dirs
         }
     - name: Create ruff configuration (Windows)
@@ -380,7 +380,7 @@ jobs:
         echo 'print("CrewAI tests skipped - script not found")' >> run_crewai_tests.py
         echo 'sys.exit(0)' >> run_crewai_tests.py
     - name: Create mock CrewAI test script (Windows)
-      if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists
+      if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists == 'false'
       shell: pwsh
       run: |
         Remove-Item -Path run_crewai_tests.py -ErrorAction SilentlyContinue
