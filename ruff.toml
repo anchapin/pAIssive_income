@@ -25,7 +25,9 @@ extend-exclude = [
     "*.egg-info",
     "docs/source/conf.py",
     "old/",
-    "ui/react_frontend/"  # Exclude React frontend code (uses ESLint/TypeScript)
+    "ui/react_frontend/",  # Exclude React frontend code (uses ESLint/TypeScript)
+    "setup.sh",            # Exclude shell script
+    "setup.bat"            # Exclude batch script
 ]
 
 # Comprehensive rule selection replacing Flake8
