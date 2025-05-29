@@ -9,10 +9,12 @@ import sys
 
 try:
     from mem0 import Memory
+
     print("mem0 imported successfully!")
 except ImportError as e:
     print(f"Error importing mem0: {e}")
     sys.exit(1)
+
 
 def test_mem0_basic_operations():
     """Test basic mem0 operations."""
@@ -34,13 +36,13 @@ def test_mem0_basic_operations():
         if search_results:
             print(f"Memory search successful! Found results: {search_results}")
             return True
-        else:
-            print("Memory search returned no results.")
-            return False
+        print("Memory search returned no results.")
+        return False
 
     except Exception as e:
         print(f"Error testing mem0: {e}")
         return False
+
 
 if __name__ == "__main__":
     # Check if OpenAI API key is set (required by mem0)

@@ -18,7 +18,7 @@ from secrets import compare_digest
 from typing import Any, Callable
 
 # Local imports
-from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
+from common_utils.custom_logging.secure_logging import get_secure_logger, mask_sensitive_data
 
 from .audit import SecretsAuditor
 from .rotation import SecretRotation

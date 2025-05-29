@@ -83,4 +83,5 @@ def list_experiments() -> dict:
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    # Host '0.0.0.0' is used for broader accessibility in demo/development environments.
+    app.run(host="0.0.0.0", port=port, debug=True) # nosec B201

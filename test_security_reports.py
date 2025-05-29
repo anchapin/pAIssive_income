@@ -78,16 +78,16 @@ def validate_json_files() -> bool:
         with open(bandit_results) as f:
             json.load(f)
         logger.info("bandit-results.json is valid JSON")
-    except (json.JSONDecodeError, Exception) as e:
-        logger.error("bandit-results.json is not valid JSON: %s", e)
+    except (json.JSONDecodeError, OSError, TypeError) as e: # Made specific
+        logger.exception("bandit-results.json is not valid JSON:") # Changed to exception
         return False
 
     try:
         with open(bandit_results_ini) as f:
             json.load(f)
         logger.info("bandit-results-ini.json is valid JSON")
-    except (json.JSONDecodeError, Exception) as e:
-        logger.error("bandit-results-ini.json is not valid JSON: %s", e)
+    except (json.JSONDecodeError, OSError, TypeError) as e: # Made specific
+        logger.exception("bandit-results-ini.json is not valid JSON:") # Changed to exception
         return False
 
     return True
@@ -107,8 +107,8 @@ def main() -> int:
         try:
             os.makedirs("security-reports", exist_ok=True)
             logger.info("Created security-reports directory")
-        except Exception as e:
-            logger.error("Failed to create security-reports directory: %s", e)
+        except OSError as e: # Made specific
+            logger.exception("Failed to create security-reports directory:") # Changed to exception
             return 1
 
     # Check if the JSON files exist
@@ -124,8 +124,8 @@ def main() -> int:
                 timeout=300,
             )
             logger.info("Ran test_bandit_config.py")
-        except Exception as e:
-            logger.error("Failed to run test_bandit_config.py: %s", e)
+        except (FileNotFoundError, subprocess.SubprocessError, subprocess.TimeoutExpired) as e: # Made specific
+            logger.exception("Failed to run test_bandit_config.py:") # Changed to exception
             return 1
 
         # Check again

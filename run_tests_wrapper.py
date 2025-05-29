@@ -8,10 +8,15 @@ This script runs pytest directly without any virtual environment checks.
 import os
 import subprocess
 import sys
+import logging
+
+# Initialize logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Create security-reports directory
 os.makedirs("security-reports", exist_ok=True)
-print("Created security-reports directory")
+logger.info("Created security-reports directory")
 
 # Set environment variables to bypass virtual environment checks
 os.environ["PYTHONNOUSERSITE"] = "1"
@@ -20,7 +25,7 @@ os.environ["SKIP_VENV_CHECK"] = "1"
 # Set CI environment variable if running in GitHub Actions
 if os.environ.get("GITHUB_ACTIONS"):
     os.environ["CI"] = "1"
-    print("GitHub Actions environment detected")
+    logger.info("GitHub Actions environment detected")
 
 # Get command line arguments
 args = sys.argv[1:]
@@ -39,5 +44,5 @@ try:
     )
     sys.exit(result.returncode)
 except Exception as e:
-    print(f"Error running pytest: {e}")
+    logger.error("Error running pytest: %s", e)
     sys.exit(1)

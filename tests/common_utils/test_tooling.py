@@ -17,6 +17,7 @@ class TestToolRegistry(unittest.TestCase):
 
     def test_register_and_get_tool(self) -> None:
         """Test registering and retrieving a tool."""
+
         def dummy_tool(x: str) -> str:
             return f"processed: {x}"
 
@@ -151,7 +152,7 @@ class TestTextAnalyzerTool(unittest.TestCase):
         text_analyzer = tooling.get_tool("text_analyzer")
 
         # Mock an exception to test error handling
-        with patch('common_utils.tooling.len', side_effect=Exception("Test error")):
+        with patch("common_utils.tooling.len", side_effect=Exception("Test error")):
             result = text_analyzer("test text")
             self.assertIn("Error analyzing text", result)
 

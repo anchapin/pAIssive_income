@@ -14,7 +14,7 @@ from typing import Any
 
 # Third-party imports
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 
 from .secrets_manager import SecretsBackend, get_secret, set_secret
 

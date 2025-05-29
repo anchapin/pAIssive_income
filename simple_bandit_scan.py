@@ -10,10 +10,15 @@ import json
 import os
 import subprocess
 import sys
+import logging
+
+# Initialize logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Create security-reports directory
 os.makedirs("security-reports", exist_ok=True)
-print("Created security-reports directory")
+logger.info("Created security-reports directory")
 
 # Create empty JSON files
 empty_json = {
@@ -25,11 +30,11 @@ empty_json = {
 
 with open("security-reports/bandit-results.json", "w") as f:
     json.dump(empty_json, f, indent=2)
-print("Created empty bandit-results.json")
+logger.info("Created empty bandit-results.json")
 
 with open("security-reports/bandit-results-ini.json", "w") as f:
     json.dump(empty_json, f, indent=2)
-print("Created empty bandit-results-ini.json")
+logger.info("Created empty bandit-results-ini.json")
 
 # Create empty SARIF files
 empty_sarif = {
@@ -52,11 +57,11 @@ empty_sarif = {
 
 with open("security-reports/bandit-results.sarif", "w") as f:
     json.dump(empty_sarif, f, indent=2)
-print("Created empty bandit-results.sarif")
+logger.info("Created empty bandit-results.sarif")
 
 with open("security-reports/bandit-results-ini.sarif", "w") as f:
     json.dump(empty_sarif, f, indent=2)
-print("Created empty bandit-results-ini.sarif")
+logger.info("Created empty bandit-results-ini.sarif")
 
 # Try to run bandit if available
 try:
@@ -77,10 +82,10 @@ try:
         shell=False,
         timeout=600,
     )
-    print("Bandit scan completed")
+    logger.info("Bandit scan completed")
 except Exception as e:
-    print(f"Error running bandit: {e}")
-    print("Using empty result files")
+    logger.error("Error running bandit: %s", e)
+    logger.info("Using empty result files")
 
-print("Bandit scan script completed successfully")
+logger.info("Bandit scan script completed successfully")
 sys.exit(0)

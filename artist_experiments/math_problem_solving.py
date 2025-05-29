@@ -68,9 +68,9 @@ class MathTool:
             # If no equals sign, just evaluate the expression
             expr = parse_expr(equation_str)
             return str(expr.evalf())
-        except Exception as e:
-            logger.error(f"Error solving equation: {e}")
-            return f"Error: {e!s}"
+        except Exception:
+            logger.exception("Error solving equation:")
+            return "Error: Could not solve equation" # Generic error message
 
     @staticmethod
     def factor_expression(expr_str: str) -> str:
@@ -88,9 +88,9 @@ class MathTool:
             expr = parse_expr(expr_str)
             factored = sp.factor(expr)
             return str(factored)
-        except Exception as e:
-            logger.error(f"Error factoring expression: {e}")
-            return f"Error: {e!s}"
+        except Exception:
+            logger.exception("Error factoring expression:")
+            return "Error: Could not factor expression" # Generic error message
 
     @staticmethod
     def expand_expression(expr_str: str) -> str:
@@ -108,9 +108,9 @@ class MathTool:
             expr = parse_expr(expr_str)
             expanded = sp.expand(expr)
             return str(expanded)
-        except Exception as e:
-            logger.error(f"Error expanding expression: {e}")
-            return f"Error: {e!s}"
+        except Exception:
+            logger.exception("Error expanding expression:")
+            return "Error: Could not expand expression" # Generic error message
 
 
 class EnhancedArtistAgent(ArtistAgent):

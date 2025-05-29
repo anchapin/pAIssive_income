@@ -35,7 +35,7 @@ def verify_imports() -> bool:
         # First, try importing the types module
         logger.info("Importing types module...")
         # Import but don't use the types - just checking they can be imported
-        import mock_crewai.types
+        import mock_crewai.custom_types
 
         # Try importing the modules in different orders to test for circular imports
         logger.info("Testing import order 1: agent -> task -> crew")

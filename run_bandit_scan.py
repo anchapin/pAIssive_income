@@ -68,12 +68,12 @@ def create_empty_json_files() -> bool:
         }
 
         # Write to bandit-results.json
-        with open("security-reports/bandit-results.json", "w") as f:
+        with Path("security-reports/bandit-results.json").open("w") as f:
             json.dump(empty_json_data, f, indent=2)
         logger.info("Created empty bandit-results.json")
 
         # Write to bandit-results-ini.json
-        with open("security-reports/bandit-results-ini.json", "w") as f:
+        with Path("security-reports/bandit-results-ini.json").open("w") as f:
             json.dump(empty_json_data, f, indent=2)
         logger.info("Created empty bandit-results-ini.json")
 
@@ -97,17 +97,17 @@ def create_empty_json_files() -> bool:
         }
 
         # Write to bandit-results.sarif
-        with open("security-reports/bandit-results.sarif", "w") as f:
+        with Path("security-reports/bandit-results.sarif").open("w") as f:
             json.dump(empty_sarif, f, indent=2)
         logger.info("Created empty bandit-results.sarif")
 
         # Write to bandit-results-ini.sarif
-        with open("security-reports/bandit-results-ini.sarif", "w") as f:
+        with Path("security-reports/bandit-results-ini.sarif").open("w") as f:
             json.dump(empty_sarif, f, indent=2)
         logger.info("Created empty bandit-results-ini.sarif")
 
         return True
-    except Exception as e:
+    except (OSError, TypeError, ValueError) as e:
         logger.error("Failed to create empty files: %s", e)
         return False
 
@@ -177,7 +177,7 @@ def main() -> int:
             )
             # Update bandit path after installation
             bandit_path = find_bandit_executable()
-        except Exception as e:
+        except Exception as e: # noqa: BLE001 # Catching general errors during pip install
             logger.warning("Failed to install bandit: %s", e)
 
     # Run bandit with the available configuration
@@ -236,9 +236,9 @@ def main() -> int:
                     timeout=600,
                 )
                 logger.info("Bandit scan completed with default configuration")
-            except Exception as e:
+            except Exception as e: # noqa: BLE001 # Catching potential errors from subprocess.run
                 logger.warning("Bandit scan with default configuration failed: %s", e)
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
         logger.error("Error running bandit: %s", e)
 
     # Convert JSON to SARIF format
@@ -259,7 +259,7 @@ def main() -> int:
                 logger.warning(
                     "Failed to convert Bandit results to SARIF format: %s", e
                 )
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
         logger.error("Error converting to SARIF: %s", e)
 
     logger.info("Bandit scan completed successfully")

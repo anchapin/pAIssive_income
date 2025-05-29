@@ -16,7 +16,7 @@ from typing import Any, Protocol, cast
 import jwt
 
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 from users.auth import hash_credential, verify_credential
 
 

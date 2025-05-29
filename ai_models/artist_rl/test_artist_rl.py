@@ -10,6 +10,7 @@ import unittest
 
 from ai_models.artist_rl.env import ArtistRLEnv
 
+
 class TestArtistRLEnv(unittest.TestCase):
     """Unit tests for ArtistRLEnv."""
 
@@ -46,6 +47,7 @@ class TestArtistRLEnv(unittest.TestCase):
             if done:
                 break
         self.assertIsInstance(total_reward, float)
+
 
 if __name__ == "__main__":
     unittest.main()

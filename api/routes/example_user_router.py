@@ -11,7 +11,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field
 
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 from common_utils.validation.core import (
     ValidationError,
     validate_input,
