@@ -9,6 +9,7 @@ __version__ = "0.1.0"
 from . import agent, crew, task, tools, types
 from .tools import BaseTool
 
+
 class MockAgent:
     """Mock implementation of CrewAI Agent."""
 
@@ -126,6 +127,7 @@ TaskType = MockTaskType
 __all__ = [
     "Agent",
     "AgentType",
+    "BaseTool",
     "Crew",
     "CrewType",
     "MockAgent",
@@ -133,7 +135,6 @@ __all__ = [
     "MockTask",
     "Task",
     "TaskType",
-    "BaseTool",
     "agent",
     "crew",
     "task",
