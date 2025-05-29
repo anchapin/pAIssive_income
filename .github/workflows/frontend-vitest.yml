@@ -28,7 +28,7 @@ jobs:
         working-directory: ui/react_frontend
     steps:
     - uses: actions/checkout@v4
-    - name: CI Setup
+    - name: Shared CI Setup
       run: bash ../../scripts/ci-setup.sh
     - name: Setup pnpm
       uses: pnpm/action-setup@v4

@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+    - name: Shared CI Setup
+      run: bash scripts/ci-setup.sh
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Set up Node.js

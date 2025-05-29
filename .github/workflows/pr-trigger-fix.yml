@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'github-actions[bot]' || github.event_name == 'workflow_dispatch'
     steps:
+    - name: Shared CI Setup
+      run: bash scripts/ci-setup.sh
     - name: Checkout code
       uses: actions/checkout@v4
       with:

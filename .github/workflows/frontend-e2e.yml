@@ -28,7 +28,7 @@ jobs:
         - 18.x
     steps:
     - uses: actions/checkout@v4
-    - name: CI Setup
+    - name: Shared CI Setup
       run: bash ../../scripts/ci-setup.sh
     - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4

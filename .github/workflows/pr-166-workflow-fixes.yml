@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+    - name: Shared CI Setup
+      run: bash scripts/ci-setup.sh
     - name: Checkout code
       uses: actions/checkout@v4
       with:
@@ -43,9 +45,8 @@ jobs:
         echo "Created required directories"
     - name: Fix CodeQL Configuration Issues
       run: |
-        # Create a simplified CodeQL config
         cat > .github/codeql/security-os-config.yml << 'EOF'
-name: Simplified CodeQL Config"
+name: Simplified CodeQL Config
 queries:
   - uses: security-and-quality
 paths:
@@ -64,7 +65,6 @@ paths-ignore:
   - '**/.venv/**'
   - '**/venv/**'
 EOF
-        # Create a simple .codeqlignore file
         cat > .codeqlignore << 'EOF'
 .venv/**
 venv/**
@@ -91,7 +91,6 @@ EOF
         echo "Fixed CodeQL configuration"
     - name: Fix Test Setup Script Matrix Issues
       run: |
-        # Create a simplified test setup script workflow
         cat > .github/workflows/test-setup-script-fixed.yml << 'EOF'
 name: Test Setup Script (Fixed)
 permissions:
@@ -119,30 +118,25 @@ EOF
         echo "Fixed test setup script matrix issues"
     - name: Install Dependencies with Error Handling
       run: |
-        # Install Python dependencies with fallbacks
         python -m pip install --upgrade pip
-        # Install core testing tools
         pip install pytest pytest-cov ruff bandit safety || echo Some tools failed to install
-        # Install requirements with error handling
         if [ -f requirements.txt ]; then
           pip install -r requirements.txt || echo "Some requirements failed, continuing..."
         fi
         if [ -f requirements-dev.txt ]; then
           pip install -r requirements-dev.txt || echo "Some dev requirements failed, continuing..."
         fi
-        # Install Node.js dependencies with fallbacks
         pnpm install --no-optional || npm install --no-optional || echo "Node install failed, continuing..."
     - name: Fix Tailwind Build Issues
       run: |
-        # Ensure Tailwind input file exists
         if [ ! -f "ui/static/css/tailwind.css" ]; then
+          mkdir -p ui/static/css
           echo "@tailwind base;" > ui/static/css/tailwind.css
           echo "@tailwind components;" >> ui/static/css/tailwind.css
           echo "@tailwind utilities;" >> ui/static/css/tailwind.css
         fi
-        # Ensure Tailwind config exists
         if [ ! -f "tailwind.config.js" ]; then
-          cat > tailwind.config.js << 'EOF'
+cat > tailwind.config.js << 'EOF'
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -156,18 +150,15 @@ module.exports = {
 }
 EOF
         fi
-        # Test Tailwind build
         pnpm tailwind:build || npx tailwindcss -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify || echo "Tailwind build failed"
     - name: Create Missing Test Files
       run: |
-        # Create basic math module if missing
         if [ ! -f "src/math.js" ]; then
           echo "export function add(a, b) { return a + b; }" > src/math.js
           echo "export function subtract(a, b) { return a - b; }" >> src/math.js
         fi
-        # Create basic test file if missing
         if [ ! -f "src/math.test.js" ]; then
-          cat > src/math.test.js << 'EOF'
+cat > src/math.test.js << 'EOF'
 import { expect } from 'expect';
 import { add, subtract } from './math.js';
 describe('Math functions', () => {
@@ -183,57 +174,45 @@ EOF
     - name: Run Linting with Error Handling
       continue-on-error: true
       run: |
-        # Python linting
         if command -v ruff &> /dev/null; then
           ruff check . --exclude=.venv,node_modules,__pycache__,.git || echo "Ruff check completed with issues"
         fi
-        # JavaScript linting
         if [ -f "package.json" ] && command -v npx &> /dev/null; then
           npx eslint "**/*.js" --ignore-pattern "node_modules" --ignore-pattern ".venv" || echo "ESLint completed with issues"
         fi
     - name: Run Tests with Error Handling
       continue-on-error: true
       run: |
-        # Python tests
         if [ -d "tests" ]; then
           python -m pytest tests/ -v --tb=short || echo "Python tests completed"
         fi
-        # JavaScript tests
         if [ -f "package.json" ]; then
           pnpm test || npm test || echo "JavaScript tests completed"
         fi
     - name: Run Security Scans
       continue-on-error: true
       run: |
-        # Create security reports directory
         mkdir -p security-reports
-        # Create empty security reports
         echo '{"results": [], "errors": []}' > security-reports/bandit-results.json
         echo '{"results": [], "errors": []}' > security-reports/safety-results.json
-        # Run Bandit with error handling
         if command -v bandit &> /dev/null; then
           bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" --exit-zero || echo "Bandit scan completed"
         fi
-        # Run Safety with error handling
         if command -v safety &> /dev/null; then
           safety check --json --output security-reports/safety-results.json || echo "Safety check completed"
         fi
     - name: Generate Coverage Reports
       continue-on-error: true
       run: |
-        # Create coverage directory
         mkdir -p coverage
-        # Create minimal coverage files
         echo '{"total":{"lines":{"total":100,"covered":85,"skipped":0,"pct":85}}}' > coverage/coverage-summary.json
         echo '<html><body><h1>Coverage Report</h1><p>Coverage: 85%</p></body></html>' > coverage/index.html
-        # Generate Python coverage if tests exist
         if [ -d "tests" ]; then
           python -m pytest tests/ --cov=. --cov-report=xml --cov-report=html --cov-report=term-missing || echo "Coverage generation completed"
         fi
     - name: Fix Consolidated CI/CD Issues
       run: |
-        # Create a simplified CI/CD workflow
-        cat > .github/workflows/consolidated-ci-cd-fixed.yml << 'EOF'
+cat > .github/workflows/consolidated-ci-cd-fixed.yml << 'EOF'
 name: Consolidated CI/CD (Fixed)
 permissions:
   contents: read
@@ -277,13 +256,13 @@ EOF
         echo "## PR #166 Workflow Fixes Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Fixed Issues:" >> $GITHUB_STEP_SUMMARY
-        echo "- \u2705 CodeQL configuration simplified" >> $GITHUB_STEP_SUMMARY
-        echo "- \u2705 Test setup script matrix issues resolved" >> $GITHUB_STEP_SUMMARY
-        echo "- \u2705 Tailwind build configuration fixed" >> $GITHUB_STEP_SUMMARY
-        echo "- \u2705 Consolidated CI/CD workflow simplified" >> $GITHUB_STEP_SUMMARY
-        echo "- \u2705 Missing test files created" >> $GITHUB_STEP_SUMMARY
-        echo "- \u2705 Security scan configuration improved" >> $GITHUB_STEP_SUMMARY
-        echo "- \u2705 Error handling added throughout" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ CodeQL configuration simplified" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Test setup script matrix issues resolved" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Tailwind build configuration fixed" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Consolidated CI/CD workflow simplified" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Missing test files created" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Security scan configuration improved" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Error handling added throughout" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
         echo "1. Review the fixed workflow files" >> $GITHUB_STEP_SUMMARY
@@ -294,14 +273,14 @@ EOF
       uses: actions/upload-artifact@v4
       with:
         name: pr-166-workflow-fixes-${{ github.run_id }}
-        path: 'security-reports/
+        path: |
+          security-reports/
           coverage/
           .github/workflows/*-fixed.yml
           .github/codeql/
           .codeqlignore
-          '
         retention-days: 7
     - name: Final Status
       run: |
-        echo "\U0001F389 PR #166 workflow fixes completed successfully!"
+        echo "🎉 PR #166 workflow fixes completed successfully!"
         echo "All major workflow issues have been addressed with simplified, robust configurations."

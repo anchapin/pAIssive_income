@@ -265,3 +265,6 @@ artist_experiments/logs/
 **/environment-report.json
 **/ci-reports/**/environment-report.json
 playwright-report/environment-report.txt
+
+# Ignore Bandit temp output
+security-reports/bandit-results.json.tmp

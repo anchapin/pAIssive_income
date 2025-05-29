@@ -32,6 +32,8 @@ jobs:
         - windows-latest
       fail-fast: false
     steps:
+    - name: Shared CI Setup
+      run: bash scripts/ci-setup.sh
     - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -62,15 +64,11 @@ jobs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         python -m pip install --upgrade pip
-if [ -f ${{ inputs.requirements-file:
-        \ }} ]; then
-  uv pip install -r ${{ inputs.requirements-file }}
-fi
-if:
-        \ [ -f ${{ inputs.dev-requirements-file }} ]; then
-  uv pip install -r ${{\
-        \ inputs.dev-requirements-file }}
-fi
-:
+        if [ -f ${{ inputs.requirements-file }} ]; then
+          uv pip install -r ${{ inputs.requirements-file }}
+        fi
+        if [ -f ${{ inputs.dev-requirements-file }} ]; then
+          uv pip install -r ${{ inputs.dev-requirements-file }}
+        fi
       shell: bash
     timeout-minutes: 30
