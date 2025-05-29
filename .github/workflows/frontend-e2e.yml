@@ -42,11 +42,29 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ui/react_frontend/node_modules
-        key: ${{ runner.os }}-pnpm-${{ hashFiles('ui/react_frontend/pnpm-lock.yaml')
-          }}
-        restore-keys: '${{ runner.os }}-pnpm-
-
-          '
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('ui/react_frontend/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-
+    - name: Create required test directories (Linux/macOS)
+      if: runner.os != 'Windows'
+      shell: bash
+      run: |
+        mkdir -p logs
+        mkdir -p ci-reports/github
+        mkdir -p test-results/github
+        mkdir -p playwright-report
+        mkdir -p playwright-report/html
+        mkdir -p src/__tests__
+    - name: Create required test directories (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Path "logs" -Force -ErrorAction SilentlyContinue
+        New-Item -ItemType Directory -Path "ci-reports/github" -Force -ErrorAction SilentlyContinue
+        New-Item -ItemType Directory -Path "test-results/github" -Force -ErrorAction SilentlyContinue
+        New-Item -ItemType Directory -Path "playwright-report" -Force -ErrorAction SilentlyContinue
+        New-Item -ItemType Directory -Path "playwright-report/html" -Force -ErrorAction SilentlyContinue
+        New-Item -ItemType Directory -Path "src/__tests__" -Force -ErrorAction SilentlyContinue
     - name: Install dependencies
       working-directory: ui/react_frontend
       run: 'pnpm install
@@ -194,40 +212,29 @@ jobs:
       working-directory: ui/react_frontend
       run: |
         if [ -f "tests/run_ci_tests_enhanced.js" ]; then
-  echo "Running Enhanced\
-        \ CI test runner..."
-  node tests/run_ci_tests_enhanced.js
-else
-  echo\
-        \ "Enhanced CI test runner not found, falling back to regular runner..."\
-
-  node tests/run_ci_tests.js
-fi
+          echo "Running Enhanced CI test runner..."
+          node tests/run_ci_tests_enhanced.js
+        else
+          echo "Enhanced CI test runner not found, falling back to regular runner..."
+          node tests/run_ci_tests.js
+        fi
     - name: Run tests (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
       working-directory: ui/react_frontend
       run: |
         try {
-  if (Test-Path "tests/run_ci_tests_enhanced.js") {
-    Write-Host\
-        \ "Running Enhanced CI test runner..."
-    node tests/run_ci_tests_enhanced.js
-:
-        \  } else {
-    Write-Host "Enhanced CI test runner not found,
-    falling\
-        \ back to regular runner..."
-    node tests/run_ci_tests.js
-  }
-} catch:
-        \ {
-  Write-Host "Tests failed but continuing workflow: $_"
-  Set-Content\
-        \ -Path "../../logs/test-failures.txt" -Value "Test failures detected at\
-        \ $(Get-Date)"
-}:
-":
+          if (Test-Path "tests/run_ci_tests_enhanced.js") {
+            Write-Host "Running Enhanced CI test runner..."
+            node tests/run_ci_tests_enhanced.js
+          } else {
+            Write-Host "Enhanced CI test runner not found, falling back to regular runner..."
+            node tests/run_ci_tests.js
+          }
+        } catch {
+          Write-Host "Tests failed but continuing workflow: $_"
+          Set-Content -Path "../../logs/test-failures.txt" -Value "Test failures detected at $(Get-Date)"
+        }
     - name: Upload Playwright report
       if: always()
       uses: actions/upload-artifact@v4

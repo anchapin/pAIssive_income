@@ -56,6 +56,7 @@ jobs:
         mkdir -p playwright-report
         mkdir -p test-results
         mkdir -p ci-reports/github
+        mkdir -p src/__tests__
     - name: Create coverage directory
       run: mkdir -p coverage
     - name: Create dummy test file if it doesn't exist
@@ -117,6 +118,19 @@ jobs:
         EOF
 
         echo "Environment summary created at coverage/environment-summary.txt"
+    - name: Set enhanced environment variables
+      run: |
+        echo "CI=true" >> $GITHUB_ENV
+        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
+        echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
+        echo "CI_TYPE=github" >> $GITHUB_ENV
+        echo "DOCKER_ENVIRONMENT=false" >> $GITHUB_ENV
+        echo "RKT_ENVIRONMENT=false" >> $GITHUB_ENV
+        echo "SINGULARITY_ENVIRONMENT=false" >> $GITHUB_ENV
+        echo "KUBERNETES_SERVICE_HOST=" >> $GITHUB_ENV
+        echo "COMPOSE_PROJECT_NAME=" >> $GITHUB_ENV
+        echo "DOCKER_SWARM=" >> $GITHUB_ENV
+        echo "VERBOSE_LOGGING=true" >> $GITHUB_ENV
     - name: Run Vitest unit tests with parallel execution
       id: run_tests
       run: |

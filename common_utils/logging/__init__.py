@@ -5,6 +5,8 @@ This package provides tools for secure logging, ensuring sensitive information
 is not logged in clear text.
 """
 
+from __future__ import annotations
+
 # Standard library imports
 import logging
 from typing import cast
@@ -16,6 +18,7 @@ from .secure_logging import (
     SecureLogger,
     get_secure_logger,
     mask_sensitive_data,
+    is_sensitive_key,
 )
 
 __all__ = [
@@ -24,6 +27,7 @@ __all__ = [
     "get_logger",
     "get_secure_logger",
     "mask_sensitive_data",
+    "is_sensitive_key",
 ]
 
 
