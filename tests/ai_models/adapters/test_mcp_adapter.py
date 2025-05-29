@@ -212,3 +212,10 @@ class TestMCPAdapter:
         err = MCPCommunicationError(orig)
         assert "Error communicating with MCP server" in str(err)
         assert err.original_error is orig
+
+    def test_handle_client_error_function(self):
+        """Test the private _handle_client_error function raises MCPCommunicationError."""
+        from ai_models.adapters.mcp_adapter import _handle_client_error, MCPCommunicationError
+        with pytest.raises(MCPCommunicationError) as exc_info:
+            _handle_client_error()
+        assert "Error communicating with MCP server" in str(exc_info.value)

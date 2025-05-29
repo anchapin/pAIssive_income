@@ -5,6 +5,10 @@ Provides mock implementations of CrewAI classes to prevent import errors.
 
 __version__ = "0.1.0"
 
+# Import submodules for top-level access
+from . import agent, crew, task, tools, types
+from .tools import BaseTool
+
 class MockAgent:
     """Mock implementation of CrewAI Agent."""
 
@@ -129,5 +133,10 @@ __all__ = [
     "MockTask",
     "Task",
     "TaskType",
-    "tools"
+    "BaseTool",
+    "agent",
+    "crew",
+    "task",
+    "tools",
+    "types"
 ]

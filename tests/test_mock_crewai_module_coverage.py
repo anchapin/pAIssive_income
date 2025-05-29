@@ -262,3 +262,13 @@ class TestMockCrewAIModuleCoverage:
 
         # Verify the BaseTool class exists
         assert hasattr(mock_crewai.tools, "BaseTool")
+
+    def test_types_submodule(self):
+        """Test that mock_crewai.types submodule is importable and enums/classes are present."""
+        import mock_crewai.types as types
+        assert hasattr(types, "AgentType")
+        assert hasattr(types, "TaskType")
+        assert hasattr(types, "CrewType")
+        assert hasattr(types, "Agent")
+        assert hasattr(types, "Task")
+        assert hasattr(types, "Crew")

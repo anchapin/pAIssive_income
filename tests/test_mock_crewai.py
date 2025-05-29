@@ -315,3 +315,14 @@ class TestMockCrewAI:
         assert hasattr(mock_crewai.TaskType, "DEFAULT")
         assert hasattr(mock_crewai.TaskType, "SEQUENTIAL")
         assert hasattr(mock_crewai.TaskType, "PARALLEL")
+
+    def test_mock_mcp_client_methods(self):
+        """Test that all methods on mock_mcp.MockMCPClient are callable and return as expected."""
+        import mock_mcp
+        client = mock_mcp.MockMCPClient()
+        assert client.connect() is None
+        assert client.disconnect() is None
+        assert isinstance(client.list_tools(), list)
+        result = client.call_tool("test", {"arg": 1})
+        assert isinstance(result, dict)
+        assert result["result"] == "mock"
