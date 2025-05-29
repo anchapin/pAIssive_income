@@ -50,6 +50,8 @@ jobs:
       fail-fast: false
     permissions:
       contents: read
+    env:
+      TOOL_API_KEY: "ci-test-api-key-for-github-actions"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -418,6 +420,8 @@ jobs:
       security-events: write
       contents: read
       actions: read
+    env:
+      TOOL_API_KEY: "ci-test-api-key-for-github-actions"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -753,6 +757,8 @@ jobs:
       contents: read
       packages: write
       id-token: write
+    env:
+      TOOL_API_KEY: "ci-test-api-key-for-github-actions"
     outputs:
       docker_tag: ${{ steps.set-docker-tag.outputs.docker_tag }}
       should_push: ${{ steps.set-docker-tag.outputs.should_push }}
