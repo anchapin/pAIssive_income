@@ -12,6 +12,9 @@ import re
 from re import Pattern
 from typing import Any, Optional
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # List of sensitive field names to mask in logs
 SENSITIVE_FIELDS: list[str] = [
     "auth_credential",
@@ -60,6 +63,18 @@ PATTERNS: dict[str, Pattern] = {
         ),
         re.IGNORECASE,
     ),
+    # Added patterns to detect log injection attempts
+    "log_injection_newlines": re.compile(r"[\r\n]+"),
+    "log_injection_control_chars": re.compile(r"[\x00-\x1F\x7F]"),
+    "password_pattern": re.compile(r'(password)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
+    "api_key_pattern": re.compile(r'(api[_-]?key)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
+    "token_pattern": re.compile(r'(token)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
+    "secret_pattern": re.compile(r'(secret)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
+    # Additional patterns for specific API key formats
+    "sk_api_key_pattern": re.compile(r"(sk_[a-zA-Z0-9_]{10,})", re.IGNORECASE),
+    "api_key_format": re.compile(r"API Key:?\s+([a-zA-Z0-9_\-\.]{10,})", re.IGNORECASE),
+    # Additional patterns for sensitive data
+    "sensitive_data_pattern": re.compile(r'(sensitive_data)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
 }
 
 
@@ -103,6 +118,42 @@ def is_sensitive_key(key: str) -> bool:
     return any(term in key_lower for term in sensitive_terms)
 
 
+def prevent_log_injection(data: object) -> object:
+    """
+    Prevent log injection attacks by sanitizing input data.
+
+    This function removes or escapes characters that could be used for log injection attacks,
+    such as newlines, carriage returns, and other control characters.
+
+    Args:
+        data: The data to sanitize. Can be a string, dict, list, or other types.
+
+    Returns:
+        The sanitized data with potentially dangerous characters removed or escaped.
+        Returns the same type as the input data.
+
+    """
+    if data is None:
+        return None
+
+    if isinstance(data, str):
+        # Replace newlines and control characters
+        sanitized = PATTERNS["log_injection_newlines"].sub(" [FILTERED] ", data)
+        sanitized = PATTERNS["log_injection_control_chars"].sub(" [FILTERED] ", sanitized)
+        return sanitized
+
+    if isinstance(data, dict):
+        # Recursively sanitize values in dictionary
+        return {k: prevent_log_injection(v) for k, v in data.items()}
+
+    if isinstance(data, list):
+        # Recursively sanitize values in list
+        return [prevent_log_injection(item) for item in data]
+
+    # For any other type, return as is
+    return data
+
+
 def mask_sensitive_data(
     data: object, mask_char: str = "*", visible_chars: int = 4
 ) -> object:
@@ -127,6 +178,9 @@ def mask_sensitive_data(
     if data is None:
         return None
 
+    # First prevent log injection
+    data = prevent_log_injection(data)
+
     if isinstance(data, str):
         # Check if the string matches any of our sensitive patterns
         for pattern in PATTERNS.values():
@@ -134,10 +188,13 @@ def mask_sensitive_data(
         return data
 
     if isinstance(data, dict):
-        # Recursively mask values in dictionary
+        # Recursively mask values in dictionary, including nested dicts
         dict_result: dict[str, Any] = {}
         for k, v in data.items():
-            dict_result[k] = _mask_if_sensitive(k, v, mask_char, visible_chars)
+            if isinstance(v, dict):
+                dict_result[k] = mask_sensitive_data(v, mask_char, visible_chars)
+            else:
+                dict_result[k] = _mask_if_sensitive(k, v, mask_char, visible_chars)
         return dict_result  # Explicitly return a Dict[str, Any]
 
     if isinstance(data, list):
@@ -171,12 +228,16 @@ def _mask_if_sensitive(
         The original value or a masked version if the key is sensitive
 
     """
+    if isinstance(value, dict):
+        # Recursively mask nested dicts
+        return mask_sensitive_data(value, mask_char, visible_chars)
+
     if not isinstance(value, str):
         return mask_sensitive_data(value, mask_char, visible_chars)
 
     # Check if the key contains any sensitive terms
     for sensitive_field in SENSITIVE_FIELDS:
-        if sensitive_field in key.lower():
+        if sensitive_field in key.lower() or key.lower() == "password":
             return _mask_string(value, mask_char, visible_chars)
 
     return mask_sensitive_data(value, mask_char, visible_chars)
@@ -228,7 +289,18 @@ def _mask_pattern(
 
     def _replacer(match: re.Match[str]) -> str:
         full_match: str = match.group(0)
-        sensitive_value: str = match.group(2)
+
+        # Handle patterns with different group structures
+        if pattern.pattern.startswith(r"(sk_") or pattern.pattern.startswith(r"API Key"):
+            # These patterns have only one capturing group for the sensitive value
+            sensitive_value: str = match.group(1)
+        else:
+            # Standard patterns have two capturing groups (field name and value)
+            try:
+                sensitive_value = match.group(2)
+            except IndexError:
+                # Fallback if group 2 doesn't exist
+                sensitive_value = match.group(0)
 
         if not sensitive_value:
             return full_match
@@ -251,6 +323,7 @@ class SecureLogger:
             name: The name of the logger
 
         """
+        self.name = name  # Store the name attribute
         self.logger = logging.getLogger(name)
         self._handlers: list[logging.Handler] = self.logger.handlers
 
@@ -330,7 +403,7 @@ class SecureLogger:
 
     callHandlers = call_handlers  # noqa: N815
 
-    def handle(self, record: logging.LogRecord) -> None:
+    def handle(self, record: logging.LogRecord) -> bool:
         """
         Call the handlers for the specified record.
 
@@ -338,10 +411,10 @@ class SecureLogger:
             record: The log record to handle
 
         Returns:
-            None: This method doesn't return a value
+            bool: True if the record was handled successfully
 
         """
-        self.logger.handle(record)
+        return self.logger.handle(record)
 
     def make_record(
         self,
@@ -411,6 +484,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get("secure_context", False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.debug(masked_msg, *args, **kwargs)
 
     def info(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
@@ -426,6 +504,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get("secure_context", False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.info(masked_msg, *args, **kwargs)
 
     def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
@@ -441,6 +524,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get("secure_context", False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.warning(masked_msg, *args, **kwargs)
 
     # Alias for warning
@@ -459,6 +547,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get("secure_context", False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.error(masked_msg, *args, **kwargs)
 
     def critical(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
@@ -474,6 +567,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get("secure_context", False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.critical(masked_msg, *args, **kwargs)
 
     # Alias for critical
@@ -492,6 +590,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get("secure_context", False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.exception(masked_msg, *args, **kwargs)
 
     def log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
@@ -508,6 +611,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get("secure_context", False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.log(level, masked_msg, *args, **kwargs)
 
 

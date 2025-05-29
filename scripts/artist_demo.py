@@ -19,7 +19,8 @@ if str(project_root) not in sys.path:
 
 from ai_models.artist_agent import ArtistAgent
 
-def main():
+
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Demo for ArtistAgent: agentic tool use (calculator, text analyzer, fallback)."
     )
@@ -34,7 +35,7 @@ def main():
 
     # Print available tools
     print("\nAvailable tools:")
-    for tool_name in agent.tools.keys():
+    for tool_name in agent.tools:
         print(f"  - {tool_name}")
 
     if args.interactive:

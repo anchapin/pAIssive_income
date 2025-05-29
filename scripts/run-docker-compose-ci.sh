@@ -60,7 +60,7 @@ create_network() {
   fi
 }
 
-<<<<<<< HEAD
+
 # Function to try pulling an image with fallbacks
 try_pull_image_with_fallbacks() {
   local primary_image="$1"
