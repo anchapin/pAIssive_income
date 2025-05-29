@@ -4,7 +4,14 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
   push:
-    branches: [main, master]
+    branches: [main, master, develop]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -41,3 +48,4 @@ jobs:
       - name: Check documentation updates
         run: |
           python .github/scripts/check_documentation_updated.py
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}

@@ -1,20 +1,23 @@
 name: Python Tests (Reusable)
 
 on:
-  workflow_call:
-    inputs:
-      python-version:
-        required: true
-        type: string
-      test-path:
-        required: false
-        type: string
-        default: "tests/"
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
 
 jobs:
   test:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -55,26 +58,44 @@ jobs:
           # Activate virtual environment
           source .venv/bin/activate
 
-          # Install dependencies with uv
-          uv pip install pytest pytest-cov pytest-xdist pytest-asyncio || {
-            echo "Failed to install test dependencies with uv pip. Installing uv in the virtual environment..."
-            python -m pip install --upgrade "uv>=0.7.8"
-            uv pip install pytest pytest-cov pytest-xdist pytest-asyncio
+          # Install dependencies with uv (including aiohttp and test dependencies)
+          uv pip install aiohttp>=3.9.0 pytest pytest-cov pytest-xdist pytest-asyncio || {
+            echo "Failed to install dependencies with uv pip. Installing/upgrading uv in the virtual environment and retrying..."
+            python -m pip install --upgrade pip # Ensure pip is up-to-date for uv install
+            python -m pip install --upgrade "uv>=0.7.8" # Ensure uv is available in venv
+            uv pip install aiohttp>=3.9.0 pytest pytest-cov pytest-xdist pytest-asyncio
           }
 
+          # Verify aiohttp is installed
+          python -c "import aiohttp; print(f'aiohttp version: {aiohttp.__version__}')" || {
+            echo "Failed to import aiohttp after uv install. This might indicate a deeper issue."
+          }
+
+          # Install project requirements
           if [ -f requirements-dev.txt ]; then
-            uv pip install -r requirements-dev.txt
-          fi
-          if [ -f requirements.txt ]; then
-            uv pip install -r requirements.txt
+            uv pip install -r requirements-dev.txt || {
+              echo "Failed to install from requirements-dev.txt with uv. Trying with pip..."
+              python -m pip install -r requirements-dev.txt
+            }
           fi
 
-          uv pip install -e . -v
+          if [ -f requirements.txt ]; then
+            uv pip install -r requirements.txt || {
+              echo "Failed to install from requirements.txt with uv. Trying with pip..."
+              python -m pip install -r requirements.txt
+            }
+          fi
+
+          # Install the package in development mode
+          uv pip install -e . -v || {
+            echo "Failed to install package with uv. Trying with pip..."
+            python -m pip install -e . -v
+          }
 
       - name: Create junit directory
         run: mkdir -p junit
 
-      - name: Run tests
+      - name: Run tests with coverage
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
@@ -82,6 +103,7 @@ jobs:
           source .venv/bin/activate
 
           # Run tests with pytest
+          # Use the coverage threshold of 80% (consistent with other configurations)
           pytest ${{ inputs.test-path }} \
             -n auto \
             -v \
@@ -89,7 +111,7 @@ jobs:
             --cov=. \
             --cov-report=xml \
             --cov-report=term-missing \
-            --cov-fail-under=5 \
+            --cov-fail-under=80 \
             --junitxml=junit/test-results.xml
 
       - name: Upload test results

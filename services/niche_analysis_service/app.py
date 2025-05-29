@@ -3,8 +3,11 @@
 import logging
 import os
 
-# Set up a dedicated logger for this module
+# Configure logging
 logger = logging.getLogger(__name__)
+
+
+# Set up a dedicated logger for this module
 
 
 def main() -> None:
