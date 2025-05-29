@@ -12,13 +12,13 @@ import pytest
 # Import the module under test - we'll create this module next
 from common_utils.logging.centralized_logging import (
     CentralizedLoggingService,
-    LoggingClient,
-    RemoteHandler,
-    configure_centralized_logging,
-    get_centralized_logger,
     FileOutput,
     LevelFilter,
+    LoggingClient,
+    RemoteHandler,
     SensitiveDataFilter,
+    configure_centralized_logging,
+    get_centralized_logger,
     stop_centralized_logging,
 )
 
@@ -343,7 +343,7 @@ def test_file_output_output_exception(monkeypatch, tmp_path):
     file_output = FileOutput(directory=str(tmp_path))
     log_entry = {"app": "test_app", "message": "test", "level": "INFO"}
     # Patch open to raise an exception
-    monkeypatch.setattr("builtins.open", lambda *a, **kw: (_ for _ in ()).throw(IOError("fail")))
+    monkeypatch.setattr("builtins.open", lambda *a, **kw: (_ for _ in ()).throw(OSError("fail")))
     # Should not raise, should log exception
     file_output.output(log_entry)
 
