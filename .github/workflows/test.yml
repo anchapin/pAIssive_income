@@ -99,7 +99,7 @@ jobs:
       - name: Create junit directory
         run: mkdir -p junit
 
-      - name: Run tests
+      - name: Run tests with coverage
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
@@ -107,7 +107,7 @@ jobs:
           source .venv/bin/activate
 
           # Run tests with pytest
-          # Use the coverage threshold of 7% (consistent with other configurations)
+          # Use the coverage threshold of 80% (consistent with other configurations)
           pytest ${{ inputs.test-path }} \
             -n auto \
             -v \
@@ -115,7 +115,7 @@ jobs:
             --cov=. \
             --cov-report=xml \
             --cov-report=term-missing \
-            --cov-fail-under=1 \
+            --cov-fail-under=80 \
             --junitxml=junit/test-results.xml
 
       - name: Upload test results
