@@ -30,10 +30,6 @@ on:
     workflows: ["Auto Fix (Linting & CodeQL Issues)"]
     types:
       - completed
-    branches:
-      - main
-      - develop
-      - master
 
 jobs:
   e2e:
