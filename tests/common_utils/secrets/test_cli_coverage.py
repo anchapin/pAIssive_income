@@ -9,7 +9,7 @@ import tempfile
 import time
 import unittest
 from io import StringIO
-from unittest.mock import MagicMock, call, mock_open, patch, ANY
+from unittest.mock import ANY, MagicMock, call, mock_open, patch
 
 import pytest
 

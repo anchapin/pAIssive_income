@@ -573,6 +573,7 @@ class CentralizedLoggingService:
 
         Raises:
             ValueError: If use_ssl is True but ssl_cert or ssl_key is missing.
+
         """
         self.host = host
         self.port = port
@@ -1084,6 +1085,7 @@ def configure_centralized_logging(
 
     Raises:
         TypeError: If formatter is not a logging.Formatter instance or None.
+
     """
     global _client
 
