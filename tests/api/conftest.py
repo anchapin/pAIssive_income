@@ -1,9 +1,11 @@
 """conftest - Module for tests/api.conftest."""
 
-# Set TOOL_API_KEY for FastAPI math tool endpoints.
-# This ensures tests pass both locally and in CI by providing the required API key.
+# Ensure TOOL_API_KEY is set for FastAPI math tool endpoints under test.
+# For security, do not commit realistic or production-like secrets here.
+# CI and local devs should set TOOL_API_KEY in their environment if possible.
+# This fallback is for local/dev convenience only.
 import os
-os.environ["TOOL_API_KEY"] = "supersecretkey"
+os.environ.setdefault("TOOL_API_KEY", "dummy-test-api-key-local-dev-only")
 
 # Standard library imports
 
