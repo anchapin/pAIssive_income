@@ -23,6 +23,8 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "*.md",  # Exclude Markdown files
+    "**/*.md"  # Exclude Markdown files in subdirectories
 ]
 
 # Same as Black
