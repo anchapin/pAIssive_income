@@ -94,10 +94,10 @@ def test_crewai_agentic_reasoning_tool_selection_logging(caplog):
     if not CREWAI_AVAILABLE:
         pytest.skip("CrewAI is not installed - skipping test")
 
-    from agent_team.crewai_agents import CrewAIAgentTeam
-
-    # Patch crew creation/kickoff as in other tests
+    # Import needed modules
     from unittest.mock import MagicMock, patch
+
+    from agent_team.crewai_agents import CrewAIAgentTeam
 
     agent_team = CrewAIAgentTeam()
     agent = agent_team.add_agent(

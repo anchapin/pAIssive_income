@@ -9,8 +9,13 @@ Adapt and extend these scaffolds to fit your use-case.
 
 from __future__ import annotations
 
+import logging
+import re
+
 # Check if crewai is installed
 from typing import Any
+
+from common_utils.tooling import list_tools
 
 try:
     from crewai import Agent, Crew, Task
@@ -155,9 +160,6 @@ if __name__ == "__main__":
 
 
 # CrewAI Agent Team implementation
-import logging
-import re
-from common_utils.tooling import list_tools, get_tool
 
 class CrewAIAgentTeam:
     """
@@ -266,21 +268,22 @@ class CrewAIAgentTeam:
 
         Returns:
             (tool_name, tool_func) if found, else (None, None)
+
         """
         # Gather all registered tools
         available_tools = list_tools()
         description_lower = description.lower()
-        self.logger.info(f"Considering tools for task: '{description}'")
+        self.logger.info("Considering tools for task: '%s'", description)
         # Heuristic: Match tool name or keywords
         for tool_name, tool_func in available_tools.items():
             if tool_name.lower() in description_lower:
-                self.logger.info(f"Tool '{tool_name}' matched by name in description.")
+                self.logger.info("Tool '%s' matched by name in description.", tool_name)
                 return tool_name, tool_func
             # Example: additional heuristics for calculator
             if tool_name == "calculator":
                 key_words = ["calculate", "math", "add", "subtract", "multiply", "divide", "+", "-", "*", "/", "%"]
                 if any(word in description_lower for word in key_words):
-                    self.logger.info(f"Tool '{tool_name}' matched by keyword in description.")
+                    self.logger.info("Tool '%s' matched by keyword in description.", tool_name)
                     return tool_name, tool_func
         self.logger.info("No tool matched by heuristic.")
         return None, None
@@ -305,7 +308,7 @@ class CrewAIAgentTeam:
         # For each task, perform agentic reasoning/tool selection
         for task in self.tasks:
             description = getattr(task, "description", "")
-            self.logger.info(f"---\nEvaluating task: '{description}'")
+            self.logger.info("---\nEvaluating task: '%s'", description)
             tool_name, tool_func = self._heuristic_tool_selection(description)
             if tool_name and tool_func:
                 # For demonstration, pass the description as the parameter (or extract expr for calculator)
@@ -319,13 +322,16 @@ class CrewAIAgentTeam:
                     match = re.search(r"([0-9\+\-\*\/\.\s\%\(\)]+)", description)
                     if match:
                         tool_input = match.group(1)
-                self.logger.info(f"Invoking tool '{tool_name}' with input: {tool_input!r}")
+                self.logger.info("Invoking tool '%s' with input: %r", tool_name, tool_input)
                 try:
-                    result = tool_func(tool_input)
-                    self.logger.info(f"Tool '{tool_name}' returned: {result!r}")
+                    # Get the actual function from the tool dictionary
+                    func = tool_func["func"]
+                    # Strip whitespace from the input to avoid indentation errors
+                    result = func(tool_input.strip())
+                    self.logger.info("Tool '%s' returned: %r", tool_name, result)
                     # Optionally, set as context for agent (not implemented here)
-                except Exception as e:
-                    self.logger.exception(f"Error invoking tool '{tool_name}': {e}")
+                except Exception:
+                    self.logger.exception("Error invoking tool '%s'", tool_name)
             else:
                 self.logger.info("No tool selected for this task. Proceeding without tool.")
 

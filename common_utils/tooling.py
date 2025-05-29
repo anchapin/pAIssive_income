@@ -5,11 +5,10 @@ This module allows registration and retrieval of callable tools (functions, APIs
 for use by agent wrappers.
 """
 
+# ruff: noqa: C901, N802
+
 from __future__ import annotations
 
-from typing import Any, Callable
-
-# Global tool registry
 from typing import Any, Callable, Optional
 
 # Tool registry: maps tool name to dict with 'func', optional 'keywords', optional 'input_preprocessor'
@@ -30,6 +29,7 @@ def register_tool(
         func (Callable): Function implementing the tool.
         keywords (list[str], optional): Keywords for heuristic selection.
         input_preprocessor (Callable, optional): Function to extract/prepare input for this tool from a task description.
+
     """
     _TOOL_REGISTRY[name] = {
         "func": func,
@@ -49,6 +49,7 @@ def list_tools() -> dict[str, dict[str, Any]]:
 def calculator_input_preprocessor(description: str) -> str:
     """
     Extract a math expression from the task description for the calculator tool.
+
     For demo: use a simple regex, as before.
     """
     import re
@@ -61,7 +62,16 @@ def calculator_input_preprocessor(description: str) -> str:
 MAX_EXPONENT_VALUE = 100
 
 def calculator(expression: str) -> object:
-    # ... (same as before)
+    """
+    Evaluate a mathematical expression safely and return the result.
+
+    Args:
+        expression: A string containing a mathematical expression to evaluate
+
+    Returns:
+        The result of the calculation or an error message
+
+    """
     import ast
     import operator
     import re
@@ -142,7 +152,7 @@ register_tool(
 MAX_EXPONENT_VALUE = 100  # Maximum allowed value for exponentiation
 
 
-def calculator(expression: str) -> object:  # noqa: C901
+def calculator(expression: str) -> object:
     """
     Evaluate a mathematical expression safely.
 
@@ -195,7 +205,7 @@ def calculator(expression: str) -> object:  # noqa: C901
             # We need to disable N802 (function name should be lowercase) for these methods
             class SafeExpressionEvaluator(ast.NodeVisitor):
                 # Method names must match AST node types exactly
-                def visit_BinOp(self, node: ast.BinOp) -> object:  # noqa: N802
+                def visit_BinOp(self, node: ast.BinOp) -> object:
                     """Process binary operations."""
                     left = self.visit(node.left)
                     right = self.visit(node.right)
@@ -216,7 +226,7 @@ def calculator(expression: str) -> object:  # noqa: C901
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
-                def visit_UnaryOp(self, node: ast.UnaryOp) -> object:  # noqa: N802
+                def visit_UnaryOp(self, node: ast.UnaryOp) -> object:
                     """Process unary operations."""
                     operand = self.visit(node.operand)
                     if isinstance(node.op, ast.USub):
@@ -227,12 +237,12 @@ def calculator(expression: str) -> object:  # noqa: C901
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
-                def visit_Num(self, node: ast.Num) -> object:  # noqa: N802
+                def visit_Num(self, node: ast.Num) -> object:
                     """Process numeric nodes."""
                     return node.n
 
                 # Method names must match AST node types exactly
-                def visit_Constant(self, node: ast.Constant) -> object:  # noqa: N802
+                def visit_Constant(self, node: ast.Constant) -> object:
                     """Process constant nodes."""
                     return node.value
 
@@ -262,12 +272,13 @@ def text_analyzer(text: str) -> str:
 
     Returns:
         str: Analysis results including sentiment and basic metrics.
-    """
-    try:
-        # Basic sentiment analysis using simple keyword matching
-        positive_words = ['good', 'great', 'excellent', 'fantastic', 'amazing', 'wonderful', 'love', 'like', 'happy', 'positive']
-        negative_words = ['bad', 'terrible', 'awful', 'hate', 'dislike', 'sad', 'negative', 'horrible', 'worst']
 
+    """
+    # Basic sentiment analysis using simple keyword matching
+    positive_words = ["good", "great", "excellent", "fantastic", "amazing", "wonderful", "love", "like", "happy", "positive"]
+    negative_words = ["bad", "terrible", "awful", "hate", "dislike", "sad", "negative", "horrible", "worst"]
+
+    try:
         text_lower = text.lower()
         positive_count = sum(1 for word in positive_words if word in text_lower)
         negative_count = sum(1 for word in negative_words if word in text_lower)
@@ -283,11 +294,10 @@ def text_analyzer(text: str) -> str:
         # Basic metrics
         word_count = len(text.split())
         char_count = len(text)
-
-        return f"Sentiment: {sentiment} | Words: {word_count} | Characters: {char_count} | Positive indicators: {positive_count} | Negative indicators: {negative_count}"
-
-    except Exception as e:
+    except ValueError as e:
         return f"Error analyzing text: {e}"
+    else:
+        return f"Sentiment: {sentiment} | Words: {word_count} | Characters: {char_count} | Positive indicators: {positive_count} | Negative indicators: {negative_count}"
 
 
 # Register the text analyzer tool
