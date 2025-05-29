@@ -22,19 +22,17 @@ jobs:
     - name: Ensure fixed CodeQL workflow files
       shell: pwsh
       run: |
-        Write-Host "Ensuring fixed CodeQL workflow files are used...
-if (Test-Path:
+        Write-Host "Ensuring fixed CodeQL workflow files are used..."
+        if (Test-Path:
         \ ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
-  Write-Host "\
+          Write-Host "\
         Running ensure-fixed-codeql-workflows.ps1 script..."
-  ./.github/scripts/ensure-fixed-codeql-workflows.ps1
-:
+          ./.github/scripts/ensure-fixed-codeql-workflows.ps1
         } else {
-  Write-Host "ensure-fixed-codeql-workflows.ps1 script not found,\
+          Write-Host "ensure-fixed-codeql-workflows.ps1 script not found,\
         \ skipping..."
-  exit 1
-}:
-":
+          exit 1
+        }
     - name: Commit changes if needed
       shell: pwsh
       run: |
@@ -61,5 +59,4 @@ if (git status --porcelain |
   Write-Host "\
         No changes to commit. CodeQL workflow files are already up to date."
 }:
-":
     timeout-minutes: 30
