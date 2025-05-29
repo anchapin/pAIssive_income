@@ -101,7 +101,7 @@ class TestArtistAgent:
         # Test extraction for calculator
         prompt = "Calculate 2 + 3 * 4"
         result = agent.extract_relevant_expression(prompt, "calculator")
-        assert result == prompt
+        assert result == "2 + 3 * 4"
 
     @patch("common_utils.tooling.list_tools")
     def test_extract_relevant_expression_default(self, mock_list_tools):
@@ -131,7 +131,7 @@ class TestArtistAgent:
         result = agent.run("Calculate 2 + 3 * 4")
 
         # Verify calculator was called
-        mock_calculator.assert_called_once_with("Calculate 2 + 3 * 4")
+        mock_calculator.assert_called_once_with("2 + 3 * 4")
         assert result == "14"
 
     @patch("common_utils.tooling.list_tools")

@@ -155,3 +155,55 @@ class TestMCPAdapter:
 
         mock_mcp.Client.return_value.disconnect.assert_called_once()
         assert adapter.client is None
+
+    def test_send_message_with_mcp_none(self):
+        """Test send_message raises ModelContextProtocolError if mcp is None."""
+        with patch("ai_models.adapters.mcp_adapter.mcp", None), pytest.raises(ModelContextProtocolError):
+            adapter = MCPAdapter(host="localhost", port=9000)
+            adapter.send_message("Hello")
+
+    def test_send_message_handle_client_error(self, mock_mcp):
+        """Test send_message triggers _handle_client_error when self.client is None after connect."""
+        adapter = MCPAdapter(host="localhost", port=9000)
+        # Patch connect to not set self.client
+        with patch.object(adapter, "connect", return_value=None):
+            adapter.client = None
+            with pytest.raises(ConnectionError, match="Error communicating with MCP server"):
+                adapter.send_message("Hello")
+
+    def test_close_always_sets_client_none(self, mock_mcp, caplog):
+        """Test close always sets self.client = None and logs, even if disconnect raises."""
+        adapter = MCPAdapter(host="localhost", port=9000)
+        adapter.client = mock_mcp.Client.return_value
+        mock_mcp.Client.return_value.disconnect.side_effect = Exception("Disconnect error")
+        with caplog.at_level(logging.INFO):
+            adapter.close()
+        assert adapter.client is None
+        # Should log 'Reset client to None'
+        assert any("Reset client to None" in m for m in caplog.messages)
+
+    def test_extra_kwargs_passed_to_client(self, mock_mcp):
+        """Test extra kwargs are passed to mcp.Client."""
+        adapter = MCPAdapter(host="localhost", port=9000, foo="bar", baz=123)
+        adapter.connect()
+        mock_mcp.Client.assert_called_once_with("http://localhost:9000", foo="bar", baz=123)
+
+    def test_custom_exceptions(self):
+        """Test custom exception classes for correct message and attributes."""
+        from ai_models.adapters.mcp_adapter import HostFormatError, PortRangeError, MCPConnectionError, MCPCommunicationError
+        # HostFormatError
+        err = HostFormatError()
+        assert "Host must contain only alphanumeric characters" in str(err)
+        # PortRangeError
+        err = PortRangeError()
+        assert "Port must be an integer between" in str(err)
+        # MCPConnectionError
+        orig = Exception("fail")
+        err = MCPConnectionError("http://localhost:9000", orig)
+        assert "Failed to connect to MCP server" in str(err)
+        assert err.original_error is orig
+        # MCPCommunicationError
+        orig = Exception("fail2")
+        err = MCPCommunicationError(orig)
+        assert "Error communicating with MCP server" in str(err)
+        assert err.original_error is orig

@@ -53,6 +53,8 @@ except ImportError:
 
 # Import base CrewAI agent team
 from agent_team.crewai_agents import CrewAIAgentTeam
+# Import RAG coordinator
+from services.memory_rag_coordinator import MemoryRAGCoordinator
 
 # Configure logging
 # logging.basicConfig will be moved to main guard
@@ -90,6 +92,9 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         # Set user ID for memory operations
         self.user_id = user_id or "default_user"
+
+        # Initialize RAG coordinator for memory retrieval
+        self.rag_coordinator = MemoryRAGCoordinator()
 
         # Store team creation in memory
         self._store_memory(f"Agent team created with user ID: {self.user_id}")
@@ -205,31 +210,28 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         self, content: Union[str, List[Dict[str, str]]], metadata: Dict[str, str] = None
     ) -> None:
         """
-        Store a memory using mem0.
+        Store a memory using the RAG coordinator (mem0 backend).
 
         Args:
             content: The content to store (string or conversation messages)
             metadata: Optional metadata for the memory
 
         """
-        if self.memory is None:
-            return
-
-        try:
-            self.memory.add(content, user_id=self.user_id, metadata=metadata or {})
+        success = self.rag_coordinator.store_memory(content, user_id=self.user_id, metadata=metadata or {})
+        if success:
             logger.debug(
-                f"Memory stored: {content[:50]}..."
+                f"Memory stored via RAG coordinator: {str(content)[:50]}..."
                 if isinstance(content, str)
-                else "Conversation stored"
+                else "Conversation stored via RAG coordinator"
             )
-        except Exception as e:
-            logger.exception(f"Error storing memory: {e}")
+        else:
+            logger.warning("Failed to store memory via RAG coordinator.")
 
     def _retrieve_relevant_memories(
         self, query: str = None, limit: int = 5
     ) -> List[Dict[str, Any]]:
         """
-        Retrieve relevant memories for the current context.
+        Retrieve relevant memories for the current context using MemoryRAGCoordinator.
 
         Args:
             query: Optional query string (defaults to team and agent information)
@@ -239,22 +241,18 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             List of relevant memories
 
         """
-        if self.memory is None:
-            return []
-
         # If no query provided, create one based on team information
         if query is None:
             agent_roles = [getattr(agent, "role", "unknown") for agent in self.agents]
             query = f"Information about agents with roles: {', '.join(agent_roles)}"
 
         try:
-            # Search for relevant memories
-            memories = self.memory.search(
-                query=query, user_id=self.user_id, limit=limit
-            )
-            return memories
+            # Use MemoryRAGCoordinator to retrieve merged memories
+            rag_results = self.rag_coordinator.query(query=query, user_id=self.user_id)
+            memories = rag_results.get("merged_results", [])
+            return memories[:limit]
         except Exception as e:
-            logger.exception(f"Error retrieving memories: {e}")
+            logger.exception(f"Error retrieving memories via RAG coordinator: {e}")
             return []
 
     def _enhance_context_with_memories(self, context: str) -> str:

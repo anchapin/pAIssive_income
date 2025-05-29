@@ -74,7 +74,7 @@ try:
     import dash
     import dash_bootstrap_components as dbc
     import numpy as np
-    import pandas as pd
+    import polars as pl
     import plotly.express as px
     import plotly.graph_objects as go
     from dash import dash_table, dcc, html
@@ -85,7 +85,7 @@ try:
     from tools.predefined_dashboards import get_dashboard_layout
 except ImportError as e:
     logger.error(f"Required packages not installed: {e}")
-    logger.info("Install required packages with: pip install dash dash-bootstrap-components pandas plotly numpy scipy")
+    logger.info("Install required packages with: pip install dash dash-bootstrap-components polars plotly numpy scipy")
     sys.exit(1)
 
 # Try to import Elasticsearch
@@ -1971,7 +1971,7 @@ def create_dashboard(
             return empty_fig, empty_fig, empty_fig
 
         # Convert log entries to DataFrame
-        df = pd.DataFrame(log_entries)
+        df = pl.from_dicts(log_entries)
 
         # Apply filters
         if level_filter:

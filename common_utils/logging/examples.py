@@ -9,6 +9,9 @@ import logging
 import sys  # Added sys import
 
 # Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -58,8 +61,7 @@ def example_secure_logger() -> None:
 def example_mask_sensitive_data() -> None:
     """Demonstrate direct usage of the mask_sensitive_data function."""
     # Standard logger
-    # logger = logging.getLogger("standard_logger") # This logger is not configured, using the module logger instead
-    # Use the module level logger
+    logger = logging.getLogger("standard_logger")  # Use the logger expected by the test
 
     # Sensitive data - using placeholder for demonstration
     demo_access_token = "DEMO_TOKEN_PLACEHOLDER"  # noqa: S105

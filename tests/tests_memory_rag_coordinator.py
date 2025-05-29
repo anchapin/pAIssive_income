@@ -43,11 +43,11 @@ def coordinator():
 
 def test_only_mem0_returns_results(monkeypatch, fake_mem0_result, coordinator):
     """Test that results are returned and merged correctly when only mem0 returns results."""
-    monkeypatch.setattr("services.memory_rag_coordinator.mem0_query", lambda _q, _u: fake_mem0_result)
-    monkeypatch.setattr("services.memory_rag_coordinator.chroma_query", lambda _q, _u=None: [])
+    monkeypatch.setattr(MemoryRAGCoordinator, "mem0_query", lambda self, _q, _u: fake_mem0_result)
+    monkeypatch.setattr(MemoryRAGCoordinator, "chroma_query", lambda self, _q: [])
 
     res = coordinator.query("deadline", "user1")
-    merged = res["merged_memories"]
+    merged = res["merged_results"]
     assert len(merged) == 2
     assert all(m["source"] == "mem0" for m in merged)
     assert "subsystem_metrics" in res
@@ -57,11 +57,11 @@ def test_only_mem0_returns_results(monkeypatch, fake_mem0_result, coordinator):
 
 def test_only_chroma_returns_results(monkeypatch, fake_chroma_result, coordinator):
     """Test that results are returned and merged correctly when only Chroma returns results."""
-    monkeypatch.setattr("services.memory_rag_coordinator.mem0_query", lambda _q, _u: [])
-    monkeypatch.setattr("services.memory_rag_coordinator.chroma_query", lambda _q, _u=None: fake_chroma_result)
+    monkeypatch.setattr(MemoryRAGCoordinator, "mem0_query", lambda self, _q, _u: [])
+    monkeypatch.setattr(MemoryRAGCoordinator, "chroma_query", lambda self, _q: fake_chroma_result)
 
     res = coordinator.query("deadline", "user2")
-    merged = res["merged_memories"]
+    merged = res["merged_results"]
     assert len(merged) == 2
     assert all(m["source"] == "chroma" for m in merged)
     assert "subsystem_metrics" in res
@@ -71,11 +71,11 @@ def test_only_chroma_returns_results(monkeypatch, fake_chroma_result, coordinato
 
 def test_both_return_with_duplicates(monkeypatch, fake_mem0_result, fake_chroma_result, coordinator):
     """Test that duplicates/conflicts between mem0 and Chroma are resolved (prefer high relevance or recent)."""
-    monkeypatch.setattr("services.memory_rag_coordinator.mem0_query", lambda _q, _u: fake_mem0_result)
-    monkeypatch.setattr("services.memory_rag_coordinator.chroma_query", lambda _q, _u=None: fake_chroma_result)
+    monkeypatch.setattr(MemoryRAGCoordinator, "mem0_query", lambda self, _q, _u: fake_mem0_result)
+    monkeypatch.setattr(MemoryRAGCoordinator, "chroma_query", lambda self, _q: fake_chroma_result)
 
     res = coordinator.query("deadline", "userX")
-    merged = res["merged_memories"]
+    merged = res["merged_results"]
     # Should have results from both sources
     assert len(merged) >= 2
     sources = [m["source"] for m in merged]
@@ -85,8 +85,8 @@ def test_both_return_with_duplicates(monkeypatch, fake_mem0_result, fake_chroma_
 
 def test_metrics_are_included(monkeypatch, fake_mem0_result, fake_chroma_result, coordinator):
     """Test that timing/cost metrics are included for each subsystem."""
-    monkeypatch.setattr("services.memory_rag_coordinator.mem0_query", lambda _q, _u: fake_mem0_result)
-    monkeypatch.setattr("services.memory_rag_coordinator.chroma_query", lambda _q, _u=None: fake_chroma_result)
+    monkeypatch.setattr(MemoryRAGCoordinator, "mem0_query", lambda self, _q, _u: fake_mem0_result)
+    monkeypatch.setattr(MemoryRAGCoordinator, "chroma_query", lambda self, _q: fake_chroma_result)
 
     res = coordinator.query("anything", "userZ")
     metrics = res["subsystem_metrics"]
@@ -105,7 +105,7 @@ def test_integration_with_memory_enhanced_team():
     """Test that MemoryEnhancedCrewAIAgentTeam retrieves memories through the RAG coordinator."""
     # Patch the MemoryRAGCoordinator's query method to return a fake merged result
     fake_merged_result = {
-        "merged_memories": [
+        "merged_results": [
             {"text": "Unified answer 1", "source": "mem0"},
             {"text": "Unified answer 2", "source": "chroma"},
         ],
@@ -121,9 +121,9 @@ def test_integration_with_memory_enhanced_team():
             role = "Tester"
         team.agents = [DummyAgent()]
         memories = team._retrieve_relevant_memories(query="test query")  # noqa: SLF001
-        assert len(memories) == 2
-        assert any("Unified answer 1" in m["text"] for m in memories)
-        assert any(m["source"] in ["mem0", "chroma"] for m in memories)
+        assert len(memories["results"]) == 2
+        assert any("Unified answer 1" in m["text"] for m in memories["results"])
+        assert any(m["source"] in ["mem0", "chroma"] for m in memories["results"])
 
 
 # ----- End of Test Suite -----

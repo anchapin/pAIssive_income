@@ -2,12 +2,13 @@
 
 import datetime
 import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, PropertyMock
 
 import dash
 import pytest
 from dash import html
 from dash.exceptions import PreventUpdate
+import dash._callback_context
 
 from common_utils.logging.dashboard_auth import (
     DashboardAuth,
@@ -575,32 +576,30 @@ class TestDecorators:
         # Create mock function
         mock_func = MagicMock(return_value="result")
 
-        # Apply decorator
-        decorated_func = require_auth(mock_func)
-
-        # Create mock context
+        # Create mock context outputs
+        mock_outputs = [{"id": MagicMock()}]
+        mock_outputs[0]["id"].split.return_value = [MagicMock()]
+        mock_outputs[0]["id"].split.return_value[0]._dash_app = MagicMock()
+        mock_outputs[0]["id"].split.return_value[0]._dash_app.auth = MagicMock()
         mock_ctx = MagicMock()
-        mock_ctx.outputs = [{"id": MagicMock()}]
-        mock_ctx.outputs[0]["id"].split.return_value = [MagicMock()]
-        mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app = MagicMock()
-        mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth = MagicMock()
+        mock_ctx.outputs = mock_outputs
 
         # Mock session
         mock_session = {"auth": {"username": "test"}}
 
-        # Test authenticated
-        with patch("dash.callback_context", mock_ctx), \
-             patch("common_utils.logging.dashboard_auth.session", mock_session):
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = True
+        # Use context_getter in decorator
+        decorated_func = require_auth(mock_func, context_getter=lambda: mock_ctx)
+
+        with patch("common_utils.logging.dashboard_auth.session", mock_session):
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = True
             result = decorated_func("arg1", "arg2", kwarg1="value1")
             assert result == "result"
             mock_func.assert_called_once_with("arg1", "arg2", kwarg1="value1")
 
         # Test not authenticated
         mock_func.reset_mock()
-        with patch("dash.callback_context", mock_ctx), \
-             patch("common_utils.logging.dashboard_auth.session", mock_session):
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = False
+        with patch("common_utils.logging.dashboard_auth.session", mock_session):
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = False
             with pytest.raises(PreventUpdate):
                 decorated_func("arg1", "arg2", kwarg1="value1")
             mock_func.assert_not_called()
@@ -611,56 +610,166 @@ class TestDecorators:
         mock_func = MagicMock(return_value="result")
         mock_func.__name__ = "mock_func"
 
-        # Apply decorator
-        decorated_func = require_permission("view_logs")(mock_func)
-
-        # Create mock context
+        # Create mock context outputs
+        mock_outputs = [{"id": MagicMock()}]
+        mock_outputs[0]["id"].split.return_value = [MagicMock()]
+        mock_outputs[0]["id"].split.return_value[0]._dash_app = MagicMock()
+        mock_outputs[0]["id"].split.return_value[0]._dash_app.auth = MagicMock()
+        mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.audit_logging_enabled = True
         mock_ctx = MagicMock()
-        mock_ctx.outputs = [{"id": MagicMock()}]
-        mock_ctx.outputs[0]["id"].split.return_value = [MagicMock()]
-        mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app = MagicMock()
-        mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth = MagicMock()
-        mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.audit_logging_enabled = True
+        mock_ctx.outputs = mock_outputs
 
         # Mock session
         mock_session = {"auth": {"username": "test"}}
 
-        # Test authenticated with permission
-        with patch("dash.callback_context", mock_ctx), \
-             patch("common_utils.logging.dashboard_auth.session", mock_session):
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = True
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.has_permission.return_value = True
+        decorated_func = require_permission("view_logs", context_getter=lambda: mock_ctx)(mock_func)
+
+        with patch("common_utils.logging.dashboard_auth.session", mock_session):
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = True
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.has_permission.return_value = True
             result = decorated_func("arg1", "arg2", kwarg1="value1")
             assert result == "result"
             mock_func.assert_called_once_with("arg1", "arg2", kwarg1="value1")
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.has_permission.assert_called_once_with("test", "view_logs")
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.assert_called_with(
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.has_permission.assert_called_once_with("test", "view_logs")
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.assert_called_with(
                 "permission_granted", "test", {"permission": "view_logs", "callback": "mock_func"}
             )
 
         # Test authenticated without permission
         mock_func.reset_mock()
-        mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.reset_mock()
-        with patch("dash.callback_context", mock_ctx), \
-             patch("common_utils.logging.dashboard_auth.session", mock_session):
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = True
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.has_permission.return_value = False
+        mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.reset_mock()
+        with patch("common_utils.logging.dashboard_auth.session", mock_session):
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = True
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.has_permission.return_value = False
             with pytest.raises(PreventUpdate):
                 decorated_func("arg1", "arg2", kwarg1="value1")
             mock_func.assert_not_called()
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.assert_called_with(
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.assert_called_with(
                 "permission_denied", "test", {"permission": "view_logs", "callback": "mock_func"}
             )
 
         # Test not authenticated
         mock_func.reset_mock()
-        mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.reset_mock()
-        with patch("dash.callback_context", mock_ctx), \
-             patch("common_utils.logging.dashboard_auth.session", mock_session):
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = False
+        mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.reset_mock()
+        with patch("common_utils.logging.dashboard_auth.session", mock_session):
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = False
             with pytest.raises(PreventUpdate):
                 decorated_func("arg1", "arg2", kwarg1="value1")
             mock_func.assert_not_called()
-            mock_ctx.outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.assert_called_with(
+            mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.log_audit_event.assert_called_with(
                 "permission_check_failed", "test", {"permission": "view_logs", "reason": "not_authenticated", "callback": "mock_func"}
             )
+
+
+def test_require_auth_decorator():
+    mock_outputs = [{"id": MagicMock()}]
+    mock_outputs[0]["id"].split.return_value = [MagicMock()]
+    mock_outputs[0]["id"].split.return_value[0]._dash_app = MagicMock()
+    mock_outputs[0]["id"].split.return_value[0]._dash_app.auth = MagicMock()
+    mock_ctx = MagicMock()
+    mock_ctx.outputs = mock_outputs
+    @require_auth(context_getter=lambda: mock_ctx)
+    def protected():
+        return "protected"
+    with patch("common_utils.logging.dashboard_auth.session", {"auth": {"username": "test"}}):
+        mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = True
+        assert protected() == "protected"
+
+def test_require_permission_decorator():
+    mock_outputs = [{"id": MagicMock()}]
+    mock_outputs[0]["id"].split.return_value = [MagicMock()]
+    mock_outputs[0]["id"].split.return_value[0]._dash_app = MagicMock()
+    mock_outputs[0]["id"].split.return_value[0]._dash_app.auth = MagicMock()
+    mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.audit_logging_enabled = True
+    mock_ctx = MagicMock()
+    mock_ctx.outputs = mock_outputs
+    @require_permission("admin", context_getter=lambda: mock_ctx)
+    def admin_only():
+        return "admin"
+    with patch("common_utils.logging.dashboard_auth.session", {"auth": {"username": "test"}}):
+        mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.validate_session.return_value = True
+        mock_outputs[0]["id"].split.return_value[0]._dash_app.auth.has_permission.return_value = True
+        assert admin_only() == "admin"
+
+def test_generate_and_validate_csrf_token():
+    auth = DashboardAuth()
+    auth.enable_csrf_protection()  # Enable CSRF protection for correct validation
+    session_id = "session123"
+    token = auth.generate_csrf_token(session_id)
+    assert isinstance(token, str)
+    assert auth.validate_csrf_token(session_id, token)
+    assert not auth.validate_csrf_token(session_id, "invalidtoken")
+
+def test_audit_logging_and_retrieval():
+    auth = DashboardAuth()
+    auth.enable_audit_logging()  # Enable audit logging before logging events
+    auth.log_audit_event("login", username="user1", details={"ip": "127.0.0.1"})
+    logs = auth.get_audit_logs()
+    assert any(log["event_type"] == "login" for log in logs)
+
+
+def test_password_hash_and_verify():
+    auth = DashboardAuth()
+    password = "securepassword"
+    hash_ = auth.hash_password(password)
+    assert auth.verify_password(password, hash_)
+    assert not auth.verify_password("wrong", hash_)
+
+
+def test_user_role_permission_management():
+    auth = DashboardAuth()
+    user = MagicMock()
+    user.username = "user1"
+    role = MagicMock()
+    role.name = "admin"
+    perm = MagicMock()
+    perm.name = "edit"
+    auth.add_user(user)
+    auth.add_role(role)
+    auth.add_permission(perm)
+    assert auth.has_permission("user1", "edit") is False
+    auth.remove_user("user1")
+    auth.remove_role("admin")
+    auth.remove_permission("edit")
+
+
+def test_rate_limiting_and_lockout():
+    auth = DashboardAuth()
+    username = "user1"
+    auth.enable_rate_limiting(max_attempts=2, lockout_time=1)
+    assert auth.check_rate_limit(username)
+    auth.record_failed_attempt(username)
+    auth.record_failed_attempt(username)
+    assert not auth.check_rate_limit(username)  # Should be locked out
+    auth.reset_failed_attempts(username)
+    assert auth.check_rate_limit(username)
+
+
+def test_session_creation_and_validation():
+    auth = DashboardAuth()
+    username = "user1"
+    # Add user before validating session
+    user = User(username=username, password_hash="hash")
+    auth.add_user(user)
+    session = auth.create_session(username)
+    assert auth.validate_session(session)
+    session["username"] = "tampered"
+    assert not auth.validate_session(session)
+
+
+def test_integration_login_with_csrf(monkeypatch):
+    auth = DashboardAuth()
+    session_id = "session123"
+    token = auth.generate_csrf_token(session_id)
+    monkeypatch.setattr(auth, "validate_csrf_token", lambda s, t: t == token)
+    # Simulate login with correct CSRF
+    assert auth.validate_csrf_token(session_id, token)
+    # Simulate login with incorrect CSRF
+    assert not auth.validate_csrf_token(session_id, "badtoken")
+
+
+def test_error_handling_invalid_token():
+    auth = DashboardAuth()
+    auth.enable_csrf_protection()  # Enable CSRF protection for correct validation
+    # Should not raise, just return False
+    assert not auth.validate_csrf_token("session", "invalid")

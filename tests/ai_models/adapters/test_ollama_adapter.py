@@ -121,11 +121,11 @@ async def test_error_handling(mock_aiohttp_session):
 
     with patch("aiohttp.ClientSession", return_value=mock_session):
         adapter = OllamaAdapter(base_url="http://test-ollama:11434")
-        result = await adapter.generate_text("llama2", "Say hello")
-
-        # Verify error handling
-        assert "error" in result
-        assert result["error"] == "Internal server error"
+        with pytest.raises(Exception) as excinfo:
+            await adapter.generate_text("llama2", "Say hello")
+        assert "Failed to generate text" in str(excinfo.value)
+        assert "500" in str(excinfo.value)
+        assert "Internal server error" in str(excinfo.value)
 
 
 @pytest.mark.asyncio
@@ -136,11 +136,10 @@ async def test_exception_handling(mock_aiohttp_session):
 
     with patch("aiohttp.ClientSession", return_value=mock_session):
         adapter = OllamaAdapter(base_url="http://test-ollama:11434")
-        result = await adapter.generate_text("llama2", "Say hello")
-
-        # Verify exception handling
-        assert "error" in result
-        assert result["error"] == "Connection error"
+        with pytest.raises(Exception) as excinfo:
+            await adapter.generate_text("llama2", "Say hello")
+        assert "Error generating text" in str(excinfo.value)
+        assert "Connection error" in str(excinfo.value)
 
 
 @pytest.mark.asyncio

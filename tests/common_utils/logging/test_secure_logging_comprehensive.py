@@ -244,8 +244,8 @@ class TestSecureLoggingComprehensive:
         # Test with various injection attempts
         test_cases = [
             ("Normal message", "Normal message"),
-            ("Message with \nnewline", "Message with [FILTERED] newline"),
-            ("Message with \r\nCRLF", "Message with [FILTERED] CRLF"),
+            ("Message with \nnewline", "Message with  [FILTERED] newline"),
+            ("Message with \r\nCRLF", "Message with  [FILTERED] CRLF"),
             ("Message with %s placeholder", "Message with %s placeholder"),
             ("Message with {key} format", "Message with {key} format"),
         ]

@@ -7,7 +7,7 @@ import socket
 import tempfile
 import threading
 import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, ANY
 
 import pytest
 
@@ -76,13 +76,13 @@ class TestCentralizedLoggingServiceImproved:
         # Mock the socket to raise an exception
         with patch("socket.socket", side_effect=Exception("Test exception")):
             # Mock the logger
-            with patch.object(self.service.logger, "error") as mock_error:
+            with patch.object(self.service.logger, "exception") as mock_exception:
                 # Start the service
                 with pytest.raises(Exception, match="Test exception"):
                     self.service.start()
 
                 # Verify that the error was logged
-                mock_error.assert_called_once()
+                mock_exception.assert_called_once()
 
                 # Verify that the service is not running
                 assert self.service.running is False
@@ -130,12 +130,12 @@ class TestCentralizedLoggingServiceImproved:
         )
 
         # Mock the logger
-        with patch.object(self.service.logger, "error") as mock_error:
+        with patch.object(self.service.logger, "exception") as mock_exception:
             # Call receive_log
             log_entry = self.service.receive_log()
 
             # Verify that the error was logged
-            mock_error.assert_called_once()
+            mock_exception.assert_called_once()
 
             # Verify that a default log entry was returned
             assert log_entry["level"] == "ERROR"
@@ -154,15 +154,13 @@ class TestCentralizedLoggingServiceImproved:
             "app": "test_app",
         }
 
-        # Mock open to raise an exception
-        with patch("builtins.open", side_effect=Exception("Test exception")):
-            # Mock the logger
-            with patch.object(self.service.logger, "error") as mock_error:
-                # Process the log entry
+        # Patch the FileOutput logger to check for exception log
+        with patch("common_utils.logging.centralized_logging.get_secure_logger") as mock_get_logger:
+            mock_logger = MagicMock()
+            mock_get_logger.return_value = mock_logger
+            with patch("builtins.open", side_effect=Exception("Test exception")):
                 self.service.process_log(log_entry)
-
-                # Verify that the error was logged
-                mock_error.assert_called_once()
+                mock_logger.exception.assert_called_once_with(ANY)
 
     def test_process_logs_with_exception(self):
         """Test _process_logs method with an exception."""
@@ -221,15 +219,19 @@ class TestLoggingClientImproved:
             "logger": "test_logger",
         }
 
-        # Mock socket.socket to raise an exception
-        with patch("socket.socket", side_effect=Exception("Test exception")):
-            # Mock the logger
-            with patch.object(self.client.logger, "error") as mock_error:
-                # Send the log entry
-                self.client.send_log(log_entry)
-
-                # Verify that the error was logged
-                mock_error.assert_called_once()
+        # Patch get_secure_logger so the logger used in LoggingClient is a mock
+        with patch("common_utils.logging.centralized_logging.get_secure_logger") as mock_get_logger:
+            mock_logger = MagicMock()
+            mock_get_logger.return_value = mock_logger
+            with patch("socket.socket", side_effect=Exception("Test exception")):
+                client = LoggingClient(
+                    app_name="test_app",
+                    host="localhost",
+                    port=5000,
+                    buffer_size=0,
+                )
+                client.send_log(log_entry)
+                mock_logger.exception.assert_called_once_with("Failed to send log entry")
 
 
 class TestRemoteHandlerImproved:
@@ -276,23 +278,12 @@ class TestCentralizedLoggingFunctionsImproved:
 
     def test_get_centralized_logger_without_client(self):
         """Test get_centralized_logger function when the client is not configured."""
-        # Ensure the global client is None
-        from common_utils.logging.centralized_logging import _client
-
-        _client = None
-
-        # Mock get_secure_logger
-        with patch(
-            "common_utils.logging.centralized_logging.get_secure_logger"
-        ) as mock_get_secure_logger:
-            mock_logger = MagicMock()
-            mock_get_secure_logger.return_value = mock_logger
-
-            # Get a centralized logger
-            logger = get_centralized_logger("test_logger")
-
-            # Verify that get_secure_logger was called
-            mock_get_secure_logger.assert_called_once_with("test_logger")
-
-            # Verify that the secure logger was returned
-            assert logger == mock_logger
+        # Patch the global _client in the module to None
+        with patch("common_utils.logging.centralized_logging._client", None):
+            with patch("common_utils.logging.centralized_logging.get_secure_logger") as mock_get_secure_logger:
+                mock_logger = MagicMock()
+                mock_get_secure_logger.return_value = mock_logger
+                # Get a centralized logger
+                logger = get_centralized_logger("test_logger")
+                # Verify that get_secure_logger was called
+                mock_get_secure_logger.assert_called_once_with("test_logger")

@@ -164,11 +164,14 @@ class TestLoggingClient:
 
     def setup_method(self):
         """Set up test fixtures."""
-        # Create a LoggingClient instance
+        # Create a LoggingClient instance with buffer_size=0 for immediate send
         self.client = LoggingClient(
             app_name="test_app",
             host="localhost",
             port=5000,
+            buffer_size=0,
+            retry_interval=1,
+            secure=False,
         )
 
     def test_init(self):
@@ -284,11 +287,14 @@ class TestCentralizedLoggingFunctions:
             level=logging.INFO,
         )
 
-        # Verify that a client was created
+        # Verify that a client was created with all default arguments
         mock_client_class.assert_called_once_with(
             app_name="test_app",
             host="localhost",
             port=5000,
+            buffer_size=100,
+            retry_interval=5,
+            secure=False,
         )
 
         # Verify that a handler was created

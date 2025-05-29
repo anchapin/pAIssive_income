@@ -120,9 +120,9 @@ class TestAuditExtended(unittest.TestCase):
         # Ensure the original content is not in the encrypted content
         self.assertNotIn(b"abcdefghijklmnopqrstuvwxyz123456", encrypted_content)
 
-    @patch("os.makedirs")
-    @patch("builtins.open", new_callable=mock_open)
-    def test_save_encrypted_report(self, mock_file, mock_makedirs):
+    @patch("pathlib.Path.mkdir")
+    @patch("pathlib.Path.open", new_callable=mock_open)
+    def test_save_encrypted_report(self, mock_path_open, mock_mkdir):
         """Test save_encrypted_report function."""
         # Create test data
         path = os.path.join(self.test_dir, "reports", "report.enc")
@@ -133,9 +133,9 @@ class TestAuditExtended(unittest.TestCase):
         save_encrypted_report(path, salt, encrypted_content)
 
         # Verify results
-        mock_makedirs.assert_called_once_with(os.path.join(self.test_dir, "reports"), mode=0o700, exist_ok=True)
-        mock_file.assert_called_once_with(path, "wb")
-        mock_file().write.assert_called_once_with(salt + encrypted_content)
+        mock_mkdir.assert_called_once_with(parents=True, mode=0o700, exist_ok=True)
+        mock_path_open.assert_called_once_with("wb")
+        mock_path_open().write.assert_called_once_with(salt + encrypted_content)
 
     @patch("common_utils.secrets.audit.logger")
     def test_log_scan_completion_with_errors(self, mock_logger):

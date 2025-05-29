@@ -15,6 +15,7 @@ import logging
 import os
 import time
 from typing import Any
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -232,8 +233,20 @@ class MemoryRAGCoordinator:
                 deduped[key] = r
 
         # Sort by descending relevance, then most recent timestamp
+        def parse_timestamp(ts):
+            if ts is None:
+                return 0
+            if isinstance(ts, (int, float)):
+                return ts
+            try:
+                # Try parsing ISO8601 string
+                dt = datetime.datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                return dt.timestamp()
+            except Exception:
+                return 0
+
         merged = list(deduped.values())
-        merged.sort(key=lambda x: (-x.get("relevance", 0.0), -(x.get("timestamp") or 0)))
+        merged.sort(key=lambda x: (-x.get("relevance", 0.0), -parse_timestamp(x.get("timestamp"))))
         return merged
 
     def _estimate_cost(self, results: list[dict]) -> float:  # noqa: ARG002
@@ -243,3 +256,62 @@ class MemoryRAGCoordinator:
         Returns a float (currently always 0.0).
         """
         return 0.0
+
+    def store_memory(self, content: Any, user_id: str, metadata: dict = None) -> bool:
+        """
+        Store a memory in the mem0 memory system and ChromaDB if available.
+
+        Args:
+            content: The content to store (string or conversation messages)
+            user_id: The user ID for memory storage
+            metadata: Optional metadata for the memory
+
+        Returns:
+            True if stored successfully in at least one backend, False otherwise
+        """
+        mem0_success = False
+        chroma_success = False
+        # Store in mem0
+        try:
+            from mem0 import Memory
+            memory = Memory()
+            memory.add(content, user_id=user_id, metadata=metadata or {})
+            logger.debug(f"Memory stored via RAG coordinator (mem0): {str(content)[:50]}...")
+            mem0_success = True
+        except ImportError:
+            logger.warning("mem0ai package is not installed. Install with: uv pip install mem0ai")
+        except Exception as e:
+            logger.exception(f"Error storing memory via RAG coordinator (mem0): {e}")
+        # Store in ChromaDB
+        if self._chroma_collection is not None and self._embedder is not None:
+            try:
+                import time as _time
+                import uuid
+                # Convert content to string for embedding and storage
+                if isinstance(content, str):
+                    text = content
+                elif isinstance(content, list):
+                    # If list of dicts (e.g., conversation), join messages
+                    text = "\n".join(str(m.get("text", m)) for m in content)
+                else:
+                    text = str(content)
+                embedding = self._embedder.encode(text).tolist()
+                # Generate a unique id for the document
+                doc_id = f"{user_id}_{int(_time.time() * 1000)}_{uuid.uuid4().hex[:8]}"
+                # Prepare metadata
+                chroma_metadata = {"user_id": user_id}
+                if metadata:
+                    chroma_metadata.update(metadata)
+                self._chroma_collection.add(
+                    ids=[doc_id],
+                    documents=[text],
+                    embeddings=[embedding],
+                    metadatas=[chroma_metadata],
+                )
+                logger.debug(f"Memory stored via RAG coordinator (ChromaDB): {text[:50]}...")
+                chroma_success = True
+            except Exception as e:
+                logger.exception(f"Error storing memory via RAG coordinator (ChromaDB): {e}")
+        else:
+            logger.info("ChromaDB not available, skipping ChromaDB storage.")
+        return mem0_success or chroma_success

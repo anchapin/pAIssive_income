@@ -61,9 +61,9 @@ def get_logger(name: str, secure: bool = True) -> Union[SecureLogger, logging.Lo
             logger_instance = SecureLogger(name) # Renamed to avoid conflict with module-level logger
         except Exception:
             # Fall back to standard logger if secure logger fails
-            logger.exception("Failed to initialize SecureLogger, falling back to standard logger.") # Use logger.exception
             logger_instance = logging.getLogger(name)
             logger_instance.setLevel(logging.INFO)
+            logger_instance.exception("Failed to initialize SecureLogger, falling back to standard logger.")
     else:
         logger_instance = logging.getLogger(name)
         logger_instance.setLevel(logging.INFO)

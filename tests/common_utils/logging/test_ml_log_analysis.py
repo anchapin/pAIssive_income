@@ -6,9 +6,6 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
-from sklearn.cluster import DBSCAN
-from sklearn.ensemble import IsolationForest
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 from common_utils.logging.ml_log_analysis import (
     AnomalyDetector,
@@ -94,9 +91,8 @@ class TestAnomalyDetector:
 
     def test_init(self):
         """Test initialization."""
-        detector = AnomalyDetector(contamination=0.1)
-        assert detector.contamination == 0.1
-        assert detector.model is None
+        detector = AnomalyDetector()
+        assert detector.threshold == 3.0
         assert detector.trained is False
 
     def test_extract_features(self, sample_log_entries):
@@ -122,12 +118,11 @@ class TestAnomalyDetector:
         detector.train(sample_log_entries)
 
         assert detector.trained is True
-        assert detector.model is not None
-        assert isinstance(detector.model, IsolationForest)
+        assert hasattr(detector, 'threshold')
 
     def test_detect(self, sample_log_entries):
         """Test anomaly detection."""
-        detector = AnomalyDetector(contamination=0.2)  # Higher contamination for testing
+        detector = AnomalyDetector(threshold=1.0)
         detector.train(sample_log_entries)
 
         anomalies = detector.detect(sample_log_entries)
@@ -165,7 +160,8 @@ class TestPatternRecognizer:
         recognizer.train(sample_log_entries)
 
         assert recognizer.trained is True
-        assert isinstance(recognizer.vectorizer, TfidfVectorizer)
+        assert hasattr(recognizer, 'vocab')
+        assert hasattr(recognizer, 'idf')
 
     def test_recognize(self, sample_log_entries):
         """Test pattern recognition."""
@@ -199,9 +195,8 @@ class TestLogClusterer:
 
     def test_init(self):
         """Test initialization."""
-        clusterer = LogClusterer(eps=0.7, min_samples=3)
-        assert clusterer.eps == 0.7
-        assert clusterer.min_samples == 3
+        clusterer = LogClusterer(n_clusters=2)
+        assert clusterer.n_clusters == 2
         assert clusterer.trained is False
 
     def test_train(self, sample_log_entries):
@@ -210,11 +205,14 @@ class TestLogClusterer:
         clusterer.train(sample_log_entries)
 
         assert clusterer.trained is True
-        assert isinstance(clusterer.model, DBSCAN)
+        assert hasattr(clusterer, 'centroids')
+        assert hasattr(clusterer, 'labels_')
+        assert hasattr(clusterer, 'vocab')
+        assert hasattr(clusterer, 'idf')
 
     def test_cluster(self, sample_log_entries):
         """Test log clustering."""
-        clusterer = LogClusterer(eps=0.7, min_samples=2)
+        clusterer = LogClusterer(n_clusters=2)
         clusterer.train(sample_log_entries)
 
         clusters = clusterer.cluster(sample_log_entries)

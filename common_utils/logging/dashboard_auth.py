@@ -875,58 +875,69 @@ class DashboardAuth:
         logger.info("Initialized app with authentication")
 
 
-def require_auth(f):
+def require_auth(f=None, *, context_getter=None):
     """
     Decorator to require authentication for a callback.
 
     Args:
         f: Callback function
+        context_getter: Optional callable to get the callback context (for testing)
 
     Returns:
         Wrapped callback function
-
     """
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        # Get current app
-        ctx = dash.callback_context
-        if not ctx.outputs:
-            raise PreventUpdate
+    if context_getter is None:
+        import dash
+        context_getter = lambda: dash.callback_context
 
-        app = ctx.outputs[0]["id"].split(".")[0]._dash_app
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Get current app
+            ctx = context_getter()
+            if not ctx.outputs:
+                raise PreventUpdate
 
-        # Check if authenticated
-        is_authenticated = False
+            app = ctx.outputs[0]["id"].split(".")[0]._dash_app
 
-        # Check Flask session
-        if "auth" in session:
-            session_data = session["auth"]
-            is_authenticated = app.auth.validate_session(session_data)
+            # Check if authenticated
+            is_authenticated = False
 
-        if not is_authenticated:
-            raise PreventUpdate
+            # Check Flask session
+            if "auth" in session:
+                session_data = session["auth"]
+                is_authenticated = app.auth.validate_session(session_data)
 
-        return f(*args, **kwargs)
+            if not is_authenticated:
+                raise PreventUpdate
 
-    return wrapper
+            return func(*args, **kwargs)
+        return wrapper
+    if f is not None:
+        return decorator(f)
+    return decorator
 
 
-def require_permission(permission):
+def require_permission(permission, *, context_getter=None):
     """
     Decorator to require a permission for a callback.
 
     Args:
         permission: Permission name
+        context_getter: Optional callable to get the callback context (for testing)
 
     Returns:
         Decorator function
-
     """
+    if context_getter is None:
+        import dash
+        context_getter = lambda: dash.callback_context
+
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
             # Get current app
-            ctx = dash.callback_context
+            ctx = context_getter()
             if not ctx.outputs:
                 raise PreventUpdate
 
@@ -970,7 +981,5 @@ def require_permission(permission):
                 })
 
             return f(*args, **kwargs)
-
         return wrapper
-
     return decorator

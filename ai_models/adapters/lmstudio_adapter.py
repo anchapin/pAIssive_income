@@ -65,15 +65,18 @@ class LMStudioAdapter(BaseModelAdapter):
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create an aiohttp session."""
         if self._session is None or self._session.closed:
-            headers = {}
+            headers = {"Content-Type": "application/json"}
             if self.api_key:
                 headers["Authorization"] = f"Bearer {self.api_key}"
-
             self._session = aiohttp.ClientSession(
                 timeout=aiohttp.ClientTimeout(total=self.timeout),
                 headers=headers
             )
         return self._session
+
+    # Alias for test compatibility
+    async def _ensure_session(self) -> aiohttp.ClientSession:
+        return await self._get_session()
 
     async def list_models(self) -> List[Dict[str, Any]]:
         """
@@ -84,17 +87,20 @@ class LMStudioAdapter(BaseModelAdapter):
 
         """
         session = await self._get_session()
+        url = f"{self.base_url}/models"
         try:
-            async with session.get(f"{self.base_url}/models") as response:
+            async with session.get(url, headers={"Content-Type": "application/json"}) as response:
                 if response.status == 200:
                     data = await response.json()
                     return data.get("data", [])
                 error_text = await response.text()
-                logger.error(f"Failed to list models: {error_text}")
-                return []
+                raise Exception(f"Failed to list models (status {response.status}): {error_text}")
+        except aiohttp.ClientConnectionError as e:
+            raise Exception(f"Failed to connect to LMStudio server: {e}")
+        except asyncio.TimeoutError:
+            raise Exception("Request to LMStudio server timed out")
         except Exception as e:
-            logger.exception(f"Error listing models: {e}")
-            return []
+            raise
 
     async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
         """
@@ -110,6 +116,7 @@ class LMStudioAdapter(BaseModelAdapter):
 
         """
         session = await self._get_session()
+        url = f"{self.base_url}/completions"
         payload = {
             "model": model,
             "prompt": prompt,
@@ -122,17 +129,20 @@ class LMStudioAdapter(BaseModelAdapter):
             "presence_penalty": kwargs.get("presence_penalty", 0.0),
             "frequency_penalty": kwargs.get("frequency_penalty", 0.0),
         }
-
+        headers = {"Content-Type": "application/json"}
+        import json as _json
         try:
-            async with session.post(f"{self.base_url}/completions", json=payload) as response:
+            async with session.post(url, headers=headers, data=_json.dumps(payload)) as response:
                 if response.status == 200:
                     return await response.json()
                 error_text = await response.text()
-                logger.error(f"Failed to generate text: {error_text}")
-                return {"error": error_text}
+                raise Exception(f"Failed to generate text (status {response.status}): {error_text}")
+        except aiohttp.ClientConnectionError as e:
+            raise Exception(f"Failed to connect to LMStudio server: {e}")
+        except asyncio.TimeoutError:
+            raise Exception("Request to LMStudio server timed out")
         except Exception as e:
-            logger.exception(f"Error generating text: {e}")
-            return {"error": str(e)}
+            raise
 
     async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
         """
@@ -148,6 +158,7 @@ class LMStudioAdapter(BaseModelAdapter):
 
         """
         session = await self._get_session()
+        url = f"{self.base_url}/chat/completions"
         payload = {
             "model": model,
             "messages": messages,
@@ -160,17 +171,20 @@ class LMStudioAdapter(BaseModelAdapter):
             "presence_penalty": kwargs.get("presence_penalty", 0.0),
             "frequency_penalty": kwargs.get("frequency_penalty", 0.0),
         }
-
+        headers = {"Content-Type": "application/json"}
+        import json as _json
         try:
-            async with session.post(f"{self.base_url}/chat/completions", json=payload) as response:
+            async with session.post(url, headers=headers, data=_json.dumps(payload)) as response:
                 if response.status == 200:
                     return await response.json()
                 error_text = await response.text()
-                logger.error(f"Failed to generate chat completion: {error_text}")
-                return {"error": error_text}
+                raise Exception(f"Failed to generate chat completion (status {response.status}): {error_text}")
+        except aiohttp.ClientConnectionError as e:
+            raise Exception(f"Failed to connect to LMStudio server: {e}")
+        except asyncio.TimeoutError:
+            raise Exception("Request to LMStudio server timed out")
         except Exception as e:
-            logger.exception(f"Error generating chat completion: {e}")
-            return {"error": str(e)}
+            raise
 
     async def close(self):
         """Close the aiohttp session."""

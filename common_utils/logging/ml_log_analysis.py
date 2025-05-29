@@ -1,3 +1,6 @@
+# import pandas as pd  # Ensure pandas is imported for sklearn type checks
+import sys
+
 """
 Machine learning module for log analysis.
 
@@ -47,12 +50,9 @@ logger = logging.getLogger(__name__)
 
 try:
     import numpy as np
-    from sklearn.cluster import DBSCAN
-    from sklearn.ensemble import IsolationForest
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    from sklearn.preprocessing import StandardScaler
+    # from sentence_transformers import SentenceTransformer
 except ImportError as e:
-    logger.error(f"Failed to import scikit-learn or numpy: {e}")
+    logger.error(f"Failed to import required ML packages: {e}")
     sys.exit(1)
 
 try:
@@ -66,29 +66,28 @@ except ImportError:
 
 
 class AnomalyDetector:
-    """Anomaly detector for log entries."""
+    """Anomaly detector for log entries using z-score."""
 
-    def __init__(self, contamination: float = 0.05) -> None:
+    def __init__(self, threshold: float = 3.0) -> None:
         """
         Initialize the anomaly detector.
-        
-        Args:
-            contamination: Expected proportion of anomalies in the data
 
+        Args:
+            threshold: Z-score threshold for anomaly detection
         """
-        self.contamination = contamination
-        self.model = None
-        self.scaler = StandardScaler()
-        self.feature_names = []
+        self.threshold = threshold
         self.trained = False
+        self.feature_names = []
+        self.mean = None
+        self.std = None
 
     def extract_features(self, log_entries: List[Dict[str, Any]]) -> np.ndarray:
         """
         Extract features from log entries.
-        
+
         Args:
             log_entries: List of log entries
-            
+
         Returns:
             numpy.ndarray: Feature matrix
 
@@ -142,281 +141,203 @@ class AnomalyDetector:
         return np.array(features)
 
     def train(self, log_entries: List[Dict[str, Any]]) -> None:
-        """
-        Train the anomaly detector.
-        
-        Args:
-            log_entries: List of log entries for training
-
-        """
         if not log_entries:
             logger.warning("No log entries provided for training")
             return
-
-        # Extract features
         features = self.extract_features(log_entries)
         if len(features) == 0:
             logger.warning("No features extracted from log entries")
             return
-
-        # Scale features
-        scaled_features = self.scaler.fit_transform(features)
-
-        # Train isolation forest model
-        self.model = IsolationForest(
-            contamination=self.contamination,
-            random_state=42,
-            n_estimators=100,
-        )
-        self.model.fit(scaled_features)
-
+        self.mean = np.mean(features, axis=0)
+        self.std = np.std(features, axis=0)
+        self.std[self.std == 0] = 1
         self.trained = True
         logger.info(f"Trained anomaly detector on {len(log_entries)} log entries")
 
     def detect(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Detect anomalies in log entries.
-        
-        Args:
-            log_entries: List of log entries to analyze
-            
-        Returns:
-            List of anomalous log entries with anomaly scores
-
-        """
         if not self.trained:
             logger.warning("Anomaly detector not trained")
             return []
-
         if not log_entries:
             return []
-
-        # Extract features
         features = self.extract_features(log_entries)
         if len(features) == 0:
             return []
-
-        # Scale features
-        scaled_features = self.scaler.transform(features)
-
-        # Predict anomalies
-        # -1 for anomalies, 1 for normal points
-        predictions = self.model.predict(scaled_features)
-
-        # Get anomaly scores
-        scores = self.model.decision_function(scaled_features)
-
-        # Find anomalies
+        z_scores = np.abs((features - self.mean) / self.std)
+        anomaly_mask = (z_scores > self.threshold).any(axis=1)
         anomalies = []
-        for i, (pred, score) in enumerate(zip(predictions, scores)):
-            if pred == -1:  # Anomaly
+        for i, is_anomaly in enumerate(anomaly_mask):
+            if is_anomaly:
                 anomaly = log_entries[i].copy()
-                anomaly["anomaly_score"] = float(score)
+                anomaly["anomaly_score"] = float(np.max(z_scores[i]))
                 anomaly["feature_values"] = {
                     name: float(features[i, j])
                     for j, name in enumerate(self.feature_names)
                 }
                 anomalies.append(anomaly)
-
         return anomalies
 
 
 class PatternRecognizer:
-    """Pattern recognizer for log entries."""
-
+    """Pattern recognizer for log entries using pure Python TF-IDF."""
     def __init__(self, min_pattern_count: int = 3) -> None:
-        """
-        Initialize the pattern recognizer.
-        
-        Args:
-            min_pattern_count: Minimum number of occurrences for a pattern
-
-        """
         self.min_pattern_count = min_pattern_count
-        self.vectorizer = TfidfVectorizer(
-            max_features=1000,
-            stop_words="english",
-            ngram_range=(1, 3),
-        )
         self.trained = False
+        self.vocab = None
+        self.idf = None
+        self.tf_matrix = None
 
     def train(self, log_entries: List[Dict[str, Any]]) -> None:
-        """
-        Train the pattern recognizer.
-        
-        Args:
-            log_entries: List of log entries for training
-
-        """
         if not log_entries:
             logger.warning("No log entries provided for training")
             return
-
-        # Extract messages
         messages = [entry.get("message", "") for entry in log_entries]
-
-        # Fit vectorizer
-        self.vectorizer.fit(messages)
-
+        # Build vocabulary
+        vocab = {}
+        doc_freq = {}
+        for msg in messages:
+            words = set(msg.lower().split())
+            for word in words:
+                doc_freq[word] = doc_freq.get(word, 0) + 1
+        vocab = {word: i for i, word in enumerate(doc_freq)}
+        N = len(messages)
+        idf = {word: np.log((N + 1) / (df + 1)) + 1 for word, df in doc_freq.items()}
+        # Build TF matrix
+        tf_matrix = np.zeros((N, len(vocab)))
+        for i, msg in enumerate(messages):
+            words = msg.lower().split()
+            for word in words:
+                if word in vocab:
+                    tf_matrix[i, vocab[word]] += 1
+        self.vocab = vocab
+        self.idf = idf
+        self.tf_matrix = tf_matrix
         self.trained = True
         logger.info(f"Trained pattern recognizer on {len(log_entries)} log entries")
 
     def recognize(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Recognize patterns in log entries.
-        
-        Args:
-            log_entries: List of log entries to analyze
-            
-        Returns:
-            List of recognized patterns with counts and examples
-
-        """
         if not self.trained:
             logger.warning("Pattern recognizer not trained")
             return []
-
         if not log_entries:
             return []
-
-        # Extract messages
         messages = [entry.get("message", "") for entry in log_entries]
-
-        # Transform messages to TF-IDF vectors
-        tfidf_matrix = self.vectorizer.transform(messages)
-
-        # Get feature names
-        feature_names = self.vectorizer.get_feature_names_out()
-
-        # Find common patterns
+        N = len(messages)
+        tfidf_matrix = np.zeros((N, len(self.vocab)))
+        for i, msg in enumerate(messages):
+            words = msg.lower().split()
+            for word in words:
+                if word in self.vocab:
+                    tf = words.count(word)
+                    tfidf_matrix[i, self.vocab[word]] = tf * self.idf[word]
         patterns = []
-        for i, feature in enumerate(feature_names):
-            # Get entries with this feature
-            feature_indices = tfidf_matrix[:, i].nonzero()[0]
-
+        for word, idx in self.vocab.items():
+            feature_indices = np.where(tfidf_matrix[:, idx] > 0)[0]
             if len(feature_indices) >= self.min_pattern_count:
-                # Get examples
                 examples = [log_entries[idx] for idx in feature_indices[:5]]
-
-                # Add pattern
                 patterns.append({
-                    "pattern": feature,
+                    "pattern": word,
                     "count": len(feature_indices),
                     "examples": examples,
                 })
-
-        # Sort patterns by count (descending)
         patterns.sort(key=lambda x: x["count"], reverse=True)
-
         return patterns
 
 
 class LogClusterer:
-    """Clusterer for log entries."""
-
-    def __init__(self, eps: float = 0.5, min_samples: int = 5) -> None:
-        """
-        Initialize the log clusterer.
-        
-        Args:
-            eps: Maximum distance between samples in a cluster
-            min_samples: Minimum number of samples in a cluster
-
-        """
-        self.eps = eps
-        self.min_samples = min_samples
-        self.vectorizer = TfidfVectorizer(
-            max_features=1000,
-            stop_words="english",
-        )
-        self.model = DBSCAN(eps=eps, min_samples=min_samples)
+    """Clusterer for log entries using pure numpy k-means."""
+    def __init__(self, n_clusters: int = 3, max_iter: int = 100) -> None:
+        self.n_clusters = n_clusters
+        self.max_iter = max_iter
         self.trained = False
+        self.vocab = None
+        self.idf = None
+        self.tf_matrix = None
+        self.centroids = None
+        self.labels_ = None
 
     def train(self, log_entries: List[Dict[str, Any]]) -> None:
-        """
-        Train the log clusterer.
-        
-        Args:
-            log_entries: List of log entries for training
-
-        """
         if not log_entries:
             logger.warning("No log entries provided for training")
             return
-
-        # Extract messages
         messages = [entry.get("message", "") for entry in log_entries]
-
-        # Fit vectorizer and transform messages
-        tfidf_matrix = self.vectorizer.fit_transform(messages)
-
-        # Fit DBSCAN model
-        self.model.fit(tfidf_matrix)
-
+        # Build vocabulary and TF-IDF as in PatternRecognizer
+        vocab = {}
+        doc_freq = {}
+        for msg in messages:
+            words = set(msg.lower().split())
+            for word in words:
+                doc_freq[word] = doc_freq.get(word, 0) + 1
+        vocab = {word: i for i, word in enumerate(doc_freq)}
+        N = len(messages)
+        idf = {word: np.log((N + 1) / (df + 1)) + 1 for word, df in doc_freq.items()}
+        tf_matrix = np.zeros((N, len(vocab)))
+        for i, msg in enumerate(messages):
+            words = msg.lower().split()
+            for word in words:
+                if word in vocab:
+                    tf_matrix[i, vocab[word]] += 1
+        tfidf_matrix = tf_matrix.copy()
+        for word, idx in vocab.items():
+            tfidf_matrix[:, idx] *= idf[word]
+        self.vocab = vocab
+        self.idf = idf
+        self.tf_matrix = tf_matrix
+        # K-means clustering
+        centroids = tfidf_matrix[np.random.choice(N, self.n_clusters, replace=False)]
+        for _ in range(self.max_iter):
+            distances = np.linalg.norm(tfidf_matrix[:, None] - centroids, axis=2)
+            labels = np.argmin(distances, axis=1)
+            new_centroids = np.array([tfidf_matrix[labels == k].mean(axis=0) if np.any(labels == k) else centroids[k] for k in range(self.n_clusters)])
+            if np.allclose(centroids, new_centroids):
+                break
+            centroids = new_centroids
+        self.centroids = centroids
+        self.labels_ = labels
         self.trained = True
-        logger.info(f"Trained log clusterer on {len(log_entries)} log entries")
+        logger.info(f"Trained log clusterer on {len(log_entries)} log entries with {self.n_clusters} clusters")
 
     def cluster(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Cluster log entries.
-        
-        Args:
-            log_entries: List of log entries to cluster
-            
-        Returns:
-            List of clusters with entries and common terms
-
-        """
         if not self.trained:
             logger.warning("Log clusterer not trained")
             return []
-
         if not log_entries:
             return []
-
-        # Extract messages
         messages = [entry.get("message", "") for entry in log_entries]
-
-        # Transform messages to TF-IDF vectors
-        tfidf_matrix = self.vectorizer.transform(messages)
-
-        # Predict clusters
-        labels = self.model.fit_predict(tfidf_matrix)
-
-        # Group entries by cluster
+        N = len(messages)
+        tfidf_matrix = np.zeros((N, len(self.vocab)))
+        for i, msg in enumerate(messages):
+            words = msg.lower().split()
+            for word in words:
+                if word in self.vocab:
+                    tf = words.count(word)
+                    tfidf_matrix[i, self.vocab[word]] = tf * self.idf[word]
+        # Assign clusters
+        distances = np.linalg.norm(tfidf_matrix[:, None] - self.centroids, axis=2)
+        labels = np.argmin(distances, axis=1)
         clusters = defaultdict(list)
         for i, label in enumerate(labels):
-            if label != -1:  # -1 is noise
-                clusters[label].append(log_entries[i])
-
-        # Extract common terms for each cluster
+            clusters[label].append(log_entries[i])
         result = []
         for label, entries in clusters.items():
-            # Get cluster messages
             cluster_messages = [entry.get("message", "") for entry in entries]
-
-            # Get common terms
             common_terms = self._extract_common_terms(cluster_messages)
-
             result.append({
                 "cluster_id": int(label),
                 "size": len(entries),
                 "common_terms": common_terms,
-                "entries": entries[:5],  # Limit to 5 examples
+                "entries": entries[:5],
             })
-
-        # Sort clusters by size (descending)
         result.sort(key=lambda x: x["size"], reverse=True)
-
         return result
 
     def _extract_common_terms(self, messages: List[str]) -> List[str]:
         """
         Extract common terms from a list of messages.
-        
+
         Args:
             messages: List of messages
-            
+
         Returns:
             List of common terms
 
@@ -451,7 +372,7 @@ class LogAnalyzer:
     def train_anomaly_detector(self, log_entries: List[Dict[str, Any]]) -> None:
         """
         Train the anomaly detector.
-        
+
         Args:
             log_entries: List of log entries for training
 
@@ -461,10 +382,10 @@ class LogAnalyzer:
     def detect_anomalies(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Detect anomalies in log entries.
-        
+
         Args:
             log_entries: List of log entries to analyze
-            
+
         Returns:
             List of anomalous log entries with anomaly scores
 
@@ -474,7 +395,7 @@ class LogAnalyzer:
     def train_pattern_recognizer(self, log_entries: List[Dict[str, Any]]) -> None:
         """
         Train the pattern recognizer.
-        
+
         Args:
             log_entries: List of log entries for training
 
@@ -484,10 +405,10 @@ class LogAnalyzer:
     def recognize_patterns(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Recognize patterns in log entries.
-        
+
         Args:
             log_entries: List of log entries to analyze
-            
+
         Returns:
             List of recognized patterns with counts and examples
 
@@ -497,7 +418,7 @@ class LogAnalyzer:
     def train_log_clusterer(self, log_entries: List[Dict[str, Any]]) -> None:
         """
         Train the log clusterer.
-        
+
         Args:
             log_entries: List of log entries for training
 
@@ -507,10 +428,10 @@ class LogAnalyzer:
     def cluster_logs(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Cluster log entries.
-        
+
         Args:
             log_entries: List of log entries to cluster
-            
+
         Returns:
             List of clusters with entries and common terms
 
@@ -520,10 +441,10 @@ class LogAnalyzer:
     def analyze_logs(self, log_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Perform comprehensive analysis of log entries.
-        
+
         Args:
             log_entries: List of log entries to analyze
-            
+
         Returns:
             Dictionary containing analysis results
 
@@ -554,10 +475,10 @@ class LogAnalyzer:
 def train_anomaly_detector(log_entries: List[Dict[str, Any]]) -> AnomalyDetector:
     """
     Train an anomaly detector on log entries.
-    
+
     Args:
         log_entries: List of log entries for training
-        
+
     Returns:
         Trained anomaly detector
 
@@ -569,11 +490,11 @@ def train_anomaly_detector(log_entries: List[Dict[str, Any]]) -> AnomalyDetector
 def detect_anomalies(log_entries: List[Dict[str, Any]], detector: Optional[AnomalyDetector] = None) -> List[Dict[str, Any]]:
     """
     Detect anomalies in log entries.
-    
+
     Args:
         log_entries: List of log entries to analyze
         detector: Optional pre-trained detector (will train a new one if not provided)
-        
+
     Returns:
         List of anomalous log entries with anomaly scores
 
@@ -585,10 +506,10 @@ def detect_anomalies(log_entries: List[Dict[str, Any]], detector: Optional[Anoma
 def recognize_patterns(log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Recognize patterns in log entries.
-    
+
     Args:
         log_entries: List of log entries to analyze
-        
+
     Returns:
         List of recognized patterns with counts and examples
 
@@ -600,10 +521,10 @@ def recognize_patterns(log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]
 def cluster_logs(log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Cluster log entries.
-    
+
     Args:
         log_entries: List of log entries to cluster
-        
+
     Returns:
         List of clusters with entries and common terms
 

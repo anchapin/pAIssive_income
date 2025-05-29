@@ -188,10 +188,13 @@ def mask_sensitive_data(
         return data
 
     if isinstance(data, dict):
-        # Recursively mask values in dictionary
+        # Recursively mask values in dictionary, including nested dicts
         dict_result: dict[str, Any] = {}
         for k, v in data.items():
-            dict_result[k] = _mask_if_sensitive(k, v, mask_char, visible_chars)
+            if isinstance(v, dict):
+                dict_result[k] = mask_sensitive_data(v, mask_char, visible_chars)
+            else:
+                dict_result[k] = _mask_if_sensitive(k, v, mask_char, visible_chars)
         return dict_result  # Explicitly return a Dict[str, Any]
 
     if isinstance(data, list):
@@ -225,12 +228,16 @@ def _mask_if_sensitive(
         The original value or a masked version if the key is sensitive
 
     """
+    if isinstance(value, dict):
+        # Recursively mask nested dicts
+        return mask_sensitive_data(value, mask_char, visible_chars)
+
     if not isinstance(value, str):
         return mask_sensitive_data(value, mask_char, visible_chars)
 
     # Check if the key contains any sensitive terms
     for sensitive_field in SENSITIVE_FIELDS:
-        if sensitive_field in key.lower():
+        if sensitive_field in key.lower() or key.lower() == "password":
             return _mask_string(value, mask_char, visible_chars)
 
     return mask_sensitive_data(value, mask_char, visible_chars)

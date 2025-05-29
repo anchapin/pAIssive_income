@@ -72,11 +72,13 @@ class OllamaAdapter(BaseModelAdapter):
                     data = await response.json()
                     return data.get("models", [])
                 error_text = await response.text()
-                logger.error(f"Failed to list models: {error_text}")
-                return []
+                raise Exception(f"Failed to list models (status {response.status}): {error_text}")
+        except aiohttp.ClientConnectionError as e:
+            raise Exception(f"Failed to connect to Ollama server: {e}")
+        except asyncio.TimeoutError:
+            raise Exception("Request to Ollama server timed out")
         except Exception as e:
-            logger.exception(f"Error listing models: {e}")
-            return []
+            raise Exception(f"Error listing models: {e}")
 
     async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
         """
@@ -103,11 +105,13 @@ class OllamaAdapter(BaseModelAdapter):
                 if response.status == 200:
                     return await response.json()
                 error_text = await response.text()
-                logger.error(f"Failed to generate text: {error_text}")
-                return {"error": error_text}
+                raise Exception(f"Failed to generate text (status {response.status}): {error_text}")
+        except aiohttp.ClientConnectionError as e:
+            raise Exception(f"Failed to connect to Ollama server: {e}")
+        except asyncio.TimeoutError:
+            raise Exception("Request to Ollama server timed out")
         except Exception as e:
-            logger.exception(f"Error generating text: {e}")
-            return {"error": str(e)}
+            raise Exception(f"Error generating text: {e}")
 
     async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
         """
@@ -134,11 +138,13 @@ class OllamaAdapter(BaseModelAdapter):
                 if response.status == 200:
                     return await response.json()
                 error_text = await response.text()
-                logger.error(f"Failed to generate chat completion: {error_text}")
-                return {"error": error_text}
+                raise Exception(f"Failed to generate chat completion (status {response.status}): {error_text}")
+        except aiohttp.ClientConnectionError as e:
+            raise Exception(f"Failed to connect to Ollama server: {e}")
+        except asyncio.TimeoutError:
+            raise Exception("Request to Ollama server timed out")
         except Exception as e:
-            logger.exception(f"Error generating chat completion: {e}")
-            return {"error": str(e)}
+            raise Exception(f"Error generating chat completion: {e}")
 
     async def close(self):
         """Close the aiohttp session."""

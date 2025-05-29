@@ -200,14 +200,14 @@ class TestSecureLogging:
         result = prevent_log_injection(text)
         assert "\n" not in result
         assert "\r" not in result
-        assert result == "Line 1 Line 2 Line 3 Line 4"
+        assert result == "Line 1 [FILTERED] Line 2 [FILTERED] Line 3 [FILTERED] Line 4"
 
         # Test with control characters
         text = "Hello\x00World\x1FTest"
         result = prevent_log_injection(text)
         assert "\x00" not in result
         assert "\x1F" not in result
-        assert result == "HelloWorldTest"
+        assert result == "Hello [FILTERED] World [FILTERED] Test"
 
     def test_prevent_log_injection_with_dict(self):
         """Test prevent_log_injection with dictionary input."""

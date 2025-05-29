@@ -74,7 +74,7 @@ def test_basic_memory_operations() -> None:
     return all_memories.get("results", [{}])[0].get("id")
 
 
-def test_memory_updates(memory_id: Optional[str]) -> None:
+def _test_memory_updates(memory_id: Optional[str]) -> None:
     """Test memory update and history operations."""
     if not memory_id:
         print("No memory ID available for update testing.")
@@ -101,7 +101,7 @@ def test_memory_updates(memory_id: Optional[str]) -> None:
     print_json(history_result)
 
 
-def test_memory_deletion(user_id: str) -> None:
+def _test_memory_deletion(user_id: str) -> None:
     """Test memory deletion operations."""
     print("\n=== Testing Memory Deletion ===\n")
 
@@ -147,8 +147,8 @@ def main() -> None:
     # Run tests
     user_id = "test_user"
     memory_id = test_basic_memory_operations()
-    test_memory_updates(memory_id)
-    test_memory_deletion(user_id)
+    _test_memory_updates(memory_id)
+    _test_memory_deletion(user_id)
 
     print("\n=== All Tests Completed ===\n")
 

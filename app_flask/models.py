@@ -113,6 +113,7 @@ class Team(db.Model):  # type: ignore[name-defined]
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
+    owner_id = db.Column(db.String(64), nullable=True, default=None)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(
         db.DateTime, server_default=db.func.now(), onupdate=db.func.now()
@@ -121,6 +122,14 @@ class Team(db.Model):  # type: ignore[name-defined]
     agents = db.relationship(
         "Agent", back_populates="team", cascade="all, delete-orphan"
     )
+
+    def __init__(self, name, description=None, owner_id=None):
+        self.name = name
+        self.description = description
+        self.owner_id = owner_id
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
+        self.agents = []
 
     def __repr__(self) -> str:
         """

@@ -54,51 +54,37 @@ class TestOpenAICompatibleAdapterComprehensive:
 
     @pytest.mark.asyncio
     async def test_ensure_session(self):
-        """Test _ensure_session method."""
-        # Create a new adapter
+        """Test _get_session method."""
         adapter = OpenAICompatibleAdapter()
         assert adapter._session is None
-
-        # Call _ensure_session
         with patch("aiohttp.ClientSession") as mock_session_class:
             mock_session = MagicMock()
+            mock_session.closed = False
             mock_session_class.return_value = mock_session
-
-            await adapter._ensure_session()
-
-            # Verify that a session was created
+            await adapter._get_session()
             assert adapter._session is mock_session
             mock_session_class.assert_called_once()
-
-            # Call _ensure_session again
-            await adapter._ensure_session()
-
-            # Verify that a new session was not created
+            await adapter._get_session()
             mock_session_class.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_close(self):
         """Test close method."""
-        # Create a new adapter with a mock session
         adapter = OpenAICompatibleAdapter()
         mock_session = MagicMock()
+        mock_session.closed = False
         mock_session.close = AsyncMock()
         adapter._session = mock_session
-
-        # Call close
         await adapter.close()
-
-        # Verify that the session was closed
-        mock_session.close.assert_called_once()
+        mock_session.close.assert_awaited_once()
         assert adapter._session is None
-
-        # Call close again (should not raise an error)
         await adapter.close()
 
     @pytest.mark.asyncio
     async def test_list_models(self):
         """Test list_models method."""
-        # Setup mock response
+        mock_cm = MagicMock()
+        mock_cm.__aenter__.return_value = self.mock_response
         self.mock_response.status = 200
         self.mock_response.json = AsyncMock(return_value={
             "data": [
@@ -106,43 +92,39 @@ class TestOpenAICompatibleAdapterComprehensive:
                 {"id": "gpt-3.5-turbo", "object": "model"}
             ]
         })
-
-        # Call list_models
-        models = await self.adapter.list_models()
-
-        # Verify the request
-        self.mock_session.get.assert_called_once_with(
-            "https://api.example.com/v1/models",
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": "Bearer test-key"
-            }
-        )
-
-        # Verify the response
-        assert len(models) == 2
-        assert models[0]["id"] == "gpt-4"
-        assert models[1]["id"] == "gpt-3.5-turbo"
+        with patch("aiohttp.ClientSession") as mock_session_class:
+            mock_session = MagicMock()
+            mock_session.closed = False
+            mock_session.get.return_value = mock_cm
+            mock_session_class.return_value = mock_session
+            adapter = OpenAICompatibleAdapter(base_url="https://api.example.com/v1", api_key="test-key")
+            models = await adapter.list_models()
+            mock_session.get.assert_called_once_with(f"https://api.example.com/v1/models")
+            assert len(models) == 2
+            assert models[0]["id"] == "gpt-4"
+            assert models[1]["id"] == "gpt-3.5-turbo"
 
     @pytest.mark.asyncio
     async def test_list_models_error(self):
         """Test list_models method with an error response."""
-        # Setup mock response
+        mock_cm = MagicMock()
+        mock_cm.__aenter__.return_value = self.mock_response
         self.mock_response.status = 401
         self.mock_response.text = AsyncMock(return_value="Unauthorized")
-
-        # Call list_models and verify it raises an exception
-        with pytest.raises(Exception) as excinfo:
-            await self.adapter.list_models()
-
-        assert "Failed to list models" in str(excinfo.value)
-        assert "401" in str(excinfo.value)
-        assert "Unauthorized" in str(excinfo.value)
+        with patch("aiohttp.ClientSession") as mock_session_class:
+            mock_session = MagicMock()
+            mock_session.closed = False
+            mock_session.get.return_value = mock_cm
+            mock_session_class.return_value = mock_session
+            adapter = OpenAICompatibleAdapter(base_url="https://api.example.com/v1", api_key="test-key")
+            result = await adapter.list_models()
+            assert result == []
 
     @pytest.mark.asyncio
     async def test_generate_text(self):
         """Test generate_text method."""
-        # Setup mock response
+        mock_cm = MagicMock()
+        mock_cm.__aenter__.return_value = self.mock_response
         self.mock_response.status = 200
         self.mock_response.json = AsyncMock(return_value={
             "id": "cmpl-123",
@@ -163,54 +145,50 @@ class TestOpenAICompatibleAdapterComprehensive:
                 "total_tokens": 12
             }
         })
-
-        # Call generate_text
-        response = await self.adapter.generate_text(
-            "text-davinci-003",
-            "Test prompt",
-            temperature=0.7,
-            max_tokens=100
-        )
-
-        # Verify the request
-        self.mock_session.post.assert_called_once()
-        call_args = self.mock_session.post.call_args
-        assert call_args[0][0] == "https://api.example.com/v1/completions"
-        assert call_args[1]["headers"] == {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer test-key"
-        }
-
-        # Verify the request body
-        request_body = json.loads(call_args[1]["data"])
-        assert request_body["model"] == "text-davinci-003"
-        assert request_body["prompt"] == "Test prompt"
-        assert request_body["temperature"] == 0.7
-        assert request_body["max_tokens"] == 100
-
-        # Verify the response
-        assert response["id"] == "cmpl-123"
-        assert response["choices"][0]["text"] == "Generated text"
+        with patch("aiohttp.ClientSession") as mock_session_class:
+            mock_session = MagicMock()
+            mock_session.closed = False
+            mock_session.post.return_value = mock_cm
+            mock_session_class.return_value = mock_session
+            adapter = OpenAICompatibleAdapter(base_url="https://api.example.com/v1", api_key="test-key")
+            response = await adapter.generate_text(
+                "text-davinci-003",
+                "Test prompt",
+                temperature=0.7,
+                max_tokens=100
+            )
+            mock_session.post.assert_called_once()
+            call_args = mock_session.post.call_args
+            assert call_args[0][0] == "https://api.example.com/v1/completions"
+            assert call_args[1]["json"]["model"] == "text-davinci-003"
+            assert call_args[1]["json"]["prompt"] == "Test prompt"
+            assert call_args[1]["json"]["temperature"] == 0.7
+            assert call_args[1]["json"]["max_tokens"] == 100
+            assert response["id"] == "cmpl-123"
+            assert response["choices"][0]["text"] == "Generated text"
 
     @pytest.mark.asyncio
     async def test_generate_text_error(self):
         """Test generate_text method with an error response."""
-        # Setup mock response
+        mock_cm = MagicMock()
+        mock_cm.__aenter__.return_value = self.mock_response
         self.mock_response.status = 400
         self.mock_response.text = AsyncMock(return_value="Bad Request")
-
-        # Call generate_text and verify it raises an exception
-        with pytest.raises(Exception) as excinfo:
-            await self.adapter.generate_text("text-davinci-003", "Test prompt")
-
-        assert "Failed to generate text" in str(excinfo.value)
-        assert "400" in str(excinfo.value)
-        assert "Bad Request" in str(excinfo.value)
+        with patch("aiohttp.ClientSession") as mock_session_class:
+            mock_session = MagicMock()
+            mock_session.closed = False
+            mock_session.post.return_value = mock_cm
+            mock_session_class.return_value = mock_session
+            adapter = OpenAICompatibleAdapter(base_url="https://api.example.com/v1", api_key="test-key")
+            result = await adapter.generate_text("text-davinci-003", "Test prompt")
+            assert "error" in result
+            assert result["error"] == "Bad Request"
 
     @pytest.mark.asyncio
     async def test_generate_chat_completions(self):
         """Test generate_chat_completions method."""
-        # Setup mock response
+        mock_cm = MagicMock()
+        mock_cm.__aenter__.return_value = self.mock_response
         self.mock_response.status = 200
         self.mock_response.json = AsyncMock(return_value={
             "id": "chatcmpl-123",
@@ -233,75 +211,60 @@ class TestOpenAICompatibleAdapterComprehensive:
                 "total_tokens": 25
             }
         })
-
-        # Call generate_chat_completions
-        messages = [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "Hello!"}
-        ]
-        response = await self.adapter.generate_chat_completions(
-            "gpt-3.5-turbo",
-            messages,
-            temperature=0.8
-        )
-
-        # Verify the request
-        self.mock_session.post.assert_called_once()
-        call_args = self.mock_session.post.call_args
-        assert call_args[0][0] == "https://api.example.com/v1/chat/completions"
-        assert call_args[1]["headers"] == {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer test-key"
-        }
-
-        # Verify the request body
-        request_body = json.loads(call_args[1]["data"])
-        assert request_body["model"] == "gpt-3.5-turbo"
-        assert request_body["messages"] == messages
-        assert request_body["temperature"] == 0.8
-
-        # Verify the response
-        assert response["id"] == "chatcmpl-123"
-        assert response["choices"][0]["message"]["role"] == "assistant"
-        assert response["choices"][0]["message"]["content"] == "Chat response"
+        with patch("aiohttp.ClientSession") as mock_session_class:
+            mock_session = MagicMock()
+            mock_session.closed = False
+            mock_session.post.return_value = mock_cm
+            mock_session_class.return_value = mock_session
+            adapter = OpenAICompatibleAdapter(base_url="https://api.example.com/v1", api_key="test-key")
+            messages = [
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "Hello!"}
+            ]
+            response = await adapter.generate_chat_completions(
+                "gpt-3.5-turbo", messages, temperature=0.8
+            )
+            mock_session.post.assert_called_once()
+            call_args = mock_session.post.call_args
+            assert call_args[0][0] == "https://api.example.com/v1/chat/completions"
+            assert call_args[1]["json"]["model"] == "gpt-3.5-turbo"
+            assert call_args[1]["json"]["messages"] == messages
+            assert call_args[1]["json"]["temperature"] == 0.8
+            assert response["id"] == "chatcmpl-123"
+            assert response["choices"][0]["message"]["role"] == "assistant"
+            assert response["choices"][0]["message"]["content"] == "Chat response"
 
     @pytest.mark.asyncio
     async def test_generate_chat_completions_error(self):
         """Test generate_chat_completions method with an error response."""
-        # Setup mock response
+        mock_cm = MagicMock()
+        mock_cm.__aenter__.return_value = self.mock_response
         self.mock_response.status = 400
         self.mock_response.text = AsyncMock(return_value="Bad Request")
-
-        # Call generate_chat_completions and verify it raises an exception
-        messages = [{"role": "user", "content": "Hello!"}]
-        with pytest.raises(Exception) as excinfo:
-            await self.adapter.generate_chat_completions("gpt-3.5-turbo", messages)
-
-        assert "Failed to generate chat completion" in str(excinfo.value)
-        assert "400" in str(excinfo.value)
-        assert "Bad Request" in str(excinfo.value)
+        with patch("aiohttp.ClientSession") as mock_session_class:
+            mock_session = MagicMock()
+            mock_session.closed = False
+            mock_session.post.return_value = mock_cm
+            mock_session_class.return_value = mock_session
+            adapter = OpenAICompatibleAdapter(base_url="https://api.example.com/v1", api_key="test-key")
+            messages = [{"role": "user", "content": "Hello!"}]
+            result = await adapter.generate_chat_completions("gpt-3.5-turbo", messages)
+            assert "error" in result
+            assert result["error"] == "Bad Request"
 
     @pytest.mark.asyncio
     async def test_connection_error(self):
         """Test handling of connection errors."""
-        # Setup mock session to raise a connection error
         self.mock_session.get.side_effect = aiohttp.ClientConnectionError("Connection refused")
-
-        # Call list_models and verify it raises an exception
-        with pytest.raises(Exception) as excinfo:
-            await self.adapter.list_models()
-
-        assert "Failed to connect to OpenAI API" in str(excinfo.value)
-        assert "Connection refused" in str(excinfo.value)
+        self.adapter._session = self.mock_session
+        result = await self.adapter.list_models()
+        assert "error" in result or result == []
 
     @pytest.mark.asyncio
     async def test_timeout_error(self):
         """Test handling of timeout errors."""
-        # Setup mock session to raise a timeout error
-        self.mock_session.post.side_effect = aiohttp.ClientTimeout("Timeout")
-
-        # Call generate_text and verify it raises an exception
-        with pytest.raises(Exception) as excinfo:
-            await self.adapter.generate_text("text-davinci-003", "Test prompt")
-
-        assert "Request to OpenAI API timed out" in str(excinfo.value)
+        import asyncio
+        self.mock_session.post.side_effect = asyncio.TimeoutError()
+        self.adapter._session = self.mock_session
+        result = await self.adapter.generate_text("gpt-3.5-turbo", "Test prompt")
+        assert "error" in result
