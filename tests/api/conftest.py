@@ -9,7 +9,6 @@ import os
 # For local/dev convenience only: set TOOL_API_KEY if not already set.
 # CI should explicitly set TOOL_API_KEY for security.
 os.environ.setdefault("TOOL_API_KEY", "dummy-test-api-key-local-dev-only")
-os.environ.setdefault("TOOL_API_KEY", "dummy-test-api-key-local-dev-only")
 
 # Standard library imports
 

@@ -1,24 +1,5 @@
 import os
-import os
 import pytest
-from fastapi.testclient import TestClient
-from api.main import app
-
-client = TestClient(app)
-
-# Fetch the API key from the environment, using the dummy test value as a fallback
-# This makes local/dev testing easier, but CI should set the real value.
-api_key = os.environ.get("TOOL_API_KEY", "dummy-test-api-key-local-dev-only")
-
-
-def test_tool_endpoint():
-    response = client.post(
-        "/tools/some_tool",
-        headers={"Authorization": f"Bearer {api_key}"},
-        json={"input": "test"}
-    )
-    assert response.status_code == 200
-    assert response.json()["result"] == "expected_result"
 from fastapi.testclient import TestClient
 from api.app import app
 
