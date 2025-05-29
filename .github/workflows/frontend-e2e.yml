@@ -28,10 +28,8 @@ jobs:
         - 18.x
     steps:
     - uses: actions/checkout@v4
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
+    - name: CI Setup
+      run: bash ../../scripts/ci-setup.sh
     - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
@@ -45,31 +43,10 @@ jobs:
         key: ${{ runner.os }}-pnpm-${{ hashFiles('ui/react_frontend/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-
-    - name: Create required test directories (Linux/macOS)
-      if: runner.os != 'Windows'
-      shell: bash
-      run: |
-        mkdir -p logs
-        mkdir -p ci-reports/github
-        mkdir -p test-results/github
-        mkdir -p playwright-report
-        mkdir -p playwright-report/html
-        mkdir -p src/__tests__
-    - name: Create required test directories (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        New-Item -ItemType Directory -Path "logs" -Force -ErrorAction SilentlyContinue
-        New-Item -ItemType Directory -Path "ci-reports/github" -Force -ErrorAction SilentlyContinue
-        New-Item -ItemType Directory -Path "test-results/github" -Force -ErrorAction SilentlyContinue
-        New-Item -ItemType Directory -Path "playwright-report" -Force -ErrorAction SilentlyContinue
-        New-Item -ItemType Directory -Path "playwright-report/html" -Force -ErrorAction SilentlyContinue
-        New-Item -ItemType Directory -Path "src/__tests__" -Force -ErrorAction SilentlyContinue
-    - name: Install dependencies
+    - name: Install dependencies (robust)
       working-directory: ui/react_frontend
-      run: 'pnpm install
-
-        '
+      run: |
+        pnpm install || (echo "pnpm install failed, trying npm install..." && npm install)
     - name: Install Playwright browsers
       working-directory: ui/react_frontend
       run: 'npx playwright install --with-deps
@@ -256,4 +233,8 @@ jobs:
         path: test-results/
         if-no-files-found: ignore
         retention-days: 30
+    - name: Ensure artifact directories exist
+      run: |
+        mkdir -p logs ci-reports/github test-results/github playwright-report playwright-report/html
+        echo "Artifact directories ensured."
     timeout-minutes: 30

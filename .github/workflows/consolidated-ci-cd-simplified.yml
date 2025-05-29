@@ -46,15 +46,8 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Create required directories
-      run: 'mkdir -p security-reports coverage junit ci-reports playwright-report
-        test-results src
-
-        mkdir -p ui/static/css logs
-
-        echo "Created required directories"
-
-        '
+    - name: CI Setup
+      run: bash scripts/ci-setup.sh
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -68,80 +61,25 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    - name: Install Python dependencies
-      run: 'python -m pip install --upgrade pip
-
-        pip install ruff pytest pytest-cov bandit safety
-
-        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt ||
-        echo "Some requirements failed"; fi
-
-        if [ -f requirements.txt ]; then pip install -r requirements.txt || echo "Some
-        requirements failed"; fi
-
-        '
-    - name: Install Node.js dependencies
-      run: 'pnpm install || npm install || echo "Node install completed with issues"
-
-        '
-    - name: Create Tailwind CSS files
+    - name: Install Python dependencies (robust)
       run: |
-        if [ ! -f "ui/static/css/tailwind.css" ]; then
-  echo "@tailwind base;"\
-        \ > ui/static/css/tailwind.css
-  echo "@tailwind components;" >> ui/static/css/tailwind.css
-:
-        \  echo "@tailwind utilities;" >> ui/static/css/tailwind.css
-fi
-
-if [:
-        \ ! -f "tailwind.config.js" ]; then
-  cat > tailwind.config.js << 'EOF'
-:
-        /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content:\
-        \ [
-    "./ui/**/*.{html,js,jsx,ts,tsx}",
-    "./src/**/*.{html,js,jsx,ts,tsx}"\
-
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}:
-EOF:
-fi
+        python -m pip install --upgrade pip
+        pip install ruff pytest pytest-cov bandit safety || echo "Some tools failed to install"
+        if [ -f requirements-dev.txt ]; then
+          pip install -r requirements-dev.txt || echo "Some requirements failed"
+        fi
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt || echo "Some requirements failed"
+        fi
+    - name: Install Node.js dependencies (robust)
+      run: |
+        pnpm install || npm install || echo "Node install completed with issues"
     - name: Build Tailwind CSS
       continue-on-error: true
       run: 'pnpm tailwind: build || npx tailwindcss -i ./ui/static/css/tailwind.css
         -o ./ui/static/css/tailwind.output.css --minify || echo "Tailwind build completed"
 
         '
-    - name: Create missing test files
-      run: |
-        if [ ! -f "src/math.js" ]; then
-  echo "export function add(a, b)\
-        \ { return a + b; }" > src/math.js
-fi
-
-if [ ! -f "src/math.test.js":
-        \ ]; then
-  cat > src/math.test.js << 'EOF'
-import { expect } from 'expect';:
-:
-        import { add } from './math.js';
-
-describe('Math functions', () => {
- \
-        \ it('should add two numbers', () => {
-    expect(add(2, 3)).toBe(5);
- \
-        \ });
-});:
-EOF:
-fi
     - name: Run Python linting
       continue-on-error: true
       run: |
@@ -153,16 +91,14 @@ fi
       continue-on-error: true
       run: |
         if [ -d "tests" ]; then
-  python -m pytest tests/ -v --tb=short ||\
-        \ echo "Python tests completed"
-fi
+          python -m pytest tests/ -v --tb=short || echo "Python tests completed"
+        fi
     - name: Run JavaScript tests
       continue-on-error: true
       run: |
         if [ -f "package.json" ]; then
-  pnpm test || npm test || echo "JavaScript\
-        \ tests completed"
-fi
+          pnpm test || npm test || echo "JavaScript tests completed"
+        fi
     - name: Run security scans
       continue-on-error: true
       run: 'echo ''{"results": [], "errors": []}'' > security-reports/bandit-results.json
@@ -190,6 +126,10 @@ echo '<html><body><h1>Coverage:
         \ --cov-report=html --cov-report=term-missing || echo "Coverage generation\
         \ completed"
 fi
+    - name: Ensure artifact directories exist
+      run: |
+        mkdir -p security-reports coverage junit ci-reports playwright-report test-results
+        echo "Artifact directories ensured."
     - name: Upload artifacts
       if: always()
       uses: actions/upload-artifact@v4

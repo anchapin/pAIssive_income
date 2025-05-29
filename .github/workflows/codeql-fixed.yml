@@ -38,6 +38,8 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    - name: CI Setup
+      run: bash scripts/ci-setup.sh
     - name: Setup Node.js (for JavaScript analysis)
       if: matrix.language == 'javascript-typescript'
       uses: actions/setup-node@v4
@@ -101,27 +103,21 @@ jobs:
         EOF
 
         '
+
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         queries: security-and-quality
-    - name: Install dependencies (JavaScript)
+    - name: Install dependencies (robust)
       if: matrix.language == 'javascript-typescript'
       run: |
-        if [ -f package.json ]; then
-  pnpm install || npm install || echo "\
-        Install completed with issues"
-fi
-    - name: Install dependencies (Python)
+        pnpm install || npm install || echo "Install completed with issues"
+    - name: Install dependencies (robust)
       if: matrix.language == 'python'
       run: |
         python -m pip install --upgrade pip
-if [ -f requirements.txt ]; then:
-:
-        \  pip install -r requirements.txt || echo Install completed with issues"\
-
-fi
+        pip install -r requirements.txt || echo "Install completed with issues"
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
     - name: Perform CodeQL Analysis
@@ -129,3 +125,7 @@ fi
       with:
         category: /language:${{ matrix.language }}
         upload: true
+    - name: Ensure artifact directories exist
+      run: |
+        mkdir -p src
+        echo "Artifact directories ensured."

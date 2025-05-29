@@ -28,6 +28,8 @@ jobs:
         working-directory: ui/react_frontend
     steps:
     - uses: actions/checkout@v4
+    - name: CI Setup
+      run: bash ../../scripts/ci-setup.sh
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
@@ -46,7 +48,7 @@ jobs:
         which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
     - name: Check pnpm version
       run: pnpm --version
-    - name: Install dependencies
+    - name: Install dependencies (robust)
       run: |
         pnpm install || (echo "pnpm install failed, trying npm install..." && npm install)
     - name: Create required test directories
@@ -168,3 +170,7 @@ jobs:
         name: vitest-coverage-report-${{ github.run_id }}
         path: ui/react_frontend/coverage
         if-no-files-found: warn
+    - name: Ensure artifact directories exist
+      run: |
+        mkdir -p coverage playwright-report test-results ci-reports/github
+        echo "Artifact directories ensured."

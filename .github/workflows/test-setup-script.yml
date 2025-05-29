@@ -71,6 +71,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: CI Setup
+        run: bash scripts/ci-setup.sh
 
       - name: Debug file paths
         shell: bash
@@ -566,6 +568,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: CI Setup
+        run: bash scripts/ci-setup.sh
 
       - name: Debug file paths
         shell: powershell
@@ -956,10 +960,8 @@ jobs:
                 # Check for pnpm in common locations
                 $pnpmLocations = @(
                   "$nodeDir\pnpm.cmd",
-                  "$nodeDir
-ode_modules\pnpm\bin\pnpm.js",:
-                  "$env: APPDATA
-pm\pnpm.cmd",:
+                  "$nodeDir\node_modules\pnpm\bin\pnpm.js",
+                  "$env: APPDATA\pnpm\pnpm.cmd",
                   "$env: LOCALAPPDATA\pnpm\pnpm.cmd",
                   "$env: USERPROFILE\.pnpm\pnpm.cmd"
                 )
@@ -1705,6 +1707,8 @@ pm\pnpm.cmd",:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: CI Setup
+        run: bash scripts/ci-setup.sh
 
       - name: Debug file paths
         shell: bash
