@@ -276,7 +276,7 @@ class TestRemoteHandler(logging.Handler):
 
 
 def test_file_output_rotation_and_compression(tmp_path):
-    file_output = FileOutput(directory=str(tmp_path), max_size=1, compress=True)
+    file_output = FileOutput(directory=str(tmp_path), rotation="size", max_size=1, compress=True)
     log_entry = {"app": "test_app", "message": "test", "level": "INFO"}
     # Write enough logs to trigger rotation
     for _ in range(10):
@@ -308,7 +308,7 @@ def test_sensitive_data_filter_no_message():
 
 
 def test_centralized_logging_service_ssl_missing_cert():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         CentralizedLoggingService(use_ssl=True, ssl_cert=None, ssl_key=None)
 
 
@@ -325,7 +325,7 @@ def test_stop_service_not_running():
 
 
 def test_configure_centralized_logging_invalid_formatter():
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         configure_centralized_logging("app", formatter="not_a_formatter")
 
 

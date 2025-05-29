@@ -74,6 +74,7 @@ class TestCli(unittest.TestCase):
         with patch("os.path.exists", return_value=True), \
              patch("os.stat", return_value=MagicMock(st_mode=0o600)), \
              patch("builtins.open", mock_open(read_data="hash_value")), \
+             patch("pathlib.Path.open", mock_open(read_data="hash_value")), \
              patch.dict(os.environ, {"SECRETS_ADMIN_TOKEN": "token"}), \
              patch("hashlib.sha256", return_value=MagicMock(hexdigest=lambda: "hash_value")):
             self.assertTrue(_check_auth())
@@ -214,25 +215,26 @@ class TestCli(unittest.TestCase):
             mock_exit.assert_not_called()
             mock_logger.info.assert_called()
 
-    def test_main_unknown_command(self, monkeypatch):
+    def test_main_unknown_command(self):
         from common_utils.secrets import cli
         args = type("Args", (), {"command": "unknown"})()
-        monkeypatch.setattr(cli, "parse_args", lambda: args)
-        with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:
-            cli.main()
-            mock_logger.error.assert_called()
-            mock_exit.assert_called_once()
+        with patch.object(cli, "parse_args", lambda: args):
+            with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:
+                cli.main()
+                mock_logger.error.assert_called()
+                mock_exit.assert_called_once()
 
-    def test_main_missing_command(self, monkeypatch):
+    def test_main_missing_command(self):
         from common_utils.secrets import cli
         args = type("Args", (), {"command": None})()
-        monkeypatch.setattr(cli, "parse_args", lambda: args)
-        with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:
-            cli.main()
-            mock_logger.error.assert_called()
-            mock_exit.assert_called_once()
+        with patch.object(cli, "parse_args", lambda: args):
+            with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:
+                cli.main()
+                mock_logger.error.assert_called()
+                mock_exit.assert_called_once()
 
-    def test_handle_rotation_missing_rotation_command(self, monkeypatch):
+    @patch("common_utils.secrets.cli._check_auth", return_value=True)
+    def test_handle_rotation_missing_rotation_command(self, mock_check_auth):
         from common_utils.secrets import cli
         args = type("Args", (), {"rotation_command": None, "backend": "env"})()
         with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:
@@ -240,7 +242,8 @@ class TestCli(unittest.TestCase):
             mock_logger.error.assert_called()
             mock_exit.assert_called()
 
-    def test_handle_rotation_unknown_rotation_command(self, monkeypatch):
+    @patch("common_utils.secrets.cli._check_auth", return_value=True)
+    def test_handle_rotation_unknown_rotation_command(self, mock_check_auth):
         from common_utils.secrets import cli
         args = type("Args", (), {"rotation_command": "notarealcommand", "backend": "env", "key": "k"})()
         with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:

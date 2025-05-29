@@ -57,18 +57,14 @@ class TestCliIntegration(unittest.TestCase):
         # Act
         with patch("common_utils.secrets.cli._check_auth", return_value=True), \
              patch("common_utils.secrets.cli.SecretRotation") as mock_rotation_class, \
-             patch("common_utils.secrets.cli.SecretsBackend") as mock_backend_class, \
              patch("common_utils.secrets.cli._handle_schedule_rotation") as mock_handle_schedule:
-            mock_backend = MagicMock()
-            mock_backend_class.return_value = mock_backend
             mock_rotation = MagicMock()
             mock_rotation_class.return_value = mock_rotation
 
             handle_rotation(args)
 
         # Assert
-        mock_backend_class.assert_called_once_with(args.backend)
-        mock_rotation_class.assert_called_once_with(secrets_backend=mock_backend)
+        mock_rotation_class.assert_called_once_with(secrets_backend=args.backend)
         mock_handle_schedule.assert_called_once_with(mock_rotation, args, "test_key")
 
     def test_handle_rotation_rotate(self):
@@ -82,18 +78,14 @@ class TestCliIntegration(unittest.TestCase):
         # Act
         with patch("common_utils.secrets.cli._check_auth", return_value=True), \
              patch("common_utils.secrets.cli.SecretRotation") as mock_rotation_class, \
-             patch("common_utils.secrets.cli.SecretsBackend") as mock_backend_class, \
              patch("common_utils.secrets.cli._handle_rotate_secret") as mock_handle_rotate:
-            mock_backend = MagicMock()
-            mock_backend_class.return_value = mock_backend
             mock_rotation = MagicMock()
             mock_rotation_class.return_value = mock_rotation
 
             handle_rotation(args)
 
         # Assert
-        mock_backend_class.assert_called_once_with(args.backend)
-        mock_rotation_class.assert_called_once_with(secrets_backend=mock_backend)
+        mock_rotation_class.assert_called_once_with(secrets_backend=args.backend)
         mock_handle_rotate.assert_called_once_with(mock_rotation, args, "test_key")
 
     def test_handle_rotation_rotate_all(self):
@@ -106,18 +98,14 @@ class TestCliIntegration(unittest.TestCase):
         # Act
         with patch("common_utils.secrets.cli._check_auth", return_value=True), \
              patch("common_utils.secrets.cli.SecretRotation") as mock_rotation_class, \
-             patch("common_utils.secrets.cli.SecretsBackend") as mock_backend_class, \
              patch("common_utils.secrets.cli._handle_rotate_all") as mock_handle_rotate_all:
-            mock_backend = MagicMock()
-            mock_backend_class.return_value = mock_backend
             mock_rotation = MagicMock()
             mock_rotation_class.return_value = mock_rotation
 
             handle_rotation(args)
 
         # Assert
-        mock_backend_class.assert_called_once_with(args.backend)
-        mock_rotation_class.assert_called_once_with(secrets_backend=mock_backend)
+        mock_rotation_class.assert_called_once_with(secrets_backend=args.backend)
         mock_handle_rotate_all.assert_called_once_with(mock_rotation)
 
     def test_handle_rotation_list_due(self):
@@ -130,18 +118,14 @@ class TestCliIntegration(unittest.TestCase):
         # Act
         with patch("common_utils.secrets.cli._check_auth", return_value=True), \
              patch("common_utils.secrets.cli.SecretRotation") as mock_rotation_class, \
-             patch("common_utils.secrets.cli.SecretsBackend") as mock_backend_class, \
              patch("common_utils.secrets.cli._handle_list_due") as mock_handle_list_due:
-            mock_backend = MagicMock()
-            mock_backend_class.return_value = mock_backend
             mock_rotation = MagicMock()
             mock_rotation_class.return_value = mock_rotation
 
             handle_rotation(args)
 
         # Assert
-        mock_backend_class.assert_called_once_with(args.backend)
-        mock_rotation_class.assert_called_once_with(secrets_backend=mock_backend)
+        mock_rotation_class.assert_called_once_with(secrets_backend=args.backend)
         mock_handle_list_due.assert_called_once_with(mock_rotation)
 
     def test_handle_rotation_unknown_command(self):
@@ -154,16 +138,12 @@ class TestCliIntegration(unittest.TestCase):
         # Act
         with patch("common_utils.secrets.cli._check_auth", return_value=True), \
              patch("common_utils.secrets.cli.SecretRotation") as mock_rotation_class, \
-             patch("common_utils.secrets.cli.SecretsBackend") as mock_backend_class, \
              patch("common_utils.secrets.cli._handle_unknown_rotation_command") as mock_handle_unknown:
-            mock_backend = MagicMock()
-            mock_backend_class.return_value = mock_backend
             mock_rotation = MagicMock()
             mock_rotation_class.return_value = mock_rotation
 
             handle_rotation(args)
 
         # Assert
-        mock_backend_class.assert_called_once_with(args.backend)
-        mock_rotation_class.assert_called_once_with(secrets_backend=mock_backend)
+        mock_rotation_class.assert_called_once_with(secrets_backend=args.backend)
         mock_handle_unknown.assert_called_once_with("unknown")

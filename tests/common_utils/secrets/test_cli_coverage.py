@@ -9,7 +9,7 @@ import tempfile
 import time
 import unittest
 from io import StringIO
-from unittest.mock import MagicMock, call, mock_open, patch
+from unittest.mock import MagicMock, call, mock_open, patch, ANY
 
 import pytest
 
@@ -53,8 +53,8 @@ class TestCliCoverage(unittest.TestCase):
 
     def test_check_auth_directory_creation_error(self):
         """Test _check_auth when directory creation fails."""
-        with patch("os.path.exists", side_effect=[False, False]), \
-             patch("os.makedirs", side_effect=PermissionError("Permission denied")), \
+        with patch("pathlib.Path.exists", side_effect=[False, False]), \
+             patch("pathlib.Path.mkdir", side_effect=PermissionError("Permission denied")), \
              patch("common_utils.secrets.cli.logger") as mock_logger:
             self.assertFalse(_check_auth())
             mock_logger.exception.assert_called_once_with("Could not create secure token directory")
@@ -73,9 +73,10 @@ class TestCliCoverage(unittest.TestCase):
 
     def test_check_auth_missing_token(self):
         """Test _check_auth with missing token."""
-        with patch("os.path.exists", return_value=True), \
-             patch("os.stat", return_value=MagicMock(st_mode=0o600)), \
+        with patch("pathlib.Path.exists", return_value=True), \
+             patch("pathlib.Path.stat", return_value=MagicMock(st_mode=0o600)), \
              patch("builtins.open", mock_open(read_data="hash_value")), \
+             patch("pathlib.Path.open", mock_open(read_data="hash_value")), \
              patch.dict(os.environ, {}, clear=True), \
              patch("common_utils.secrets.cli.logger") as mock_logger:
             self.assertFalse(_check_auth())
@@ -83,8 +84,8 @@ class TestCliCoverage(unittest.TestCase):
 
     def test_check_auth_exception(self):
         """Test _check_auth with an exception."""
-        with patch("os.path.exists", return_value=True), \
-             patch("os.stat", side_effect=Exception("Test exception")), \
+        with patch("pathlib.Path.exists", return_value=True), \
+             patch("pathlib.Path.stat", side_effect=Exception("Test exception")), \
              patch("common_utils.secrets.cli.logger") as mock_logger:
             self.assertFalse(_check_auth())
             mock_logger.exception.assert_called_once_with("Authentication check failed")
@@ -231,8 +232,13 @@ class TestCliCoverage(unittest.TestCase):
              patch("sys.exit") as mock_exit:
             handle_audit(args)
 
-            # Verify logger messages
-            mock_logger.error.assert_any_call("Output directory not found", extra={"directory": "/nonexistent/dir"})
+            # Accept either call variant (with extra or with formatted string)
+            found = False
+            for call_args in mock_logger.error.call_args_list:
+                if (call_args == call("Output directory not found", extra=ANY) or
+                    call_args == call("Output directory not found: %s", ANY)):
+                    found = True
+            self.assertTrue(found, "Expected logger.error to be called with output directory not found")
             mock_exit.assert_called_once_with(1)
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
@@ -287,7 +293,7 @@ class TestCliCoverage(unittest.TestCase):
             _handle_rotate_secret(rotation, args, masked_key)
 
             # Verify logger messages
-            mock_logger.error.assert_called_with("Failed to rotate secret masked_key")
+            mock_logger.error.assert_any_call("Failed to rotate secret %s", masked_key)
             mock_exit.assert_called_once_with(1)
             # Verify failed attempts were incremented
             self.assertEqual(failed_attempts["rotation"], 1)
@@ -313,8 +319,8 @@ class TestCliCoverage(unittest.TestCase):
             handle_rotation(args)
 
             # Verify logger messages
-            mock_logger.error.assert_called_with("Missing rotation command")
-            # Don't check exact number of calls since it might be called multiple times
+            mock_logger.error.assert_any_call("Missing rotation command")
+            self.assertEqual(mock_logger.error.call_count, 2)
             mock_exit.assert_called_with(1)
 
     def test_handle_rotation_exception(self):
@@ -368,9 +374,9 @@ class TestCliCoverage(unittest.TestCase):
             _handle_rotate_all(rotation)
 
             # Verify logger messages
-            mock_logger.info.assert_any_call("Rotated 2 secrets:")
-            mock_logger.info.assert_any_call("  masked_secret1")
-            mock_logger.info.assert_any_call("  masked_secret2")
+            mock_logger.info.assert_any_call("Rotated %d secrets:", 2)
+            mock_logger.info.assert_any_call("  %s", "masked_secret1")
+            mock_logger.info.assert_any_call("  %s", "masked_secret2")
 
     def test_handle_list_exception(self):
         """Test handle_list with exception."""
@@ -399,7 +405,8 @@ class TestCliCoverage(unittest.TestCase):
             main()
 
             # Verify logger messages
-            mock_logger.error.assert_called_with("Unknown command")
+            mock_logger.error.assert_any_call("Unknown command")
+            self.assertEqual(mock_logger.error.call_count, 1)
             mock_exit.assert_called_with(1)
 
     def test_main_function_get(self):

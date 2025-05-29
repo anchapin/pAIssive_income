@@ -32,7 +32,8 @@ class TestCliParameterFix(unittest.TestCase):
         mock_args.backend = "env"
 
         # Mock os.path.exists to return True for the directory
-        with patch("os.path.exists", return_value=True):
+        with patch("os.path.exists", return_value=True), \
+             patch("pathlib.Path.exists", return_value=True):
             # Call handle_audit
             handle_audit(mock_args)
 
@@ -64,7 +65,8 @@ class TestCliParameterFix(unittest.TestCase):
         mock_args.backend = "env"
 
         # Mock os.path.exists to return True for the directory
-        with patch("os.path.exists", return_value=True):
+        with patch("os.path.exists", return_value=True), \
+             patch("pathlib.Path.exists", return_value=True):
             # Call handle_audit
             handle_audit(mock_args)
 
@@ -96,7 +98,8 @@ class TestCliParameterFix(unittest.TestCase):
         mock_args.backend = "env"
 
         # Mock os.path.exists to return True for both directory and output directory
-        with patch("os.path.exists", return_value=True):
+        with patch("os.path.exists", return_value=True), \
+             patch("pathlib.Path.exists", return_value=True):
             # Call handle_audit
             handle_audit(mock_args)
 
@@ -131,7 +134,8 @@ class TestCliParameterFix(unittest.TestCase):
         mock_args.backend = "env"
 
         # Mock os.path.exists to return True for the directory
-        with patch("os.path.exists", return_value=True):
+        with patch("os.path.exists", return_value=True), \
+             patch("pathlib.Path.exists", return_value=True):
             # Call handle_audit and expect it to handle the exception
             with pytest.raises(SystemExit):
                 handle_audit(mock_args)

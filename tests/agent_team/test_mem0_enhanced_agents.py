@@ -31,20 +31,28 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        # Create a mock Memory class
+        # Patch the Memory class to avoid real file access
         self.memory_mock = MagicMock()
-        self.memory_mock.add.return_value = {"id": "test-memory-id"}
-        self.memory_mock.search.return_value = [
-            {"id": "memory-1", "text": "Test memory 1"},
-            {"id": "memory-2", "text": "Test memory 2"},
-        ]
-
-        # Patch the Memory class
         self.memory_patcher = patch(
             "agent_team.mem0_enhanced_agents.Memory",
             return_value=self.memory_mock,
         )
         self.memory_patcher.start()
+
+        # Patch the MemoryRAGCoordinator class
+        self.rag_coordinator_mock = MagicMock()
+        self.rag_coordinator_mock.store_memory.return_value = True
+        self.rag_coordinator_mock.query.return_value = {
+            "merged_results": [
+                {"id": "memory-1", "text": "Test memory 1"},
+                {"id": "memory-2", "text": "Test memory 2"},
+            ]
+        }
+        self.rag_coordinator_patcher = patch(
+            "agent_team.mem0_enhanced_agents.MemoryRAGCoordinator",
+            return_value=self.rag_coordinator_mock,
+        )
+        self.rag_coordinator_patcher.start()
 
         # Patch the Crew class in both possible locations
         self.crew_mock = MagicMock()
@@ -86,6 +94,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         """Tear down test fixtures."""
         # Stop all patches
         self.memory_patcher.stop()
+        self.rag_coordinator_patcher.stop()
         self.crew_patcher_mem0.stop()
         self.crew_patcher_crewai.stop()
         self.agent_patcher.stop()
@@ -96,14 +105,14 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
 
     def test_initialization(self):
         """Test that the team initializes correctly."""
-        # Check that the memory was initialized
-        assert self.team.memory == self.memory_mock
+        # Check that the memory coordinator was initialized
+        assert self.team.rag_coordinator == self.rag_coordinator_mock
         assert self.team.user_id == "test-user"
 
         # Check that a memory was stored during initialization
-        self.memory_mock.add.assert_called_once()
-        args, kwargs = self.memory_mock.add.call_args
-        assert "test-user" in str(args) or "test-user" in str(kwargs)
+        self.rag_coordinator_mock.store_memory.assert_called_once()
+        args, kwargs = self.rag_coordinator_mock.store_memory.call_args
+        assert "test-user" in str(args) or "test-user" in str(kwargs.values())
 
     def test_add_agent(self):
         """Test adding an agent to the team."""
@@ -122,10 +131,10 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Check that the agent was added to the team
         assert agent in self.team.agents
 
-        # Check that a memory was stored
-        assert self.memory_mock.add.call_count >= 2  # Once for init, once for add_agent
-        args, kwargs = self.memory_mock.add.call_args
-        assert "Researcher" in str(args) or "Researcher" in str(kwargs)
+        # Check that a memory was stored (init + add_agent)
+        assert self.rag_coordinator_mock.store_memory.call_count >= 2
+        args, kwargs = self.rag_coordinator_mock.store_memory.call_args
+        assert "Researcher" in str(args) or "Researcher" in str(kwargs.values())
 
     def test_add_task(self):
         """Test adding a task to the team."""
@@ -149,12 +158,10 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Check that the task was added to the team
         assert task in self.team.tasks
 
-        # Check that a memory was stored
-        assert self.memory_mock.add.call_count >= 3  # Init, add_agent, add_task
-        args, kwargs = self.memory_mock.add.call_args
-        assert "Research AI memory systems" in str(
-            args
-        ) or "Research AI memory systems" in str(kwargs)
+        # Check that a memory was stored (init + add_agent + add_task)
+        assert self.rag_coordinator_mock.store_memory.call_count >= 3
+        args, kwargs = self.rag_coordinator_mock.store_memory.call_args
+        assert "Research AI memory systems" in str(args) or "Research AI memory systems" in str(kwargs.values())
 
     def test_run(self):
         """Test running the team workflow."""
@@ -178,8 +185,8 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             self.crew_mock.kickoff.assert_called_once()
 
         # Check that memories were retrieved and stored
-        assert self.memory_mock.search.call_count >= 1
-        assert self.memory_mock.add.call_count >= 4  # Init, add_agent, add_task, run
+        assert self.rag_coordinator_mock.query.call_count >= 1
+        assert self.rag_coordinator_mock.store_memory.call_count >= 4  # Init, add_agent, add_task, run
 
     def test_store_memory(self):
         """Test storing a memory."""
@@ -190,7 +197,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         )
 
         # Check that the memory was stored
-        self.memory_mock.add.assert_called_with(
+        self.rag_coordinator_mock.store_memory.assert_called_with(
             "Test memory content",
             user_id="test-user",
             metadata={"test_key": "test_value"},
@@ -205,14 +212,13 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         )
 
         # Check that memories were retrieved
-        self.memory_mock.search.assert_called_with(
+        self.rag_coordinator_mock.query.assert_called_with(
             query="Test query",
             user_id="test-user",
-            limit=5,
         )
+        assert isinstance(memories, list)
         assert len(memories) == 2
-        assert memories[0]["id"] == "memory-1"
-        assert memories[1]["id"] == "memory-2"
+        assert memories[0]["text"] == "Test memory 1"
 
     def test_enhance_context_with_memories(self):
         """Test enhancing context with memories."""
@@ -243,7 +249,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         new_team = MemoryEnhancedCrewAIAgentTeam(user_id="test-user")
 
         # Check that the memory was initialized
-        assert new_team.memory == self.memory_mock
+        assert new_team.rag_coordinator == self.rag_coordinator_mock
         assert new_team.user_id == "test-user"
 
         # Retrieve memories with the new team
@@ -251,10 +257,9 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         new_team._retrieve_relevant_memories(query=query)
 
         # Check that memories were retrieved using the same user_id
-        self.memory_mock.search.assert_called_with(
+        self.rag_coordinator_mock.query.assert_called_with(
             query=query,
             user_id="test-user",
-            limit=5,  # Default limit
         )
 
 

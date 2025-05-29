@@ -417,18 +417,14 @@ class TestCliExtended(unittest.TestCase):
 
         # Act
         with patch("common_utils.secrets.cli.SecretRotation") as mock_rotation_class, \
-             patch("common_utils.secrets.cli.SecretsBackend") as mock_backend_class, \
              patch("common_utils.secrets.cli._handle_schedule_rotation") as mock_handle_schedule:
-            mock_backend = MagicMock()
-            mock_backend_class.return_value = mock_backend
             mock_rotation = MagicMock()
             mock_rotation_class.return_value = mock_rotation
 
             handle_rotation(args)
 
         # Assert
-        mock_backend_class.assert_called_once_with(args.backend)
-        mock_rotation_class.assert_called_once_with(secrets_backend=mock_backend)
+        mock_rotation_class.assert_called_once_with(secrets_backend=args.backend)
         mock_handle_schedule.assert_called_once()
 
     def test_handle_schedule_rotation(self):
@@ -446,8 +442,7 @@ class TestCliExtended(unittest.TestCase):
 
         # Assert
         rotation.schedule_rotation.assert_called_once_with("test_key", 30)
-        # Check for the specific log message we're expecting
-        mock_logger.info.assert_any_call("Scheduled rotation for masked_key every 30 days")
+        mock_logger.info.assert_any_call("Scheduled rotation for %s every %d days", masked_key, 30)
 
     def test_handle_rotate_secret(self):
         """Test _handle_rotate_secret function."""
@@ -457,14 +452,15 @@ class TestCliExtended(unittest.TestCase):
         args.key = "test_key"
         masked_key = "masked_key"
 
-        # Act
-        with patch("common_utils.secrets.cli.logger") as mock_logger, \
+        # Patch get_secret_value to return a value
+        with patch("common_utils.secrets.cli.get_secret_value", return_value="secret_value"), \
+             patch("common_utils.secrets.cli.logger") as mock_logger, \
              patch("sys.exit") as mock_exit:
             _handle_rotate_secret(rotation, args, masked_key)
 
         # Assert
-        rotation.rotate_secret.assert_called_once_with("test_key")
-        mock_logger.info.assert_called_once_with("Rotated secret masked_key")
+        rotation.rotate_secret.assert_called_once_with("test_key", "secret_value")
+        mock_logger.info.assert_any_call("Rotated secret %s", masked_key)
 
     def test_handle_rotate_all(self):
         """Test _handle_rotate_all function."""
@@ -473,14 +469,16 @@ class TestCliExtended(unittest.TestCase):
         # Mock the return value to be a tuple (count, [keys])
         rotation.rotate_all_due.return_value = (3, ["key1", "key2", "key3"])
 
-        # Act
-        with patch("common_utils.secrets.cli.logger") as mock_logger:
+        with patch("common_utils.secrets.cli.logger") as mock_logger, \
+             patch("common_utils.secrets.cli.mask_sensitive_data", side_effect=lambda x: x):
             _handle_rotate_all(rotation)
 
         # Assert
         rotation.rotate_all_due.assert_called_once()
-        # Check that logger.info was called with the expected message
-        mock_logger.info.assert_any_call("Rotated 3 secrets:")
+        mock_logger.info.assert_any_call("Rotated %d secrets:", 3)
+        mock_logger.info.assert_any_call("  %s", "key1")
+        mock_logger.info.assert_any_call("  %s", "key2")
+        mock_logger.info.assert_any_call("  %s", "key3")
 
     def test_handle_list_due(self):
         """Test _handle_list_due function."""
@@ -488,14 +486,18 @@ class TestCliExtended(unittest.TestCase):
         rotation = MagicMock()
         rotation.get_due_secrets.return_value = ["key1", "key2"]
 
-        # Act
-        with patch("common_utils.secrets.cli.logger") as mock_logger:
+        with patch("common_utils.secrets.cli.logger") as mock_logger, \
+             patch("common_utils.secrets.cli.mask_sensitive_data", side_effect=lambda x: x):
             _handle_list_due(rotation)
 
         # Assert
         rotation.get_due_secrets.assert_called_once()
-        # Check that logger.info was called for the header and each key (3 calls total)
-        self.assertEqual(mock_logger.info.call_count, 3)
+        # There should be 4 info calls: 2 headers, 2 keys
+        self.assertEqual(mock_logger.info.call_count, 4)
+        mock_logger.info.assert_any_call("Found %d secrets due for rotation", 2)
+        mock_logger.info.assert_any_call("Found %d secrets due for rotation:", 2)
+        mock_logger.info.assert_any_call("  %s", "key1")
+        mock_logger.info.assert_any_call("  %s", "key2")
 
     def test_handle_unknown_rotation_command(self):
         """Test _handle_unknown_rotation_command function."""

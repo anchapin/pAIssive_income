@@ -98,11 +98,19 @@ class TestFileRotatingHandlerImproved:
         """Tear down test fixtures."""
         # Close and remove the temporary file
         if hasattr(self, "temp_file") and self.temp_file:
-            self.temp_file.close()
+            try:
+                self.temp_file.close()
+            except Exception:
+                pass
 
         # Remove the file if it exists
         if hasattr(self, "temp_file_path") and os.path.exists(self.temp_file_path):
-            os.unlink(self.temp_file_path)
+            try:
+                os.unlink(self.temp_file_path)
+            except PermissionError:
+                # On Windows, file may still be locked; log a warning and skip
+                import warnings
+                warnings.warn(f"Could not delete temp file: {self.temp_file_path} (still in use)")
 
     def test_handle_with_exception(self):
         """Test handle method with an exception."""

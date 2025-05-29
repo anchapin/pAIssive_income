@@ -571,6 +571,8 @@ class CentralizedLoggingService:
             ssl_cert: Path to SSL certificate file
             ssl_key: Path to SSL key file
 
+        Raises:
+            ValueError: If use_ssl is True but ssl_cert or ssl_key is missing.
         """
         self.host = host
         self.port = port
@@ -592,6 +594,9 @@ class CentralizedLoggingService:
 
         # Set up logging for the service itself
         self.logger = get_secure_logger("centralized_logging_service")
+
+        if use_ssl and (not ssl_cert or not ssl_key):
+            raise ValueError("SSL is enabled but ssl_cert or ssl_key is missing.")
 
     def start(self) -> None:
         """Start the centralized logging service."""
@@ -1077,6 +1082,8 @@ def configure_centralized_logging(
         secure: Whether to use SSL for secure communication
         formatter: Custom formatter for log messages
 
+    Raises:
+        TypeError: If formatter is not a logging.Formatter instance or None.
     """
     global _client
 
@@ -1094,6 +1101,8 @@ def configure_centralized_logging(
     handler = RemoteHandler(client=_client, level=level)
 
     # Set formatter if provided
+    if formatter is not None and not isinstance(formatter, logging.Formatter):
+        raise TypeError("formatter must be a logging.Formatter instance or None")
     if formatter:
         handler.setFormatter(formatter)
     else:
