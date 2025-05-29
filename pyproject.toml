@@ -76,7 +76,17 @@ target-version = "py310"
 line-length = 100
 select = ["E", "F", "B", "S", "I", "N", "UP", "ANN", "C4", "SIM", "ARG", "PTH", "RUF", "ERA", "TRY", "PLR", "PLW", "PLE", "BLE", "ISC"]
 ignore = []
-exclude = ["*.md", "**/*.md"]
+exclude = [
+    "*.md",
+    "**/*.md",
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    "build",
+    "dist"
+]
 
 [tool.ruff.per-file-ignores]
 "scripts/fix/fix_security_issues.py" = ["S603"]
