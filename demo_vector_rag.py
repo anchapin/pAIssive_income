@@ -17,19 +17,35 @@ For more details, see README_mem0_integration.md.
 
 from __future__ import annotations
 
-import logging
 import hashlib
 import json
+import logging
+import sys  # Added for sys.exit
 import unicodedata
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Optional, Tuple
 
-import chromadb
-from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
-
-# Configure logging for reference usage
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+# Configure logging
 logger = logging.getLogger(__name__)
+
+
+try:
+    import chromadb
+    from chromadb.config import Settings
+except ImportError:
+    print(
+        "Error: chromadb module not found. Please install it with 'pip install chromadb'"
+    )
+    sys.exit(1)
+
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    print(
+        "Error: sentence_transformers module not found. Please install it with 'pip install sentence-transformers'"
+    )
+    sys.exit(1)
+
+# Configure logging
 
 # 1. Initialize ChromaDB client (local, persistent for demo)
 client = chromadb.Client(
@@ -42,6 +58,7 @@ client = chromadb.Client(
 # 2. Unified schema for all documents (id, content, user_id, metadata, embedding)
 # Legacy demo content is adapted to this schema
 
+
 def canonicalize_text(text: str) -> str:
     """
     Normalize and canonicalize text for deduplication.
@@ -51,6 +68,7 @@ def canonicalize_text(text: str) -> str:
     text = " ".join(text.split())
     return text
 
+
 def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
     """
     Create a canonical hash for deduplication.
@@ -58,8 +76,9 @@ def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
     """
     content_canon = canonicalize_text(content)
     source = metadata.get("source", "")
-    hash_input = f"{user_id}|{content_canon}|{source}".encode("utf-8")
+    hash_input = f"{user_id}|{content_canon}|{source}".encode()
     return hashlib.sha256(hash_input).hexdigest()
+
 
 def prepare_document(
     doc: dict,
@@ -72,7 +91,10 @@ def prepare_document(
     If fields are missing, fill with defaults.
     """
     doc_out = {}
-    doc_out["id"] = doc.get("id") or hashlib.sha256(json.dumps(doc, sort_keys=True).encode()).hexdigest()
+    doc_out["id"] = (
+        doc.get("id")
+        or hashlib.sha256(json.dumps(doc, sort_keys=True).encode()).hexdigest()
+    )
     doc_out["content"] = doc.get("content", "")
     doc_out["user_id"] = doc.get("user_id", user_id or "global")
     # Merge metadata: doc, then default_metadata, then ensure at least "source"
@@ -82,7 +104,6 @@ def prepare_document(
         doc_out["metadata"]["source"] = "demo"
     doc_out["embedding"] = embedding or doc.get("embedding")
     return doc_out
-
 
 
 # 3. Demo documents, now with schema fields (legacy content adapted)
@@ -139,6 +160,7 @@ embedder = SentenceTransformer("all-MiniLM-L6-v2")
 # 5. Create/get collection
 collection = client.get_or_create_collection("demo_rag")
 
+
 # 6. Canonicalization and deduplication logic before inserting documents
 def embed_and_insert_documents_with_dedup(
     docs: List[dict],
@@ -174,7 +196,9 @@ def embed_and_insert_documents_with_dedup(
         doc = prepare_document(doc, user_id=user_id_default)
         doc_hash = canonical_doc_hash(doc["user_id"], doc["content"], doc["metadata"])
         if doc_hash in stored_hashes:
-            logger.info(f"Deduplication: Skipping duplicate doc id={doc['id']} (hash={doc_hash[:8]}...)")
+            logger.info(
+                f"Deduplication: Skipping duplicate doc id={doc['id']} (hash={doc_hash[:8]}...)"
+            )
             skipped_ids.append(doc["id"])
             continue
         # Canonicalize content before embedding
@@ -187,20 +211,28 @@ def embed_and_insert_documents_with_dedup(
             ids=[doc["id"]],
             documents=[doc["content"]],
             embeddings=[embedding],
-            metadatas=[{
-                **doc["metadata"],
-                "user_id": doc["user_id"],  # Ensure user_id is in metadata for filtering
-                "canonical_hash": doc_hash,
-            }],
+            metadatas=[
+                {
+                    **doc["metadata"],
+                    "user_id": doc[
+                        "user_id"
+                    ],  # Ensure user_id is in metadata for filtering
+                    "canonical_hash": doc_hash,
+                }
+            ],
         )
         logger.info(f"Inserted doc id={doc['id']} (hash={doc_hash[:8]}...)")
         inserted_docs.append(doc)
         stored_hashes.add(doc_hash)
     return inserted_docs, skipped_ids
 
+
 # Insert demo documents (deduplication and canonicalization applied)
-inserted, skipped = embed_and_insert_documents_with_dedup(demo_documents, embedder, collection)
+inserted, skipped = embed_and_insert_documents_with_dedup(
+    demo_documents, embedder, collection
+)
 logger.info(f"\nInserted {len(inserted)} documents, skipped {len(skipped)} duplicates.")
+
 
 # 7. Retrieval: Context propagation and metadata filtering example
 def query_with_metadata_filter(
@@ -228,6 +260,7 @@ def query_with_metadata_filter(
     )
     return results
 
+
 # Demo query: Retrieve facts only, for user 'global'
 logger.info("\n--- Retrieval Demo: Query with Metadata Filtering ---")
 query = "What city is the Eiffel Tower located in?"
@@ -237,7 +270,9 @@ results = query_with_metadata_filter(
 )
 
 logger.info(f"\nQuery: {query}\nFilter: {metadata_filter}\nResults:")
-for doc, meta, dist in zip(results["documents"][0], results["metadatas"][0], results["distances"][0]):
+for doc, meta, dist in zip(
+    results["documents"][0], results["metadatas"][0], results["distances"][0]
+):
     logger.info("- %s [meta: %s] (distance: %.4f)", doc, meta, dist)
 
 # Show how context propagation works: fetch all 'fact' type for a user
@@ -245,9 +280,10 @@ logger.info("\n--- Context Propagation Demo: All 'fact' memories for user 'globa
 all_facts = collection.get(where={"user_id": "global", "type": "fact"})
 for i, doc in enumerate(all_facts["documents"]):
     meta = all_facts["metadatas"][i]
-    logger.info(f"Fact {i+1}: {doc} [meta: {meta}]")
+    logger.info(f"Fact {i + 1}: {doc} [meta: {meta}]")
 
 # 8. Test block: Verify deduplication and filtering
+
 
 def test_deduplication_and_metadata():
     """
@@ -261,7 +297,9 @@ def test_deduplication_and_metadata():
         "user_id": "global",
         "metadata": {"type": "fact", "source": "demo", "lang": "en"},
     }
-    inserted, skipped = embed_and_insert_documents_with_dedup([duplicate], embedder, collection)
+    inserted, skipped = embed_and_insert_documents_with_dedup(
+        [duplicate], embedder, collection
+    )
     assert len(inserted) == 0, "Deduplication failed: duplicate was inserted."
     assert len(skipped) == 1, "Deduplication test: duplicate was not skipped."
     logger.info("Deduplication test passed.")
@@ -273,20 +311,31 @@ def test_deduplication_and_metadata():
         "user_id": "global",
         "metadata": {"type": "fact", "source": "wikipedia", "lang": "en"},
     }
-    inserted, skipped = embed_and_insert_documents_with_dedup([new_doc], embedder, collection)
+    inserted, skipped = embed_and_insert_documents_with_dedup(
+        [new_doc], embedder, collection
+    )
     assert len(inserted) == 1, "Unique document was not inserted."
     logger.info("Insertion of new doc with different source passed.")
 
     # Test metadata filtering
     filter_meta = {"source": "wikipedia"}
     results = collection.get(where={"user_id": "global", **filter_meta})
-    assert any(doc == new_doc["content"] for doc in results["documents"]), "Metadata filtering failed."
+    assert any(doc == new_doc["content"] for doc in results["documents"]), (
+        "Metadata filtering failed."
+    )
     logger.info("Metadata filtering test passed.")
 
-if __name__ == "__main__":
+
+def main():
+    """Main function to run the demo."""
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     logger.info("\n--- Running Test Block ---")
     test_deduplication_and_metadata()
     logger.info("All tests passed.")
 
     # Cleanup for demo (optional):
     # client.delete_collection("demo_rag")
+
+
+if __name__ == "__main__":
+    main()

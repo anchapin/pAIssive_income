@@ -1,28 +1,33 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Generate Bandit configuration files for GitHub Actions workflows.
 
 This script generates Bandit configuration files for different platforms and run IDs.
 It ensures that the necessary directories and files exist and are properly configured.
 
+This script generates Bandit configuration files for all platforms and run IDs.
+It is used by the GitHub Actions workflow to create the necessary configuration
+files for Bandit security scanning.
+
 Usage:
     python generate_bandit_config.py [run_id]
 """
 
-from __future__ import annotations
-
 import logging
-import os
 import sys
 
-# Path is used throughout the script, so we keep this import
-from pathlib import Path
+try:
+    # Path is used throughout the script, so we keep this import
+    from pathlib import Path
+except ImportError:
+    print("Error: pathlib module not found. Please install it.")
+    sys.exit(1)
 
-# Configure logging with timestamp
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 # Constants
 BANDIT_DIR = ".github/bandit"
@@ -92,8 +97,8 @@ def setup_directories() -> tuple[Path, Path, bool]:
     """
     try:
         # Handle Windows path separators
-        bandit_dir_str = BANDIT_DIR.replace("/", os.sep)
-        security_reports_dir_str = SECURITY_REPORTS_DIR.replace("/", os.sep)
+        bandit_dir_str = BANDIT_DIR.replace("/", Path().joinpath("").sep)
+        security_reports_dir_str = SECURITY_REPORTS_DIR.replace("/", Path().joinpath("").sep)
 
         # Create Bandit directory
         bandit_dir = Path(bandit_dir_str)
@@ -216,4 +221,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Configure logging with timestamp
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     sys.exit(main())
