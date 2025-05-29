@@ -214,6 +214,40 @@ class TestCli(unittest.TestCase):
             mock_exit.assert_not_called()
             mock_logger.info.assert_called()
 
+    def test_main_unknown_command(self, monkeypatch):
+        from common_utils.secrets import cli
+        args = type("Args", (), {"command": "unknown"})()
+        monkeypatch.setattr(cli, "parse_args", lambda: args)
+        with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:
+            cli.main()
+            mock_logger.error.assert_called()
+            mock_exit.assert_called_once()
+
+    def test_main_missing_command(self, monkeypatch):
+        from common_utils.secrets import cli
+        args = type("Args", (), {"command": None})()
+        monkeypatch.setattr(cli, "parse_args", lambda: args)
+        with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:
+            cli.main()
+            mock_logger.error.assert_called()
+            mock_exit.assert_called_once()
+
+    def test_handle_rotation_missing_rotation_command(self, monkeypatch):
+        from common_utils.secrets import cli
+        args = type("Args", (), {"rotation_command": None, "backend": "env"})()
+        with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:
+            cli.handle_rotation(args)
+            mock_logger.error.assert_called()
+            mock_exit.assert_called()
+
+    def test_handle_rotation_unknown_rotation_command(self, monkeypatch):
+        from common_utils.secrets import cli
+        args = type("Args", (), {"rotation_command": "notarealcommand", "backend": "env", "key": "k"})()
+        with patch.object(cli, "logger") as mock_logger, patch("sys.exit") as mock_exit:
+            cli.handle_rotation(args)
+            mock_logger.error.assert_called()
+            mock_exit.assert_called()
+
 
 if __name__ == "__main__":
     unittest.main()

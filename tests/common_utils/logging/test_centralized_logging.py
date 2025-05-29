@@ -16,6 +16,10 @@ from common_utils.logging.centralized_logging import (
     RemoteHandler,
     configure_centralized_logging,
     get_centralized_logger,
+    FileOutput,
+    LevelFilter,
+    SensitiveDataFilter,
+    stop_centralized_logging,
 )
 
 
@@ -28,8 +32,6 @@ class TestCentralizedLoggingService:
         self.temp_dir = tempfile.TemporaryDirectory()
 
         # Create a CentralizedLoggingService instance with custom FileOutput
-        from common_utils.logging.centralized_logging import FileOutput
-
         file_output = FileOutput(directory=self.temp_dir.name)
         self.service = CentralizedLoggingService(
             host="localhost",
@@ -271,3 +273,93 @@ class TestRemoteHandler(logging.Handler):
         assert log_entry["level"] == "INFO"
         assert log_entry["message"] == "Test message"
         assert "timestamp" in log_entry
+
+
+def test_file_output_rotation_and_compression(tmp_path):
+    file_output = FileOutput(directory=str(tmp_path), max_size=1, compress=True)
+    log_entry = {"app": "test_app", "message": "test", "level": "INFO"}
+    # Write enough logs to trigger rotation
+    for _ in range(10):
+        file_output.output(log_entry)
+    # Should create at least one compressed file
+    compressed_files = list(tmp_path.glob("*.gz"))
+    assert compressed_files
+
+
+def test_level_filter_with_invalid_level():
+    filter = LevelFilter(min_level="WARNING")
+    # Unknown level should default to INFO
+    log_entry = {"level": "NOTALEVEL"}
+    assert not filter.filter(log_entry)
+
+
+def test_sensitive_data_filter_masks_message():
+    filter = SensitiveDataFilter()
+    log_entry = {"message": "password=secret"}
+    filter.filter(log_entry)
+    # Should mask or remove sensitive data
+    assert "****" in log_entry["message"] or "password" not in log_entry["message"]
+
+
+def test_sensitive_data_filter_no_message():
+    filter = SensitiveDataFilter()
+    log_entry = {"not_message": "value"}
+    assert filter.filter(log_entry) is True  # Should not fail
+
+
+def test_centralized_logging_service_ssl_missing_cert():
+    with pytest.raises(Exception):
+        CentralizedLoggingService(use_ssl=True, ssl_cert=None, ssl_key=None)
+
+
+def test_process_log_missing_fields():
+    service = CentralizedLoggingService()
+    # Should not raise even if fields are missing
+    service.process_log({})
+
+
+def test_stop_service_not_running():
+    service = CentralizedLoggingService()
+    service.running = False
+    service.stop()  # Should not raise
+
+
+def test_configure_centralized_logging_invalid_formatter():
+    with pytest.raises(Exception):
+        configure_centralized_logging("app", formatter="not_a_formatter")
+
+
+def test_get_centralized_logger_type():
+    logger = get_centralized_logger("test")
+    assert hasattr(logger, "info")
+
+
+def test_stop_centralized_logging_noop():
+    stop_centralized_logging()  # Should not raise
+
+
+def test_file_output_output_exception(monkeypatch, tmp_path):
+    from common_utils.logging.centralized_logging import FileOutput
+    file_output = FileOutput(directory=str(tmp_path))
+    log_entry = {"app": "test_app", "message": "test", "level": "INFO"}
+    # Patch open to raise an exception
+    monkeypatch.setattr("builtins.open", lambda *a, **kw: (_ for _ in ()).throw(IOError("fail")))
+    # Should not raise, should log exception
+    file_output.output(log_entry)
+
+
+def test_logging_client_send_log_entry_exception(monkeypatch):
+    from common_utils.logging.centralized_logging import LoggingClient
+    client = LoggingClient(app_name="test_app", host="localhost", port=5000, buffer_size=0)
+    # Patch socket.socket to raise exception on sendto
+    class DummySocket:
+        def sendto(self, *a, **kw):
+            raise OSError("fail")
+        def close(self):
+            pass
+    monkeypatch.setattr("socket.socket", lambda *a, **kw: DummySocket())
+    # Should not raise, should log exception, increment stats, and return False
+    log_entry = {"timestamp": "now", "level": "INFO", "message": "msg", "logger": "test", "app": "test_app"}
+    result = client._send_log_entry(log_entry)
+    assert result is False
+    assert client.stats["failed"] > 0
