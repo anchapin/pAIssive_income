@@ -47,23 +47,12 @@ except ImportError:
 # Import memory-enhanced agent team
 try:
     from agent_team.mem0_enhanced_agents import (
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-
-# Configure logging
+        # Configure logging
+        # Configure logging
+        # Configure logging
+        # Configure logging
+        # Configure logging
         MEM0_AVAILABLE,
-
         MemoryEnhancedCrewAIAgentTeam,
     )
 except ImportError:

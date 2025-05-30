@@ -9,23 +9,12 @@ logger = logging.getLogger(__name__)
 
 try:
     from common_utils.logging.secure_logging import (
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-
-# Configure logging
+        # Configure logging
+        # Configure logging
+        # Configure logging
+        # Configure logging
+        # Configure logging
         SecureLogger,
-
         get_secure_logger,
         prevent_log_injection,
     )

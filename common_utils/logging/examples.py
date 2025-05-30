@@ -7,6 +7,7 @@ to prevent sensitive information from being logged in clear text.
 
 import logging
 import sys
+
 logger = logging.getLogger(__name__)
 
 try:

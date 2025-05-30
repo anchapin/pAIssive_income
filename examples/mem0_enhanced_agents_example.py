@@ -153,23 +153,12 @@ def run_example() -> None:
     try:
         # Import the integration layer and sources
         from interfaces.knowledge_interfaces import (
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-
-# Configure logging
+            # Configure logging
+            # Configure logging
+            # Configure logging
+            # Configure logging
+            # Configure logging
             KnowledgeIntegrationLayer,
-
             KnowledgeStrategy,
             Mem0KnowledgeSource,
             VectorRAGKnowledgeSource,
