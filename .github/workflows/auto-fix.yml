@@ -71,8 +71,8 @@ jobs:
           GH_TOKEN: ${{ secrets.AUTO_FIX_PAT }}
         run: |
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config --local user.email "a.n.chapin@gmail.com"
+          git config --local user.name "anchapin"
           git add .
           if git diff --staged --quiet; then
             echo "No changes to commit."
@@ -179,8 +179,8 @@ jobs:
           GH_TOKEN: ${{ secrets.AUTO_FIX_PAT }}
         run: |
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config --local user.email "a.n.chapin@gmail.com"
+          git config --local user.name "anchapin"
           git add .
           if git diff --staged --quiet; then
             echo "No changes to commit."
