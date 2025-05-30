@@ -268,3 +268,9 @@ playwright-report/environment-report.txt
 
 # Ignore Bandit temp output
 security-reports/bandit-results.json.tmp
+
+# Ignore dummy test files created by setup scripts
+tests/unit/dummy.test.js
+tests/e2e/dummy.spec.js
+tests/mock-api/dummy.test.js
+tests/__mocks__/dummy.js
