@@ -6,7 +6,6 @@ on:
       - dev
       - master
       - develop
-      - cosine/improve-frontend-tests-y4hwd5
     paths:
       - '**/*.py'
       - '**/*.js'
@@ -40,7 +39,7 @@ on:
       - scripts/**
       - codeql-success.txt
   schedule:
-      - cron: 0 0 * * 0
+    - cron: '0 0 * * 0'
   workflow_dispatch: {}
 permissions:
   contents: read
@@ -63,8 +62,71 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Shared CI Setup
-      run: bash scripts/ci-setup.sh
+    - name: Create CI directories
+      run: |
+        mkdir -p ci-reports ci-artifacts ci-logs ci-temp ci-cache
+        mkdir -p test-results/github
+        mkdir -p logs
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: pnpm
+    - name: Install Node.js dependencies
+      run: |
+        if ! which pnpm; then
+          echo "pnpm not found, installing globally with npm..."
+          npm install -g pnpm
+        fi
+        pnpm install --no-optional || npm install --no-optional
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov ruff bandit safety mypy pytest-xdist pytest-asyncio protobuf==5.29.4
+        if [ -f requirements-dev.txt ]; then
+          pip install -r requirements-dev.txt
+        fi
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
+    - name: Set up CI environment
+      run: |
+        echo "CI=true" >> $GITHUB_ENV
+        echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
+        echo "CI_TYPE=github" >> $GITHUB_ENV
+        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
+        echo "CI_PLATFORM=github" >> $GITHUB_ENV
+        echo "CI_OS=$(uname -s)" >> $GITHUB_ENV
+        echo "CI_ARCH=$(uname -m)" >> $GITHUB_ENV
+        echo "CI_PYTHON_VERSION=$(python --version | cut -d' ' -f2)" >> $GITHUB_ENV
+        echo "CI_NODE_VERSION=$(node --version)" >> $GITHUB_ENV
+        echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
+        echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
+        echo "FLASK_ENV=development" >> $GITHUB_ENV
+        echo "DATABASE_URL=sqlite:///:memory:" >> $GITHUB_ENV
+        echo "TESTING=true" >> $GITHUB_ENV
+    - name: Run tests
+      run: |
+        pytest --cov=. --cov-report=xml:coverage.xml --junitxml=test-results/junit.xml
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          test-results/
+          coverage.xml
+          ci-reports/
+          ci-artifacts/
+          ci-logs/
     - name: Ensure fixed CodeQL workflow files
       if: runner.os == 'Windows'
       shell: pwsh
@@ -76,60 +138,6 @@ jobs:
         } else {
           Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
         }
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
-        run_install: false
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: pnpm
-    - name: Install Node.js dependencies (robust)
-      run: |
-        pnpm install --no-optional || npm install --no-optional || echo "Node install failed but continuing"
-    - name: Install Node.js dependencies and build Tailwind CSS
-      run: |
-        if ! which pnpm; then
-          echo "pnpm not found, installing globally with npm..."
-          npm install -g pnpm
-        fi
-        pnpm install || (echo "pnpm install failed, trying npm install..." && npm install)
-        pnpm tailwind:build || (echo "pnpm tailwind:build failed, trying npm run tailwind:build..." && npm run tailwind:build)
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Cache uv dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cache/uv
-          ~/.uv
-        key: ${{ runner.os }}-uv-${{ hashFiles('**/requirements*.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-uv-
-    - name: Install uv (Unix)
-      if: runner.os != 'Windows'
-      run: |
-        mkdir -p ~/.cache/uv
-        mkdir -p ~/.uv
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        # Verify uv is installed and in PATH
-        if ! which uv; then
-          echo "uv not found in PATH after install, falling back to pip."
-          python -m pip install --upgrade pip
-        fi
-    - name: Install uv (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        New-Item -ItemType Directory -Force -Path ~/.cache/uv
-        New-Item -ItemType Directory -Force -Path ~/.uv
-        iwr -useb https://astral.sh/uv/install.ps1 | iex
-        echo "$HOME\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: Set up CI environment (Unix)
       if: runner.os != 'Windows'
       run: |
