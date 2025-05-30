@@ -65,7 +65,7 @@ class WebhookService:
 
         # Store in database
         if self.db:
-            stored_webhook = self.db.add_webhook(webhook_data)
+            stored_webhook = self.db.add_webhook(webhook)
             return stored_webhook
 
         return webhook

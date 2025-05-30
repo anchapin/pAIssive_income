@@ -114,4 +114,4 @@ class TestSimpleMath:
 
         # Decimal floor division
         assert Decimal("5.5") // Decimal("2") == Decimal("2")
-        assert Decimal("-5.5") // Decimal("2") == Decimal("-3")
+        assert Decimal("-5.5") // Decimal("2") == Decimal("-2")

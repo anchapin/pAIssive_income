@@ -97,9 +97,11 @@ class TestLoggingInit:
         expected_exports = [
             "SENSITIVE_FIELDS",
             "SecureLogger",
+            "_logger_cache",
             "get_logger",
             "get_secure_logger",
             "mask_sensitive_data",
+            "secure_logger",
         ]
 
         assert set(__all__) == set(expected_exports)

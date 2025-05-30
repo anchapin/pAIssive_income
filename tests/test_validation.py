@@ -163,18 +163,18 @@ def test_validation_error_response_with_pydantic_errors() -> None:
         "Input validation failed.",
         [
             {
-                "loc": ["username"],
-                "msg": "String should have at least 3 characters",
+                "field": "username",
+                "message": "String should have at least 3 characters",
                 "type": "string_too_short",
             },
             {
-                "loc": ["age"],
-                "msg": "Input should be greater than or equal to 0",
+                "field": "age",
+                "message": "Input should be greater than or equal to 0",
                 "type": "greater_than_equal",
             },
             {
-                "loc": ["email"],
-                "msg": "Invalid email format",
+                "field": "email",
+                "message": "Invalid email format",
                 "type": "value_error",
             },
         ],

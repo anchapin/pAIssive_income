@@ -105,6 +105,50 @@ class User(db.Model):  # type: ignore[name-defined]
 
         return result
 
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "User":
+        """
+        Create user from dictionary.
+
+        Args:
+            data: Dictionary with user data
+
+        Returns:
+            User instance
+        """
+        # Convert boolean strings for is_active and is_admin
+        is_active = data.get("is_active", True)
+        is_admin = data.get("is_admin", False)
+
+        user = cls(
+            username=data.get("username"),
+            email=data.get("email"),
+            password_hash=data.get("password_hash"),
+        )
+
+        # Set boolean fields as strings
+        user.is_active = str(is_active).lower()
+        user.is_admin = str(is_admin).lower()
+
+        if "id" in data:
+            user.id = data["id"]
+
+        return user
+
+    def update_last_login(self) -> None:
+        """
+        Update the user's last login timestamp.
+
+        Raises:
+            SQLAlchemyError: If there's a database error
+        """
+        try:
+            self.last_login = datetime.utcnow()
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            raise e
+
 
 class Team(db.Model):  # type: ignore[name-defined]
     """Team model for grouping AI agents."""

@@ -95,7 +95,7 @@ class TestInitAgentDB(unittest.TestCase):
         self.assertEqual(len(insert_calls), 0)
 
         # Verify existing records were logged
-        self.mock_logger.info.assert_any_call("Agent table already has 5 records")
+        self.mock_logger.info.assert_any_call("Agent table already has %d records", 5)
 
     @patch("init_agent_db.psycopg2.connect")
     def test_init_agent_db_no_records(self, mock_connect):

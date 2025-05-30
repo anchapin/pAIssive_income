@@ -145,6 +145,11 @@ class UserService:
         """Get the token secret."""
         return self.__token_secret
 
+    @property
+    def token_expiry(self) -> int:
+        """Get the token expiry time in seconds."""
+        return self.__token_expiry
+
     def create_user(
         self, username: str, email: str, auth_credential: str, **kwargs: object
     ) -> dict[str, object]:
