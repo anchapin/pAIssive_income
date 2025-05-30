@@ -254,4 +254,21 @@ jobs:
         else
           echo "Test files already exist, skipping dummy test creation"
         fi
+    - name: Ensure required test directories (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: |
+        mkdir -p logs
+        mkdir -p coverage
+        mkdir -p playwright-report
+        mkdir -p test-results
+        mkdir -p ci-reports/github
+    - name: Ensure required test directories (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path logs
+        New-Item -ItemType Directory -Force -Path coverage
+        New-Item -ItemType Directory -Force -Path playwright-report
+        New-Item -ItemType Directory -Force -Path test-results
+        New-Item -ItemType Directory -Force -Path ci-reports/github
     timeout-minutes: 30

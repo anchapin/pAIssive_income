@@ -77,28 +77,19 @@ jobs:
     - name: Install dependencies
       run: |
         # Check for package.json in the root directory
-if [ -f package.json ];:
-        \ then
-  echo Installing dependencies with pnpm in root directory..."
-:
-        \  pnpm install
-else
-  echo "No package.json found in root directory,
-:
-        \  checking ui/react_frontend..."
-  # Check for package.json in ui/react_frontend
-:
-        \  if [ -f ui/react_frontend/package.json ]; then
-    echo "Installing dependencies\
-        \ with pnpm in ui/react_frontend..."
-    cd ui/react_frontend && pnpm install
-:
-        \  else
-    echo "No package.json found in ui/react_frontend,
-    skipping\
-        \ dependency installation."
-  fi
-fi
+        if [ -f package.json ]; then
+          echo "Installing dependencies with pnpm in root directory..."
+          pnpm install
+        else
+          echo "No package.json found in root directory, checking ui/react_frontend..."
+          # Check for package.json in ui/react_frontend
+          if [ -f ui/react_frontend/package.json ]; then
+            echo "Installing dependencies with pnpm in ui/react_frontend..."
+            cd ui/react_frontend && pnpm install
+          else
+            echo "No package.json found in ui/react_frontend, skipping dependency installation."
+          fi
+        fi
       continue-on-error: true
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -113,7 +104,6 @@ fi
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: /security/os: macos-latest
         upload: true
         output: sarif-results/javascript-typescript-macos.sarif
     - name: Upload OS-specific CodeQL configuration
@@ -121,13 +111,19 @@ fi
       continue-on-error: true
       with:
         sarif_file: sarif-results/javascript-typescript-macos.sarif
-        category: /security/os: macos-latest
     - name: Upload SARIF results
       uses: actions/upload-artifact@v4
       with:
         name: javascript-typescript-macos-sarif
         path: sarif-results/javascript-typescript-macos.sarif
         retention-days: 7
+    - name: Ensure required test directories
+      run: |
+        mkdir -p logs
+        mkdir -p coverage
+        mkdir -p playwright-report
+        mkdir -p test-results
+        mkdir -p ci-reports/github
   analyze-python:
     name: Analyze Python
     runs-on: macos-latest
@@ -155,50 +151,32 @@ fi
     - name: Install dependencies
       run: |
         python -m pip install --upgrade uv
-if [ -f requirements.txt ]; then:
-:
-        \  echo Installing pip dependencies from requirements.txt using 'uv pip'..."\
-
-  uv pip install -r requirements.txt || {
-    echo "Failed to install\
-        \ with uv pip, falling back to regular pip..."
-    python -m pip install\
-        \ --upgrade pip
-    pip install -r requirements.txt
-  }
-elif [ -f requirements-dev.txt:
-        \ ]; then
-  echo "Installing pip dependencies from requirements-dev.txt\
-        \ using 'uv pip'..."
-  uv pip install -r requirements-dev.txt || {
-   \
-        \ echo "Failed to install with uv pip, falling back to regular pip..."
-:
-        \    python -m pip install --upgrade pip
-    pip install -r requirements-dev.txt
-:
-        \  }
-else
-  echo "No requirements.txt or requirements-dev.txt found,
-:
-        \  skipping dependency installation."
-fi
-
-# Install package in development\
-        \ mode if setup.py exists
-if [ -f setup.py ]; then:
-  echo "Installing package\
-        \ in development mode using 'uv pip'..."
-  uv pip install -e . || {
-  \
-        \  echo "Failed to install package with uv pip,
-    falling back to regular\
-        \ pip..."
-    python -m pip install --upgrade pip
-    pip install -e .
-:
-        \  }
-fi
+        if [ -f requirements.txt ]; then
+          echo "Installing pip dependencies from requirements.txt using 'uv pip'..."
+          if ! python -m uv pip install -r requirements.txt; then
+            echo "Failed to install with uv pip, falling back to regular pip..."
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+          fi
+        elif [ -f requirements-dev.txt ]; then
+          echo "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
+          if ! python -m uv pip install -r requirements-dev.txt; then
+            echo "Failed to install with uv pip, falling back to regular pip..."
+            python -m pip install --upgrade pip
+            pip install -r requirements-dev.txt
+          fi
+        else
+          echo "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
+        fi
+        # Install package in development mode if setup.py exists
+        if [ -f setup.py ]; then
+          echo "Installing package in development mode using 'uv pip'..."
+          if ! python -m uv pip install -e .; then
+            echo "Failed to install package with uv pip, falling back to regular pip..."
+            python -m pip install --upgrade pip
+            pip install -e .
+          fi
+        fi
       continue-on-error: true
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -213,7 +191,6 @@ fi
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: /security/os: macos-latest
         upload: true
         output: sarif-results/python-macos.sarif
     - name: Upload OS-specific CodeQL configuration
@@ -221,10 +198,16 @@ fi
       continue-on-error: true
       with:
         sarif_file: sarif-results/python-macos.sarif
-        category: /security/os: macos-latest
     - name: Upload SARIF results
       uses: actions/upload-artifact@v4
       with:
         name: python-macos-sarif
         path: sarif-results/python-macos.sarif
         retention-days: 7
+    - name: Ensure required test directories
+      run: |
+        mkdir -p logs
+        mkdir -p coverage
+        mkdir -p playwright-report
+        mkdir -p test-results
+        mkdir -p ci-reports/github
