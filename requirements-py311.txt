@@ -1,0 +1,2 @@
+# Python 3.11+ specific dependencies
+mcp-use>=0.1.0  # Required for MCP server integration

@@ -1,32 +1,15 @@
 name: Setup pnpm (Reusable)
 
 on:
-  workflow_call:
-    inputs:
-      node-version:
-        required: false
-        type: string
-        default: '18'
-      pnpm-version:
-        required: false
-        type: string
-        default: '8'
-      working-directory:
-        required: false
-        type: string
-        default: '.'
-      install-dependencies:
-        required: false
-        type: boolean
-        default: true
-      verify-package-json:
-        required: false
-        type: boolean
-        default: true
-      create-if-missing:
-        required: false
-        type: boolean
-        default: true
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 jobs:
   setup-pnpm:

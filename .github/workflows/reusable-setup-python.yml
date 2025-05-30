@@ -1,7 +1,16 @@
 name: Reusable Python Setup
 
 on:
-  workflow_call:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+
     inputs:
       python-version:
         description: 'The Python version to use'
@@ -49,3 +58,5 @@ jobs:
       - name: Save venv path output
         id: save-venv-path
         run: echo "venv-path=$(pwd)/.venv" >> $GITHUB_OUTPUT
+
+      if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}

@@ -15,6 +15,13 @@ on:
       - "tailwind.config.js"
       - "package.json"
       - ".github/workflows/tailwind-build.yml"
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
 
 jobs:
   build:
@@ -37,9 +44,23 @@ jobs:
       - name: Build Tailwind CSS
         run: pnpm tailwind:build
 
+      - name: Verify Tailwind CSS output
+        run: |
+          echo "Checking if Tailwind CSS output file exists..."
+          if [ -f "ui/static/css/tailwind.output.css" ]; then
+            echo "✅ Tailwind CSS output file found"
+            ls -la ui/static/css/tailwind.output.css
+          else
+            echo "❌ Tailwind CSS output file not found"
+            echo "Contents of ui/static/css directory:"
+            ls -la ui/static/css/
+            exit 1
+          fi
+
       - name: Upload Tailwind CSS output as artifact
         uses: actions/upload-artifact@v4
+        if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
         with:
           name: tailwind-output-css
           path: ui/static/css/tailwind.output.css
-          if-no-files-found: error
+          if-no-files-found: warn

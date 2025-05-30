@@ -66,6 +66,9 @@ paths-ignore:
   - '**/playwright-report/**'
   - '**/pytest.ini'
   - '**/conftest.py'
+  - '**/*.test.py'
+  - '**/*_test.py'
+  - '**/pytest_*.py'
 
   # Minified files and type definitions
   - '**/*.min.js'
@@ -85,6 +88,10 @@ paths-ignore:
   - '**/.pylintrc'
   - '**/tox.ini'
   - '**/.coveragerc'
+  - '**/.vscode/**'
+  - '**/.idea/**'
+  - '**/coverage/**'
+  - '**/.git/**'
 
   # Documentation
   - '**/*.md'
@@ -98,6 +105,10 @@ queries:
   # Use only the standard security-and-quality query suite to avoid conflicts and Windows path issues
   # This provides a comprehensive set of security and quality checks in a single suite
   - uses: security-and-quality
+
+  # Include language-specific security queries
+  - uses: ./javascript-security-queries.qls
+  - uses: ./python-security-queries.qls
 
 # Disable noisy alerts
 disable-default-queries: false
@@ -119,11 +130,11 @@ trap-for-errors: true
 # Database extraction settings
 database:
   # Exclude files that are too large to analyze effectively
-  max-file-size-mb: 10
+  max-file-size-mb: 25
   # Exclude files with too many lines
-  max-lines-of-code: 25000
+  max-lines-of-code: 50000
   # Exclude files with too many AST nodes
-  max-ast-nodes: 500000
+  max-ast-nodes: 1000000
   # Extraction timeout per file
   extraction-timeout: 300
   # Windows-specific settings

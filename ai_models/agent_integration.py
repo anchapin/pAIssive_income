@@ -5,10 +5,21 @@ from __future__ import annotations
 import json
 import logging
 import re
+import sys  # Added sys import
 from pathlib import Path
 from typing import Any, Optional
 
-from ai_models.adapters.adapter_factory import AdapterError, get_adapter
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+try:
+    from ai_models.adapters.adapter_factory import AdapterError, get_adapter
+except ImportError:
+    logger.error("Failed to import AdapterError or get_adapter from ai_models.adapters.adapter_factory. Ensure it is in PYTHONPATH.")
+    sys.exit(1)
 
 # Use a safer path construction with Path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,9 +31,6 @@ MIN_PORT = 1
 MAX_PORT = 65535
 MAX_FILE_SIZE = 1024 * 1024  # 1MB max file size for settings file
 MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 
 def load_mcp_server_configs() -> list[dict[str, Any]]:
@@ -226,7 +234,23 @@ Usage example for agent code:
 
 To enumerate all available backends (including MCP servers):
     from ai_models.agent_integration import list_available_agent_backends, get_mcp_adapters
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
     backends = list_available_agent_backends()
+
     mcp_adapters = get_mcp_adapters()
 
 To use a registered MCP server by name:
