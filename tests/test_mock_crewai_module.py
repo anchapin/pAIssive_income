@@ -1,9 +1,9 @@
 """test_mock_crewai_module - Test for mock_crewai module coverage."""
 
 # Standard library imports
-import unittest
 import sys
-from unittest.mock import patch, MagicMock
+import unittest
+from unittest.mock import MagicMock, patch
 
 # Third-party imports
 import pytest

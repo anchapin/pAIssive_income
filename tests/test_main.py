@@ -43,6 +43,6 @@ class TestMain:
 
         # Verify configure_logging was called
         mock_configure_logging.assert_called_once()
-        
+
         # Verify logger.info was called with the expected message
         mock_logger.info.assert_called_once_with("Main application started.")

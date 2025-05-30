@@ -115,6 +115,7 @@ class User(db.Model):  # type: ignore[name-defined]
 
         Returns:
             User instance
+
         """
         # Convert boolean strings for is_active and is_admin
         is_active = data.get("is_active", True)
@@ -141,6 +142,7 @@ class User(db.Model):  # type: ignore[name-defined]
 
         Raises:
             SQLAlchemyError: If there's a database error
+
         """
         try:
             self.last_login = datetime.utcnow()
