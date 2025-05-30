@@ -37,7 +37,7 @@ class TestMeteredBilling(unittest.TestCase):
 
     def test_record_usage(self):
         """Test recording usage."""
-        with patch('logging.Logger.info') as mock_info:
+        with patch("logging.Logger.info") as mock_info:
             self.billing.record_usage(10.5)
             self.assertEqual(len(self.billing.usage_records), 1)
             self.assertEqual(self.billing.usage_records[0].quantity, 10.5)
@@ -74,7 +74,7 @@ class TestMeteredBilling(unittest.TestCase):
         self.billing.record_usage(100, self.start_time + timedelta(hours=1))
         self.billing.record_usage(50, self.start_time + timedelta(hours=2))
 
-        with patch('logging.Logger.info') as mock_info:
+        with patch("logging.Logger.info") as mock_info:
             bill = self.billing.calculate_bill(self.start_time, self.end_time)
             self.assertEqual(bill, 1.50)  # (100 + 50) * 0.01
             mock_info.assert_called_once()
@@ -105,5 +105,5 @@ class TestMeteredBilling(unittest.TestCase):
         self.assertEqual(billing.usage_records[0].unit, "GB")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

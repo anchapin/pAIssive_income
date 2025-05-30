@@ -1,6 +1,7 @@
 """test_payment_gateway - Module for testing payment gateway functionality."""
 
 from decimal import Decimal
+
 import pytest
 
 from monetization.payment_gateway import PaymentGateway, PaymentMethod, PaymentStatus

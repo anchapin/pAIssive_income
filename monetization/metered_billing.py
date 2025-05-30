@@ -20,6 +20,7 @@ class UsageRecord:
             timestamp: When the usage occurred
             quantity: Amount of usage
             unit: Unit of measurement (e.g., 'requests', 'GB', 'minutes')
+
         """
         self.timestamp = timestamp
         self.quantity = quantity
@@ -36,6 +37,7 @@ class MeteredBilling:
         Args:
             price_per_unit: Cost per unit of usage
             unit: Unit of measurement (e.g., 'requests', 'GB', 'minutes')
+
         """
         self.price_per_unit = price_per_unit
         self.unit = unit
@@ -48,6 +50,7 @@ class MeteredBilling:
         Args:
             quantity: Amount of usage
             timestamp: When the usage occurred (defaults to current time)
+
         """
         if timestamp is None:
             timestamp = datetime.now()
@@ -69,6 +72,7 @@ class MeteredBilling:
 
         Returns:
             float: Total usage in the period
+
         """
         if start_time > end_time:
             raise ValueError("Start time must be before end time")
@@ -90,6 +94,7 @@ class MeteredBilling:
 
         Returns:
             float: Total bill amount
+
         """
         usage = self.get_usage_for_period(start_time, end_time)
         bill_amount = usage * self.price_per_unit
@@ -107,6 +112,7 @@ class MeteredBilling:
 
         Returns:
             Dict containing usage statistics
+
         """
         if not self.usage_records:
             return {

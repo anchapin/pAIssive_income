@@ -2,7 +2,7 @@
 
 import logging
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from scripts.utils.service_initialization import Service, initialize_services
 
@@ -21,14 +21,14 @@ class TestService(unittest.TestCase):
 
     def test_service_initialize(self):
         """Test service initialization method."""
-        with patch('logging.Logger.info') as mock_info:
+        with patch("logging.Logger.info") as mock_info:
             self.service.initialize()
             self.assertTrue(self.service.initialized)
             mock_info.assert_called_once_with("Service '%s' initialized.", "test_service")
 
     def test_service_initialize_multiple_times(self):
         """Test that initializing a service multiple times doesn't cause issues."""
-        with patch('logging.Logger.info') as mock_info:
+        with patch("logging.Logger.info") as mock_info:
             self.service.initialize()
             self.service.initialize()
             self.assertTrue(self.service.initialized)
@@ -51,7 +51,7 @@ class TestInitializeServices(unittest.TestCase):
 
     def test_initialize_services_single_service(self):
         """Test initializing a single service."""
-        with patch('logging.Logger.info') as mock_info:
+        with patch("logging.Logger.info") as mock_info:
             services = initialize_services(["auth"])
             self.assertEqual(len(services), 1)
             self.assertEqual(services[0].name, "auth")
@@ -61,7 +61,7 @@ class TestInitializeServices(unittest.TestCase):
     def test_initialize_services_multiple_services(self):
         """Test initializing multiple services."""
         service_names = ["auth", "database", "api"]
-        with patch('logging.Logger.info') as mock_info:
+        with patch("logging.Logger.info") as mock_info:
             services = initialize_services(service_names)
             self.assertEqual(len(services), 3)
             for service in services:
@@ -71,7 +71,7 @@ class TestInitializeServices(unittest.TestCase):
     def test_initialize_services_with_duplicates(self):
         """Test initializing services with duplicate names."""
         service_names = ["auth", "auth", "database"]
-        with patch('logging.Logger.info') as mock_info:
+        with patch("logging.Logger.info") as mock_info:
             services = initialize_services(service_names)
             self.assertEqual(len(services), 3)
             self.assertEqual(services[0].name, "auth")
@@ -82,7 +82,7 @@ class TestInitializeServices(unittest.TestCase):
     def test_initialize_services_with_special_characters(self):
         """Test initializing services with special characters in names."""
         service_names = ["auth-service", "db_connection", "api/v1"]
-        with patch('logging.Logger.info') as mock_info:
+        with patch("logging.Logger.info") as mock_info:
             services = initialize_services(service_names)
             self.assertEqual(len(services), 3)
             for service in services:
@@ -90,5 +90,5 @@ class TestInitializeServices(unittest.TestCase):
             self.assertEqual(mock_info.call_count, 3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

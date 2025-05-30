@@ -1,7 +1,8 @@
 """Simple test file to verify that pytest is working."""
 
-import pytest
 from decimal import Decimal
+
+import pytest
 
 
 class TestSimpleMath:
@@ -16,8 +17,8 @@ class TestSimpleMath:
         assert -1 + -1 == -2
 
         # Decimal addition
-        assert Decimal('1.1') + Decimal('2.2') == Decimal('3.3')
-        assert Decimal('0.1') + Decimal('0.2') == Decimal('0.3')
+        assert Decimal("1.1") + Decimal("2.2") == Decimal("3.3")
+        assert Decimal("0.1") + Decimal("0.2") == Decimal("0.3")
 
         # Large numbers
         assert 999999 + 1 == 1000000
@@ -32,8 +33,8 @@ class TestSimpleMath:
         assert -1 - 1 == -2
 
         # Decimal subtraction
-        assert Decimal('3.3') - Decimal('1.1') == Decimal('2.2')
-        assert Decimal('0.3') - Decimal('0.1') == Decimal('0.2')
+        assert Decimal("3.3") - Decimal("1.1") == Decimal("2.2")
+        assert Decimal("0.3") - Decimal("0.1") == Decimal("0.2")
 
         # Large numbers
         assert 1000000 - 1 == 999999
@@ -48,8 +49,8 @@ class TestSimpleMath:
         assert -2 * -3 == 6
 
         # Decimal multiplication
-        assert Decimal('2.5') * Decimal('2') == Decimal('5.0')
-        assert Decimal('0.1') * Decimal('0.1') == Decimal('0.01')
+        assert Decimal("2.5") * Decimal("2") == Decimal("5.0")
+        assert Decimal("0.1") * Decimal("0.1") == Decimal("0.01")
 
         # Large numbers
         assert 1000 * 1000 == 1000000
@@ -64,8 +65,8 @@ class TestSimpleMath:
         assert -6 / -3 == 2
 
         # Decimal division
-        assert Decimal('5.0') / Decimal('2') == Decimal('2.5')
-        assert Decimal('0.1') / Decimal('2') == Decimal('0.05')
+        assert Decimal("5.0") / Decimal("2") == Decimal("2.5")
+        assert Decimal("0.1") / Decimal("2") == Decimal("0.05")
 
         # Large numbers
         assert 1000000 / 2 == 500000
@@ -77,7 +78,7 @@ class TestSimpleMath:
             _ = 1 / 0
 
         with pytest.raises(ZeroDivisionError):
-            _ = Decimal('1') / Decimal('0')
+            _ = Decimal("1") / Decimal("0")
 
     def test_power(self):
         """Test that power operations work."""
@@ -87,9 +88,9 @@ class TestSimpleMath:
         assert 2 ** -1 == 0.5
 
         # Decimal power
-        assert Decimal('2') ** Decimal('3') == Decimal('8')
-        assert Decimal('2') ** Decimal('0') == Decimal('1')
-        assert Decimal('2') ** Decimal('-1') == Decimal('0.5')
+        assert Decimal("2") ** Decimal("3") == Decimal("8")
+        assert Decimal("2") ** Decimal("0") == Decimal("1")
+        assert Decimal("2") ** Decimal("-1") == Decimal("0.5")
 
     def test_modulo(self):
         """Test that modulo operations work."""
@@ -100,8 +101,8 @@ class TestSimpleMath:
         assert 5 % -2 == -1
 
         # Decimal modulo
-        assert Decimal('5.5') % Decimal('2') == Decimal('1.5')
-        assert Decimal('6.0') % Decimal('2') == Decimal('0.0')
+        assert Decimal("5.5") % Decimal("2") == Decimal("1.5")
+        assert Decimal("6.0") % Decimal("2") == Decimal("0.0")
 
     def test_floor_division(self):
         """Test that floor division works."""
@@ -112,5 +113,5 @@ class TestSimpleMath:
         assert -5 // -2 == 2
 
         # Decimal floor division
-        assert Decimal('5.5') // Decimal('2') == Decimal('2')
-        assert Decimal('-5.5') // Decimal('2') == Decimal('-3')
+        assert Decimal("5.5") // Decimal("2") == Decimal("2")
+        assert Decimal("-5.5") // Decimal("2") == Decimal("-3")

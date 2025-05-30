@@ -12,6 +12,7 @@ logger = get_logger(__name__)
 
 class PaymentStatus(Enum):
     """Payment status enum."""
+
     PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -20,6 +21,7 @@ class PaymentStatus(Enum):
 
 class PaymentMethod(Enum):
     """Payment method enum."""
+
     CREDIT_CARD = "credit_card"
     BANK_TRANSFER = "bank_transfer"
     PAYPAL = "paypal"
@@ -36,6 +38,7 @@ class PaymentGateway:
         Args:
             api_key: API key for the payment gateway
             is_test_mode: Whether to use test mode
+
         """
         self.api_key = api_key
         self.is_test_mode = is_test_mode
@@ -68,6 +71,7 @@ class PaymentGateway:
 
         Returns:
             Dictionary containing payment details
+
         """
         # Convert amount to Decimal
         amount = Decimal(str(amount))
@@ -107,7 +111,7 @@ class PaymentGateway:
         except Exception as e:
             payment["status"] = PaymentStatus.FAILED.value
             payment["error"] = str(e)
-            logger.error(f"Payment failed: {payment['id']} - {str(e)}")
+            logger.error(f"Payment failed: {payment['id']} - {e!s}")
             raise
 
     def refund_payment(
@@ -126,6 +130,7 @@ class PaymentGateway:
 
         Returns:
             Dictionary containing refund details
+
         """
         # Validate payment ID
         if not payment_id:
@@ -162,7 +167,7 @@ class PaymentGateway:
         except Exception as e:
             refund["status"] = PaymentStatus.FAILED.value
             refund["error"] = str(e)
-            logger.error(f"Refund failed: {refund['id']} - {str(e)}")
+            logger.error(f"Refund failed: {refund['id']} - {e!s}")
             raise
 
     def get_payment_status(self, payment_id: str) -> Dict:
@@ -174,6 +179,7 @@ class PaymentGateway:
 
         Returns:
             Dictionary containing payment status
+
         """
         # Validate payment ID
         if not payment_id:
