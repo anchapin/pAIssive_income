@@ -5,15 +5,10 @@ name: Test Setup Script
 # using fallback mechanisms when scripts are not available.
 
 on:
-  workflow_call:
   push:
     branches: [ main ]
-    paths:
-      - '.github/workflows/test-setup-script.yml'
   pull_request:
     branches: [ main ]
-    paths:
-      - '.github/workflows/test-setup-script.yml'
   workflow_dispatch:
     inputs:
       platform:
@@ -42,15 +37,21 @@ on:
           - '3.10'
           - '3.11'
           - '3.12'
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
   test-ubuntu:
+    if: ${{ (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') && (github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ubuntu' || github.event.inputs.platform == '') }}
     name: Test on Ubuntu (Python ${{ matrix.python-version }}, ${{ matrix.profile }} profile)
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ubuntu' || github.event.inputs.platform == '' }}
     timeout-minutes: 15
     strategy:
       fail-fast: false

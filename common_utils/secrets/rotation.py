@@ -102,7 +102,33 @@ class SecretRotation:
             interval_days: The interval in days between rotations
             generator_func: The name of a function to generate a new secret value
 
+        Raises:
+        ------
+            InvalidRotationIntervalError: If the interval is less than MIN_ROTATION_INTERVAL
+                or greater than MAX_ROTATION_INTERVAL
+
         """
+        # Define constants for validation
+        MIN_ROTATION_INTERVAL = 1  # Minimum rotation interval in days
+        MAX_ROTATION_INTERVAL = 365  # Maximum rotation interval in days
+
+        # Validate the rotation interval
+        if interval_days < MIN_ROTATION_INTERVAL:
+            logger.error("Rotation interval %s is too small (minimum: %s)",
+                        interval_days, MIN_ROTATION_INTERVAL)
+            from common_utils.exceptions import InvalidRotationIntervalError
+            raise InvalidRotationIntervalError(
+                f"Rotation interval must be at least {MIN_ROTATION_INTERVAL} day(s)"
+            )
+
+        if interval_days > MAX_ROTATION_INTERVAL:
+            logger.error("Rotation interval %s is too large (maximum: %s)",
+                        interval_days, MAX_ROTATION_INTERVAL)
+            from common_utils.exceptions import InvalidRotationIntervalError
+            raise InvalidRotationIntervalError(
+                f"Rotation interval must be at most {MAX_ROTATION_INTERVAL} days"
+            )
+
         now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
         self.rotation_data[key] = {
             "last_rotated": now,
@@ -125,7 +151,14 @@ class SecretRotation:
         due_for_rotation = []
 
         for key, data in self.rotation_data.items():
-            last_rotated = datetime.datetime.fromisoformat(data["last_rotated"])
+            # Ensure last_rotated is timezone-aware
+            last_rotated_str = data["last_rotated"]
+            last_rotated = datetime.datetime.fromisoformat(last_rotated_str)
+
+            # Add timezone info if it's missing
+            if last_rotated.tzinfo is None:
+                last_rotated = last_rotated.replace(tzinfo=datetime.timezone.utc)
+
             interval_days = data["interval_days"]
             next_rotation = last_rotated + datetime.timedelta(days=interval_days)
 

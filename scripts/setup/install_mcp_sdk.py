@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Script to install the MCP SDK from GitHub.
 
@@ -15,10 +20,6 @@ import sys
 import tempfile
 from pathlib import Path
 from typing import Optional
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-logger = logging.getLogger(__name__)
 
 
 def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str, str]:
@@ -467,6 +468,21 @@ def _verify_final_installation(in_ci: bool) -> bool:
             try:
                 import modelcontextprotocol
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
                 logger.info("Successfully imported modelcontextprotocol module")
                 if hasattr(modelcontextprotocol, "Client"):
                     logger.info("Verified modelcontextprotocol.Client exists")
@@ -487,8 +503,6 @@ def _verify_final_installation(in_ci: bool) -> bool:
         logger.exception("Error verifying module importability")
         # In CI, we'll still return success
         return in_ci
-
-
 def main() -> int:
     """
     Execute the main installation process.
@@ -497,6 +511,10 @@ def main() -> int:
         Exit code (0 for success, 1 for failure)
 
     """
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logger.info("Starting MCP SDK installation process...")
+
     # Set up environment and check if we're in CI
     in_ci = _setup_environment()
 
@@ -508,7 +526,6 @@ def main() -> int:
     windows_result = _handle_windows_platform()
     if windows_result >= 0:
         return windows_result
-
     # If not installed and not on Windows, try to install it
     success = install_mcp_sdk()
 
