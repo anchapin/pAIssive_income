@@ -30,7 +30,7 @@ function Replace-Workflow {
 
     if (Test-Path $fixedFile) {
         Log "Fixed $description workflow file exists: $fixedFile"
-        
+
         if (Test-Path $originalFile) {
             Log "Replacing $originalFile with $fixedFile"
             Copy-Item -Path $fixedFile -Destination $originalFile -Force
@@ -59,3 +59,62 @@ Replace-Workflow -originalFile $CODEQL_MACOS_WORKFLOW -fixedFile $CODEQL_MACOS_F
 Replace-Workflow -originalFile $CODEQL_UBUNTU_WORKFLOW -fixedFile $CODEQL_UBUNTU_FIXED_WORKFLOW -description "CodeQL Ubuntu"
 
 Log "Workflow file replacement completed"
+
+# Ensure CodeQL workflow files are fixed
+Write-Host "Ensuring CodeQL workflow files are fixed..."
+
+# Create .github/workflows directory if it doesn't exist
+if (-not (Test-Path ".github/workflows")) {
+    New-Item -ItemType Directory -Force -Path ".github/workflows"
+}
+
+# Create fixed CodeQL workflow files
+$codeqlWorkflowContent = @"
+name: CodeQL Analysis
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch: {}
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'python' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: `${{ matrix.language }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:`${{ matrix.language }}"
+"@
+
+# Write the fixed CodeQL workflow file
+Set-Content -Path ".github/workflows/codeql.yml" -Value $codeqlWorkflowContent
+
+Write-Host "CodeQL workflow files have been fixed."

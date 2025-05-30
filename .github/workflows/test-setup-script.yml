@@ -1,69 +1,69 @@
 name: Test Setup Script
 
 on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch: {}
-  schedule:
-    - cron: '0 0 * * 0'
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - name: Create test directories
-        run: |
-          mkdir -p tests/unit
-          mkdir -p tests/e2e
-          mkdir -p tests/mock-api
-          mkdir -p tests/__mocks__
-          mkdir -p ci-reports
-          mkdir -p ci-artifacts
-          mkdir -p ci-logs
-          mkdir -p ci-temp
-          mkdir -p ci-cache
-          mkdir -p test-results/github
-          mkdir -p logs
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
 
-      - name: Set up test environment
-        run: |
-          echo "CI=true" >> $GITHUB_ENV
-          echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
-          echo "CI_TYPE=github" >> $GITHUB_ENV
-          echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
-          echo "CI_PLATFORM=github" >> $GITHUB_ENV
-          echo "CI_OS=$(uname -s)" >> $GITHUB_ENV
-          echo "CI_ARCH=$(uname -m)" >> $GITHUB_ENV
-          echo "CI_NODE_VERSION=$(node --version)" >> $GITHUB_ENV
-          echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
-          echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
-          echo "NODE_ENV=test" >> $GITHUB_ENV
-          echo "TESTING=true" >> $GITHUB_ENV
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
 
-      - name: Create dummy test files
-        run: |
-          # Create dummy test files if they don't exist
-          touch tests/unit/dummy.test.js
-          touch tests/e2e/dummy.spec.js
-          touch tests/mock-api/dummy.test.js
-          touch tests/__mocks__/dummy.js
+    - name: Install dependencies
+      run: |
+        if ! which pnpm; then
+          echo "pnpm not found, installing globally with npm..."
+          npm install -g pnpm
+        fi
+        pnpm install --no-optional || npm install --no-optional
 
-      - name: Generate environment report
-        run: |
-          {
-            echo "=== Test Environment Report ==="
-            echo "Date: $(date)"
-            echo "OS: $(uname -a)"
-            echo "Node: $(node --version)"
-            echo "npm: $(npm --version)"
-            echo "Runner OS: ${{ runner.os }}"
-            echo "Workspace: ${{ github.workspace }}"
-            echo "Event: ${{ github.event_name }}"
-            echo "Repository: ${{ github.repository }}"
-            echo "Ref: ${{ github.ref }}"
-            echo "SHA: ${{ github.sha }}"
-            echo "=========================="
-          } > ci-reports/test-environment-report.txt
+    - name: Setup CI Environment (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x .github/scripts/setup-ci-environment.sh
+        ./.github/scripts/setup-ci-environment.sh
 
-      - name: Display environment report
-        run: cat ci-reports/test-environment-report.txt
+    - name: Setup CI Environment (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        ./.github/scripts/setup-ci-environment.ps1
+
+    - name: Run test setup script
+      run: |
+        python scripts/setup_test_environment.py
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.os }}
+        path: |
+          test-results/
+          coverage/
+          coverage.xml
+          ci-reports/
+          ci-artifacts/
+          ci-logs/

@@ -1,111 +1,66 @@
 name: PR Trigger Fix
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-    branches:
-      - main
-      - develop
-      - master
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: PR number to trigger workflows for
-        required: true
-        type: string
-permissions:
-  contents: read
-  actions: write
-  pull-requests: write
+    branches: [ main ]
+  workflow_dispatch: {}
+
 jobs:
-  trigger-workflows:
-    name: Trigger Workflows for Bot PRs
-    runs-on: ubuntu-latest
-    if: github.actor == 'github-actions[bot]' || github.event_name == 'workflow_dispatch'
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+
     steps:
-    - name: Shared CI Setup
-      run: bash scripts/ci-setup.sh
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Get PR details
-      id: pr-details
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+
+    - name: Install dependencies
       run: |
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-  PR_NUMBER="\
-        ${{ github.event.inputs.pr_number }}"
-else
-  PR_NUMBER="${{ github.event.pull_request.number\
-        \ }}"
-fi
-echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-echo "PR Number:\
-        \ $PR_NUMBER"
-":
-    - name: Trigger CI/CD workflows
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if ! which pnpm; then
+          echo "pnpm not found, installing globally with npm..."
+          npm install -g pnpm
+        fi
+        pnpm install --no-optional || npm install --no-optional
+
+    - name: Setup CI Environment (Unix)
+      if: runner.os != 'Windows'
       run: |
-        # Trigger the main CI/CD workflow
-gh workflow run "consolidated-ci-cd.yml":
-        \ \
-  --ref "${{ github.head_ref || github.ref_name }}" || echo "Failed\
-        \ to trigger consolidated-ci-cd"
+        chmod +x .github/scripts/setup-ci-environment.sh
+        ./.github/scripts/setup-ci-environment.sh
 
-# Trigger frontend tests
-gh workflow:
-        \ run "frontend-vitest.yml" \
-  --ref "${{ github.head_ref || github.ref_name\
-        \ }}" || echo "Failed to trigger frontend-vitest"
-
-# Trigger E2E tests
-:
-        gh workflow run "frontend-e2e.yml" \
-  --ref "${{ github.head_ref ||\
-        \ github.ref_name }}" || echo "Failed to trigger frontend-e2e"
-
-# Trigger\
-        \ CodeQL analysis
-gh workflow run "codeql.yml"
-  --ref "${{ github.head_ref\
-        \ || github.ref_name }}" || echo "Failed to trigger codeql"
-":
-    - name: Add comment to PR
-      if: github.event_name == 'pull_request'
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Setup CI Environment (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
       run: |
-        gh pr comment ${{ steps.pr-details.outputs.pr_number }} --body \
-  \
-        \U0001F916 **Workflow Trigger Fix Applied**
+        ./.github/scripts/setup-ci-environment.ps1
 
-  This PR was created by\
-        \ GitHub Actions, which normally prevents other workflows from running automatically.\
-        \
-  I've manually triggered the following workflows:
+    - name: Run PR trigger fix script
+      run: |
+        python scripts/fix_pr_trigger.py
 
-  - \u2705 Consolidated\
-        \ CI/CD
-  - \u2705 Frontend Vitest Tests
-  - \u2705 Frontend E2E Tests
-:
-        \  - \u2705 CodeQL Analysis
-
-  Please check the [Actions tab](https://github.com/${{\
-        \ github.repository }}/actions) to monitor the workflow runs."
-":
-    - name: Wait for workflows to start
-      run: 'echo "Waiting 30 seconds for workflows to start..."
-
-        sleep 30
-
-        '
-    - name: Check workflow status
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: 'echo "Checking recent workflow runs..."
-
-        gh run list --limit 10 --json status,name,conclusion,url '
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.os }}
+        path: |
+          test-results/
+          coverage/
+          coverage.xml
+          ci-reports/
+          ci-artifacts/
+          ci-logs/

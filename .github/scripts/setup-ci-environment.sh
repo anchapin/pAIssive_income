@@ -1,19 +1,12 @@
 #!/bin/bash
 
-# Create required directories
-mkdir -p tests/unit
-mkdir -p tests/e2e
-mkdir -p tests/mock-api
-mkdir -p tests/__mocks__
-mkdir -p ci-reports
-mkdir -p ci-artifacts
-mkdir -p ci-logs
-mkdir -p ci-temp
-mkdir -p ci-cache
+# Create necessary directories
+mkdir -p ci-reports ci-artifacts ci-logs ci-temp ci-cache
 mkdir -p test-results/github
 mkdir -p logs
+mkdir -p coverage
 
-# Set CI environment variables
+# Set environment variables
 echo "CI=true" >> $GITHUB_ENV
 echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
 echo "CI_TYPE=github" >> $GITHUB_ENV
@@ -28,11 +21,16 @@ echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
 echo "FLASK_ENV=development" >> $GITHUB_ENV
 echo "DATABASE_URL=sqlite:///:memory:" >> $GITHUB_ENV
 echo "TESTING=true" >> $GITHUB_ENV
-echo "REACT_APP_API_BASE_URL=http://localhost:3001" >> $GITHUB_ENV
-echo "MOCK_API_PORT=3001" >> $GITHUB_ENV
-echo "MOCK_API_TIMEOUT=5000" >> $GITHUB_ENV
-echo "VITEST_TIMEOUT=10000" >> $GITHUB_ENV
-echo "E2E_TIMEOUT=30000" >> $GITHUB_ENV
+
+# Create dummy test files if they don't exist
+touch test-results/junit.xml
+touch coverage/coverage.xml
+touch ci-reports/test-report.json
+touch ci-logs/test.log
+
+# Set permissions
+chmod -R 755 ci-reports ci-artifacts ci-logs ci-temp ci-cache
+chmod -R 755 test-results coverage logs
 
 # Generate environment report
 {

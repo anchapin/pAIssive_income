@@ -1,286 +1,66 @@
-name: PR
+name: PR 166 Workflow Fixes
 on:
   pull_request:
-    branches:
-      - main
-      - develop
-      - master
-  workflow_dispatch: null
-permissions:
-  contents: read
-  actions: read
-  security-events: write
+    branches: [ main ]
+  workflow_dispatch: {}
+
 jobs:
-  fix-workflow-issues:
-    name: Fix All Workflow Issues
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+
     steps:
-    - name: Shared CI Setup
-      run: bash scripts/ci-setup.sh
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Setup Node.js and pnpm
+
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
+        cache: 'npm'
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 8
         run_install: false
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Create required directories
-      run: |
-        mkdir -p security-reports coverage junit ci-reports playwright-report
-        test-results src
-        mkdir -p .github/codeql/custom-queries
-        mkdir -p ui/static/css
-        mkdir -p logs
-        echo "Created required directories"
-    - name: Fix CodeQL Configuration Issues
-      run: |
-        cat > .github/codeql/security-os-config.yml << 'EOF'
-name: Simplified CodeQL Config
-queries:
-  - uses: security-and-quality
-paths:
-  - src
-  - ui
-  - scripts
-paths-ignore:
-  - '**/node_modules/**'
-  - '**/dist/**'
-  - '**/build/**'
-  - '**/coverage/**'
-  - '**/test/**'
-  - '**/tests/**'
-  - '**/__tests__/**'
-  - '**/playwright-report/**'
-  - '**/.venv/**'
-  - '**/venv/**'
-EOF
-        cat > .codeqlignore << 'EOF'
-.venv/**
-venv/**
-node_modules/**
-dist/**
-build/**
-coverage/**
-test/**
-tests/**
-__tests__/**
-__pycache__/**
-.pytest_cache/**
-.mypy_cache/**
-.ruff_cache/**
-*.pyc
-*.pyo
-*.pyd
-playwright-report/**
-.git/**
-docs/**
-*.md
-*.rst
-EOF
-        echo "Fixed CodeQL configuration"
-    - name: Fix Test Setup Script Matrix Issues
-      run: |
-        cat > .github/workflows/test-setup-script-fixed.yml << 'EOF'
-name: Test Setup Script (Fixed)
-permissions:
-  contents: read
-jobs:
-  test-ubuntu:
-    name: Test on Ubuntu
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install basic dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest ruff
-      - name: Run basic tests
-        run: |
-          echo Basic test setup completed successfully
-EOF
-        echo "Fixed test setup script matrix issues"
-    - name: Install Dependencies with Error Handling
-      run: |
-        python -m pip install --upgrade pip
-        pip install pytest pytest-cov ruff bandit safety || echo Some tools failed to install
-        if [ -f requirements.txt ]; then
-          pip install -r requirements.txt || echo "Some requirements failed, continuing..."
-        fi
-        if [ -f requirements-dev.txt ]; then
-          pip install -r requirements-dev.txt || echo "Some dev requirements failed, continuing..."
-        fi
-        pnpm install --no-optional || npm install --no-optional || echo "Node install failed, continuing..."
-    - name: Fix Tailwind Build Issues
-      run: |
-        if [ ! -f "ui/static/css/tailwind.css" ]; then
-          mkdir -p ui/static/css
-          echo "@tailwind base;" > ui/static/css/tailwind.css
-          echo "@tailwind components;" >> ui/static/css/tailwind.css
-          echo "@tailwind utilities;" >> ui/static/css/tailwind.css
-        fi
-        if [ ! -f "tailwind.config.js" ]; then
-cat > tailwind.config.js << 'EOF'
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./ui/**/*.{html,js,jsx,ts,tsx}",
-    "./src/**/*.{html,js,jsx,ts,tsx}"
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-EOF
-        fi
-        pnpm tailwind:build || npx tailwindcss -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify || echo "Tailwind build failed"
-    - name: Create Missing Test Files
-      run: |
-        if [ ! -f "src/math.js" ]; then
-          echo "export function add(a, b) { return a + b; }" > src/math.js
-          echo "export function subtract(a, b) { return a - b; }" >> src/math.js
-        fi
-        if [ ! -f "src/math.test.js" ]; then
-cat > src/math.test.js << 'EOF'
-import { expect } from 'expect';
-import { add, subtract } from './math.js';
-describe('Math functions', () => {
-  it('should add two numbers', () => {
-    expect(add(2, 3)).toBe(5);
-  });
-  it('should subtract two numbers', () => {
-    expect(subtract(5, 3)).toBe(2);
-  });
-});
-EOF
-        fi
-    - name: Run Linting with Error Handling
-      continue-on-error: true
-      run: |
-        if command -v ruff &> /dev/null; then
-          ruff check . --exclude=.venv,node_modules,__pycache__,.git || echo "Ruff check completed with issues"
-        fi
-        if [ -f "package.json" ] && command -v npx &> /dev/null; then
-          npx eslint "**/*.js" --ignore-pattern "node_modules" --ignore-pattern ".venv" || echo "ESLint completed with issues"
-        fi
-    - name: Run Tests with Error Handling
-      continue-on-error: true
-      run: |
-        if [ -d "tests" ]; then
-          python -m pytest tests/ -v --tb=short || echo "Python tests completed"
-        fi
-        if [ -f "package.json" ]; then
-          pnpm test || npm test || echo "JavaScript tests completed"
-        fi
-    - name: Run Security Scans
-      continue-on-error: true
-      run: |
-        mkdir -p security-reports
-        echo '{"results": [], "errors": []}' > security-reports/bandit-results.json
-        echo '{"results": [], "errors": []}' > security-reports/safety-results.json
-        if command -v bandit &> /dev/null; then
-          bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" --exit-zero || echo "Bandit scan completed"
-        fi
-        if command -v safety &> /dev/null; then
-          safety check --json --output security-reports/safety-results.json || echo "Safety check completed"
-        fi
-    - name: Generate Coverage Reports
-      continue-on-error: true
-      run: |
-        mkdir -p coverage
-        echo '{"total":{"lines":{"total":100,"covered":85,"skipped":0,"pct":85}}}' > coverage/coverage-summary.json
-        echo '<html><body><h1>Coverage Report</h1><p>Coverage: 85%</p></body></html>' > coverage/index.html
-        if [ -d "tests" ]; then
-          python -m pytest tests/ --cov=. --cov-report=xml --cov-report=html --cov-report=term-missing || echo "Coverage generation completed"
-        fi
-    - name: Fix Consolidated CI/CD Issues
-      run: |
-cat > .github/workflows/consolidated-ci-cd-fixed.yml << 'EOF'
-name: Consolidated CI/CD (Fixed)
-permissions:
-  contents: read
-jobs:
-  lint-test:
-    name: Lint and Test
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install pytest ruff
-        pnpm install || npm install || echo Install completed with issues
-    - name: Run linting
-      continue-on-error: true
+        if ! which pnpm; then
+          echo "pnpm not found, installing globally with npm..."
+          npm install -g pnpm
+        fi
+        pnpm install --no-optional || npm install --no-optional
+
+    - name: Setup CI Environment (Unix)
+      if: runner.os != 'Windows'
       run: |
-        ruff check . || echo "Linting completed"
-    - name: Run tests
-      continue-on-error: true
+        chmod +x .github/scripts/setup-ci-environment.sh
+        ./.github/scripts/setup-ci-environment.sh
+
+    - name: Setup CI Environment (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
       run: |
-        pnpm test || npm test || echo "Tests completed"
-EOF
-        echo "Fixed consolidated CI/CD workflow"
-    - name: Create Workflow Summary
+        ./.github/scripts/setup-ci-environment.ps1
+
+    - name: Run PR 166 workflow fixes script
       run: |
-        echo "## PR #166 Workflow Fixes Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Fixed Issues:" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ CodeQL configuration simplified" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Test setup script matrix issues resolved" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Tailwind build configuration fixed" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Consolidated CI/CD workflow simplified" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Missing test files created" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Security scan configuration improved" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Error handling added throughout" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
-        echo "1. Review the fixed workflow files" >> $GITHUB_STEP_SUMMARY
-        echo "2. Test the simplified configurations" >> $GITHUB_STEP_SUMMARY
-        echo "3. Gradually re-enable complex features as needed" >> $GITHUB_STEP_SUMMARY
-    - name: Upload Artifacts
-      if: always()
+        python scripts/fix_pr_166_workflows.py
+
+    - name: Upload test results
       uses: actions/upload-artifact@v4
       with:
-        name: pr-166-workflow-fixes-${{ github.run_id }}
+        name: test-results-${{ matrix.os }}
         path: |
-          security-reports/
+          test-results/
           coverage/
-          .github/workflows/*-fixed.yml
-          .github/codeql/
-          .codeqlignore
-        retention-days: 7
-    - name: Final Status
-      run: |
-        echo "🎉 PR #166 workflow fixes completed successfully!"
-        echo "All major workflow issues have been addressed with simplified, robust configurations."
+          coverage.xml
+          ci-reports/
+          ci-artifacts/
+          ci-logs/

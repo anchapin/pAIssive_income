@@ -5,25 +5,32 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch: {}
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 8
         run_install: false
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
 
     - name: Install dependencies
       run: |
@@ -33,37 +40,30 @@ jobs:
         fi
         pnpm install --no-optional || npm install --no-optional
 
-    - name: Create test directories
+    - name: Setup CI Environment (Unix)
+      if: runner.os != 'Windows'
       run: |
-        mkdir -p tests/e2e
-        mkdir -p tests/__mocks__
-        mkdir -p ci-reports ci-artifacts ci-logs ci-temp ci-cache
+        chmod +x .github/scripts/setup-ci-environment.sh
+        ./.github/scripts/setup-ci-environment.sh
 
-    - name: Set up CI environment
+    - name: Setup CI Environment (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
       run: |
-        echo "CI=true" >> $GITHUB_ENV
-        echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
-        echo "CI_TYPE=github" >> $GITHUB_ENV
-        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
-        echo "CI_PLATFORM=github" >> $GITHUB_ENV
-        echo "CI_OS=$(uname -s)" >> $GITHUB_ENV
-        echo "CI_ARCH=$(uname -m)" >> $GITHUB_ENV
-        echo "CI_NODE_VERSION=$(node --version)" >> $GITHUB_ENV
-        echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
-        echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
+        ./.github/scripts/setup-ci-environment.ps1
 
     - name: Run E2E tests
-      env:
-        NODE_ENV: test
-        CI: true
-        REACT_APP_API_BASE_URL: http://localhost:3001
-        E2E_TIMEOUT: 30000
       run: |
-        pnpm run test:e2e -- --coverage || npm run test:e2e -- --coverage
+        npm run test:e2e -- --coverage
 
-    - name: Upload coverage
-      uses: codecov/codecov-action@v4
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        directory: ./coverage
-        fail_ci_if_error: true
+        name: test-results-${{ matrix.os }}
+        path: |
+          test-results/
+          coverage/
+          coverage.xml
+          ci-reports/
+          ci-artifacts/
+          ci-logs/
