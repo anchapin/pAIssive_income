@@ -1,153 +1,44 @@
 name: Frontend E2E Tests
+
 on:
   push:
-    branches:
-      - main
-      - develop
-    paths:
-      - ui/react_frontend/**
-      - .github/workflows/frontend-e2e.yml
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
-      - develop
-    paths:
-      - ui/react_frontend/**
-      - .github/workflows/frontend-e2e.yml
-  workflow_dispatch: {}
+    branches: [ main ]
+
 jobs:
-  frontend-e2e:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-        - ubuntu-latest
-        - windows-latest
-        node-version:
-        - 20.x
+  test:
+    runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
-    - name: Create test directories
-      run: |
-        mkdir -p logs
-        mkdir -p ci-reports/github
-        mkdir -p test-results/github
-        mkdir -p playwright-report
-        mkdir -p playwright-report/html
-    - name: Set up Node.js ${{ matrix.node-version }}
+
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: pnpm
-        cache-dependency-path: ui/react_frontend/pnpm-lock.yaml
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
-        run_install: false
+        node-version: '20'
+        cache: 'npm'
+
     - name: Install dependencies
-      working-directory: ui/react_frontend
+      run: npm ci
+
+    - name: Create test directories
       run: |
-        if ! which pnpm; then
-          echo "pnpm not found, installing globally with npm..."
-          npm install -g pnpm
-        fi
-        pnpm install --no-optional || npm install --no-optional
-    - name: Install Playwright browsers
-      working-directory: ui/react_frontend
-      run: npx playwright install --with-deps
-    - name: Setup environment
+        mkdir -p tests/e2e
+        mkdir -p tests/__mocks__
+
+    - name: Run E2E tests
+      env:
+        NODE_ENV: test
+        CI: true
+        REACT_APP_API_BASE_URL: http://localhost:3001
+        E2E_TIMEOUT: 30000
       run: |
-        echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" >> $GITHUB_ENV
-        echo "REACT_APP_AG_UI_ENABLED=true" >> $GITHUB_ENV
-        echo "CI=true" >> $GITHUB_ENV
-        echo "VERBOSE_LOGGING=true" >> $GITHUB_ENV
-        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
-        echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
-        echo "CI_PLATFORM=github" >> $GITHUB_ENV
-        echo "CI_TYPE=github" >> $GITHUB_ENV
-        echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
-        echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
-    - name: Run tests
-      working-directory: ui/react_frontend
-      run: |
-        if [ -f "tests/run_ci_tests_enhanced.js" ]; then
-          echo "Running Enhanced CI test runner..."
-          node tests/run_ci_tests_enhanced.js
-        else
-          echo "Enhanced CI test runner not found, falling back to regular runner..."
-          node tests/run_ci_tests.js
-        fi
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
+        npm run test:e2e -- --coverage
+
+    - name: Upload coverage
+      uses: codecov/codecov-action@v4
       with:
-        name: playwright-report
-        path: |
-          ui/react_frontend/playwright-report/
-          ui/react_frontend/test-results/
-          ui/react_frontend/ci-reports/
-          ui/react_frontend/logs/
-    - name: Upload Playwright report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-report-${{ runner.os }}-${{ github.run_id }}
-        path: playwright-report/
-        if-no-files-found: warn
-        retention-days: 30
-    - name: Upload logs
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: logs-${{ runner.os }}-${{ github.run_id }}
-        path: logs/
-        if-no-files-found: warn
-        retention-days: 30
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-${{ runner.os }}-${{ github.run_id }}
-        path: test-results/
-        if-no-files-found: ignore
-        retention-days: 30
-    - name: Ensure artifact directories exist
-      run: |
-        mkdir -p logs ci-reports/github test-results/github playwright-report playwright-report/html
-        echo "Artifact directories ensured."
-    - name: Create dummy test file if it doesn't exist
-      working-directory: ui/react_frontend
-      run: |
-        mkdir -p src/__tests__
-        if [ ! -f "src/__tests__/dummy.test.ts" ] && [ ! -f "tests/dummy.test.ts" ] && [ ! -f "src/__tests__/dummy.test.tsx" ] && [ ! -f "tests/dummy.test.tsx" ]; then
-          echo "Creating dummy test file"
-          echo "import { describe, it, expect } from 'vitest';" > src/__tests__/dummy.test.ts
-          echo "" >> src/__tests__/dummy.test.ts
-          echo "describe('Dummy test', () => {" >> src/__tests__/dummy.test.ts
-          echo "  it('should pass', () => {" >> src/__tests__/dummy.test.ts
-          echo "    expect(true).toBe(true);" >> src/__tests__/dummy.test.ts
-          echo "  });" >> src/__tests__/dummy.test.ts
-          echo "});" >> src/__tests__/dummy.test.ts
-          echo "Created dummy test file to ensure coverage directory is created"
-        else
-          echo "Test files already exist, skipping dummy test creation"
-        fi
-    - name: Ensure required test directories (Linux/macOS)
-      if: runner.os != 'Windows'
-      run: |
-        mkdir -p logs
-        mkdir -p coverage
-        mkdir -p playwright-report
-        mkdir -p test-results
-        mkdir -p ci-reports/github
-    - name: Ensure required test directories (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        New-Item -ItemType Directory -Force -Path logs
-        New-Item -ItemType Directory -Force -Path coverage
-        New-Item -ItemType Directory -Force -Path playwright-report
-        New-Item -ItemType Directory -Force -Path test-results
-        New-Item -ItemType Directory -Force -Path ci-reports/github
-    timeout-minutes: 30
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./coverage
+        fail_ci_if_error: true

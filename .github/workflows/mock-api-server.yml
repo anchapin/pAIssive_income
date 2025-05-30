@@ -1,259 +1,44 @@
 name: Mock API Server Tests
+
 on:
   push:
-    branches:
-      - main
-      - develop
-    paths:
-      - mock-api-server/**
-      - .github/workflows/mock-api-server.yml
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
-      - develop
-    paths:
-      - mock-api-server/**
-      - .github/workflows/mock-api-server.yml
-  workflow_dispatch: {}
+    branches: [ main ]
+
 jobs:
-  mock-api-server:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-        - ubuntu-latest
-        - windows-latest
-        node-version:
-        - 20.x
+  test:
+    runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
-    - name: Create test directories
-      run: |
-        mkdir -p logs
-        mkdir -p ci-reports/github
-        mkdir -p test-results/github
-    - name: Set up Node.js ${{ matrix.node-version }}
+
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: pnpm
-        cache-dependency-path: mock-api-server/pnpm-lock.yaml
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
-        run_install: false
+        node-version: '20'
+        cache: 'npm'
+
     - name: Install dependencies
-      working-directory: mock-api-server
+      run: npm ci
+
+    - name: Create test directories
       run: |
-        if ! which pnpm; then
-          echo "pnpm not found, installing globally with npm..."
-          npm install -g pnpm
-        fi
-        pnpm install --no-optional || npm install --no-optional
-    - name: Setup environment
+        mkdir -p tests/mock-api
+        mkdir -p tests/__mocks__
+
+    - name: Run mock API server tests
+      env:
+        NODE_ENV: test
+        CI: true
+        MOCK_API_PORT: 3001
+        MOCK_API_TIMEOUT: 5000
       run: |
-        echo "CI=true" >> $GITHUB_ENV
-        echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
-        echo "CI_TYPE=github" >> $GITHUB_ENV
-        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
-        echo "CI_PLATFORM=github" >> $GITHUB_ENV
-        echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
-        echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
-        echo "MOCK_API_PORT=8000" >> $GITHUB_ENV
-        echo "MOCK_API_HOST=localhost" >> $GITHUB_ENV
-    - name: Run tests
-      working-directory: mock-api-server
-      run: |
-        if [ -f "tests/run_ci_tests_enhanced.js" ]; then
-          echo "Running Enhanced CI test runner..."
-          node tests/run_ci_tests_enhanced.js
-        else
-          echo "Enhanced CI test runner not found, falling back to regular runner..."
-          node tests/run_ci_tests.js
-        fi
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
+        npm run test:mock-api -- --coverage
+
+    - name: Upload coverage
+      uses: codecov/codecov-action@v4
       with:
-        name: mock-api-test-results
-        path: |
-          mock-api-server/test-results/
-          mock-api-server/ci-reports/
-          mock-api-server/logs/
-    - name: Test mock API server endpoints
-      run: |
-        # Create a directory for test results
-        mkdir -p test-results/api-tests
-
-        # Test the health endpoint with better error handling
-        echo Testing health: endpoint...
-        curl -s http://localhost: 8000/health > test-results/api-tests/health.json || {
-          echo "Health endpoint test failed, creating fallback response"
-          echo '{"status":"ok", "mock":true, "timestamp":"'$(date -Iseconds)'"}' > test-results/api-tests/health.json
-        }
-
-        # Test the API endpoints with better error handling
-        echo "Testing API endpoints..."
-
-        # Test status endpoint
-        curl -s http://localhost: 8000/api/v1/status > test-results/api-tests/status.json || {
-          echo "Status endpoint test failed, creating fallback response"
-          echo '{"status":"running", "version":"1.0.0", "mock":true, "timestamp":"'$(date -Iseconds)'"}' > test-results/api-tests/status.json
-        }
-
-        # Test niches endpoint
-        curl -s http://localhost: 8000/api/v1/niches > test-results/api-tests/niches.json || {
-          echo "Niches endpoint test failed, creating fallback response"
-          echo '[{"id":1, "name":"Test Niche", "description":"Test description"}]' > test-results/api-tests/niches.json
-        }
-
-        # Test niche by ID endpoint
-        curl -s http://localhost: 8000/api/v1/niches/1 > test-results/api-tests/niche-1.json || {
-          echo "Niche by ID endpoint test failed, creating fallback response"
-          echo '{"id":1, "name":"Test Niche", "description":"Test description"}' > test-results/api-tests/niche-1.json
-        }
-
-        # Create a summary of the tests
-        echo "Creating API test summary..."
-        echo "API endpoint tests completed at $(date)" > test-results/api-tests/summary.txt
-        echo "Tested endpoints:" >> test-results/api-tests/summary.txt
-        echo "- /health" >> test-results/api-tests/summary.txt
-        echo "- /api/v1/status" >> test-results/api-tests/summary.txt
-        echo "- /api/v1/niches" >> test-results/api-tests/summary.txt
-        echo "- /api/v1/niches/1" >> test-results/api-tests/summary.txt
-
-        # Always exit with success to ensure the workflow continues
-        exit 0
-    - name: Stop mock API server
-      working-directory: mock-api-server/tests
-      if: always()
-      run: |
-        echo "Stopping mock API server..."
-
-        # Create necessary directories first if they don't exist
-        mkdir -p ci-reports/github
-        mkdir -p logs
-
-        # Log the stop attempt
-        echo "Mock API server stop attempted at $(date)" > logs/mock-api-server-stop-attempt.log
-
-        # Try to stop the server using the PID file with better error handling
-        if [ -f mock_api_server.pid ]; then
-          echo "Found PID file, attempting to stop server..."
-          PID=$(cat mock_api_server.pid 2>/dev/null || echo "0")
-          echo "Server PID: $PID"
-
-          if [ "$PID" != "0" ] && [ "$PID" != "" ]; then
-            # Try to kill the process gracefully first
-            kill $PID 2>/dev/null || echo "Failed to kill process gracefully"
-            sleep 1
-
-            # Check if the process is still running
-            if ps -p $PID > /dev/null 2>&1; then
-              echo "Process still running, attempting to force kill..."
-              kill -9 $PID 2>/dev/null || echo "Failed to force kill process"
-              sleep 1
-
-              # Final check
-              if ps -p $PID > /dev/null 2>&1; then
-                echo "Process could not be killed, it may continue running"
-              else
-                echo "Process successfully force killed"
-              fi
-            else
-              echo "Process successfully stopped"
-            fi
-          else
-            echo "Invalid PID found in file: '$PID'"
-          fi
-
-          # Remove the PID file
-          rm mock_api_server.pid 2>/dev/null || echo "Failed to remove PID file"
-        else
-          echo "No PID file found, checking for Node.js processes..."
-        fi
-
-        # Check for ultra simple server PID file
-        if [ -f ultra_simple_server.pid ]; then
-          echo "Found ultra simple server PID file, attempting to stop server..."
-          PID=$(cat ultra_simple_server.pid 2>/dev/null || echo "0")
-          echo "Ultra simple server PID: $PID"
-
-          if [ "$PID" != "0" ] && [ "$PID" != "" ]; then
-            # Try to kill the process gracefully first
-            kill $PID 2>/dev/null || echo "Failed to kill process gracefully"
-            sleep 1
-
-            # Check if the process is still running
-            if ps -p $PID > /dev/null 2>&1; then
-              echo "Process still running, attempting to force kill..."
-              kill -9 $PID 2>/dev/null || echo "Failed to force kill process"
-            else
-              echo "Process successfully stopped"
-            fi
-          fi
-
-          # Remove the PID file
-          rm ultra_simple_server.pid 2>/dev/null || echo "Failed to remove ultra simple server PID file"
-        fi
-
-        # Try multiple approaches to find and kill any Node.js processes
-        echo "Attempting to: kill any mock server processes..."
-
-        # Try pkill first
-        pkill -f "node.*mock_api_server.js" 2>/dev/null || echo "No mock_api_server.js processes found with pkill"
-        pkill -f "node.*simple_mock_server.js" 2>/dev/null || echo "No simple_mock_server.js processes found with pkill"
-        pkill -f "node.*simple_fallback_server.js" 2>/dev/null || echo "No simple_fallback_server.js processes found with pkill"
-        pkill -f "node.*mock_path_to_regexp.js" 2>/dev/null || echo "No mock_path_to_regexp.js processes found with pkill"
-        pkill -f "node.*enhanced_mock_path_to_regexp.js" 2>/dev/null || echo "No enhanced_mock_path_to_regexp.js processes found with pkill"
-        pkill -f "node -e.*http.createServer" 2>/dev/null || echo "No inline HTTP server processes found with pkill"
-
-        # Try killall as a fallback
-        killall node 2>/dev/null || echo "No node processes found with killall"
-
-        # Try to kill any process listening on port 8000
-        echo "Attempting: to kill any process on port 8000..."
-        PORT_PID=$(lsof -t -i: 8000 2>/dev/null || echo "")
-        if [ "$PORT_PID" != "" ]; then
-          echo "Found process $PORT_PID listening on port 8000, attempting to kill it"
-          kill $PORT_PID 2>/dev/null || kill -9 $PORT_PID 2>/dev/null || echo "Failed to kill process on port 8000"
-        else
-          echo "No process found listening on port 8000"
-        fi
-
-        # Create a marker file to indicate server was stopped
-        echo "Mock API server stop completed at $(date)" > ci-reports/github/mock-api-server-stopped.txt
-
-        # Always exit with success to ensure the workflow continues
-        exit 0
-    - name: Upload test artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: mock-api-server-logs
-        path: 'logs/
-          ci-reports/
-          test-results/
-          '
-        retention-days: 7
-    - name: Ensure artifact directories exist
-      run: |
-        mkdir -p logs
-        echo "Artifact directories ensured."
-    - name: Create dummy test file if it doesn't exist
-      working-directory: mock-api-server
-      run: |
-        mkdir -p src/__tests__
-        if [ ! -f "src/__tests__/dummy.test.ts" ] && [ ! -f "tests/dummy.test.ts" ] && [ ! -f "src/__tests__/dummy.test.tsx" ] && [ ! -f "tests/dummy.test.tsx" ]; then
-          echo "Creating dummy test file"
-          echo "import { describe, it, expect } from 'vitest';" > src/__tests__/dummy.test.ts
-          echo "" >> src/__tests__/dummy.test.ts
-          echo "describe('Dummy test', () => {" >> src/__tests__/dummy.test.ts
-          echo "  it('should pass', () => {" >> src/__tests__/dummy.test.ts
-          echo "    expect(true).toBe(true);" >> src/__tests__/dummy.test.ts
-          echo "  });" >> src/__tests__/dummy.test.ts
-          echo "});" >> src/__tests__/dummy.test.ts
-          echo "Created dummy test file to ensure coverage directory is created"
-        else
-          echo "Test files already exist, skipping dummy test creation"
-        fi
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./coverage
+        fail_ci_if_error: true

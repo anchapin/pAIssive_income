@@ -1,49 +1,61 @@
 name: Consolidated CI/CD
 on:
   push:
-    branches:
-      - main
-      - dev
-      - master
-      - develop
-    paths:
-      - '**/*.py'
-      - '**/*.js'
-      - '**/*.jsx'
-      - '**/*.ts'
-      - '**/*.tsx'
-      - '**/*.yml'
-      - '**/*.yaml'
-      - .github/workflows/**
-      - .github/codeql/**
-      - scripts/**
-      - codeql-success.txt
-    tags:
-      - v*.*.*
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
-      - dev
-      - master
-      - develop
-    paths:
-      - '**/*.py'
-      - '**/*.js'
-      - '**/*.jsx'
-      - '**/*.ts'
-      - '**/*.tsx'
-      - '**/*.yml'
-      - '**/*.yaml'
-      - .github/workflows/**
-      - .github/codeql/**
-      - scripts/**
-      - codeql-success.txt
+    branches: [ main ]
   schedule:
     - cron: '0 0 * * 0'
   workflow_dispatch: {}
 permissions:
   contents: read
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Create test directories
+      run: |
+        mkdir -p tests/unit
+        mkdir -p tests/e2e
+        mkdir -p tests/mock-api
+        mkdir -p tests/__mocks__
+    - name: Run unit tests
+      env:
+        NODE_ENV: test
+        CI: true
+        VITEST_TIMEOUT: 10000
+      run: |
+        npm run test:unit -- --coverage
+    - name: Run E2E tests
+      env:
+        NODE_ENV: test
+        CI: true
+        REACT_APP_API_BASE_URL: http://localhost:3001
+        E2E_TIMEOUT: 30000
+      run: |
+        npm run test:e2e -- --coverage
+    - name: Run mock API tests
+      env:
+        NODE_ENV: test
+        CI: true
+        MOCK_API_PORT: 3001
+        MOCK_API_TIMEOUT: 5000
+      run: |
+        npm run test:mock-api -- --coverage
+    - name: Upload coverage
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./coverage
+        fail_ci_if_error: true
   lint-test:
     name: Lint, Type Check, and Test
     runs-on: ${{ matrix.os }}

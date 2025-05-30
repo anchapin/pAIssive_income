@@ -1,174 +1,43 @@
-name: Frontend Unit Tests (Vitest)
+name: Frontend Unit Tests
+
 on:
+  push:
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
-      - develop
-      - master
-    paths:
-      - ui/react_frontend/**
-      - .github/workflows/frontend-vitest.yml
-  workflow_dispatch:
-    inputs:
-      debug:
-        description: Enable debug mode
-        required: false
-        default: false
-        type: boolean
+    branches: [ main ]
+
 jobs:
-  vitest:
+  test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      CI: true
-      GITHUB_ACTIONS: true
-      CI_ENVIRONMENT: true
-    defaults:
-      run:
-        working-directory: ui/react_frontend
+
     steps:
     - uses: actions/checkout@v4
-    - name: Shared CI Setup
-      run: bash ../../scripts/ci-setup.sh
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
-    - name: Use Node.js
+
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20
-        cache: pnpm
-        cache-dependency-path: ui/react_frontend/pnpm-lock.yaml
-    - name: Add pnpm to PATH
-      shell: bash
-      run: |
-        echo "PATH=$(pnpm -g bin):$(pnpm bin):$PATH" >> $GITHUB_ENV
-        echo "Current PATH: $PATH"
-        which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
-    - name: Check pnpm version
-      run: pnpm --version
-    - name: Install dependencies (robust)
-      run: |
-        pnpm install || (echo "pnpm install failed, trying npm install..." && npm install)
-    - name: Create required test directories
-      run: |
-        mkdir -p logs
-        mkdir -p coverage
-        mkdir -p playwright-report
-        mkdir -p test-results
-        mkdir -p ci-reports/github
-        mkdir -p src/__tests__
-    - name: Create coverage directory
-      run: mkdir -p coverage
-    - name: Create dummy test file if it doesn't exist
-      run: |
-        mkdir -p src/__tests__
-        if [ ! -f "src/__tests__/dummy.test.ts" ] && [ ! -f "tests/dummy.test.ts" ] && [ ! -f "src/__tests__/dummy.test.tsx" ] && [ ! -f "tests/dummy.test.tsx" ]; then
-          echo "Creating dummy test file"
-          echo "import { describe, it, expect } from 'vitest';" > src/__tests__/dummy.test.ts
-          echo "" >> src/__tests__/dummy.test.ts
-          echo "describe('Dummy test', () => {" >> src/__tests__/dummy.test.ts
-          echo "  it('should pass', () => {" >> src/__tests__/dummy.test.ts
-          echo "    expect(true).toBe(true);" >> src/__tests__/dummy.test.ts
-          echo "  });" >> src/__tests__/dummy.test.ts
-          echo "});" >> src/__tests__/dummy.test.ts
-          echo "Created dummy test file to ensure coverage directory is created"
-        else
-          echo "Test files already exist, skipping dummy test creation"
-        fi
-    - name: Build Tailwind CSS
-      run: pnpm run tailwind:build
-      continue-on-error: true
-    - name: Generate enhanced environment report
-      run: |
-        # Create directories
-        mkdir -p coverage
-        mkdir -p playwright-report
-        mkdir -p test-results
-        mkdir -p ci-reports/github
+        node-version: '20'
+        cache: 'npm'
 
-        # Run the enhanced environment report generator
-        if [ -f "tests/helpers/generate-environment-report.js" ]; then
-          node tests/helpers/generate-environment-report.js coverage/environment-report.txt
-          node tests/helpers/generate-environment-report.js coverage/environment-report.json --json
-          node tests/helpers/generate-environment-report.js ci-reports/github/environment-report.txt --env-vars
-          echo "Enhanced environment reports generated"
-        fi
+    - name: Install dependencies
+      run: npm ci
 
-        # Create a summary of the environment for the workflow
-        cat > coverage/environment-summary.txt << EOF
-        Environment Summary:
-        ------------------
-        Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+    - name: Create test directories
+      run: |
+        mkdir -p tests/unit
+        mkdir -p tests/__mocks__
 
+    - name: Run unit tests
+      env:
+        NODE_ENV: test
         CI: true
-        GitHub Actions: true
-        Runner OS: $(uname -s)
-        Node.js: $(node --version)
-
-        Container Detection:
-          Docker: false
-          rkt: false
-          Singularity: false
-
-        Test Configuration:
-          Mode: Vitest Unit Tests with Parallel Execution
-          Debug Mode: ${{ inputs.debug }}
-        EOF
-
-        echo "Environment summary created at coverage/environment-summary.txt"
-    - name: Set enhanced environment variables
+        VITEST_TIMEOUT: 10000
       run: |
-        echo "CI=true" >> $GITHUB_ENV
-        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
-        echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
-        echo "CI_TYPE=github" >> $GITHUB_ENV
-        echo "DOCKER_ENVIRONMENT=false" >> $GITHUB_ENV
-        echo "RKT_ENVIRONMENT=false" >> $GITHUB_ENV
-        echo "SINGULARITY_ENVIRONMENT=false" >> $GITHUB_ENV
-        echo "KUBERNETES_SERVICE_HOST=" >> $GITHUB_ENV
-        echo "COMPOSE_PROJECT_NAME=" >> $GITHUB_ENV
-        echo "DOCKER_SWARM=" >> $GITHUB_ENV
-        echo "VERBOSE_LOGGING=true" >> $GITHUB_ENV
-    - name: Run Vitest unit tests with parallel execution
-      id: run_tests
-      run: |
-        # Set enhanced environment variables
-        export CI=true
-        export CI_ENVIRONMENT=true
-        export CI_TYPE=github
-        export GITHUB_ACTIONS=true
-        export DOCKER_ENVIRONMENT=false
-        export RKT_ENVIRONMENT=false
-        export SINGULARITY_ENVIRONMENT=false
-        export KUBERNETES_SERVICE_HOST=""
-        export COMPOSE_PROJECT_NAME=""
-        export DOCKER_SWARM=""
-        export VERBOSE_LOGGING=true
+        npm run test:unit -- --coverage
 
-        # Determine optimal number of workers for parallel execution
-        CPUS=$(nproc)
-        WORKERS=$(( CPUS > 2 ? CPUS - 1 : 2 ))
-        echo "Using $WORKERS workers for parallel test execution"
-
-        # Run tests with parallel execution and proper error handling
-        pnpm run test:unit --threads=$WORKERS --reporter=verbose
-    - name: Create minimal coverage report if tests fail
-      if: steps.run_tests.outcome != 'success'
-      run: |
-        mkdir -p coverage
-        echo '{"total":{"lines":{"total":10,"covered":8,"skipped":0,"pct":80}}}' > coverage/coverage-summary.json
-        echo '<html><body><h1>Test Coverage Report</h1><p>Coverage: 80%</p></body></html>' > coverage/index.html
-        echo "Created minimal coverage report due to test failure"
-    - name: Upload Vitest coverage report
-      if: always()
-      uses: actions/upload-artifact@v4
+    - name: Upload coverage
+      uses: codecov/codecov-action@v4
       with:
-        name: vitest-coverage-report-${{ github.run_id }}
-        path: ui/react_frontend/coverage
-        if-no-files-found: warn
-    - name: Ensure artifact directories exist
-      run: |
-        mkdir -p coverage playwright-report test-results ci-reports/github
-        echo "Artifact directories ensured."
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./coverage
+        fail_ci_if_error: true
