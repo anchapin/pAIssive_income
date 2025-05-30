@@ -38,7 +38,7 @@ on:
           - '3.11'
           - '3.12'
   workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    workflows: ["Gradual Lint Check"]
     types:
       - completed
     branches:

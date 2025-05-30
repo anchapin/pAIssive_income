@@ -45,12 +45,15 @@ jobs:
         python scripts/gradual_lint_fix.py --mode pr --base-branch main --critical-only
 
     - name: Auto-fix non-critical issues and commit
+      env:
+        GH_TOKEN: ${{ secrets.AUTO_FIX_PAT }}
       run: |
         echo "Attempting to auto-fix non-critical linting issues..."
 
         # Configure git for auto-commits
+        git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
         git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --local user.name "GitHub Action (Gradual Lint)"
 
         # Run auto-fix on all changed files
         python scripts/gradual_lint_fix.py --mode pr --base-branch main --fix || echo "Some issues couldn't be auto-fixed"

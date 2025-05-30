@@ -79,7 +79,7 @@ Each dependent workflow includes:
 on:
   # ... existing triggers ...
   workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    workflows: ["Gradual Lint Check"]
     types:
       - completed
     branches:

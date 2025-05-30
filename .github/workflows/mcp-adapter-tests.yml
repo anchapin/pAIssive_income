@@ -34,7 +34,7 @@ on:
       - 'scripts/setup/install_mcp_sdk.py'
       - '.github/workflows/mcp-adapter-tests.yml'
   workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    workflows: ["Gradual Lint Check"]
     types:
       - completed
 

@@ -31,7 +31,7 @@ on:
     - cron: '0 0 * * 0'  # Weekly, for regular security scans
   workflow_dispatch:
   workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    workflows: ["Gradual Lint Check"]
     types:
       - completed
 

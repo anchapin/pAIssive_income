@@ -14,7 +14,7 @@ on:
         default: false
         type: boolean
   workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    workflows: ["Gradual Lint Check"]
     types:
       - completed
 

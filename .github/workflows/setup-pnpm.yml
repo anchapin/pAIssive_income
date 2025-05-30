@@ -35,7 +35,7 @@ on:
         default: true
   workflow_dispatch:
   workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    workflows: ["Gradual Lint Check"]
     types:
       - completed
 
