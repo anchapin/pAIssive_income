@@ -1,10 +1,38 @@
 name: Setup pnpm (Reusable)
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_call:
+    inputs:
+      pnpm-version:
+        description: 'Version of pnpm to use'
+        required: true
+        type: string
+        default: '8'
+      node-version:
+        description: 'Version of Node.js to use'
+        required: true
+        type: string
+        default: '20'
+      working-directory:
+        description: 'Working directory to use'
+        required: false
+        type: string
+        default: '.'
+      verify-package-json:
+        description: 'Whether to verify package.json exists'
+        required: false
+        type: boolean
+        default: true
+      create-if-missing:
+        description: 'Whether to create package.json if missing'
+        required: false
+        type: boolean
+        default: false
+      install-dependencies:
+        description: 'Whether to install dependencies'
+        required: false
+        type: boolean
+        default: true
   workflow_dispatch:
   workflow_run:
     workflows: ["Auto Fix (Linting & CodeQL Issues)"]
@@ -42,17 +70,17 @@ jobs:
           $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
           if (-not $pnpmCmd) {
               Write-Host "pnpm not found in PATH. Attempting to add it manually..."
-              
+
               # Try to find Node.js installation directory
               $nodePath = (Get-Command node -ErrorAction SilentlyContinue).Source
               if ($nodePath) {
                   $nodeDir = Split-Path -Parent $nodePath
                   Write-Host "Node.js found at: $nodeDir"
-                  
+
                   # Add Node.js directory to PATH (pnpm might be there)
                   $env:PATH = "$nodeDir;$env:PATH"
                   [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH, [System.EnvironmentVariableTarget]::Process)
-                  
+
                   # Check for pnpm in common locations
                   $pnpmLocations = @(
                       "$nodeDir\pnpm.cmd",
@@ -60,7 +88,7 @@ jobs:
                       "$env:APPDATA\npm\pnpm.cmd",
                       "$env:LOCALAPPDATA\pnpm\pnpm.cmd"
                   )
-                  
+
                   foreach ($loc in $pnpmLocations) {
                       if (Test-Path $loc) {
                           Write-Host "Found pnpm at: $loc"
@@ -71,7 +99,7 @@ jobs:
                       }
                   }
               }
-              
+
               # Try again after PATH modifications
               $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
               if (-not $pnpmCmd) {
@@ -82,19 +110,19 @@ jobs:
                       Write-Error "Failed to install pnpm globally with npm."
                       exit 1
                   }
-                  
+
                   # Refresh PATH after npm install
                   $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::Process)
                   $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
               }
-              
+
               # Final check
               if (-not $pnpmCmd) {
                   Write-Error "Error: pnpm is still not found in PATH after all attempts."
                   exit 1
               }
           }
-          
+
           Write-Host "pnpm command found at: $($pnpmCmd.Source)"
           Write-Host "Verifying pnpm version:"
           pnpm --version
@@ -114,7 +142,7 @@ jobs:
         run: |
           echo "Current working directory: $(pwd)"
           echo "Searching for package.json..."
-          
+
           if [ -f "package.json" ]; then
             echo "Found package.json in current directory."
             echo "Contents of package.json:"
@@ -142,7 +170,7 @@ jobs:
         run: |
           Write-Host "Current working directory: $(Get-Location)"
           Write-Host "Searching for package.json..."
-          
+
           if (Test-Path "package.json") {
             Write-Host "Found package.json in current directory."
             Write-Host "Contents of package.json:"
@@ -155,7 +183,7 @@ jobs:
               description = "Temporary package.json for testing"
               private = $true
             } | ConvertTo-Json
-            
+
             Set-Content -Path "package.json" -Value $minimalPackageJson
             Write-Host "Created minimal package.json:"
             Get-Content "package.json"
