@@ -23,6 +23,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from common_utils.security import SecurityError, run_command_securely
+
 # Create a dedicated logger for this module
 logger = logging.getLogger(__name__)
 
@@ -44,56 +46,30 @@ COMMAND_MAP = {
     "setup_dev": "scripts/setup/setup_dev_environment.py",
     "enhanced_setup_dev": "scripts/setup/enhanced_setup_dev_environment.py",
     "install_mcp_sdk": "scripts/setup/install_mcp_sdk.py",
-    "pre_commit": "scripts/setup/setup_pre_commit.py",  # Or use install_pre_commit.py if preferred
+    "pre_commit": "scripts/setup/setup_pre_commit.py",
+    # Or use install_pre_commit.py if preferred
 }
 
 
 def run_script(
     script_path: str, extra_args: Optional[list[str]] = None, shell: bool = False
 ) -> None:
-    """
-    Run a script with optional arguments.
-
-    Args:
-        script_path: Path to the script to run
-        extra_args: Optional list of additional arguments
-        shell: Whether to run the command in a shell
-
-    """
-    script_path_obj = Path(script_path)
-    if not script_path_obj.exists():
-        logger.error("Error: Script not found: %s", script_path)
-        sys.exit(1)
-
-    cmd = (
-        [sys.executable, str(script_path_obj)]
-        if script_path.endswith(".py")
-        else [str(script_path_obj)]
-    )
-    if extra_args:
-        cmd.extend(extra_args)
-
+    """Run a script with Python."""
     try:
-        # Use a more secure approach when shell=True is required
-        if shell:
-            # For PowerShell scripts that require shell=True, use a safer approach
-            cmd_str = " ".join(cmd)
-            logger.info("Running command with shell: %s", cmd_str)
-            # Use PowerShell explicitly to avoid shell=True
-            powershell_cmd = [
-                "powershell",
-                "-ExecutionPolicy",
-                "Bypass",
-                "-Command",
-                cmd_str,
-            ]
-            result = subprocess.run(powershell_cmd, check=False)
-        else:
-            result = subprocess.run(cmd, check=False, shell=False)
+        # Construct the command
+        cmd = [sys.executable, script_path]
+        if extra_args:
+            cmd.extend(extra_args)
 
+        # Use secure command execution
+        result = run_command_securely(cmd, allow_shell=shell)
         sys.exit(result.returncode)
-    except subprocess.SubprocessError:
-        logger.exception("Failed to run script")
+
+    except SecurityError as e:
+        logger.exception("Security error running script: %s", e)
+        sys.exit(1)
+    except Exception as e:
+        logger.exception("Error running script: %s", e)
         sys.exit(1)
 
 

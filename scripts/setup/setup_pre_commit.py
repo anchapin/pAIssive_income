@@ -26,13 +26,12 @@ def run_command(command: list[str], check: bool = True) -> tuple[int, str, str]:
     Run a command and return the exit code, stdout, and stderr.
 
     Args:
-    ----
-        command: The command to run as a list of strings.
-        check: Whether to raise an exception if the command fails.
+        command: The command to run as a list of strings
+        check: Whether to raise an exception if the command fails
 
     Returns:
-    -------
-        A tuple of (exit_code, stdout, stderr).
+        A tuple of (exit_code, stdout, stderr). If the command fails and check=True,
+        raises subprocess.CalledProcessError instead of returning.
 
     """
     try:
@@ -58,32 +57,34 @@ def run_command(command: list[str], check: bool = True) -> tuple[int, str, str]:
         result_code = result.returncode
         result_stdout = result.stdout if result.stdout is not None else ""
         result_stderr = result.stderr if result.stderr is not None else ""
+        return result_code, result_stdout, result_stderr
 
     except subprocess.CalledProcessError as e:
         # Ensure types are consistent for return in case of exception
         stdout_val = e.stdout if e.stdout is not None else ""
         stderr_val = e.stderr if e.stderr is not None else ""
-        logger.exception(  # TRY401: Ensure exception object is not in message
-            "Error running command %s", " ".join(command)
-        )
+        logger.exception("Error running command %s", " ".join(command))
+        # If check=True, let the exception propagate
+        if check:
+            raise
         return e.returncode, stdout_val, stderr_val
     except FileNotFoundError:
-        logger.exception(  # TRY401: Ensure exception object is not in message
+        logger.exception(
             "Command not found: %s. Please ensure it is installed and in your PATH.",
             command[0],
         )
-        return -1, "", "Command not found"  # Indicate error clearly
-    else:  # TRY300: Moved return to else block
-        return result_code, result_stdout, result_stderr
+        # If check=True, propagate the error
+        if check:
+            raise
+        return -1, "", "Command not found"
 
 
 def check_pre_commit_installed() -> bool:
     """
     Check if pre-commit is installed.
 
-    Returns
-    -------
-        True if pre-commit is installed, False otherwise.
+    Returns:
+        True if pre-commit is installed, False otherwise
 
     """
     exit_code, _, _ = run_command(["pre-commit", "--version"], check=False)
@@ -94,9 +95,8 @@ def install_pre_commit() -> bool:
     """
     Install pre-commit if it's not already installed using uv.
 
-    Returns
-    -------
-        True if installation was successful, False otherwise.
+    Returns:
+        True if installation was successful, False otherwise
 
     """
     logger.info("Installing pre-commit using uv...")
@@ -119,9 +119,8 @@ def setup_hooks() -> bool:
     """
     Set up pre-commit hooks.
 
-    Returns
-    -------
-        True if installation was successful, False otherwise.
+    Returns:
+        True if installation was successful, False otherwise
 
     """
     logger.info("Setting up pre-commit hooks...")
@@ -153,9 +152,8 @@ def main() -> int:
     """
     Set up pre-commit hooks.
 
-    Returns
-    -------
-        0 if successful, 1 otherwise.
+    Returns:
+        0 if successful, 1 if setup failed
 
     """
     logger.info("Setting up pre-commit hooks for platform: %s", sys.platform)

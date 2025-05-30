@@ -213,7 +213,13 @@ jobs:
           # Ensure the SARIF file exists and is valid
           if [ ! -f "security-reports/gitleaks-results.sarif" ]; then
             echo "Gitleaks did not generate a SARIF file. Creating an empty one."
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-results.sarif
+            echo '{"version":"2.1.0",
+            "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+            "runs":[{"tool":{"driver":{"name":"Gitleaks",
+            "informationUri":"https://github.com/gitleaks/gitleaks",
+            "version":"8.18.1",
+            "rules":[]}},
+            "results":[]}]}' > security-reports/gitleaks-results.sarif
           fi
 
       - name: Validate SARIF file
@@ -222,11 +228,23 @@ jobs:
             # Check if the file is valid JSON
             if ! jq empty security-reports/gitleaks-results.sarif 2>/dev/null; then
               echo "Invalid SARIF file. Creating a valid empty one."
-              echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-results.sarif
+              echo '{"version":"2.1.0",
+              "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+              "runs":[{"tool":{"driver":{"name":"Gitleaks",
+              "informationUri":"https://github.com/gitleaks/gitleaks",
+              "version":"8.18.1",
+              "rules":[]}},
+              "results":[]}]}' > security-reports/gitleaks-results.sarif
             fi
           else
             echo "SARIF file not found. Creating an empty one."
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-results.sarif
+            echo '{"version":"2.1.0",
+            "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+            "runs":[{"tool":{"driver":{"name":"Gitleaks",
+            "informationUri":"https://github.com/gitleaks/gitleaks",
+            "version":"8.18.1",
+            "rules":[]}},
+            "results":[]}]}' > security-reports/gitleaks-results.sarif
           fi
 
       - name: Upload Gitleaks SARIF
@@ -280,14 +298,20 @@ jobs:
             echo "Semgrep scan failed with security ruleset. Trying with minimal config..."
             semgrep scan --config p/r2c-security-audit --severity=ERROR --sarif --output security-reports/semgrep-results.sarif || {
               echo "Semgrep scan failed with minimal config. Creating empty report."
-              echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\", \"rules\": []}}, \"results\": []}]}" > security-reports/semgrep-results.sarif
+              echo "{\"version\": \"2.1.0\",
+              \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\",
+              \"rules\": []}},
+              \"results\": []}]}" > security-reports/semgrep-results.sarif
             }
           }
 
           # Ensure the SARIF file exists and is valid
           if [ ! -f security-reports/semgrep-results.sarif ]; then
             echo "Semgrep did not generate a SARIF file. Creating empty one."
-            echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\", \"rules\": []}}, \"results\": []}]}" > security-reports/semgrep-results.sarif
+            echo "{\"version\": \"2.1.0\",
+            \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\",
+            \"rules\": []}},
+            \"results\": []}]}" > security-reports/semgrep-results.sarif
           fi
 
       - name: Validate SARIF file
@@ -296,11 +320,17 @@ jobs:
             # Check if the file is valid JSON
             if ! jq empty security-reports/semgrep-results.sarif 2>/dev/null; then
               echo "Invalid SARIF file. Creating a valid empty one."
-              echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\", \"rules\": []}}, \"results\": []}]}" > security-reports/semgrep-results.sarif
+              echo "{\"version\": \"2.1.0\",
+              \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\",
+              \"rules\": []}},
+              \"results\": []}]}" > security-reports/semgrep-results.sarif
             fi
           else
             echo "SARIF file not found. Creating an empty one."
-            echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\", \"rules\": []}}, \"results\": []}]}" > security-reports/semgrep-results.sarif
+            echo "{\"version\": \"2.1.0\",
+            \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\",
+            \"rules\": []}},
+            \"results\": []}]}" > security-reports/semgrep-results.sarif
           fi
 
       - name: Upload Semgrep SARIF
@@ -389,7 +419,10 @@ jobs:
             }
 
             # Create a valid SARIF file for pylint results
-            python -c "import json; print(json.dumps({\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Pylint Security\", \"rules\": []}}, \"results\": []}]}))" > security-reports/pylint-results.sarif
+            python -c "import json; print(json.dumps({\"version\": \"2.1.0\",
+            \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Pylint Security\",
+            \"rules\": []}},
+            \"results\": []}]}))" > security-reports/pylint-results.sarif
           elif command -v bandit &>/dev/null; then
             echo "pylint-security not available, using bandit as fallback..."
             # Use bandit as fallback
@@ -397,16 +430,25 @@ jobs:
               echo "Bandit scan failed, but continuing..."
             }
             # Convert bandit JSON to SARIF format
-            echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Bandit Security\", \"rules\": []}}, \"results\": []}]}" > security-reports/pylint-results.sarif
+            echo "{\"version\": \"2.1.0\",
+            \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Bandit Security\",
+            \"rules\": []}},
+            \"results\": []}]}" > security-reports/pylint-results.sarif
           else
             echo "Neither pylint-security nor bandit are available. Creating empty report."
-            echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Pylint Security\", \"rules\": []}}, \"results\": []}]}" > security-reports/pylint-results.sarif
+            echo "{\"version\": \"2.1.0\",
+            \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Pylint Security\",
+            \"rules\": []}},
+            \"results\": []}]}" > security-reports/pylint-results.sarif
           fi
 
           # Validate the SARIF file
           if [ ! -f "security-reports/pylint-results.sarif" ] || ! python -c "import json; json.load(open('security-reports/pylint-results.sarif'))" &>/dev/null; then
             echo "Invalid SARIF file detected. Creating valid empty SARIF file."
-            echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Pylint Security\", \"rules\": []}}, \"results\": []}]}" > security-reports/pylint-results.sarif
+            echo "{\"version\": \"2.1.0\",
+            \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Pylint Security\",
+            \"rules\": []}},
+            \"results\": []}]}" > security-reports/pylint-results.sarif
           fi
 
       - name: Install Pylint (Windows)
@@ -477,10 +519,16 @@ jobs:
                 Write-Host "Bandit scan failed, but continuing: $_"
               }
               # Convert bandit JSON to SARIF format
-              Set-Content -Path security-reports/pylint-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Bandit Security`", `"rules`": []}}, `"results`": []}]}"
+              Set-Content -Path security-reports/pylint-results.sarif -Value "{`"version`": `"2.1.0`",
+              `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Bandit Security`",
+              `"rules`": []}},
+              `"results`": []}]}"
             } else {
               Write-Host "Neither pylint-security nor bandit are available. Creating empty report."
-              Set-Content -Path security-reports/pylint-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Pylint Security`", `"rules`": []}}, `"results`": []}]}"
+              Set-Content -Path security-reports/pylint-results.sarif -Value "{`"version`": `"2.1.0`",
+              `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Pylint Security`",
+              `"rules`": []}},
+              `"results`": []}]}"
             }
           }
 
@@ -488,7 +536,10 @@ jobs:
         continue-on-error: true
         run: |
           # Generate a simple JSON report for Pylint results
-          echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Pylint Security\", \"rules\": []}}, \"results\": []}]}" > security-reports/pylint-results.sarif
+          echo "{\"version\": \"2.1.0\",
+          \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Pylint Security\",
+          \"rules\": []}},
+          \"results\": []}]}" > security-reports/pylint-results.sarif
 
       - name: Upload Pylint Reports
         uses: actions/upload-artifact@v4
@@ -561,7 +612,7 @@ jobs:
           EMPTY_SARIF='{
             "version": "2.1.0",
             "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            "runs": [
+                        "runs": [
               {
                 "tool": {
                   "driver": {
@@ -579,7 +630,9 @@ jobs:
           # Try to run bandit with fallback options
           if command -v bandit &>/dev/null; then
             echo "Running bandit with installed version..."
-            bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -x .venv,node_modules,tests -c "$BANDIT_CONFIG_FILE" || {
+            bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -x .venv,
+            node_modules,
+            tests -c "$BANDIT_CONFIG_FILE" || {
               echo "Bandit command failed. Creating empty SARIF file..."
               echo "$EMPTY_SARIF" > "$BANDIT_OUTPUT_FILE"
             }
@@ -596,8 +649,6 @@ jobs:
         run: |
           # Generate Bandit configuration files for the current run ID
           python generate_bandit_config.py ${{ github.run_id }}
-
-
 
       - name: Run Bandit (Windows)
         if: runner.os == 'Windows'
@@ -624,7 +675,9 @@ jobs:
           # Run bandit with JSON output format (which is more reliable than SARIF in bandit)
           try {
             Write-Host "Running bandit with JSON output format..."
-            bandit -r . -f json -o $banditJsonFile --exit-zero -x .venv,node_modules,tests -c $banditConfigFile
+            bandit -r . -f json -o $banditJsonFile --exit-zero -x .venv,
+            node_modules,
+            tests -c $banditConfigFile
             Write-Host "Bandit scan completed successfully"
           } catch {
             Write-Host "Bandit command failed with error: $_"
@@ -639,7 +692,16 @@ jobs:
           } else {
             Write-Host "- $banditOutputFile DOES NOT EXIST - recreating"
             # Use Python to create a valid SARIF file
-            python -c "import json; empty_sarif = {'version': '2.1.0', '$schema': 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json', 'runs': [{'tool': {'driver': {'name': 'Bandit', 'informationUri': 'https://github.com/PyCQA/bandit', 'version': '1.7.5', 'rules': []}}, 'results': []}]}; f = open('$banditOutputFile', 'w'); json.dump(empty_sarif, f, indent=2); f.close()"
+            python -c "import json; empty_sarif = {'version': '2.1.0',
+            '$schema': 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
+            'runs': [{'tool': {'driver': {'name': 'Bandit',
+            'informationUri': 'https://github.com/PyCQA/bandit',
+            'version': '1.7.5',
+            'rules': []}},
+            'results': []}]}; f = open('$banditOutputFile',
+            'w'); json.dump(empty_sarif,
+            f,
+            indent=2); f.close()"
           }
 
           if (Test-Path "security-reports/bandit-results.sarif") {
@@ -855,7 +917,12 @@ jobs:
             echo "script_exists=false" >> $GITHUB_OUTPUT
             echo "fix_potential_secrets.py does not exist, will create empty SARIF file"
             # Create an empty SARIF file directly
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Secret Scanner","informationUri":"https://github.com/anchapin/pAIssive_income","rules":[]}},"results":[]}]}' > security-reports/secrets.sarif.json
+            echo '{"version":"2.1.0",
+            "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+            "runs":[{"tool":{"driver":{"name":"Secret Scanner",
+            "informationUri":"https://github.com/anchapin/pAIssive_income",
+            "rules":[]}},
+            "results":[]}]}' > security-reports/secrets.sarif.json
           fi
 
       - name: Run fix_potential_secrets.py if it exists
@@ -868,7 +935,12 @@ jobs:
           # Ensure the SARIF file exists
           if [ ! -f "secrets.sarif.json" ]; then
             echo "Secret scanner did not generate a SARIF file. Creating an empty one."
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Secret Scanner","informationUri":"https://github.com/anchapin/pAIssive_income","rules":[]}},"results":[]}]}' > secrets.sarif.json
+            echo '{"version":"2.1.0",
+            "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+            "runs":[{"tool":{"driver":{"name":"Secret Scanner",
+            "informationUri":"https://github.com/anchapin/pAIssive_income",
+            "rules":[]}},
+            "results":[]}]}' > secrets.sarif.json
           fi
 
           # Copy to security-reports directory
@@ -880,11 +952,21 @@ jobs:
             # Check if the file is valid JSON
             if ! jq empty security-reports/secrets.sarif.json 2>/dev/null; then
               echo "Invalid SARIF file. Creating a valid empty one."
-              echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Secret Scanner","informationUri":"https://github.com/anchapin/pAIssive_income","rules":[]}},"results":[]}]}' > security-reports/secrets.sarif.json
+              echo '{"version":"2.1.0",
+              "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+              "runs":[{"tool":{"driver":{"name":"Secret Scanner",
+              "informationUri":"https://github.com/anchapin/pAIssive_income",
+              "rules":[]}},
+              "results":[]}]}' > security-reports/secrets.sarif.json
             fi
           else
             echo "SARIF file not found. Creating an empty one."
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Secret Scanner","informationUri":"https://github.com/anchapin/pAIssive_income","rules":[]}},"results":[]}]}' > security-reports/secrets.sarif.json
+            echo '{"version":"2.1.0",
+            "$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+            "runs":[{"tool":{"driver":{"name":"Secret Scanner",
+            "informationUri":"https://github.com/anchapin/pAIssive_income",
+            "rules":[]}},
+            "results":[]}]}' > security-reports/secrets.sarif.json
           fi
 
       - name: Upload Custom Secret Scanner SARIF

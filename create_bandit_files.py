@@ -72,7 +72,7 @@ shell_injection:
 EMPTY_SARIF_CONTENT = """{
   "version": "2.1.0",
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": [
+                  "runs": [
     {
       "tool": {
         "driver": {

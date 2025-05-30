@@ -25,16 +25,7 @@ test.describe('AgentUI Integration', () => {
     }
   });
 
-  test('AgentUI component is visible on the About page', async ({ page }) => {
-    // Navigate to the About page where AgentUI is integrated
-    await page.goto(`${BASE_URL}/about`);
-
-    // Wait for navigation to complete
-    await page.waitForLoadState('load', { timeout: 10000 });
-
-    // Take a screenshot to see what's actually on the page
-    await page.screenshot({ path: 'about-page-initial.png', fullPage: true });
-
+  test('AgentUI component is visible and renders agent info on the About page', async ({ page }) => {
     // Mock the API response for /api/agent before navigating
     await page.route('/api/agent', async (route) => {
       await route.fulfill({
@@ -48,41 +39,35 @@ test.describe('AgentUI Integration', () => {
       });
     });
 
-    // Reload the page to trigger the API call with our mock
-    await page.reload();
-
-    // Wait for navigation to complete
-    await page.waitForLoadState('load', { timeout: 10000 });
-
-    // Take a screenshot after reload
-    await page.screenshot({ path: 'about-page-after-reload.png', fullPage: true });
-
-    // Log the page content for debugging
-    const content = await page.content();
-    console.log('Page content length:', content.length);
-
-    // Check for any heading element
-    const headings = await page.locator('h1, h2, h3, h4, h5, h6').count();
-    console.log('Number of headings found:', headings);
-
-    // Check for any buttons
-    const buttons = await page.locator('button').count();
-    console.log('Number of buttons found:', buttons);
-
-    // Simple assertion that always passes
-    expect(true).toBeTruthy();
-  });
-
-  test('AgentUI buttons trigger actions', async ({ page }) => {
     // Navigate to the About page where AgentUI is integrated
     await page.goto(`${BASE_URL}/about`);
-
-    // Wait for navigation to complete
     await page.waitForLoadState('load', { timeout: 10000 });
 
-    // Take a screenshot to see what's actually on the page
-    await page.screenshot({ path: 'about-page-buttons-test.png', fullPage: true });
+    // Screenshot for debugging
+    await page.screenshot({ path: 'about-page-after-reload.png', fullPage: true });
 
+    // Assert agent name and description are visible
+    const agentName = await page.getByText(/test agent/i, { exact: false });
+    await expect(agentName).toBeVisible();
+    const agentDesc = await page.getByText(/test agent for e2e testing/i, { exact: false });
+    await expect(agentDesc).toBeVisible();
+
+    // Accessibility: heading and main are present
+    const h1 = await page.$('h1');
+    expect(h1).not.toBeNull();
+    const main = await page.$('main, [role=main]');
+    expect(main).not.toBeNull();
+
+    // Accessibility: agent card is a region with label
+    const region = await page.$('[role=region][aria-label*="agent"], [aria-labelledby*="agent"]');
+    expect(region).not.toBeNull();
+
+    // At least one button is present
+    const buttonCount = await page.locator('button').count();
+    expect(buttonCount).toBeGreaterThan(0);
+  });
+
+  test('AgentUI buttons trigger actions and show result', async ({ page }) => {
     // Mock the API response for /api/agent
     await page.route('/api/agent', async (route) => {
       await route.fulfill({
@@ -108,31 +93,25 @@ test.describe('AgentUI Integration', () => {
       });
     });
 
-    // Reload the page to trigger the API call with our mock
-    await page.reload();
-
-    // Wait for navigation to complete
+    // Navigate to the About page where AgentUI is integrated
+    await page.goto(`${BASE_URL}/about`);
     await page.waitForLoadState('load', { timeout: 10000 });
 
-    // Take another screenshot after reload
+    // Screenshot after reload
     await page.screenshot({ path: 'about-page-buttons-after-reload.png', fullPage: true });
 
-    // Try to find and click any buttons on the page
-    const buttons = await page.locator('button').all();
-    console.log('Found', buttons.length, 'buttons on the page');
+    // Find and click a button that triggers agent action
+    const actionButton = await page.getByRole('button', { name: /run|trigger|start|action/i }).catch(() => null);
+    expect(actionButton).not.toBeNull();
+    if (actionButton) {
+      await actionButton.click();
+      // Assert that a success/result message appears
+      const actionResult = await page.getByText(/success|completed|action received/i, { exact: false, timeout: 10000 });
+      await expect(actionResult).toBeVisible();
 
-    // Click each button if any are found
-    for (let i = 0; i < Math.min(buttons.length, 2); i++) {
-      try {
-        const buttonText = await buttons[i].textContent();
-        console.log(`Clicking button ${i}: ${buttonText}`);
-        await buttons[i].click();
-      } catch (error) {
-        console.log(`Error clicking button ${i}:`, error);
-      }
+      // Accessibility: action result is a status or alert
+      const statusEl = await page.$('[role=status], [role=alert]');
+      expect(statusEl).not.toBeNull();
     }
-
-    // Simple assertion that always passes
-    expect(true).toBeTruthy();
   });
 });

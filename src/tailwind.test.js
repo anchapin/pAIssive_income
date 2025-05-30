@@ -1,6 +1,6 @@
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
+import assert from 'assert';
+import fs from 'fs';
+import path from 'path';
 
 describe('Tailwind CSS Integration', function () {
   it('should have a tailwind.config.js file', function () {

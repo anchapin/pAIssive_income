@@ -7,13 +7,13 @@ import os
 # Type checking imports
 from typing import TYPE_CHECKING, Union
 
+from common_utils.logging import get_logger
 from flask import Blueprint, jsonify, request
 
-from common_utils.logging import get_logger
-
 if TYPE_CHECKING:
-    from flask.wrappers import Response
     from werkzeug.wrappers import Response as WerkzeugResponse
+
+    from flask.wrappers import Response
 from users.services import AuthenticationError, UserExistsError, UserService
 
 # Set up secure logger that masks sensitive info

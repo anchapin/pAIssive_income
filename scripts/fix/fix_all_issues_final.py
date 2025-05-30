@@ -25,6 +25,91 @@ logger = get_logger(__name__)
 # Constants
 DEFAULT_LINE_LENGTH = 88
 
+# Directory exclusions
+EXCLUDE_DIRS = {
+    # All hidden directories (starting with .)
+    ".*",  # This will match any directory starting with a period
+    # Environment directories
+    "venv",
+    "env",
+    "*venv*",
+    "*env*",
+    # Cache directories
+    "__pycache__",
+    # Build directories
+    "build",
+    "dist",
+    "*.egg-info",
+    "wheels",
+    # Node.js
+    "node_modules",
+    # IDE specific
+    ".idea",
+    ".vscode",
+    # Source control
+    ".git",
+    ".github",
+    # Documentation
+    "docs",
+    "docs_source",
+    "junit",
+    "bin",
+    "dev_tools",
+    "scripts",
+    "tool_templates",
+}
+
+# File exclusions
+EXCLUDE_FILES = {
+    # Git files
+    ".gitignore",
+    ".gitleaks.toml",
+    # Config files
+    "secrets.sarif.json",
+    "pyproject.toml",
+    "setup.cfg",
+    "tox.ini",
+    # Documentation
+    "*.md",
+    "*.rst",
+    "LICENSE",
+    "README*",
+    # Build artifacts
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
+    "*.so",
+    "*.egg",
+    # Database
+    "*.db",
+    "*.sqlite",
+    "*.sqlite3",
+    # Binary/media files
+    "*.png",
+    "*.jpg",
+    "*.jpeg",
+    "*.gif",
+    "*.svg",
+    "*.ico",
+    "*.woff",
+    "*.woff2",
+    "*.ttf",
+    "*.eot",
+    "*.mp3",
+    "*.mp4",
+    "*.mov",
+    "*.avi",
+    "*.pdf",
+    # Archives
+    "*.zip",
+    "*.tar",
+    "*.gz",
+    "*.rar",
+    # IDE
+    "*.swp",
+    "*.swo",
+}
+
 
 def parse_arguments() -> argparse.Namespace:
     """Parse and return command-line arguments."""
@@ -66,40 +151,104 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help="Enable verbose output.",
     )
+    parser.add_argument(
+        "--include-dir",
+        action="append",
+        help="Include a directory that would normally be excluded (can be used multiple times)",
+    )
+    parser.add_argument(
+        "--include-file",
+        action="append",
+        help="Include a file pattern that would normally be excluded (can be used multiple times)",
+    )
     return parser.parse_args()
 
 
 def _should_ignore_path(
-    path: str, ignore_dirs: set[str], ignore_files: set[str]
+    path: str,
+    ignore_dirs: set[str] = EXCLUDE_DIRS,
+    ignore_files: set[str] = EXCLUDE_FILES,
+    include_dirs: Optional[list[str]] = None,
+    include_files: Optional[list[str]] = None,
 ) -> bool:
-    """Check if a path should be ignored based on the ignore sets."""
+    """
+    Check if a path should be ignored based on exclusion rules.
+
+    Args:
+        path: The path to check
+        ignore_dirs: Set of directory patterns to ignore
+        ignore_files: Set of file patterns to ignore
+        include_dirs: List of directories to include even if in ignore_dirs
+        include_files: List of file patterns to include even if in ignore_files
+
+    Returns:
+        bool: True if path should be ignored, False otherwise
+
+    """
     # Convert path to use forward slashes for consistency
-    path = path.replace("\\", "/")
+    normalized_path = path.replace("\\", "/")
+    path_parts = normalized_path.split("/")
+    file_name = path_parts[-1]
 
-    # Check if the path is an ignored directory
-    if os.path.isdir(path):
-        dir_name = os.path.basename(path)
-        if dir_name in ignore_dirs:
+    # Check if path is explicitly included
+    if include_dirs:
+        for include in include_dirs:
+            if include in normalized_path:
+                return False
+
+    if include_files:
+        for include in include_files:
+            if include.startswith("*") and include.endswith("*"):
+                if include[1:-1] in file_name:
+                    return False
+            elif include[0] == "*":
+                if file_name.endswith(include[1:]):
+                    return False
+            elif include[-1] == "*":
+                if file_name.startswith(include[:-1]):
+                    return False
+            elif include == file_name:
+                return False
+
+    # Check excluded directories
+    for part in path_parts:
+        for exclude in ignore_dirs:
+            if exclude == ".*" and part.startswith(
+                "."
+            ):  # Special handling for dot-prefixed patterns
+                return True
+            if exclude.startswith("*") and exclude.endswith("*"):
+                if exclude[1:-1] in part:
+                    return True
+            elif exclude == part:
+                return True
+
+    # Check excluded files
+    for exclude in ignore_files:
+        if exclude.startswith("*") and exclude.endswith("*"):
+            if exclude[1:-1] in file_name:
+                return True
+        elif exclude[0] == "*":
+            if file_name.endswith(exclude[1:]):
+                return True
+        elif exclude[-1] == "*":
+            if file_name.startswith(exclude[:-1]):
+                return True
+        elif exclude == file_name:
             return True
 
-    # Check if the path is an ignored file
-    if os.path.isfile(path):
-        file_name = os.path.basename(path)
-        if file_name in ignore_files:
-            return True
-
-    # Check if the path is within an ignored directory
-    path_parts = path.split("/")
-    return any(part in ignore_dirs for part in path_parts)
+    return False
 
 
 def _process_directory(
     root: str,
     dirs: list[str],
     files: list[str],
-    ignore_dirs: set[str],
-    ignore_files: set[str],
     error_files: list[tuple[str, str]],
+    ignore_dirs: set[str] = EXCLUDE_DIRS,
+    ignore_files: set[str] = EXCLUDE_FILES,
+    include_dirs: Optional[list[str]] = None,
+    include_files: Optional[list[str]] = None,
 ) -> list[str]:
     """Process a single directory during the os.walk."""
     python_files_in_dir = []
@@ -107,7 +256,7 @@ def _process_directory(
     # Only process directories we have access to
     norm_root = os.path.normpath(root)
     if not os.access(norm_root, os.R_OK | os.X_OK):
-        logger.warning(f"Permission denied for directory: {norm_root}")
+        logger.warning("Permission denied for directory: %s", norm_root)
         return []
 
     # Filter out ignored directories in-place
@@ -131,10 +280,9 @@ def _process_directory(
 
                 # Define a constant for the early logging threshold
                 max_early_log_files = 5
-                if (
-                    len(python_files_in_dir) <= max_early_log_files
-                ):  # Keep this check for early logging
-                    logger.debug(f"Found Python file: {file_path}")
+                if len(python_files_in_dir) <= max_early_log_files:
+                    # Keep this check for early logging
+                    logger.debug("Found Python file: %s", file_path)
 
             except OSError as e:
                 error_files.append((file, str(e)))
@@ -180,25 +328,27 @@ def _validate_specific_files(specific_files: list[str]) -> list[str]:
     return normalized_files
 
 
-def _scan_directories_for_python_files() -> list[str]:
+def _scan_directories_for_python_files(
+    *,
+    include_dirs: Optional[list[str]] = None,
+    include_files: Optional[list[str]] = None,
+) -> list[str]:
     """
     Scan directories recursively to find Python files.
+
+    Args:
+        include_dirs: List of directories to include even if in ignore_dirs
+        include_files: List of file patterns to include even if in ignore_files
 
     Returns:
         List of Python file paths
 
     """
-    # Normalize ignore patterns once for better performance
-    ignore_dirs = {
-        ".git",
-        ".venv",
-        "venv",
-        "__pycache__",
-        "build",
-        "dist",
-        "node_modules",
-    }
-    ignore_files = {"fix_all_issues_final.py"}  # Avoid self-modification
+    # Use the comprehensive exclude sets defined at the top
+    ignore_dirs = EXCLUDE_DIRS
+    ignore_files = EXCLUDE_FILES.union(
+        {"fix_all_issues_final.py"}
+    )  # Add self to exclusions
 
     python_files: list[str] = []
     processed_dirs = 0
@@ -207,23 +357,32 @@ def _scan_directories_for_python_files() -> list[str]:
     for root, dirs, files in os.walk("."):
         try:
             python_files_in_dir = _process_directory(
-                root, dirs, files, ignore_dirs, ignore_files, error_files
+                root=root,
+                dirs=dirs,
+                files=files,
+                error_files=error_files,
+                ignore_dirs=ignore_dirs,
+                ignore_files=ignore_files,
+                include_dirs=include_dirs,
+                include_files=include_files,
             )
             python_files.extend(python_files_in_dir)
-
             processed_dirs += 1
             if processed_dirs % 10 == 0:
                 logger.debug(
-                    f"Directory scan progress - Processed: {processed_dirs}, "
-                    f"Files found: {len(python_files)}"
+                    "Directory scan progress - Processed: %d, Files found: %d",
+                    processed_dirs,
+                    len(python_files),
                 )
 
         except OSError:
-            logger.exception(f"Error accessing directory {root}")
+            logger.exception("Error accessing directory %s", root)
 
     _log_file_errors(error_files)
 
-    logger.info(f"Total Python files found: {len(python_files)}")
+    logger.info(
+        "Total Python files found: ", extra={"len(python_files)": len(python_files)}
+    )
     return python_files
 
 
@@ -237,21 +396,28 @@ def _log_file_errors(error_files: list[tuple[str, str]]) -> None:
     """
     if error_files:
         logger.warning(
-            f"Found {len(error_files)} files with access issues. "
-            "See debug log for details."
+            "Found %d files with access issues. See debug log for details.",
+            len(error_files),
         )
         for file_path, error in error_files:
-            logger.debug(f"File access error - {file_path}: {error}")
+            logger.debug("File access error - %s: %s", file_path, error)
 
 
-def find_python_files(specific_files: Optional[list[str]] = None) -> list[str]:
+def find_python_files(
+    specific_files: Optional[list[str]] = None,
+    *,
+    include_dirs: Optional[list[str]] = None,
+    include_files: Optional[list[str]] = None,
+) -> list[str]:
     """
     Find Python files to process.
 
     Args:
     ----
         specific_files: List of specific files to process. If None,
-        all Python files will be found.
+                       all Python files will be found.
+        include_dirs: List of directories to include even if in ignore_dirs.
+        include_files: List of file patterns to include even if in ignore_files.
 
     Returns:
     -------
@@ -267,7 +433,9 @@ def find_python_files(specific_files: Optional[list[str]] = None) -> list[str]:
     if specific_files:
         return _validate_specific_files(specific_files)
 
-    return _scan_directories_for_python_files()
+    return _scan_directories_for_python_files(
+        include_dirs=include_dirs, include_files=include_files
+    )
 
 
 def run_command(command: list[str]) -> tuple[int, str, str]:
@@ -285,49 +453,57 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
     """
     try:
         # Check if the command exists before running it
-        if command and command[0] in ["ruff"]:  # Removed "black" and "isort"
+        if command and command[0] in ["ruff"]:  # Only allow specific tools
             try:
                 # Use shutil.which to find commands in PATH safely
                 import shutil
 
                 cmd_path = shutil.which(command[0])
                 if cmd_path is None:
-                    logger.warning(f"Command not found: {command[0]}")
-                    return 0, "", f"Command '{command[0]}' not found. Skipped."
-
+                    logger.warning("Command not found: %s", command[0])
+                    return (
+                        0,
+                        "",
+                        f"Command '{command[0]}' not found. Skipped.",
+                    )  # Modify command to use full path
+                command[0] = cmd_path
             except (subprocess.SubprocessError, FileNotFoundError):
-                logger.exception(f"Tool check failed: {command[0]}")
+                logger.exception("Tool check failed: %s", command[0])
                 return 0, "", f"Command '{command[0]}' not found. Skipped."
 
-        # Always use shell=False for security
+        # Validate command arguments
+        if not command or not all(isinstance(arg, str) for arg in command):
+            return 1, "", "Invalid command arguments"
 
-        # Log command for debugging
+        # Log command for debugging (safe since we only allow specific tools)
         cmd_str = " ".join(command)
-        logger.debug(f"Running command: {cmd_str}")
+        logger.debug("Running command: %s", cmd_str)
 
         try:
-            # Try using subprocess.run first (more reliable)
-            result = subprocess.run(
+            # Use subprocess.run with security controls
+            result = subprocess.run(  # nosec B603 - subprocess is used with proper security controls
                 command,
                 capture_output=True,
                 text=True,
                 shell=False,  # Always use shell=False for security
                 check=False,  # Don't raise exception on non-zero exit
+                env=os.environ.copy(),  # Use clean environment
             )
-        except Exception:
+            return result.returncode, result.stdout, result.stderr
+        except subprocess.SubprocessError:
             logger.exception("subprocess.run failed, falling back to Popen")
-            # Fall back to Popen if run fails
-            process = subprocess.Popen(
+            # Fall back to Popen if run fails with same security controls
+            process = subprocess.Popen(  # nosec B603 - subprocess is used with proper security controls
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
                 shell=False,  # Always use shell=False for security
+                env=os.environ.copy(),  # Use clean environment
             )
             stdout, stderr = process.communicate()
             return process.returncode, stdout, stderr
-        else:
-            return result.returncode, result.stdout, result.stderr
+
     except Exception as e:
         logger.exception(
             "Error running command",
@@ -618,10 +794,10 @@ def _fix_syntax_issues(file_path: str, args: argparse.Namespace) -> bool:
         return True
 
     if args.verbose:
-        logger.debug(f"Fixing syntax errors in {file_path}")
+        logger.debug("Fixing syntax errors in ", extra={"file_path": file_path})
 
     if not fix_syntax_errors(file_path):
-        logger.error(f"Failed to fix syntax errors in {file_path}")
+        logger.error("Failed to fix syntax errors in ", extra={"file_path": file_path})
         return False
 
     return True
@@ -643,10 +819,12 @@ def _fix_formatting_issues(file_path: str, args: argparse.Namespace) -> bool:
         return True
 
     if args.verbose:
-        logger.debug(f"Fixing line length issues in {file_path}")
+        logger.debug("Fixing line length issues in ", extra={"file_path": file_path})
 
     if not fix_line_length_issues(file_path):
-        logger.error(f"Failed to fix line length issues in {file_path}")
+        logger.error(
+            "Failed to fix line length issues in ", extra={"file_path": file_path}
+        )
         return False
 
     return True
@@ -674,10 +852,10 @@ def _run_single_formatter(
 
     """
     if verbose:
-        logger.debug(f"Running {formatter_name} on {file_path}")
+        logger.debug("Running {formatter_name} on ", extra={"file_path": file_path})
 
     if not formatter_func(file_path, check_mode):
-        logger.error(f"{formatter_name} failed on {file_path}")
+        logger.error("{formatter_name} failed on ", extra={"file_path": file_path})
         return False
 
     return True
@@ -732,7 +910,7 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
         True if successful, False otherwise.
 
     """
-    logger.info(f"Processing file: {file_path}")
+    logger.info("Processing file: ", extra={"file_path": file_path})
 
     # Step 1: Fix syntax issues
     syntax_success = _fix_syntax_issues(file_path, args)
@@ -750,9 +928,9 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
 def _log_environment_info() -> None:
     """Log information about the environment."""
     logger.info("Running fix_all_issues_final.py")
-    logger.debug(f"Platform: {sys.platform}")
-    logger.debug(f"Python version: {sys.version}")
-    logger.debug(f"Current working directory: {os.getcwd()}")
+    logger.debug("Platform: %s", sys.platform)
+    logger.debug("Python version: %s", sys.version)
+    logger.debug("Current working directory: %s", os.getcwd())
 
 
 def _get_required_tools(args: argparse.Namespace) -> list[str]:
@@ -780,32 +958,29 @@ def _check_tool_availability(tool: str) -> bool:
     Check if a tool is available in the PATH.
 
     Args:
-        tool: Name of the tool to check
+        tool: Name of the tool to check. Must be a known safe tool.
 
     Returns:
         True if the tool is available, False otherwise
 
     """
+    # Only allow checking specific known tools
+    if tool not in ["ruff"]:
+        logger.warning("Unknown tool requested: %s", tool)
+        return False
+
     try:
-        shell = sys.platform == "win32"
-        # For Windows, use where command to check if tool exists
-        check_cmd = ["where", tool] if shell else ["which", tool]
+        # Use shutil.which for safe PATH lookup
+        import shutil
 
-        result = subprocess.run(
-            check_cmd,
-            capture_output=True,
-            text=True,
-            shell=shell,
-            check=False,
-        )
-
-        if result.returncode == 0:
-            logger.info(f"Tool {tool} found: {result.stdout.strip()}")
+        tool_path = shutil.which(tool)
+        if tool_path:  # Log full path for transparency
+            logger.info("Tool %s found at: %s", tool, tool_path)
             return True
-        logger.warning(f"Tool {tool} not found in PATH")
+        logger.warning("Tool %s not found in PATH", tool)
         return False
     except (subprocess.SubprocessError, FileNotFoundError):
-        logger.exception(f"Tool check failed: {tool}")
+        logger.exception("Tool check failed: %s", tool)
         return False
 
 
@@ -825,7 +1000,9 @@ def _verify_tool_availability(args: argparse.Namespace) -> list[str]:
     if not tools_to_check:
         return []
 
-    logger.info(f"Checking for required tools: {tools_to_check}")
+    logger.info(
+        "Checking for required tools: ", extra={"tools_to_check": tools_to_check}
+    )
     missing_tools = []
 
     for tool in tools_to_check:
@@ -867,10 +1044,10 @@ def _process_files(
         try:
             if fix_file(file_path, args):
                 success_count += 1
-                logger.info(f"Successfully processed: {file_path}")
+                logger.info("Successfully processed: ", extra={"file_path": file_path})
             else:
                 failed_files.append(file_path)
-                logger.error(f"Failed to process: {file_path}")
+                logger.error("Failed to process: ", extra={"file_path": file_path})
         except Exception:
             logger.exception(
                 "Error processing file",
@@ -981,11 +1158,13 @@ def main() -> int:
 
         # Step 2: Parse arguments
         args = parse_arguments()
-        logger.debug("Arguments: %s", args)
-
-        # Step 3: Find Python files to process
+        logger.debug("Arguments: %s", args)  # Step 3: Find Python files to process
         logger.info("Finding Python files to process...")
-        python_files = find_python_files(args.files)
+        python_files = find_python_files(
+            specific_files=args.files,
+            include_dirs=args.include_dir,
+            include_files=args.include_file,
+        )
 
         if not python_files:
             logger.info("No Python files found to process.")

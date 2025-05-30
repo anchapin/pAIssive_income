@@ -8,7 +8,7 @@ exclude_lines =
     # Skip any line with a pragma
     pragma: no cover
     # Skip representation methods
-    def __repr__
+    def __repr__:
     # Skip defensive assertion code
     raise NotImplementedError
     if self.debug:

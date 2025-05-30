@@ -1,12 +1,20 @@
 # DevOps Scripts
 
-This directory contains various scripts for DevOps tasks such as running GitHub Actions workflows locally, linting code, running tests, and fixing syntax errors.
+This directory contains various scripts for DevOps tasks such as running GitHub Actions workflows locally,
+linting code,
+running tests,
+and fixing syntax errors.
 
 > **Note:** Additional documentation for DevOps scripts and workflows can be found in [docs/ci_cd_pipeline.md](docs/ci_cd_pipeline.md) in the centralized documentation.
 
 ## Unified Workflow (Recommended)
 
-We now provide a **unified entrypoint** for all code quality, linting, formatting, syntax, docstring, and security tasks.
+We now provide a **unified entrypoint** for all code quality,
+linting,
+formatting,
+syntax,
+docstring,
+and security tasks.
 
 **Use the Makefile for common developer tasks:**
 
@@ -88,4 +96,12 @@ curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
 
 ## Workflow Integration
 
-All code quality, linting, formatting, syntax, docstring, and security tasks are now integrated via the Makefile, unified Python entrypoint (`scripts/manage_quality.py`), pre-commit hooks, and CI workflows.
+All code quality,
+linting,
+formatting,
+syntax,
+docstring,
+and security tasks are now integrated via the Makefile,
+unified Python entrypoint (`scripts/manage_quality.py`),
+pre-commit hooks,
+and CI workflows.

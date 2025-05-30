@@ -6,18 +6,21 @@ This script reads the Bandit JSON output file and converts it to SARIF format
 for GitHub Advanced Security.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os
 import shutil
 from pathlib import Path
+from typing import Any, Final
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
-logger = logging.getLogger(__name__)
+logger: Final = logging.getLogger(__name__)
 
 
-def _write_sarif_file(sarif_data: dict, output_file: str) -> bool:
+def _write_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
     """
     Write SARIF data to a file.
 
@@ -30,7 +33,7 @@ def _write_sarif_file(sarif_data: dict, output_file: str) -> bool:
 
     """
     try:
-        with Path(output_file).open("w") as f:
+        with Path(output_file).open("w", encoding="utf-8") as f:
             json.dump(sarif_data, f)
     except (OSError, PermissionError):
         logger.exception("Failed to write SARIF file")
@@ -39,7 +42,7 @@ def _write_sarif_file(sarif_data: dict, output_file: str) -> bool:
         return True
 
 
-def _read_bandit_json(json_file: str) -> dict:
+def _read_bandit_json(json_file: str) -> dict[str, Any]:
     """
     Read and parse Bandit JSON output.
 
@@ -47,18 +50,18 @@ def _read_bandit_json(json_file: str) -> dict:
         json_file: Path to the Bandit JSON file
 
     Returns:
-        dict: Parsed JSON data or empty dict if failed
+        dict[str, Any]: Parsed JSON data or empty dict if failed
 
     """
     try:
-        with Path(json_file).open() as f:
+        with Path(json_file).open(encoding="utf-8") as f:
             return json.load(f)
     except (json.JSONDecodeError, OSError):
         logger.exception("Error reading JSON file")
         return {}
 
 
-def _convert_bandit_results_to_sarif(bandit_data: dict) -> dict:
+def _convert_bandit_results_to_sarif(bandit_data: dict[str, Any]) -> dict[str, Any]:
     """
     Convert Bandit results to SARIF format.
 
@@ -66,7 +69,7 @@ def _convert_bandit_results_to_sarif(bandit_data: dict) -> dict:
         bandit_data: Bandit JSON data
 
     Returns:
-        dict: SARIF data
+        dict[str, Any]: SARIF data
 
     """
     # Create the SARIF template
@@ -77,8 +80,8 @@ def _convert_bandit_results_to_sarif(bandit_data: dict) -> dict:
         return sarif
 
     # Convert Bandit results to SARIF format
-    rules = {}
-    results = []
+    rules: dict[str, dict[str, Any]] = {}
+    results: list[dict[str, Any]] = []
 
     for result in bandit_data.get("results", []):
         rule_id = f"B{result.get('test_id', '000')}"

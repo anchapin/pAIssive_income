@@ -20,10 +20,10 @@ import argparse
 import logging
 import subprocess
 import sys
+from typing import cast
 
-# Third-party imports
-
-PHASE_MARKERS = {
+# Configure constants
+PHASE_MARKERS: dict[str, str] = {
     "fast": "not slow and not integration and not dependency and not performance",
     "all": "",
     "unit": "unit",
@@ -47,8 +47,14 @@ def main() -> int:
     """
     Parse arguments and run pytest with markers and coverage enforcement.
 
+    This function handles:
+    - Parsing command line arguments
+    - Setting up pytest command with appropriate markers and options
+    - Running pytest with coverage reporting (optional)
+    - Handling interrupts and subprocess execution
+
     Returns:
-        Exit code from pytest execution.
+        int: Exit code from pytest execution (0 for success, non-zero for failure)
 
     """
     parser = argparse.ArgumentParser(
@@ -117,14 +123,14 @@ def main() -> int:
         logger.info("Extra pytest args: %s", " ".join(args.extra_pytest_args))
 
     try:
-        # Use a list of validated arguments for security
-        result: subprocess.CompletedProcess = subprocess.run(
+        # Use subprocess.run with validated arguments
+        result = subprocess.run(
             pytest_cmd,
             check=False,
             capture_output=False,  # Allow output to be shown directly
             text=True,
         )
-        return int(result.returncode)
+        return cast("int", result.returncode)  # Ensure returncode is typed as int
     except KeyboardInterrupt:
         logger.info("Test run interrupted by user.")
         return 1

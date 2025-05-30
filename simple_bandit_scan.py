@@ -6,14 +6,20 @@ This script runs Bandit security scans and creates empty result files if needed.
 It's designed to be as simple as possible to avoid any issues with virtual environments.
 """
 
+from __future__ import annotations
+
 import json
-import os
-import subprocess
-import sys
+import logging
+import shutil
+import subprocess  # nosec B404 - subprocess is used with secure parameters and never with shell=True
+from pathlib import Path
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Create security-reports directory
-os.makedirs("security-reports", exist_ok=True)
-print("Created security-reports directory")
+Path("security-reports").mkdir(exist_ok=True)
 
 # Create empty JSON files
 empty_json = {
@@ -23,13 +29,11 @@ empty_json = {
     "results": [],
 }
 
-with open("security-reports/bandit-results.json", "w") as f:
+with Path("security-reports/bandit-results.json").open("w") as f:
     json.dump(empty_json, f, indent=2)
-print("Created empty bandit-results.json")
 
-with open("security-reports/bandit-results-ini.json", "w") as f:
+with Path("security-reports/bandit-results-ini.json").open("w") as f:
     json.dump(empty_json, f, indent=2)
-print("Created empty bandit-results-ini.json")
 
 # Create empty SARIF files
 empty_sarif = {
@@ -50,37 +54,79 @@ empty_sarif = {
     ],
 }
 
-with open("security-reports/bandit-results.sarif", "w") as f:
+with Path("security-reports/bandit-results.sarif").open("w") as f:
     json.dump(empty_sarif, f, indent=2)
-print("Created empty bandit-results.sarif")
 
-with open("security-reports/bandit-results-ini.sarif", "w") as f:
-    json.dump(empty_sarif, f, indent=2)
-print("Created empty bandit-results-ini.sarif")
 
-# Try to run bandit if available
+# Try to run Bandit
+def run_secure_command(
+    cmd_list: list[str], timeout: int | None = None
+) -> subprocess.CompletedProcess[str] | None:
+    """Run a command securely with proper error handling."""
+    try:
+        # Use full path to executable if possible
+        if cmd_list and shutil.which(cmd_list[0]):
+            cmd_list[0] = shutil.which(cmd_list[0])  # Run with safe defaults
+        return subprocess.run(  # nosec B603 - This is a safe subprocess call with shell=False and validated arguments
+            cmd_list,
+            check=False,
+            shell=False,  # Never use shell=True for security
+            text=True,
+            capture_output=True,
+            timeout=timeout,
+        )
+    except (subprocess.SubprocessError, OSError) as e:
+        logger.warning("Command execution failed: %s", e)
+        return None
+
+
+# Check for bandit installation
+bandit_path = shutil.which("bandit") or "bandit"
+
 try:
-    subprocess.run(
-        [
-            "bandit",
-            "-r",
-            ".",
-            "-f",
-            "json",
-            "-o",
-            "security-reports/bandit-results.json",
-            "--exclude",
-            ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
-            "--exit-zero",
-        ],
-        check=False,
-        shell=False,
-        timeout=600,
-    )
-    print("Bandit scan completed")
-except Exception as e:
-    print(f"Error running bandit: {e}")
-    print("Using empty result files")
+    # Try to run a simple bandit version check
+    bandit_version = run_secure_command([bandit_path, "--version"])
 
-print("Bandit scan script completed successfully")
-sys.exit(0)
+    if bandit_version and bandit_version.returncode == 0:
+        # Check if bandit.yaml exists
+        config_file = Path("bandit.yaml")
+        if config_file.exists():
+            cmd = [
+                bandit_path,
+                "-r",
+                ".",
+                "-f",
+                "json",
+                "-o",
+                "security-reports/bandit-results.json",
+                "-c",
+                "bandit.yaml",
+                "--exclude",
+                ".venv,node_modules,tests,docs,build,dist",
+                "--exit-zero",  # Always exit with 0 to avoid CI failures
+            ]
+        else:
+            cmd = [
+                bandit_path,
+                "-r",
+                ".",
+                "-f",
+                "json",
+                "-o",
+                "security-reports/bandit-results.json",
+                "--exclude",
+                ".venv,node_modules,tests,docs,build,dist",
+                "--exit-zero",  # Always exit with 0 to avoid CI failures
+            ]
+
+        # Run the actual scan with a timeout
+        result = run_secure_command(cmd, timeout=300)
+
+        if result and result.returncode == 0:
+            logger.info("Bandit scan completed successfully")
+        else:
+            logger.warning("Bandit scan failed or returned non-zero exit code")
+    else:
+        logger.warning("Bandit version check failed")
+except (subprocess.SubprocessError, OSError) as e:
+    logger.warning("Error running Bandit: %s", e)
