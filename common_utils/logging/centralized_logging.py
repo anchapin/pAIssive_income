@@ -75,37 +75,23 @@ from common_utils.logging.secure_logging import (
     mask_sensitive_data,
 )
 
-# Configure logging
 logger = logging.getLogger(__name__)
-
-
-# Configure logging
-
-
-# Configure logging
-
 
 # Try to import optional dependencies
 try:
     from elasticsearch import Elasticsearch
 
     ELASTICSEARCH_AVAILABLE = True
-except ImportError:
-    logger.warning(
-        "Elasticsearch library not found. ElasticsearchOutput will not be available.",
-        exc_info=True,
-    )
+except ImportError as e:
+    logger.exception("Elasticsearch library not found. ElasticsearchOutput will not be available.", exc_info=e)
     ELASTICSEARCH_AVAILABLE = False
 
 try:
     import logstash
 
     LOGSTASH_AVAILABLE = True
-except ImportError:
-    logger.warning(
-        "python-logstash library not found. LogstashOutput will not be available.",
-        exc_info=True,
-    )
+except ImportError as e:
+    logger.exception("python-logstash library not found. LogstashOutput will not be available.", exc_info=e)
     LOGSTASH_AVAILABLE = False
 
 

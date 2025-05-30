@@ -94,7 +94,8 @@ def main():
         logger.info("CrewAI is available, running tests...")
         # Add actual test logic here when CrewAI is available
         return 0
-    except ImportError:
+    except ImportError as e:
+        logger.exception("CrewAI not available", exc_info=e)
         if is_ci:
             logger.info("CrewAI not available in CI environment, skipping tests")
             return 0
@@ -289,6 +290,21 @@ import platform
 import subprocess
 import sys
 from pathlib import Path
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

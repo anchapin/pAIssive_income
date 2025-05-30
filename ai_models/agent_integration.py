@@ -234,7 +234,23 @@ Usage example for agent code:
 
 To enumerate all available backends (including MCP servers):
     from ai_models.agent_integration import list_available_agent_backends, get_mcp_adapters
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
     backends = list_available_agent_backends()
+
     mcp_adapters = get_mcp_adapters()
 
 To use a registered MCP server by name:

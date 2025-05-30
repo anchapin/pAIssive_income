@@ -169,6 +169,21 @@ def main() -> int:
     )
     import argparse
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
     parser = argparse.ArgumentParser(
         description="Run ruff on all Python files except those in node_modules"
     )

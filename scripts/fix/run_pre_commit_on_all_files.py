@@ -14,6 +14,21 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
 
 def find_python_files() -> list[str]:
     """Find all Python files in the repository, excluding the .venv directory."""

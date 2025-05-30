@@ -8,8 +8,13 @@ import os
 import subprocess
 import sys
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+try:
+    # Place third-party imports here
+    import some_third_party_module
+except ImportError as e:
+    logger.exception("Failed to import some_third_party_module", exc_info=e)
 
 
 def run_tests():
@@ -60,4 +65,5 @@ def run_tests():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     sys.exit(run_tests())

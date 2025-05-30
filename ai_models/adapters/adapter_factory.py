@@ -125,7 +125,23 @@ class UnsupportedServerTypeError(AdapterError):
 # Import MCP adapter if available
 try:
     from .mcp_adapter import MCPAdapter
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
 except ImportError:
+
     # Define a placeholder for MCPAdapter when not available
     MCPAdapter = cast("Any", None)
 

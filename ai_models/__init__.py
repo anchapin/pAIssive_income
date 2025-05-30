@@ -53,6 +53,21 @@ with contextlib.suppress(ImportError):
     from .adapters import OpenAICompatibleAdapter as ImportedOpenAICompatibleAdapter
     from .adapters import TensorRTAdapter as ImportedTensorRTAdapter
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
     # Update the module variables with the imported values
     OllamaAdapter = ImportedOllamaAdapter
     OpenAICompatibleAdapter = ImportedOpenAICompatibleAdapter

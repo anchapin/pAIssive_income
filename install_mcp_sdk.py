@@ -409,6 +409,21 @@ def create_mock_mcp_module() -> None:
     # If in-memory creation fails, try to create physical files
     import tempfile
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
     with tempfile.TemporaryDirectory() as temp_dir:
         try:
             # Create the module files

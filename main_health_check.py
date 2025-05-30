@@ -30,10 +30,15 @@ sphinx-build (optional).
 
 try:
     from pathlib import Path
-except ImportError:
-    print("Error: pathlib module not found. Please install it.")
+except ImportError as e:
+    logger.exception("Failed to import pathlib", exc_info=e)
     sys.exit(1)
 
+try:
+    # Place third-party imports here
+    import some_third_party_module
+except ImportError as e:
+    logger.exception("Failed to import some_third_party_module", exc_info=e)
 
 
 def run(cmd: str, desc: str) -> None:
@@ -135,26 +140,29 @@ def usage() -> None:
 
 def main() -> None:
     """Entry point for orchestrated health checks."""
-    args = set(sys.argv[1:])
-    if not args or "--all" in args:
-        lint()
-        type_check()
-        security()
-        deps()
-        docs()
-    else:
-        if "--lint" in args:
+    try:
+        args = set(sys.argv[1:])
+        if not args or "--all" in args:
             lint()
-        if "--type" in args:
             type_check()
-        if "--security" in args:
             security()
-        if "--deps" in args:
             deps()
-        if "--docs" in args:
             docs()
-        if "--help" in args or "-h" in args:
-            usage()
+        else:
+            if "--lint" in args:
+                lint()
+            if "--type" in args:
+                type_check()
+            if "--security" in args:
+                security()
+            if "--deps" in args:
+                deps()
+            if "--docs" in args:
+                docs()
+            if "--help" in args or "-h" in args:
+                usage()
+    except Exception as e:
+        logger.exception("An error occurred in main_health_check", exc_info=e)
 
 
 if __name__ == "__main__":

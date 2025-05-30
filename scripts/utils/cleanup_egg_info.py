@@ -6,6 +6,21 @@ import shutil
 from pathlib import Path
 
 # Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
 logger = logging.getLogger(__name__)
 
 """Script to clean up .egg-info directories before building packages."""

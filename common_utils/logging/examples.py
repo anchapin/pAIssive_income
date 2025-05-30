@@ -6,25 +6,16 @@ to prevent sensitive information from being logged in clear text.
 """
 
 import logging
-import sys  # Added sys import
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+import sys
 logger = logging.getLogger(__name__)
-
-
-# Configure logging
-
 
 try:
     from common_utils.logging.secure_logging import (
         get_secure_logger,
         mask_sensitive_data,
     )
-except ImportError:
-    print("Error: common_utils.logging.secure_logging module not found. Ensure it's in the PYTHONPATH.")
+except ImportError as e:
+    logger.exception("common_utils.logging.secure_logging module not found.", exc_info=e)
     sys.exit(1)
 
 # Note: Use get_secure_logger("examples") when needed
@@ -82,7 +73,6 @@ def example_mask_sensitive_data() -> None:
 
 
 if __name__ == "__main__":
-    # Configure basic logging
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )

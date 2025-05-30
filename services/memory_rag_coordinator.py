@@ -288,7 +288,23 @@ class MemoryRAGCoordinator:
             try:
                 import time as _time
                 import uuid
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
                 # Convert content to string for embedding and storage
+
                 if isinstance(content, str):
                     text = content
                 elif isinstance(content, list):

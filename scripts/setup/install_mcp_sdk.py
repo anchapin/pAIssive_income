@@ -468,6 +468,21 @@ def _verify_final_installation(in_ci: bool) -> bool:
             try:
                 import modelcontextprotocol
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
                 logger.info("Successfully imported modelcontextprotocol module")
                 if hasattr(modelcontextprotocol, "Client"):
                     logger.info("Verified modelcontextprotocol.Client exists")

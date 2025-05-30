@@ -69,6 +69,21 @@ def verify_usage() -> bool:
     try:
         from mock_crewai import Agent, Crew, Task
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
         # Create instances and test interactions
         agent = Agent(role="Test Agent", goal="Test Goal", backstory="Test Backstory")
         # Use type casting to avoid mypy errors

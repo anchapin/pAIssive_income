@@ -29,7 +29,23 @@ try:
     from app_flask import create_app, db
     from app_flask.models import Agent, Team, User
     from users.auth import hash_credential
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
 except ImportError as e:
+
     print(f"Error importing Flask app components: {e}. Ensure app_flask and users modules are correctly set up.")
     sys.exit(1)
 

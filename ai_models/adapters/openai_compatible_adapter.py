@@ -20,6 +20,21 @@ except ImportError:
 # Local imports
 from .base_adapter import BaseModelAdapter
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
 
 class OpenAICompatibleAdapter(BaseModelAdapter):
     """Adapter for connecting to OpenAI-compatible APIs, including local servers that implement the OpenAI API."""

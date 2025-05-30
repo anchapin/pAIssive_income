@@ -19,9 +19,15 @@ try:
         get_secure_logger,
         mask_sensitive_data,
     )
-except ImportError:
-    print("Error: .secure_logging module not found. Ensure it's in the PYTHONPATH and the current package.")
+except ImportError as e:
+    logger.exception("Failed to import .secure_logging module", exc_info=e)
     sys.exit(1)
+
+try:
+    # Example exception handling
+    pass
+except Exception as e:
+    logger.exception("An error occurred in common_utils.logging.__init__", exc_info=e)
 
 
 __all__ = [

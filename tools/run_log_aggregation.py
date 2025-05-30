@@ -139,7 +139,23 @@ def main():
 
             # Keep the main thread alive
             import time
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
             while True:
+
                 time.sleep(1)
         else:
             # Run log aggregation once

@@ -288,6 +288,21 @@ def _try_temp_dir() -> bool:
     try:
         import tempfile
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
         temp_dir = Path(tempfile.gettempdir()) / "security-reports"
         temp_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Created security-reports directory in temp location: %s", temp_dir)

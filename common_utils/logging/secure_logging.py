@@ -13,7 +13,30 @@ from re import Pattern
 from typing import Any, Optional
 
 # Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
 logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+try:
+    # Place third-party imports here
+    import some_third_party_module
+except ImportError as e:
+    logger.exception("Failed to import some_third_party_module", exc_info=e)
+
 
 # List of sensitive field names to mask in logs
 SENSITIVE_FIELDS: list[str] = [

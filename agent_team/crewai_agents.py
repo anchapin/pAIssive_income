@@ -291,6 +291,21 @@ reporting_team = Crew(
 if __name__ == "__main__":
     import logging
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
     # Configure logging (moved into main guard)
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"

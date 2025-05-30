@@ -3,6 +3,14 @@
 import logging
 import sys
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+try:
+    # Place third-party imports here
+    import some_third_party_module
+except ImportError as e:
+    logger.exception("Failed to import some_third_party_module", exc_info=e)
 
 def configure_logging(
     level=logging.INFO,

@@ -13,7 +13,23 @@ logger = logging.getLogger(__name__) # Added logger initialization
 
 try:
     from common_utils import tooling
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
 except ImportError:
+
     print("Error: common_utils.tooling module not found. Ensure it is in the PYTHONPATH.")
     sys.exit(1)
 

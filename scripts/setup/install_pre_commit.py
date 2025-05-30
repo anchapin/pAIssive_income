@@ -73,6 +73,21 @@ def check_pre_commit_installed() -> bool:
         # Use a safer approach with full path if possible
         import shutil
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
         pre_commit_path = shutil.which("pre-commit")
         if pre_commit_path:
             cmd = [pre_commit_path, "--version"]

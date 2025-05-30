@@ -251,6 +251,21 @@ def setup_logging() -> None:
         queue_listener.start()
         import atexit
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
         atexit.register(queue_listener.stop)
 
         # Log initialization success

@@ -39,7 +39,23 @@ except ImportError:
 
 try:
     from sentence_transformers import SentenceTransformer
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
 except ImportError:
+
     print(
         "Error: sentence_transformers module not found. Please install it with 'pip install sentence-transformers'"
     )

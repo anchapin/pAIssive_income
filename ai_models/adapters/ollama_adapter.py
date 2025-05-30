@@ -33,6 +33,21 @@ except ImportError:
 # Local imports
 from .base_adapter import BaseModelAdapter
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
 
 class OllamaAdapter(BaseModelAdapter):
     """Adapter for connecting to Ollama, a local API server for running large language models."""

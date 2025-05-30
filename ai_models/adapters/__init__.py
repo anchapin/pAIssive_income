@@ -19,7 +19,23 @@ logger = logging.getLogger(__name__)
 # Export the exception classes first (these should always be available)
 try:
     from .exceptions import AdapterError, ModelContextProtocolError
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
 except ImportError as e:
+
     logger.exception(f"Failed to import core exception classes: {e}")
     # If these critical exceptions can't be imported, re-raise or exit
     # For now, we'll let them be None and rely on downstream checks

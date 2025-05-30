@@ -173,7 +173,23 @@ class LMStudioAdapter(BaseModelAdapter):
         }
         headers = {"Content-Type": "application/json"}
         import json as _json
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
         try:
+
             async with session.post(url, headers=headers, data=_json.dumps(payload)) as response:
                 if response.status == 200:
                     return await response.json()

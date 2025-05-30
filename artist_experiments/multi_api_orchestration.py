@@ -22,7 +22,23 @@ except ImportError:
 try:
     from ai_models.artist_agent import ArtistAgent
     from common_utils import tooling
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
 except ImportError:
+
     logger.exception("Failed to import local modules (ArtistAgent or tooling). Ensure they are in PYTHONPATH.")
     sys.exit(1)
 

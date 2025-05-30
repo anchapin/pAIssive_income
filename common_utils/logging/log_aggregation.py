@@ -456,6 +456,21 @@ def aggregate_logs(
             # Import elasticsearch module
             from elasticsearch import Elasticsearch
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
             # Create Elasticsearch client
             es_client = Elasticsearch([f"http://{es_host}:{es_port}"])
 

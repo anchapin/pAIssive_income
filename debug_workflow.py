@@ -9,7 +9,7 @@ import platform
 import sys
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging
 logger = logging.getLogger(__name__)
 
 def check_environment():
@@ -67,4 +67,5 @@ def main():
     logger.info("Debug check complete")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

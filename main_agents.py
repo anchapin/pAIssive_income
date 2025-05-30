@@ -40,11 +40,28 @@ logger = logging.getLogger(__name__)
 # Import memory-enhanced agents
 try:
     from adk_demo.mem0_enhanced_adk_agents import (
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
         MEM0_AVAILABLE,
+
         MemoryEnhancedDataGathererAgent,
         MemoryEnhancedSummarizerAgent,
     )
-except ImportError:
+except ImportError as e:
+    logger.exception("Failed to import mem0_enhanced_adk_agents", exc_info=e)
     MEM0_AVAILABLE = False
 
     # If adk_demo.mem0_enhanced_adk_agents is not available,
