@@ -43,6 +43,18 @@ All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other too
 - Use the `--check` flag for preview.
 - Configure your IDE to use Ruff.
 
+### Global Logging Initialization
+
+- All main entry points should use the project-wide logging configuration. At the start of your main script, add:
+  ```python
+  from logging_config import configure_logging
+
+  if __name__ == "__main__":
+      configure_logging()
+      # ... your main logic ...
+  ```
+- This ensures consistent logging format, level, and handler setup across the project.
+
 ---
 
 ## Testing Standards

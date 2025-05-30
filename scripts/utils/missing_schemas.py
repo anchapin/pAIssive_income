@@ -5,12 +5,28 @@ from __future__ import annotations
 # Standard library imports
 import logging
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 # Third-party imports
 
 # Local imports
-
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
 
 
 def report_missing_schemas(
@@ -36,6 +52,7 @@ def report_missing_schemas(
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     """Demo missing schema reporting."""
     required = ["user", "transaction", "audit", "product"]
     available = ["user", "audit"]

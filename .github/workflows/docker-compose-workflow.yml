@@ -26,9 +26,19 @@ on:
       - 'docker-healthcheck.sh'
       - 'wait-for-db.sh'
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+    branches:
+      - main
+      - develop
+      - master
+      - cosine/add/ag-ui-pnpm-zt2ztr
 
 jobs:
   docker-compose-integration:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     # Use larger runner for better performance
     env:

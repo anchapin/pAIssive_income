@@ -6,20 +6,47 @@ This script provides a simple Flask application for running ARTIST experiments.
 
 import logging
 import os
+import sys  # Added sys import
 from pathlib import Path
 
-from flask import Flask, jsonify
+logger = logging.getLogger(__name__)
+
+try:
+    from flask import Flask, jsonify
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(Path("artist_experiments/logs/app.log")),
-        logging.StreamHandler(),
-    ],
-)
-logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
+except ImportError:
+
+    logger.exception("Flask library not found. Please install it using 'pip install Flask'")
+    sys.exit(1)
+
+def setup_logging():
+    """Configures basic logging and ensures log directory exists."""
+    log_dir = Path("artist_experiments/logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler(log_dir / "app.log"),
+            logging.StreamHandler(),
+        ],
+    )
+
+setup_logging()
 
 # Create Flask app
 app = Flask(__name__)

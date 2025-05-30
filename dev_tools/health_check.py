@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+
+import logging
+import shutil
+import subprocess
+import sys
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 health_check.py.
 
@@ -18,15 +27,35 @@ Requires tools: ruff, mypy, bandit, uv (with pip audit functionality),
 sphinx-build (optional).
 """
 
-import logging
-import shutil
-import subprocess
-import sys
-from pathlib import Path
+# Configure logging
+
+
+# Configure logging
+
 
 # Initialize logger
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+try:
+    from pathlib import Path
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
+except ImportError:
+
+    print("Error: pathlib module not found. Please install it.")
+    sys.exit(1)
 
 
 def run(cmd: str, desc: str) -> None:
@@ -155,4 +184,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     main()

@@ -4,9 +4,19 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 from logging.config import fileConfig
 
-from alembic import context
+logger = logging.getLogger("alembic.env")
+
+try:
+    from alembic import context
+    from sqlalchemy import create_engine
+except ImportError:
+    logger.error(
+        "Error: alembic or sqlalchemy module not found. Please install them (e.g., pip install alembic sqlalchemy)."
+    )
+    sys.exit(1)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -14,9 +24,8 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-fileConfig(config.config_file_name)
-logger = logging.getLogger("alembic.env")
-
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
 # Get database URL from environment or use default
 db_url = os.environ.get("DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb")
 config.set_main_option("sqlalchemy.url", db_url)
@@ -72,9 +81,7 @@ def run_migrations_online() -> None:
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
-            logger.info("No changes in schema detected.")
-
-    from sqlalchemy import create_engine
+                logger.info("No changes in schema detected.")
 
     engine = create_engine(config.get_main_option("sqlalchemy.url"))
 

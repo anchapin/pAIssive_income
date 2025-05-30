@@ -1,0 +1,80 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Only run if auto-fix workflow completed successfully, or if triggered by other events
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    env:
+      ACTIONS_RUNNER_DEBUG: true
+      ACTIONS_STEP_DEBUG: true
+      PYTHONPATH: ${{ github.workspace }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        # Install core dependencies first
+        python -m pip install pytest pytest-cov pytest-asyncio pytest-xdist aiohttp>=3.9.0 multidict yarl
+
+        # Install requirements with better error handling
+        for req_file in requirements.txt requirements-dev.txt; do
+          if [ -f "$req_file" ]; then
+            echo "Installing $req_file..."
+            python -m pip install -r "$req_file" || {
+              echo "Warning: Failed to install $req_file, continuing with minimal dependencies"
+            }
+          fi
+        done
+
+        # Install Python version-specific dependencies
+        if [[ "${{ matrix.python-version }}" == "3.11" || "${{ matrix.python-version }}" == "3.12" ]] && [ -f requirements-py311.txt ]; then
+          python -m pip install -r requirements-py311.txt || {
+            echo "Warning: Failed to install Python version-specific dependencies"
+          }
+        fi
+
+        # Install the package in development mode
+        python -m pip install -e . || {
+          echo "Warning: Failed to install package in development mode"
+          exit 1
+        }
+
+    - name: Check logger initialization
+      run: |
+        python scripts/check_logger_initialization.py --verbose || {
+          echo "Warning: Logger initialization check failed, but continuing with tests"
+        }
+
+    - name: Run tests with coverage
+      run: |
+        # Run tests with increased verbosity and show full traceback
+        python -m pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15 \
+          --tb=long -v --durations=10 --maxfail=3 --no-header --no-summary
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false

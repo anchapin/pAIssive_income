@@ -3,13 +3,39 @@
 from __future__ import annotations
 
 import functools
+import logging
 import re
+import sys  # Added sys import
 import time
-from logging import INFO, Logger, getLogger
 from typing import Any, Callable, TypeVar, cast
 
-from flask.globals import current_app, g
-from werkzeug.local import LocalProxy
+logger = logging.getLogger(__name__)  # Initialize logger
+
+try:
+    from flask.globals import current_app, g
+    from werkzeug.local import LocalProxy
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
+except ImportError:
+
+    logger.exception(
+        "Error: Flask or Werkzeug module not found. Please install them (e.g., pip install Flask Werkzeug)."
+    )
+    sys.exit(1)
+
 
 # Type variables for generic function decorators
 F = TypeVar("F", bound=Callable[..., Any])
@@ -18,7 +44,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 app_logger = LocalProxy(lambda: current_app.logger)
 
 # Type hint for Flask app logger
-FlaskLogger = Logger
+FlaskLogger = logging.Logger
 
 # Constants
 FIRST_PRINTABLE_ASCII = 32  # ASCII value for space character (first printable)
@@ -73,7 +99,7 @@ def sanitize_log_data(data: object) -> object:
     return data
 
 
-def log_execution_time(logger: Logger | None = None) -> Callable[[F], F]:
+def log_execution_time(logger: logging.Logger | None = None) -> Callable[[F], F]:
     """
     Log function execution time.
 
@@ -113,7 +139,7 @@ def log_execution_time(logger: Logger | None = None) -> Callable[[F], F]:
 def structured_log(
     event: str,
     message: str,
-    level: int | str = INFO,
+    level: int | str = logging.INFO,
     extra: dict[str, object] | None = None,
 ) -> None:
     """
@@ -146,11 +172,27 @@ def structured_log(
             log_data.update(sanitized_extra)
 
     # Set log level with explicit typing
-    numeric_level: int = INFO
+    numeric_level: int
     if isinstance(level, str):
-        numeric_level = getattr(getLogger(), level.upper(), INFO)
+        _level_name_upper = level.upper()
+        if _level_name_upper in logging._nameToLevel:
+            numeric_level = logging._nameToLevel[_level_name_upper]
+        else:
+            # If the string level name is not recognized, default to INFO
+            # and log a warning about the unrecognized level.
+            logger.warning(
+                f"Unrecognized log level string: '{level}'. Defaulting to INFO."
+            )
+            numeric_level = logging.INFO
     elif isinstance(level, int):
         numeric_level = level
+    else:
+        # This case should ideally not be reached due to type hints,
+        # but as a fallback, default to INFO and log a warning.
+        logger.warning(
+            f"Invalid type for log level: {type(level)}. Defaulting to INFO."
+        )
+        numeric_level = logging.INFO
 
     log.log(numeric_level, safe_message, extra=log_data)
 
