@@ -13,19 +13,44 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
+        cache: 'pnpm'
 
     - name: Install dependencies
-      run: npm ci
+      run: |
+        if ! which pnpm; then
+          echo "pnpm not found, installing globally with npm..."
+          npm install -g pnpm
+        fi
+        pnpm install --no-optional || npm install --no-optional
 
     - name: Create test directories
       run: |
         mkdir -p tests/mock-api
         mkdir -p tests/__mocks__
+        mkdir -p ci-reports ci-artifacts ci-logs ci-temp ci-cache
+
+    - name: Set up CI environment
+      run: |
+        echo "CI=true" >> $GITHUB_ENV
+        echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
+        echo "CI_TYPE=github" >> $GITHUB_ENV
+        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
+        echo "CI_PLATFORM=github" >> $GITHUB_ENV
+        echo "CI_OS=$(uname -s)" >> $GITHUB_ENV
+        echo "CI_ARCH=$(uname -m)" >> $GITHUB_ENV
+        echo "CI_NODE_VERSION=$(node --version)" >> $GITHUB_ENV
+        echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
+        echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
 
     - name: Run mock API server tests
       env:
@@ -34,7 +59,7 @@ jobs:
         MOCK_API_PORT: 3001
         MOCK_API_TIMEOUT: 5000
       run: |
-        npm run test:mock-api -- --coverage
+        pnpm run test:mock-api -- --coverage || npm run test:mock-api -- --coverage
 
     - name: Upload coverage
       uses: codecov/codecov-action@v4
