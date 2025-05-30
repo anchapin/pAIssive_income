@@ -8,7 +8,11 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v4
@@ -19,19 +23,33 @@ jobs:
         node-version: '20'
         cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
 
-    - name: Create test directories
+    - name: Install dependencies
       run: |
-        mkdir -p tests/unit
-        mkdir -p tests/__mocks__
+        if ! which pnpm; then
+          echo "pnpm not found, installing globally with npm..."
+          npm install -g pnpm
+        fi
+        pnpm install --no-optional || npm install --no-optional
+
+    - name: Setup CI Environment (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x .github/scripts/setup-ci-environment.sh
+        ./.github/scripts/setup-ci-environment.sh
+
+    - name: Setup CI Environment (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        ./.github/scripts/setup-ci-environment.ps1
 
     - name: Run unit tests
-      env:
-        NODE_ENV: test
-        CI: true
-        VITEST_TIMEOUT: 10000
       run: |
         npm run test:unit -- --coverage
 
@@ -41,3 +59,12 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         directory: ./coverage
         fail_ci_if_error: true
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.os }}
+        path: |
+          test-results/
+          coverage/
+          ci-reports/

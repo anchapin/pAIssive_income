@@ -7,55 +7,118 @@ on:
   schedule:
     - cron: '0 0 * * 0'
   workflow_dispatch: {}
+
 permissions:
   contents: read
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
     - name: Install dependencies
-      run: npm ci
-    - name: Create test directories
       run: |
-        mkdir -p tests/unit
-        mkdir -p tests/e2e
-        mkdir -p tests/mock-api
-        mkdir -p tests/__mocks__
+        if ! which pnpm; then
+          echo "pnpm not found, installing globally with npm..."
+          npm install -g pnpm
+        fi
+        pnpm install --no-optional || npm install --no-optional
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov ruff bandit safety mypy pytest-xdist pytest-asyncio protobuf==5.29.4
+        if [ -f requirements-dev.txt ]; then
+          pip install -r requirements-dev.txt
+        fi
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
+
+    - name: Setup CI Environment (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x .github/scripts/setup-ci-environment.sh
+        ./.github/scripts/setup-ci-environment.sh
+
+    - name: Setup CI Environment (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        ./.github/scripts/setup-ci-environment.ps1
+
     - name: Run unit tests
-      env:
-        NODE_ENV: test
-        CI: true
-        VITEST_TIMEOUT: 10000
       run: |
         npm run test:unit -- --coverage
+
     - name: Run E2E tests
-      env:
-        NODE_ENV: test
-        CI: true
-        REACT_APP_API_BASE_URL: http://localhost:3001
-        E2E_TIMEOUT: 30000
       run: |
         npm run test:e2e -- --coverage
+
     - name: Run mock API tests
-      env:
-        NODE_ENV: test
-        CI: true
-        MOCK_API_PORT: 3001
-        MOCK_API_TIMEOUT: 5000
       run: |
         npm run test:mock-api -- --coverage
+
+    - name: Run Python tests
+      run: |
+        pytest --cov=. --cov-report=xml:coverage.xml --junitxml=test-results/junit.xml
+
     - name: Upload coverage
       uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         directory: ./coverage
         fail_ci_if_error: true
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.os }}
+        path: |
+          test-results/
+          coverage/
+          coverage.xml
+          ci-reports/
+          ci-artifacts/
+          ci-logs/
+
+    - name: Ensure fixed CodeQL workflow files
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Write-Host "Ensuring fixed CodeQL workflow files are used..."
+        if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
+          Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
+          ./.github/scripts/ensure-fixed-codeql-workflows.ps1
+        } else {
+          Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
+        }
+
   lint-test:
     name: Lint, Type Check, and Test
     runs-on: ${{ matrix.os }}
