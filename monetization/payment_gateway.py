@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 from decimal import Decimal
 from enum import Enum
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 from common_utils.logging import get_logger
 
@@ -57,8 +57,8 @@ class PaymentGateway:
         currency: str,
         payment_method: PaymentMethod,
         description: str,
-        metadata: Optional[Dict] = None,
-    ) -> Dict:
+        metadata: Optional[dict] = None,
+    ) -> dict:
         """
         Process a payment.
 
@@ -119,7 +119,7 @@ class PaymentGateway:
         payment_id: str,
         amount: Optional[Union[Decimal, float, str]] = None,
         reason: Optional[str] = None,
-    ) -> Dict:
+    ) -> dict:
         """
         Refund a payment.
 
@@ -170,7 +170,7 @@ class PaymentGateway:
             logger.error(f"Refund failed: {refund['id']} - {e!s}")
             raise
 
-    def get_payment_status(self, payment_id: str) -> Dict:
+    def get_payment_status(self, payment_id: str) -> dict:
         """
         Get payment status.
 

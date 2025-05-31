@@ -44,7 +44,7 @@ import re
 import sys
 import traceback
 from collections import Counter, defaultdict
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 # Import alert system
 from common_utils.logging.alert_system import (
@@ -156,7 +156,7 @@ ERROR_PATTERNS = [
     re.compile(r"Connection refused|Connection reset|Connection closed", re.IGNORECASE),
 ]
 
-def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
+def parse_log_file(file_path: str) -> list[dict[str, Any]]:
     """
     Parse a log file into a list of log entries.
 
@@ -254,7 +254,7 @@ def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
 
     return log_entries
 
-def get_log_files(log_dir: str) -> List[str]:
+def get_log_files(log_dir: str) -> list[str]:
     """
     Get all log files in the specified directory.
 
@@ -280,7 +280,7 @@ def get_log_files(log_dir: str) -> List[str]:
 
     return sorted(log_files)
 
-def get_log_statistics(log_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+def get_log_statistics(log_entries: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Calculate statistics from log entries.
 
@@ -409,8 +409,8 @@ def fetch_logs_from_elasticsearch(
     es_port: int,
     index_pattern: str = "logs-*",
     size: int = 1000,
-    query: Optional[Dict[str, Any]] = None,
-) -> List[Dict[str, Any]]:
+    query: Optional[dict[str, Any]] = None,
+) -> list[dict[str, Any]]:
     """
     Fetch logs from Elasticsearch.
 
@@ -470,7 +470,7 @@ def fetch_logs_from_elasticsearch(
         logger.debug(traceback.format_exc())
         return []
 
-def detect_log_patterns(log_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+def detect_log_patterns(log_entries: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Detect patterns in log entries.
 
@@ -1893,7 +1893,7 @@ def create_dashboard(
             Input("interval-component", "n_intervals"),
         ],
     )
-    def update_log_entries(log_file: str, n_intervals: int) -> Tuple[List[Dict[str, Any]], List[html.Div], List[Dict[str, str]]]:
+    def update_log_entries(log_file: str, n_intervals: int) -> tuple[list[dict[str, Any]], list[html.Div], list[dict[str, str]]]:
         """
         Update log entries when the log file changes or on interval.
 
@@ -1942,12 +1942,12 @@ def create_dashboard(
         ],
     )
     def update_charts(
-        log_entries: List[Dict[str, Any]],
-        level_filter: List[str],
-        module_filter: List[str],
+        log_entries: list[dict[str, Any]],
+        level_filter: list[str],
+        module_filter: list[str],
         start_date: str,
         end_date: str,
-    ) -> Tuple[go.Figure, go.Figure, go.Figure]:
+    ) -> tuple[go.Figure, go.Figure, go.Figure]:
         """
         Update charts based on log entries and filters.
 
@@ -2047,14 +2047,14 @@ def create_dashboard(
         ],
     )
     def update_log_table(
-        log_entries: List[Dict[str, Any]],
-        level_filter: List[str],
-        module_filter: List[str],
+        log_entries: list[dict[str, Any]],
+        level_filter: list[str],
+        module_filter: list[str],
         start_date: str,
         end_date: str,
         n_clicks: int,
         search_query: str,
-    ) -> List[html.Div]:
+    ) -> list[html.Div]:
         """
         Update log table based on log entries and filters.
 
@@ -2151,7 +2151,7 @@ def create_dashboard(
         Output("alert-condition-params", "children"),
         [Input("alert-condition-dropdown", "value")],
     )
-    def update_alert_condition_params(condition: str) -> List[html.Div]:
+    def update_alert_condition_params(condition: str) -> list[html.Div]:
         """
         Update alert condition parameters based on selected condition.
 

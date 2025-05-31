@@ -122,7 +122,7 @@ def main():
 
     logger.info("\nQuery: %s\n", query)
     logger.info("Top results:")
-    for doc, dist in zip(results["documents"][0], results["distances"][0]):
+    for doc, dist in zip(results["documents"][0], results["distances"][0], strict=False):
         logger.info("- %s (distance: %.4f)", doc, dist)
 
     """

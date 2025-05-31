@@ -53,7 +53,7 @@ import socket
 import threading
 import time
 from logging.handlers import RotatingFileHandler
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 # Import the secure logging utilities
 
@@ -68,7 +68,7 @@ LOG_PATTERN = re.compile(
 )
 
 
-def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
+def parse_log_file(file_path: str) -> list[dict[str, Any]]:
     """
     Parse a log file into a list of log entries.
 
@@ -101,7 +101,7 @@ def parse_log_file(file_path: str) -> List[Dict[str, Any]]:
     return log_entries
 
 
-def get_log_files(log_dir: str) -> List[str]:
+def get_log_files(log_dir: str) -> list[str]:
     """
     Get all log files in a directory.
 
@@ -116,7 +116,7 @@ def get_log_files(log_dir: str) -> List[str]:
     return glob.glob(os.path.join(log_dir, "*.log"))
 
 
-def get_log_statistics(log_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+def get_log_statistics(log_entries: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Get statistics for a list of log entries.
 
@@ -191,7 +191,7 @@ class LogAggregator:
         """
         self.app_name = app_name
         self.log_dir = log_dir
-        self.handlers: List[Any] = []
+        self.handlers: list[Any] = []
 
         # Create the log directory if it doesn't exist
         os.makedirs(log_dir, exist_ok=True)
@@ -217,7 +217,7 @@ class LogAggregator:
         if handler in self.handlers:
             self.handlers.remove(handler)
 
-    def aggregate_log_entry(self, log_entry: Dict[str, Any]) -> None:
+    def aggregate_log_entry(self, log_entry: dict[str, Any]) -> None:
         """
         Aggregate a single log entry.
 
@@ -290,7 +290,7 @@ class ElasticsearchHandler:
         self.es_client = es_client
         self.index_name = index_name
 
-    def handle(self, log_entry: Dict[str, Any]) -> None:
+    def handle(self, log_entry: dict[str, Any]) -> None:
         """
         Handle a log entry by sending it to Elasticsearch.
 
@@ -330,7 +330,7 @@ class LogstashHandler:
         self.port = port
         self.socket = socket
 
-    def handle(self, log_entry: Dict[str, Any]) -> None:
+    def handle(self, log_entry: dict[str, Any]) -> None:
         """
         Handle a log entry by sending it to Logstash.
 
@@ -397,7 +397,7 @@ class FileRotatingHandler:
         if hasattr(self, "handler") and self.handler:
             self.handler.close()
 
-    def handle(self, log_entry: Dict[str, Any]) -> None:
+    def handle(self, log_entry: dict[str, Any]) -> None:
         """
         Handle a log entry by writing it to the log file.
 

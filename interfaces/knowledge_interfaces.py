@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 
 # Configure logging
 
@@ -45,7 +45,7 @@ class KnowledgeSource(ABC):
     """
 
     @abstractmethod
-    def search(self, query: str, user_id: str, **kwargs: Any) -> List[Dict[str, Any]]:
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
         """
         Search for relevant information given a query and user context.
 
@@ -60,7 +60,7 @@ class KnowledgeSource(ABC):
         """
 
     @abstractmethod
-    def add(self, content: str, user_id: str, **kwargs: Any) -> Dict[str, Any]:
+    def add(self, content: str, user_id: str, **kwargs: Any) -> dict[str, Any]:
         """
         Add new knowledge/content to the source.
 
@@ -74,7 +74,7 @@ class KnowledgeSource(ABC):
 
         """
 
-    def update(self, content_id: str, new_content: str, user_id: str, **kwargs: Any) -> Dict[str, Any]:
+    def update(self, content_id: str, new_content: str, user_id: str, **kwargs: Any) -> dict[str, Any]:
         """
         Optionally update existing knowledge entry.
 
@@ -91,7 +91,7 @@ class KnowledgeSource(ABC):
         msg = "Update not implemented for this knowledge source"
         raise NotImplementedError(msg)
 
-    def delete(self, content_id: str, user_id: str, **kwargs: Any) -> Dict[str, Any]:
+    def delete(self, content_id: str, user_id: str, **kwargs: Any) -> dict[str, Any]:
         """
         Optionally delete an entry.
 
@@ -121,11 +121,11 @@ class Mem0KnowledgeSource(KnowledgeSource):
         """
         self.mem0_client = mem0_client
 
-    def search(self, query: str, user_id: str, **kwargs: Any) -> List[Dict[str, Any]]:  # noqa: ARG002
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:  # noqa: ARG002
         """Search mem0 for relevant memories."""
         return [{"source": "mem0", "content": f"Stub memory for '{query}'"}]
 
-    def add(self, content: str, user_id: str, **kwargs: Any) -> Dict[str, Any]:  # noqa: ARG002
+    def add(self, content: str, user_id: str, **kwargs: Any) -> dict[str, Any]:  # noqa: ARG002
         """Add new content to mem0."""
         return {"source": "mem0", "status": "added", "content": content}
 
@@ -143,11 +143,11 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
         """
         self.vector_client = vector_client
 
-    def search(self, query: str, user_id: str, **kwargs: Any) -> List[Dict[str, Any]]:  # noqa: ARG002
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:  # noqa: ARG002
         """Search vector DB for relevant documents."""
         return [{"source": "vector_rag", "content": f"Stub vector match for '{query}'"}]
 
-    def add(self, content: str, user_id: str, **kwargs: Any) -> Dict[str, Any]:  # noqa: ARG002
+    def add(self, content: str, user_id: str, **kwargs: Any) -> dict[str, Any]:  # noqa: ARG002
         """Add new content to vector DB."""
         return {"source": "vector_rag", "status": "added", "content": content}
 
@@ -162,7 +162,7 @@ class KnowledgeIntegrationLayer:
 
     def __init__(
         self,
-        sources: List[KnowledgeSource],
+        sources: list[KnowledgeSource],
         strategy: KnowledgeStrategy = KnowledgeStrategy.FALLBACK,
     ) -> None:
         """
@@ -188,7 +188,7 @@ class KnowledgeIntegrationLayer:
             msg = f"Invalid strategy type: {type(strategy)}"
             raise TypeError(msg)
 
-    def search(self, query: str, user_id: str, **kwargs: Any) -> List[Dict[str, Any]]:
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
         """
         Search using the configured integration strategy.
 
@@ -204,7 +204,7 @@ class KnowledgeIntegrationLayer:
         if not self.sources:
             return []
         if self.strategy == KnowledgeStrategy.AGGREGATE:
-            aggregated: List[Dict[str, Any]] = []
+            aggregated: list[dict[str, Any]] = []
             for source in self.sources:
                 aggregated.extend(source.search(query, user_id, **kwargs))
             return aggregated
@@ -215,7 +215,7 @@ class KnowledgeIntegrationLayer:
                 return results
         return []
 
-    def add(self, content: str, user_id: str, **kwargs: Any) -> List[Dict[str, Any]]:
+    def add(self, content: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
         """
         Add content to all sources.
 

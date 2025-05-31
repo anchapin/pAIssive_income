@@ -22,7 +22,7 @@ import json
 import logging
 import sys  # Added for sys.exit
 import unicodedata
-from typing import List, Optional, Tuple
+from typing import Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -100,7 +100,7 @@ def prepare_document(
     doc: dict,
     user_id: Optional[str] = None,
     default_metadata: Optional[dict] = None,
-    embedding: Optional[List[float]] = None,
+    embedding: Optional[list[float]] = None,
 ) -> dict:
     """
     Ensure the document follows the unified schema.
@@ -179,11 +179,11 @@ collection = client.get_or_create_collection("demo_rag")
 
 # 6. Canonicalization and deduplication logic before inserting documents
 def embed_and_insert_documents_with_dedup(
-    docs: List[dict],
+    docs: list[dict],
     embedder_model: SentenceTransformer,
     collection: chromadb.Collection,
     user_id_default: str = "global",
-) -> Tuple[List[dict], List[str]]:
+) -> tuple[list[dict], list[str]]:
     """
     Embed documents, canonicalize, deduplicate, and insert into collection.
     Returns: (inserted_docs, skipped_duplicate_ids)
@@ -287,7 +287,7 @@ results = query_with_metadata_filter(
 
 logger.info(f"\nQuery: {query}\nFilter: {metadata_filter}\nResults:")
 for doc, meta, dist in zip(
-    results["documents"][0], results["metadatas"][0], results["distances"][0]
+    results["documents"][0], results["metadatas"][0], results["distances"][0], strict=False
 ):
     logger.info("- %s [meta: %s] (distance: %.4f)", doc, meta, dist)
 

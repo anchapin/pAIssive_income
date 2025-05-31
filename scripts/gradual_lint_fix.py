@@ -14,7 +14,6 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List
 
 # Critical error codes that could break functionality
 CRITICAL_ERROR_CODES = [
@@ -30,7 +29,7 @@ CRITICAL_ERROR_CODES = [
 ]
 
 
-def get_changed_files(base_branch: str = "main") -> List[str]:
+def get_changed_files(base_branch: str = "main") -> list[str]:
     """Get list of Python files changed compared to base branch."""
     try:
         # Get changed files from git
@@ -57,8 +56,8 @@ def get_changed_files(base_branch: str = "main") -> List[str]:
 
 
 def run_ruff_on_files(
-    files: List[str], fix: bool = False, critical_only: bool = False
-) -> Dict[str, int]:
+    files: list[str], fix: bool = False, critical_only: bool = False
+) -> dict[str, int]:
     """Run ruff on specific files and return error counts."""
     if not files:
         return {}
@@ -109,7 +108,7 @@ def run_ruff_on_files(
     return results
 
 
-def get_baseline_errors() -> Dict[str, int]:
+def get_baseline_errors() -> dict[str, int]:
     """Get current error count for all files to establish baseline."""
     try:
         result = subprocess.run(
@@ -142,7 +141,7 @@ def get_baseline_errors() -> Dict[str, int]:
         return {}
 
 
-def save_baseline(baseline: Dict[str, int], filename: str = "lint_baseline.json"):
+def save_baseline(baseline: dict[str, int], filename: str = "lint_baseline.json"):
     """Save baseline error counts to file."""
     baseline_file = Path(filename)
     with baseline_file.open("w", encoding="utf-8") as f:
@@ -150,7 +149,7 @@ def save_baseline(baseline: Dict[str, int], filename: str = "lint_baseline.json"
     print(f"💾 Baseline saved to {baseline_file}")
 
 
-def load_baseline(filename: str = "lint_baseline.json") -> Dict[str, int]:
+def load_baseline(filename: str = "lint_baseline.json") -> dict[str, int]:
     """Load baseline error counts from file."""
     baseline_file = Path(filename)
     if baseline_file.exists():

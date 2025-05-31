@@ -5,8 +5,6 @@ from __future__ import annotations
 import os
 
 # Type checking imports
-from typing import List
-
 from fastapi import APIRouter, HTTPException, Path, status
 
 from common_utils.logging import get_logger
@@ -26,7 +24,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 user_service = UserService(token_secret=TOKEN_SECRET)
 
 # API endpoints
-@router.get("", response_model=List[UserResponse])
+@router.get("", response_model=list[UserResponse])
 async def get_users_endpoint():
     """Get all users."""
     return user_service.get_users()

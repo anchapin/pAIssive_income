@@ -77,11 +77,12 @@ import smtplib
 import sys  # Added sys import
 import threading
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Optional
 
 _logger = logging.getLogger(__name__)
 
@@ -138,9 +139,9 @@ class AlertRule:
     name: str
     description: str
     condition: AlertCondition
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
     severity: str = AlertSeverity.WARNING
-    notifiers: List[str] = field(default_factory=list)
+    notifiers: list[str] = field(default_factory=list)
     enabled: bool = True
     cooldown_period: int = 300  # 5 minutes in seconds
     last_triggered: Optional[datetime.datetime] = None
@@ -179,7 +180,7 @@ class AlertNotifier(ABC):
         self.name = name
 
     @abstractmethod
-    def send_alert(self, alert_rule: AlertRule, context: Dict[str, Any]) -> bool:
+    def send_alert(self, alert_rule: AlertRule, context: dict[str, Any]) -> bool:
         """
         Send an alert notification.
         
@@ -203,7 +204,7 @@ class EmailNotifier(AlertNotifier):
         username: str,
         password: str,
         from_email: str,
-        to_emails: List[str],
+        to_emails: list[str],
         use_tls: bool = True,
         name: str = "email",
     ) -> None:
@@ -230,7 +231,7 @@ class EmailNotifier(AlertNotifier):
         self.to_emails = to_emails
         self.use_tls = use_tls
 
-    def send_alert(self, alert_rule: AlertRule, context: Dict[str, Any]) -> bool:
+    def send_alert(self, alert_rule: AlertRule, context: dict[str, Any]) -> bool:
         """
         Send an email alert.
         
@@ -284,7 +285,7 @@ class WebhookNotifier(AlertNotifier):
     def __init__(
         self,
         url: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         timeout: int = 10,
         name: str = "webhook",
     ) -> None:
@@ -303,7 +304,7 @@ class WebhookNotifier(AlertNotifier):
         self.headers = headers or {}
         self.timeout = timeout
 
-    def send_alert(self, alert_rule: AlertRule, context: Dict[str, Any]) -> bool:
+    def send_alert(self, alert_rule: AlertRule, context: dict[str, Any]) -> bool:
         """
         Send a webhook alert.
         
@@ -346,7 +347,7 @@ class InAppNotifier(AlertNotifier):
 
     def __init__(
         self,
-        callback: Callable[[AlertRule, Dict[str, Any]], None],
+        callback: Callable[[AlertRule, dict[str, Any]], None],
         name: str = "in-app",
     ) -> None:
         """
@@ -360,7 +361,7 @@ class InAppNotifier(AlertNotifier):
         super().__init__(name)
         self.callback = callback
 
-    def send_alert(self, alert_rule: AlertRule, context: Dict[str, Any]) -> bool:
+    def send_alert(self, alert_rule: AlertRule, context: dict[str, Any]) -> bool:
         """
         Send an in-app alert.
         
@@ -386,9 +387,9 @@ class AlertSystem:
 
     def __init__(self) -> None:
         """Initialize the alert system."""
-        self.rules: List[AlertRule] = []
-        self.notifiers: Dict[str, AlertNotifier] = {}
-        self.metrics_history: Dict[str, List[Dict[str, Any]]] = {}
+        self.rules: list[AlertRule] = []
+        self.notifiers: dict[str, AlertNotifier] = {}
+        self.metrics_history: dict[str, list[dict[str, Any]]] = {}
         self.lock = threading.Lock()
 
     def add_rule(self, rule: AlertRule) -> None:
@@ -462,7 +463,7 @@ class AlertSystem:
             _logger.error(f"Notifier '{name}' not found")
             return False
 
-    def process_logs(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def process_logs(self, log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Process logs and trigger alerts.
         
@@ -509,7 +510,7 @@ class AlertSystem:
 
         return triggered_alerts
 
-    def _update_metrics_history(self, log_entries: List[Dict[str, Any]]) -> None:
+    def _update_metrics_history(self, log_entries: list[dict[str, Any]]) -> None:
         """
         Update metrics history.
         
@@ -540,7 +541,7 @@ class AlertSystem:
             if len(self.metrics_history[metric_name]) > 1000:
                 self.metrics_history[metric_name] = self.metrics_history[metric_name][-1000:]
 
-    def _calculate_metrics(self, log_entries: List[Dict[str, Any]]) -> Dict[str, float]:
+    def _calculate_metrics(self, log_entries: list[dict[str, Any]]) -> dict[str, float]:
         """
         Calculate metrics from log entries.
         
@@ -579,8 +580,8 @@ class AlertSystem:
         return metrics
 
     def _check_rule_condition(
-        self, rule: AlertRule, log_entries: List[Dict[str, Any]]
-    ) -> tuple[bool, Dict[str, Any]]:
+        self, rule: AlertRule, log_entries: list[dict[str, Any]]
+    ) -> tuple[bool, dict[str, Any]]:
         """
         Check if a rule condition is met.
         
@@ -612,8 +613,8 @@ class AlertSystem:
         return False, context
 
     def _check_pattern_condition(
-        self, rule: AlertRule, log_entries: List[Dict[str, Any]], context: Dict[str, Any]
-    ) -> tuple[bool, Dict[str, Any]]:
+        self, rule: AlertRule, log_entries: list[dict[str, Any]], context: dict[str, Any]
+    ) -> tuple[bool, dict[str, Any]]:
         """
         Check pattern condition.
         
@@ -659,8 +660,8 @@ class AlertSystem:
         return is_triggered, context
 
     def _check_threshold_condition(
-        self, rule: AlertRule, context: Dict[str, Any]
-    ) -> tuple[bool, Dict[str, Any]]:
+        self, rule: AlertRule, context: dict[str, Any]
+    ) -> tuple[bool, dict[str, Any]]:
         """
         Check threshold condition.
         
@@ -725,8 +726,8 @@ class AlertSystem:
         return is_triggered, context
 
     def _check_anomaly_condition(
-        self, rule: AlertRule, context: Dict[str, Any]
-    ) -> tuple[bool, Dict[str, Any]]:
+        self, rule: AlertRule, context: dict[str, Any]
+    ) -> tuple[bool, dict[str, Any]]:
         """
         Check anomaly condition.
         
@@ -797,8 +798,8 @@ class AlertSystem:
         return False, context
 
     def _check_frequency_condition(
-        self, rule: AlertRule, log_entries: List[Dict[str, Any]], context: Dict[str, Any]
-    ) -> tuple[bool, Dict[str, Any]]:
+        self, rule: AlertRule, log_entries: list[dict[str, Any]], context: dict[str, Any]
+    ) -> tuple[bool, dict[str, Any]]:
         """
         Check frequency condition.
         
@@ -844,8 +845,8 @@ class AlertSystem:
         return is_triggered, context
 
     def _check_absence_condition(
-        self, rule: AlertRule, log_entries: List[Dict[str, Any]], context: Dict[str, Any]
-    ) -> tuple[bool, Dict[str, Any]]:
+        self, rule: AlertRule, log_entries: list[dict[str, Any]], context: dict[str, Any]
+    ) -> tuple[bool, dict[str, Any]]:
         """
         Check absence condition.
         
@@ -903,7 +904,7 @@ class AlertSystem:
 
         return is_triggered, context
 
-    def _send_notifications(self, rule: AlertRule, context: Dict[str, Any]) -> None:
+    def _send_notifications(self, rule: AlertRule, context: dict[str, Any]) -> None:
         """
         Send notifications for a triggered alert.
         

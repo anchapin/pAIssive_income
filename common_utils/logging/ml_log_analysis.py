@@ -39,7 +39,7 @@ import datetime
 import logging
 import re
 from collections import Counter, defaultdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -97,7 +97,7 @@ class AnomalyDetector:
         self.mean = None
         self.std = None
 
-    def extract_features(self, log_entries: List[Dict[str, Any]]) -> np.ndarray:
+    def extract_features(self, log_entries: list[dict[str, Any]]) -> np.ndarray:
         """
         Extract features from log entries.
 
@@ -156,7 +156,7 @@ class AnomalyDetector:
 
         return np.array(features)
 
-    def train(self, log_entries: List[Dict[str, Any]]) -> None:
+    def train(self, log_entries: list[dict[str, Any]]) -> None:
         if not log_entries:
             logger.warning("No log entries provided for training")
             return
@@ -170,7 +170,7 @@ class AnomalyDetector:
         self.trained = True
         logger.info(f"Trained anomaly detector on {len(log_entries)} log entries")
 
-    def detect(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def detect(self, log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not self.trained:
             logger.warning("Anomaly detector not trained")
             return []
@@ -204,7 +204,7 @@ class PatternRecognizer:
         self.idf = None
         self.tf_matrix = None
 
-    def train(self, log_entries: List[Dict[str, Any]]) -> None:
+    def train(self, log_entries: list[dict[str, Any]]) -> None:
         if not log_entries:
             logger.warning("No log entries provided for training")
             return
@@ -232,7 +232,7 @@ class PatternRecognizer:
         self.trained = True
         logger.info(f"Trained pattern recognizer on {len(log_entries)} log entries")
 
-    def recognize(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def recognize(self, log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not self.trained:
             logger.warning("Pattern recognizer not trained")
             return []
@@ -274,7 +274,7 @@ class LogClusterer:
         self.centroids = None
         self.labels_ = None
 
-    def train(self, log_entries: List[Dict[str, Any]]) -> None:
+    def train(self, log_entries: list[dict[str, Any]]) -> None:
         if not log_entries:
             logger.warning("No log entries provided for training")
             return
@@ -315,7 +315,7 @@ class LogClusterer:
         self.trained = True
         logger.info(f"Trained log clusterer on {len(log_entries)} log entries with {self.n_clusters} clusters")
 
-    def cluster(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def cluster(self, log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not self.trained:
             logger.warning("Log clusterer not trained")
             return []
@@ -349,7 +349,7 @@ class LogClusterer:
         result.sort(key=lambda x: x["size"], reverse=True)
         return result
 
-    def _extract_common_terms(self, messages: List[str]) -> List[str]:
+    def _extract_common_terms(self, messages: list[str]) -> list[str]:
         """
         Extract common terms from a list of messages.
 
@@ -387,7 +387,7 @@ class LogAnalyzer:
         self.pattern_recognizer = PatternRecognizer()
         self.log_clusterer = LogClusterer()
 
-    def train_anomaly_detector(self, log_entries: List[Dict[str, Any]]) -> None:
+    def train_anomaly_detector(self, log_entries: list[dict[str, Any]]) -> None:
         """
         Train the anomaly detector.
 
@@ -397,7 +397,7 @@ class LogAnalyzer:
         """
         self.anomaly_detector.train(log_entries)
 
-    def detect_anomalies(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def detect_anomalies(self, log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Detect anomalies in log entries.
 
@@ -410,7 +410,7 @@ class LogAnalyzer:
         """
         return self.anomaly_detector.detect(log_entries)
 
-    def train_pattern_recognizer(self, log_entries: List[Dict[str, Any]]) -> None:
+    def train_pattern_recognizer(self, log_entries: list[dict[str, Any]]) -> None:
         """
         Train the pattern recognizer.
 
@@ -420,7 +420,7 @@ class LogAnalyzer:
         """
         self.pattern_recognizer.train(log_entries)
 
-    def recognize_patterns(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def recognize_patterns(self, log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Recognize patterns in log entries.
 
@@ -433,7 +433,7 @@ class LogAnalyzer:
         """
         return self.pattern_recognizer.recognize(log_entries)
 
-    def train_log_clusterer(self, log_entries: List[Dict[str, Any]]) -> None:
+    def train_log_clusterer(self, log_entries: list[dict[str, Any]]) -> None:
         """
         Train the log clusterer.
 
@@ -443,7 +443,7 @@ class LogAnalyzer:
         """
         self.log_clusterer.train(log_entries)
 
-    def cluster_logs(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def cluster_logs(self, log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Cluster log entries.
 
@@ -456,7 +456,7 @@ class LogAnalyzer:
         """
         return self.log_clusterer.cluster(log_entries)
 
-    def analyze_logs(self, log_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def analyze_logs(self, log_entries: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Perform comprehensive analysis of log entries.
 
@@ -490,7 +490,7 @@ class LogAnalyzer:
 
 
 # Convenience functions
-def train_anomaly_detector(log_entries: List[Dict[str, Any]]) -> AnomalyDetector:
+def train_anomaly_detector(log_entries: list[dict[str, Any]]) -> AnomalyDetector:
     """
     Train an anomaly detector on log entries.
 
@@ -505,7 +505,7 @@ def train_anomaly_detector(log_entries: List[Dict[str, Any]]) -> AnomalyDetector
     detector.train(log_entries)
     return detector
 
-def detect_anomalies(log_entries: List[Dict[str, Any]], detector: Optional[AnomalyDetector] = None) -> List[Dict[str, Any]]:
+def detect_anomalies(log_entries: list[dict[str, Any]], detector: Optional[AnomalyDetector] = None) -> list[dict[str, Any]]:
     """
     Detect anomalies in log entries.
 
@@ -521,7 +521,7 @@ def detect_anomalies(log_entries: List[Dict[str, Any]], detector: Optional[Anoma
         detector = train_anomaly_detector(log_entries)
     return detector.detect(log_entries)
 
-def recognize_patterns(log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def recognize_patterns(log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Recognize patterns in log entries.
 
@@ -536,7 +536,7 @@ def recognize_patterns(log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]
     recognizer.train(log_entries)
     return recognizer.recognize(log_entries)
 
-def cluster_logs(log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def cluster_logs(log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Cluster log entries.
 

@@ -4,7 +4,7 @@
 import json
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 # Third-party imports
 import requests
@@ -31,7 +31,7 @@ class WebhookService:
         self.db = db
         self.signature_verifier = WebhookSignatureVerifier()
 
-    def register_webhook(self, webhook_data: Dict[str, Any]) -> Dict[str, Any]:
+    def register_webhook(self, webhook_data: dict[str, Any]) -> dict[str, Any]:
         """
         Register a new webhook.
 
@@ -70,7 +70,7 @@ class WebhookService:
 
         return webhook
 
-    def get_webhook(self, webhook_id: str) -> Optional[Dict[str, Any]]:
+    def get_webhook(self, webhook_id: str) -> Optional[dict[str, Any]]:
         """
         Get a webhook by ID.
 
@@ -85,7 +85,7 @@ class WebhookService:
             return self.db.get_webhook(webhook_id)
         return None
 
-    def list_webhooks(self, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    def list_webhooks(self, filters: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
         """
         List all webhooks, optionally filtered.
 
@@ -100,7 +100,7 @@ class WebhookService:
             return self.db.list_webhooks(filters)
         return []
 
-    def update_webhook(self, webhook_id: str, update_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def update_webhook(self, webhook_id: str, update_data: dict[str, Any]) -> Optional[dict[str, Any]]:
         """
         Update a webhook.
 
@@ -131,7 +131,7 @@ class WebhookService:
             return self.db.delete_webhook(webhook_id)
         return False
 
-    def deliver_webhook(self, webhook: Dict[str, Any], event_data: Dict[str, Any]) -> bool:
+    def deliver_webhook(self, webhook: dict[str, Any], event_data: dict[str, Any]) -> bool:
         """
         Deliver an event to a webhook endpoint.
 
@@ -188,7 +188,7 @@ class WebhookService:
 
         return is_success
 
-    def process_event(self, event_type: str, event_data: Dict[str, Any]) -> int:
+    def process_event(self, event_type: str, event_data: dict[str, Any]) -> int:
         """
         Process an event and deliver to all matching webhooks.
 

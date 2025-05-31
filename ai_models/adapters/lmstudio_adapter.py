@@ -6,7 +6,7 @@ import logging
 import sys  # Added sys import
 
 logger = logging.getLogger(__name__)
-from typing import Any, Dict, List
+from typing import Any
 
 try:
     import aiohttp
@@ -78,7 +78,7 @@ class LMStudioAdapter(BaseModelAdapter):
     async def _ensure_session(self) -> aiohttp.ClientSession:
         return await self._get_session()
 
-    async def list_models(self) -> List[Dict[str, Any]]:
+    async def list_models(self) -> list[dict[str, Any]]:
         """
         List available models from LM Studio.
 
@@ -102,7 +102,7 @@ class LMStudioAdapter(BaseModelAdapter):
         except Exception:
             raise
 
-    async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+    async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
         """
         Generate text using the specified model.
 
@@ -144,7 +144,7 @@ class LMStudioAdapter(BaseModelAdapter):
         except Exception:
             raise
 
-    async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+    async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
         """
         Generate chat completions using the specified model.
 

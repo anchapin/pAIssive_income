@@ -6,7 +6,7 @@ This module provides mock implementations of the adapter classes for testing.
 
 # Standard library imports
 import logging
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class MockBaseModelAdapter:
         """Initialize the mock base model adapter."""
         logger.info("Initialized MockBaseModelAdapter")
 
-    async def list_models(self) -> List[Dict[str, Any]]:
+    async def list_models(self) -> list[dict[str, Any]]:
         """
         List available models.
 
@@ -42,7 +42,7 @@ class MockBaseModelAdapter:
         logger.info(f"Found {len(models)} mock models")
         return models
 
-    async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+    async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
         """
         Generate text using the specified model.
 
@@ -64,7 +64,7 @@ class MockBaseModelAdapter:
         logger.info("Text generation completed")
         return response
 
-    async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+    async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
         """
         Generate chat completions using the specified model.
 
@@ -204,7 +204,7 @@ class MockMCPAdapter(MockBaseModelAdapter):
         logger.info(f"Connecting to mock MCP server at {self.host}:{self.port}")
         return True
 
-    async def send_message(self, message: str) -> Dict[str, Any]:
+    async def send_message(self, message: str) -> dict[str, Any]:
         """
         Send a message to the MCP server.
 
@@ -235,7 +235,7 @@ class MockAdapterFactory:
     }
 
     @classmethod
-    def register_adapter(cls, name: str, adapter_class: Type[MockBaseModelAdapter]) -> None:
+    def register_adapter(cls, name: str, adapter_class: type[MockBaseModelAdapter]) -> None:
         """
         Register a new adapter type.
 
@@ -274,7 +274,7 @@ class MockAdapterFactory:
         return adapter
 
     @classmethod
-    def get_available_adapter_types(cls) -> List[str]:
+    def get_available_adapter_types(cls) -> list[str]:
         """
         Get a list of available adapter types.
 

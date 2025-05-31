@@ -2,7 +2,7 @@
 
 # Standard library imports
 import abc
-from typing import Any, Dict, List
+from typing import Any
 
 # Third-party imports
 
@@ -16,7 +16,7 @@ class BaseModelAdapter(abc.ABC):
     """
 
     @abc.abstractmethod
-    async def list_models(self) -> List[Dict[str, Any]]:
+    async def list_models(self) -> list[dict[str, Any]]:
         """
         List available models.
 
@@ -26,7 +26,7 @@ class BaseModelAdapter(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+    async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
         """
         Generate text using the specified model.
 
@@ -41,7 +41,7 @@ class BaseModelAdapter(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+    async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
         """
         Generate chat completions using the specified model.
 

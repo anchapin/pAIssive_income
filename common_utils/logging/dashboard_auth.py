@@ -69,7 +69,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Optional
 
 try:
     import dash
@@ -100,7 +100,7 @@ class User:
 
     username: str
     password_hash: str
-    roles: List[str] = field(default_factory=list)
+    roles: list[str] = field(default_factory=list)
     is_active: bool = True
     last_login: Optional[datetime.datetime] = None
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
@@ -111,7 +111,7 @@ class Role:
     """Role for dashboard authorization."""
 
     name: str
-    permissions: List[str] = field(default_factory=list)
+    permissions: list[str] = field(default_factory=list)
     description: Optional[str] = None
 
 
@@ -145,22 +145,22 @@ class DashboardAuth:
         self.session_expiry = session_expiry
         self.pepper = pepper or os.environ.get("DASHBOARD_PEPPER") or secrets.token_hex(16)
 
-        self.users: Dict[str, User] = {}
-        self.roles: Dict[str, Role] = {}
-        self.permissions: Dict[str, Permission] = {}
+        self.users: dict[str, User] = {}
+        self.roles: dict[str, Role] = {}
+        self.permissions: dict[str, Permission] = {}
 
         # Security features
         self.rate_limiting_enabled = False
         self.max_auth_attempts = 5
         self.lockout_time = 300  # 5 minutes
-        self.failed_attempts: Dict[str, int] = {}
-        self.lockout_until: Dict[str, float] = {}
+        self.failed_attempts: dict[str, int] = {}
+        self.lockout_until: dict[str, float] = {}
 
         self.csrf_protection_enabled = False
-        self.csrf_tokens: Dict[str, str] = {}
+        self.csrf_tokens: dict[str, str] = {}
 
         self.audit_logging_enabled = False
-        self.audit_logs: List[Dict[str, Any]] = []
+        self.audit_logs: list[dict[str, Any]] = []
 
         # Add default permissions
         self._add_default_permissions()
@@ -207,7 +207,7 @@ class DashboardAuth:
         self.audit_logging_enabled = True
         logger.info("Enabled audit logging")
 
-    def log_audit_event(self, event_type: str, username: Optional[str] = None, details: Optional[Dict[str, Any]] = None) -> None:
+    def log_audit_event(self, event_type: str, username: Optional[str] = None, details: Optional[dict[str, Any]] = None) -> None:
         """
         Log an audit event.
 
@@ -233,7 +233,7 @@ class DashboardAuth:
         self.audit_logs.append(event)
         logger.info(f"Audit: {event_type}", extra={"audit": event})
 
-    def get_audit_logs(self, limit: int = 100, event_type: Optional[str] = None, username: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_audit_logs(self, limit: int = 100, event_type: Optional[str] = None, username: Optional[str] = None) -> list[dict[str, Any]]:
         """
         Get audit logs.
 
@@ -559,7 +559,7 @@ class DashboardAuth:
         logger.info(f"Authentication successful: {username}")
         return True
 
-    def get_user_permissions(self, username: str) -> Set[str]:
+    def get_user_permissions(self, username: str) -> set[str]:
         """
         Get permissions for a user.
 
@@ -596,7 +596,7 @@ class DashboardAuth:
         """
         return permission in self.get_user_permissions(username)
 
-    def create_session(self, username: str) -> Dict[str, Any]:
+    def create_session(self, username: str) -> dict[str, Any]:
         """
         Create a session for a user.
 
@@ -618,7 +618,7 @@ class DashboardAuth:
 
         return session_data
 
-    def validate_session(self, session_data: Dict[str, Any]) -> bool:
+    def validate_session(self, session_data: dict[str, Any]) -> bool:
         """
         Validate a session.
 

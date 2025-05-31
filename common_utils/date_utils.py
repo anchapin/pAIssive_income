@@ -7,7 +7,7 @@ This module provides common date manipulation functions used across the project.
 # Standard library imports
 import datetime
 from datetime import date, datetime, timedelta, timezone
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 # Third-party imports
 
@@ -137,7 +137,7 @@ def add_days(dt: Union[date, datetime], days: int) -> Union[date, datetime]:
     return dt + timedelta(days=days)
 
 
-def date_range(start_date: date, end_date: date) -> List[date]:
+def date_range(start_date: date, end_date: date) -> list[date]:
     """
     Generate a list of dates between start_date and end_date (inclusive).
 
@@ -157,7 +157,7 @@ def date_range(start_date: date, end_date: date) -> List[date]:
     return [start_date + timedelta(days=i) for i in range(delta.days + 1)]
 
 
-def get_month_start_end(year: int, month: int) -> Tuple[date, date]:
+def get_month_start_end(year: int, month: int) -> tuple[date, date]:
     """
     Get the start and end dates of a month.
 

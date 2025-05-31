@@ -7,7 +7,7 @@ See: docs/input_validation_and_error_handling_standards.md
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, TypeVar, Union
+from typing import Any, Optional, TypeVar, Union
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
@@ -18,7 +18,7 @@ T = TypeVar("T", bound=BaseModel)
 class ValidationError(Exception):
     """Raised when input validation fails."""
 
-    def __init__(self, message: str = "Input validation failed", details: Optional[List[Dict[str, Any]]] = None) -> None:
+    def __init__(self, message: str = "Input validation failed", details: Optional[list[dict[str, Any]]] = None) -> None:
         """
         Initialize the ValidationError.
 
@@ -77,7 +77,7 @@ def validate_input(model_cls: type[T], data: object) -> T:
         return model_instance
 
 
-def format_validation_error(error: PydanticValidationError) -> List[Dict[str, Any]]:
+def format_validation_error(error: PydanticValidationError) -> list[dict[str, Any]]:
     """
     Format a Pydantic validation error into a standardized format.
 
@@ -107,7 +107,7 @@ def format_validation_error(error: PydanticValidationError) -> List[Dict[str, An
 
 
 def validation_error_response(error: Union[PydanticValidationError, ValidationError, Exception],
-                             message: Optional[str] = None) -> Dict[str, Any]:
+                             message: Optional[str] = None) -> dict[str, Any]:
     """
     Standardized error response for validation errors.
 

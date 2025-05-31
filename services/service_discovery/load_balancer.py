@@ -3,7 +3,8 @@
 # Standard library imports
 import logging
 import random
-from typing import Any, Callable, Dict, List, Optional, Protocol
+from collections.abc import Callable
+from typing import Any, Optional, Protocol
 
 # Configure logging
 
@@ -39,7 +40,7 @@ logger = logging.getLogger(__name__)
 class LoadBalancingStrategy(Protocol):
     """Protocol for load balancing strategies."""
 
-    def select_instance(self, instances: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    def select_instance(self, instances: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
         """
         Select an instance from a list of instances.
 
@@ -63,7 +64,7 @@ class RoundRobinStrategy:
         """Initialize the round-robin strategy."""
         self.current_index = 0
 
-    def select_instance(self, instances: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    def select_instance(self, instances: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
         """
         Select an instance using round-robin strategy.
 
@@ -85,7 +86,7 @@ class RoundRobinStrategy:
 class RandomStrategy:
     """Random load balancing strategy."""
 
-    def select_instance(self, instances: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    def select_instance(self, instances: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
         """
         Select an instance randomly.
 
@@ -105,7 +106,7 @@ class RandomStrategy:
 class WeightedRandomStrategy:
     """Weighted random load balancing strategy."""
 
-    def __init__(self, weight_function: Callable[[Dict[str, Any]], float]):
+    def __init__(self, weight_function: Callable[[dict[str, Any]], float]):
         """
         Initialize the weighted random strategy.
 
@@ -115,7 +116,7 @@ class WeightedRandomStrategy:
         """
         self.weight_function = weight_function
 
-    def select_instance(self, instances: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    def select_instance(self, instances: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
         """
         Select an instance using weighted random strategy.
 
@@ -136,7 +137,7 @@ class WeightedRandomStrategy:
 class LeastConnectionsStrategy:
     """Least connections load balancing strategy."""
 
-    def select_instance(self, instances: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    def select_instance(self, instances: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
         """
         Select the instance with the least connections.
 
@@ -191,7 +192,7 @@ class LoadBalancer:
             return LeastConnectionsStrategy()
         raise ValueError(f"Invalid load balancing strategy: {strategy_name}")
 
-    def select_instance(self, instances: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    def select_instance(self, instances: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
         """
         Select an instance using the configured strategy.
 

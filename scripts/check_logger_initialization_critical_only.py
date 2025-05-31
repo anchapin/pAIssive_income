@@ -8,7 +8,6 @@ and acceptable patterns like function-level logger assignments.
 import ast
 import os
 import sys
-from typing import List
 
 
 class LoggerIssue:
@@ -26,7 +25,7 @@ class LoggerIssue:
 class SmartLoggerChecker(ast.NodeVisitor):
     def __init__(self, file_path: str):
         self.file_path = file_path
-        self.issues: List[LoggerIssue] = []
+        self.issues: list[LoggerIssue] = []
         self.imports_seen = False
         self.logging_imported = False
         self.logger_initialized = False
@@ -160,7 +159,7 @@ class SmartLoggerChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def check_file(file_path: str) -> List[LoggerIssue]:
+def check_file(file_path: str) -> list[LoggerIssue]:
     """Check a single Python file for critical logger initialization issues."""
     try:
         with open(file_path, encoding="utf-8") as f:
@@ -191,7 +190,7 @@ def check_file(file_path: str) -> List[LoggerIssue]:
         return [LoggerIssue(file_path, 0, "PARSE_ERROR", f"Failed to parse file: {e}")]
 
 
-def find_python_files(directory: str) -> List[str]:
+def find_python_files(directory: str) -> list[str]:
     """Find all Python files in the directory."""
     python_files = []
     for root, dirs, files in os.walk(directory):

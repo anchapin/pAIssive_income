@@ -67,7 +67,7 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from common_utils.logging.secure_logging import (
     SecureLogger,
@@ -109,7 +109,7 @@ class LogFilter(ABC):
     """Base class for log filters."""
 
     @abstractmethod
-    def filter(self, log_entry: Dict[str, Any]) -> bool:
+    def filter(self, log_entry: dict[str, Any]) -> bool:
         """
         Filter a log entry.
 
@@ -140,7 +140,7 @@ class LevelFilter(LogFilter):
         else:
             self.min_level = min_level.value
 
-    def filter(self, log_entry: Dict[str, Any]) -> bool:
+    def filter(self, log_entry: dict[str, Any]) -> bool:
         """
         Filter a log entry based on level.
 
@@ -159,7 +159,7 @@ class LevelFilter(LogFilter):
 class SensitiveDataFilter(LogFilter):
     """Filter sensitive data from logs."""
 
-    def __init__(self, fields: Optional[List[str]] = None):
+    def __init__(self, fields: Optional[list[str]] = None):
         """
         Initialize the sensitive data filter.
 
@@ -169,7 +169,7 @@ class SensitiveDataFilter(LogFilter):
         """
         self.fields = fields or []
 
-    def filter(self, log_entry: Dict[str, Any]) -> bool:
+    def filter(self, log_entry: dict[str, Any]) -> bool:
         """
         Mask sensitive data in a log entry.
 
@@ -196,7 +196,7 @@ class LogOutput(ABC):
     """Base class for log outputs."""
 
     @abstractmethod
-    def output(self, log_entry: Dict[str, Any]) -> None:
+    def output(self, log_entry: dict[str, Any]) -> None:
         """
         Output a log entry.
 
@@ -242,7 +242,7 @@ class FileOutput(LogOutput):
         # Create the log directory if it doesn't exist
         os.makedirs(directory, exist_ok=True)
 
-    def output(self, log_entry: Dict[str, Any]) -> None:
+    def output(self, log_entry: dict[str, Any]) -> None:
         """
         Output a log entry to a file.
 
@@ -364,7 +364,7 @@ class ElasticsearchOutput(LogOutput):
 
     def __init__(
         self,
-        hosts: List[str] = ["localhost:9200"],
+        hosts: list[str] = ["localhost:9200"],
         index_prefix: str = "logs",
         batch_size: int = 100,
         flush_interval: int = 5,
@@ -398,7 +398,7 @@ class ElasticsearchOutput(LogOutput):
         self.thread.daemon = True
         self.thread.start()
 
-    def output(self, log_entry: Dict[str, Any]) -> None:
+    def output(self, log_entry: dict[str, Any]) -> None:
         """
         Output a log entry to Elasticsearch.
 
@@ -493,7 +493,7 @@ class LogstashOutput(LogOutput):
         else:
             self.handler = logstash.TCPLogstashHandler(host, port)
 
-    def output(self, log_entry: Dict[str, Any]) -> None:
+    def output(self, log_entry: dict[str, Any]) -> None:
         """
         Output a log entry to Logstash.
 
@@ -538,8 +538,8 @@ class CentralizedLoggingService:
         host: str = "localhost",
         port: int = 5000,
         buffer_size: int = 8192,
-        outputs: Optional[List[LogOutput]] = None,
-        filters: Optional[List[LogFilter]] = None,
+        outputs: Optional[list[LogOutput]] = None,
+        filters: Optional[list[LogFilter]] = None,
         use_ssl: bool = False,
         ssl_cert: Optional[str] = None,
         ssl_key: Optional[str] = None,
@@ -676,7 +676,7 @@ class CentralizedLoggingService:
             f"uptime={uptime}"
         )
 
-    def receive_log(self) -> Dict[str, Any]:
+    def receive_log(self) -> dict[str, Any]:
         """
         Receive a log entry from a client.
 
@@ -747,7 +747,7 @@ class CentralizedLoggingService:
             self.stats["errors"] += 1
             raise
 
-    def process_log(self, log_entry: Dict[str, Any]) -> None:
+    def process_log(self, log_entry: dict[str, Any]) -> None:
         """
         Process a log entry.
 
@@ -775,7 +775,7 @@ class CentralizedLoggingService:
             self.logger.exception("Error processing log entry")
             self.stats["errors"] += 1
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """
         Get statistics about the logging service.
 
@@ -863,7 +863,7 @@ class LoggingClient:
         else:
             self.thread = None
 
-    def send_log(self, log_entry: Dict[str, Any]) -> None:
+    def send_log(self, log_entry: dict[str, Any]) -> None:
         """
         Send a log entry to the centralized logging service.
 
@@ -891,7 +891,7 @@ class LoggingClient:
             # Send immediately
             self._send_log_entry(log_entry)
 
-    def _send_log_entry(self, log_entry: Dict[str, Any]) -> bool:
+    def _send_log_entry(self, log_entry: dict[str, Any]) -> bool:
         """
         Send a log entry to the centralized logging service.
 
@@ -1140,7 +1140,7 @@ def get_centralized_logger(name: str) -> Union[logging.Logger, SecureLogger]:
         level: int,
         msg: str,
         *args: Any,
-        extra: Optional[Dict[str, Any]] = None,
+        extra: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         """

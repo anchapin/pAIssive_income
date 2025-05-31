@@ -2,7 +2,7 @@
 
 # Standard library imports
 import re
-from typing import Any, Dict
+from typing import Any
 from urllib.parse import urlparse
 
 # Third-party imports
@@ -97,7 +97,7 @@ def validate_url(url: str) -> bool:
         return False
 
 
-def validate_password_strength(password: str) -> Dict[str, Any]:
+def validate_password_strength(password: str) -> dict[str, Any]:
     """
     Validate password strength.
 
@@ -151,7 +151,7 @@ def validate_password_strength(password: str) -> Dict[str, Any]:
     }
 
 
-def validate_username(username: str) -> Dict[str, Any]:
+def validate_username(username: str) -> dict[str, Any]:
     """
     Validate a username.
 

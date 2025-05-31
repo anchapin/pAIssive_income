@@ -3,7 +3,7 @@
 # Standard library imports
 import asyncio
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ class OllamaAdapter(BaseModelAdapter):
             self._session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=self.timeout))
         return self._session
 
-    async def list_models(self) -> List[Dict[str, Any]]:
+    async def list_models(self) -> list[dict[str, Any]]:
         """
         List available models from Ollama.
 
@@ -95,7 +95,7 @@ class OllamaAdapter(BaseModelAdapter):
         except Exception as e:
             raise Exception(f"Error listing models: {e}")
 
-    async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+    async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
         """
         Generate text using the specified model.
 
@@ -128,7 +128,7 @@ class OllamaAdapter(BaseModelAdapter):
         except Exception as e:
             raise Exception(f"Error generating text: {e}")
 
-    async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+    async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
         """
         Generate chat completions using the specified model.
 

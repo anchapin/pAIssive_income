@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class MeteredBilling:
         """
         self.price_per_unit = price_per_unit
         self.unit = unit
-        self.usage_records: List[UsageRecord] = []
+        self.usage_records: list[UsageRecord] = []
 
     def record_usage(self, quantity: float, timestamp: Optional[datetime] = None) -> None:
         """
@@ -106,7 +106,7 @@ class MeteredBilling:
         )
         return bill_amount
 
-    def get_usage_summary(self) -> Dict[str, Union[float, int]]:
+    def get_usage_summary(self) -> dict[str, Union[float, int]]:
         """
         Get a summary of all usage records.
 

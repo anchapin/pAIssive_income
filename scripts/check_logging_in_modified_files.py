@@ -21,7 +21,6 @@ import logging
 import os
 import subprocess
 import sys
-from typing import List, Set, Tuple
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -41,7 +40,7 @@ from scripts.check_logger_initialization import (
 # logging.basicConfig will be moved to the main() function
 
 
-def get_modified_files() -> List[str]:
+def get_modified_files() -> list[str]:
     """
     Get the list of modified Python files in the current Git commit.
 
@@ -77,7 +76,7 @@ def get_modified_files() -> List[str]:
         return []
 
 
-def should_check_file(file_path: str, exclude_dirs: Set[str], exclude_files: Set[str], exclude_patterns: List[str]) -> bool:
+def should_check_file(file_path: str, exclude_dirs: set[str], exclude_files: set[str], exclude_patterns: list[str]) -> bool:
     """
     Check if a file should be checked.
 
@@ -113,7 +112,7 @@ def should_check_file(file_path: str, exclude_dirs: Set[str], exclude_files: Set
     return True
 
 
-def check_modified_files(fix: bool = False, verbose: bool = False) -> Tuple[List[LoggerIssue], int]:
+def check_modified_files(fix: bool = False, verbose: bool = False) -> tuple[list[LoggerIssue], int]:
     """
     Check modified files for logger initialization issues.
 

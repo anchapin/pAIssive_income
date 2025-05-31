@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     from .types import AgentVar, TaskVar
@@ -13,8 +13,8 @@ class Crew:
 
     def __init__(
         self,
-        agents: Optional[List[AgentVar]] = None,
-        tasks: Optional[List[TaskVar]] = None,
+        agents: Optional[list[AgentVar]] = None,
+        tasks: Optional[list[TaskVar]] = None,
         crew_type: Optional[Any] = None,
         **kwargs,
     ) -> None:

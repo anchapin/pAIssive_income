@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import datetime
-from typing import Any, Dict, TypeVar
+from typing import Any, TypeVar
 
 from sqlalchemy import Column, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship
@@ -79,7 +79,7 @@ class User(db.Model):  # type: ignore[name-defined]
         """
         return f"<User {self.username}>"
 
-    def to_dict(self, include_profile=False) -> Dict[str, Any]:
+    def to_dict(self, include_profile=False) -> dict[str, Any]:
         """
         Convert user model to dictionary.
 
@@ -106,7 +106,7 @@ class User(db.Model):  # type: ignore[name-defined]
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "User":
+    def from_dict(cls, data: dict[str, Any]) -> "User":
         """
         Create user from dictionary.
 
@@ -247,7 +247,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
             return f"<Agent {self.name} ({self.role})>"
         return f"<Agent {self.name}>"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Convert agent model to dictionary.
 
@@ -266,7 +266,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any], team=None) -> "Agent":
+    def from_dict(cls, data: dict[str, Any], team=None) -> "Agent":
         """
         Create agent from dictionary.
 

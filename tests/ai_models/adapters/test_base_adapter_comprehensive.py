@@ -37,10 +37,10 @@ class TestBaseAdapterComprehensive:
         """Test that an incomplete implementation of BaseModelAdapter cannot be instantiated."""
         # Create a class that implements only some of the required methods
         class IncompleteAdapter(BaseModelAdapter):
-            async def list_models(self) -> List[Dict[str, Any]]:
+            async def list_models(self) -> list[dict[str, Any]]:
                 return []
 
-            async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+            async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
                 return {"text": "test"}
 
         # Verify that the incomplete implementation cannot be instantiated
@@ -53,13 +53,13 @@ class TestBaseAdapterComprehensive:
         """Test that a complete implementation of BaseModelAdapter can be instantiated."""
         # Create a class that implements all required methods
         class CompleteAdapter(BaseModelAdapter):
-            async def list_models(self) -> List[Dict[str, Any]]:
+            async def list_models(self) -> list[dict[str, Any]]:
                 return []
 
-            async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+            async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
                 return {"text": "test"}
 
-            async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+            async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
                 return {"message": {"role": "assistant", "content": "test"}}
 
             async def close(self):
@@ -74,13 +74,13 @@ class TestBaseAdapterComprehensive:
         """Test that a concrete implementation's methods can be called."""
         # Create a class that implements all required methods
         class TestAdapter(BaseModelAdapter):
-            async def list_models(self) -> List[Dict[str, Any]]:
+            async def list_models(self) -> list[dict[str, Any]]:
                 return [{"id": "model1"}, {"id": "model2"}]
 
-            async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+            async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
                 return {"text": f"Generated text for {prompt}"}
 
-            async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+            async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
                 return {"message": {"role": "assistant", "content": "Chat response"}}
 
             async def close(self):
@@ -115,13 +115,13 @@ class TestBaseAdapterComprehensive:
         """Test that a concrete implementation can have additional methods."""
         # Create a class that implements all required methods and adds additional ones
         class ExtendedAdapter(BaseModelAdapter):
-            async def list_models(self) -> List[Dict[str, Any]]:
+            async def list_models(self) -> list[dict[str, Any]]:
                 return [{"id": "model1"}]
 
-            async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+            async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
                 return {"text": "test"}
 
-            async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+            async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
                 return {"message": {"role": "assistant", "content": "test"}}
 
             async def close(self):
@@ -146,13 +146,13 @@ class TestBaseAdapterComprehensive:
                 self.base_url = base_url
                 self.api_key = api_key
 
-            async def list_models(self) -> List[Dict[str, Any]]:
+            async def list_models(self) -> list[dict[str, Any]]:
                 return [{"id": "model1"}]
 
-            async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+            async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
                 return {"text": f"Using {self.base_url} with key {self.api_key}"}
 
-            async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+            async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
                 return {"message": {"role": "assistant", "content": "test"}}
 
             async def close(self):

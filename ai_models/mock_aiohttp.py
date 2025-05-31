@@ -7,8 +7,9 @@ when the actual aiohttp package is not available.
 
 # Standard library imports
 import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any, AsyncIterator, Dict, Optional
+from typing import Any, Optional
 
 # Configure logging
 
@@ -40,7 +41,7 @@ __version__ = "3.9.0-mock"
 class ClientResponse:
     """Mock implementation of aiohttp.ClientResponse."""
 
-    def __init__(self, status: int = 200, content: str = "", json_data: Optional[Dict[str, Any]] = None):
+    def __init__(self, status: int = 200, content: str = "", json_data: Optional[dict[str, Any]] = None):
         """
         Initialize the mock client response.
         
@@ -65,7 +66,7 @@ class ClientResponse:
         """
         return self._content
 
-    async def json(self) -> Dict[str, Any]:
+    async def json(self) -> dict[str, Any]:
         """
         Get the response content as JSON.
         
@@ -118,7 +119,7 @@ class ClientSession:
         )
 
     @asynccontextmanager
-    async def post(self, url: str, json: Optional[Dict[str, Any]] = None, **kwargs) -> AsyncIterator[ClientResponse]:
+    async def post(self, url: str, json: Optional[dict[str, Any]] = None, **kwargs) -> AsyncIterator[ClientResponse]:
         """
         Make a POST request.
         

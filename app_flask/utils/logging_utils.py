@@ -7,7 +7,8 @@ import logging
 import re
 import sys  # Added sys import
 import time
-from typing import Any, Callable, TypeVar, cast
+from collections.abc import Callable
+from typing import Any, TypeVar, cast
 
 logger = logging.getLogger(__name__)  # Initialize logger
 

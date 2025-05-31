@@ -12,7 +12,6 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import List
 
 # Initialize logger after imports
 logger = logging.getLogger(__name__)
@@ -140,7 +139,7 @@ def create_fallback_sarif() -> None:
         json.dump(empty_sarif, f, indent=2)
 
 
-def run_pytest_strategy(test_args: List[str]) -> int:
+def run_pytest_strategy(test_args: list[str]) -> int:
     """Run tests using pytest directly."""
     try:
         logger.info("Attempting to run tests with pytest...")
@@ -203,7 +202,7 @@ def run_pytest_strategy(test_args: List[str]) -> int:
         return 1
 
 
-def run_script_strategy(test_args: List[str]) -> int:
+def run_script_strategy(test_args: list[str]) -> int:
     """Run tests using run_tests.py script if available."""
     if not Path("run_tests.py").exists():
         return 1
@@ -225,7 +224,7 @@ def run_script_strategy(test_args: List[str]) -> int:
         return 1
 
 
-def run_discovery_strategy(test_args: List[str]) -> int:
+def run_discovery_strategy(test_args: list[str]) -> int:
     """Run tests with minimal test discovery."""
     try:
         logger.info("Attempting minimal test discovery...")
@@ -251,7 +250,7 @@ def run_discovery_strategy(test_args: List[str]) -> int:
         return 1
 
 
-def run_individual_files_strategy(test_args: List[str]) -> int:
+def run_individual_files_strategy(test_args: list[str]) -> int:
     """Run individual test files."""
     test_files = [
         arg for arg in test_args
@@ -289,7 +288,7 @@ def run_individual_files_strategy(test_args: List[str]) -> int:
     return overall_result
 
 
-def run_tests_with_fallback(test_args: List[str]) -> int:
+def run_tests_with_fallback(test_args: list[str]) -> int:
     """Run tests with multiple fallback strategies."""
     setup_ci_environment()
     ensure_mock_modules()

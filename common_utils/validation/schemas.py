@@ -1,7 +1,7 @@
 """schemas - Module for common_utils/validation.schemas."""
 
 # Standard library imports
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 # Third-party imports
 from pydantic import BaseModel, conint
@@ -23,7 +23,7 @@ class ErrorResponse(BaseModel):
     status: str = "error"
     message: str = "An error occurred"
     error_code: str = "validation_error"
-    errors: List[ErrorDetail]
+    errors: list[ErrorDetail]
 
 
 class SuccessResponse(BaseModel):
@@ -31,7 +31,7 @@ class SuccessResponse(BaseModel):
 
     status: str = "success"
     message: Optional[str] = None
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
 
 class PaginationParams(BaseModel):

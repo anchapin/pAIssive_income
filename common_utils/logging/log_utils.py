@@ -2,7 +2,7 @@
 
 import logging
 import sys  # Added sys import
-from typing import Any, List, Optional, Union
+from typing import Any, Optional, Union
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -148,7 +148,7 @@ def log_exception_safely(
 def configure_secure_logging(
     level: int = logging.INFO,
     format_string: Optional[str] = None,
-    handlers: Optional[List[logging.Handler]] = None
+    handlers: Optional[list[logging.Handler]] = None
 ) -> None:
     """
     Configure secure logging for the entire application.

@@ -29,7 +29,6 @@ import logging
 import os
 import re
 import sys
-from typing import Dict, List, Set, Tuple
 
 # Configure logging
 
@@ -125,7 +124,7 @@ class LoggerChecker(ast.NodeVisitor):
 
         """
         self.file_path = file_path
-        self.issues: List[LoggerIssue] = []
+        self.issues: list[LoggerIssue] = []
         self.logger_initialized = False
         self.logger_name = None
         self.logging_imported = False
@@ -363,7 +362,7 @@ class LoggerChecker(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def get_parents(self, node: ast.AST) -> List[ast.AST]:
+    def get_parents(self, node: ast.AST) -> list[ast.AST]:
         """
         Get the parent nodes of a node.
 
@@ -399,7 +398,7 @@ class LoggerChecker(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def check(self) -> List[LoggerIssue]:
+    def check(self) -> list[LoggerIssue]:
         """
         Check for logger initialization issues.
 
@@ -454,7 +453,7 @@ class LoggerChecker(ast.NodeVisitor):
         return self.issues
 
 
-def check_file(file_path: str) -> List[LoggerIssue]:
+def check_file(file_path: str) -> list[LoggerIssue]:
     """
     Check a file for logger initialization issues.
 
@@ -499,7 +498,7 @@ def check_file(file_path: str) -> List[LoggerIssue]:
         ]
 
 
-def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
+def fix_file(file_path: str, issues: list[LoggerIssue]) -> bool:
     """
     Fix logger initialization issues in a file.
 
@@ -586,12 +585,12 @@ def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
 
 def scan_directory(
     directory: str,
-    exclude_dirs: Set[str],
-    exclude_files: Set[str],
-    exclude_patterns: List[str],
+    exclude_dirs: set[str],
+    exclude_files: set[str],
+    exclude_patterns: list[str],
     fix: bool = False,
     verbose: bool = False,
-) -> Tuple[List[LoggerIssue], int]:
+) -> tuple[list[LoggerIssue], int]:
     """
     Scan a directory for Python files and check for logger initialization issues.
 
@@ -742,7 +741,7 @@ def main() -> int:
             logger.warning(f"Skipping {path} (not a Python file or directory)")
 
     # Group issues by file
-    issues_by_file: Dict[str, List[LoggerIssue]] = {}
+    issues_by_file: dict[str, list[LoggerIssue]] = {}
     for issue in all_issues:
         if issue.file_path not in issues_by_file:
             issues_by_file[issue.file_path] = []

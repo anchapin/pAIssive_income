@@ -6,7 +6,7 @@ import logging
 import sys  # Added sys import
 
 logger = logging.getLogger(__name__)
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 try:
     import aiohttp
@@ -69,7 +69,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             )
         return self._session
 
-    async def list_models(self) -> List[Dict[str, Any]]:
+    async def list_models(self) -> list[dict[str, Any]]:
         """
         List available models from the OpenAI-compatible API.
 
@@ -90,7 +90,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             logger.exception(f"Error listing models: {e}")
             return []
 
-    async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+    async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
         """
         Generate text using the specified model.
 
@@ -128,7 +128,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             logger.exception(f"Error generating text: {e}")
             return {"error": str(e)}
 
-    async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+    async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
         """
         Generate chat completions using the specified model.
 
@@ -166,7 +166,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             logger.exception(f"Error generating chat completion: {e}")
             return {"error": str(e)}
 
-    async def create_embedding(self, model: str, input_text: Union[str, List[str]], **kwargs) -> Dict[str, Any]:
+    async def create_embedding(self, model: str, input_text: Union[str, list[str]], **kwargs) -> dict[str, Any]:
         """
         Create embeddings for the given input text.
 

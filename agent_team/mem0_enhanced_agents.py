@@ -27,7 +27,7 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -223,7 +223,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         return result
 
     def _store_memory(
-        self, content: Union[str, List[Dict[str, str]]], metadata: Dict[str, str] = None
+        self, content: Union[str, list[dict[str, str]]], metadata: dict[str, str] = None
     ) -> None:
         """
         Store a memory using the RAG coordinator (mem0 backend).
@@ -245,7 +245,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
     def _retrieve_relevant_memories(
         self, query: str = None, limit: int = 5
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories for the current context using MemoryRAGCoordinator.
 

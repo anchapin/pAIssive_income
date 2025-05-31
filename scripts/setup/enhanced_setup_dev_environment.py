@@ -50,8 +50,9 @@ import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 import venv
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Optional, TextIO
+from typing import Any, Optional, TextIO
 
 logger = logging.getLogger(__name__)
 

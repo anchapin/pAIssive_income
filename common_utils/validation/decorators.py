@@ -2,7 +2,8 @@
 
 # Standard library imports
 import functools
-from typing import Callable, Type, TypeVar
+from collections.abc import Callable
+from typing import TypeVar
 
 # Third-party imports
 from pydantic import BaseModel
@@ -21,7 +22,7 @@ logger = get_logger(__name__)
 T = TypeVar("T", bound=BaseModel)
 
 
-def validate_request_body(model_class: Type[T]) -> Callable:
+def validate_request_body(model_class: type[T]) -> Callable:
     """
     Decorator to validate request body against a Pydantic model.
 
@@ -66,7 +67,7 @@ def validate_request_body(model_class: Type[T]) -> Callable:
     return decorator
 
 
-def validate_query_params(model_class: Type[T]) -> Callable:
+def validate_query_params(model_class: type[T]) -> Callable:
     """
     Decorator to validate query parameters against a Pydantic model.
 
@@ -111,7 +112,7 @@ def validate_query_params(model_class: Type[T]) -> Callable:
     return decorator
 
 
-def validate_path_params(model_class: Type[T]) -> Callable:
+def validate_path_params(model_class: type[T]) -> Callable:
     """
     Decorator to validate path parameters against a Pydantic model.
 

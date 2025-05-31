@@ -6,7 +6,7 @@ It contains simple functions and classes that are easy to test.
 """
 
 import logging
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 # Configure logging
 
@@ -330,7 +330,7 @@ class StringProcessor:
         self.operations_history.append(("capitalize", None))
         return self.text
 
-    def get_history(self) -> List[tuple]:
+    def get_history(self) -> list[tuple]:
         """
         Get the history of operations.
 
@@ -355,7 +355,7 @@ class StringProcessor:
 class DataProcessor:
     """Class for processing data."""
 
-    def __init__(self, data: Dict[str, Any] = None):
+    def __init__(self, data: dict[str, Any] = None):
         """
         Initialize the DataProcessor.
 
@@ -415,7 +415,7 @@ class DataProcessor:
         logger.warning(f"Key not found for removal: {key}")
         return False
 
-    def update_items(self, new_data: Dict[str, Any]) -> int:
+    def update_items(self, new_data: dict[str, Any]) -> int:
         """
         Update multiple items in the data.
 
@@ -429,7 +429,7 @@ class DataProcessor:
         self.data.update(new_data)
         return len(new_data)
 
-    def get_all(self) -> Dict[str, Any]:
+    def get_all(self) -> dict[str, Any]:
         """
         Get all data.
 
@@ -450,7 +450,7 @@ class DataProcessor:
         self.data = {}
         return True
 
-    def get_keys(self) -> List[str]:
+    def get_keys(self) -> list[str]:
         """
         Get all keys.
 
@@ -460,7 +460,7 @@ class DataProcessor:
         """
         return list(self.data.keys())
 
-    def get_values(self) -> List[Any]:
+    def get_values(self) -> list[Any]:
         """
         Get all values.
 
@@ -577,7 +577,7 @@ class Calculator:
         self.history.append(("reset", None))
         return self.value
 
-    def get_history(self) -> List[tuple]:
+    def get_history(self) -> list[tuple]:
         """
         Get the history of operations.
 

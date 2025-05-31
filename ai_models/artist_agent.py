@@ -10,7 +10,8 @@ from __future__ import annotations
 import logging  # Added import
 import os  # Added import for os.environ check
 import re
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 # Configure logging
 logger = logging.getLogger(__name__)

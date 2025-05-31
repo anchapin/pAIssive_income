@@ -2,7 +2,7 @@
 
 # Standard library imports
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 # Third-party imports
 # Local imports
@@ -47,8 +47,8 @@ class ConsulServiceRegistry:
         service_name: str,
         port: int,
         health_check_path: str = "/health",
-        tags: List[str] = None,
-        metadata: Dict[str, str] = None,
+        tags: list[str] = None,
+        metadata: dict[str, str] = None,
     ) -> bool:
         """
         Register a service with the registry.
@@ -95,7 +95,7 @@ class ConsulServiceRegistry:
         # In a real implementation, this would make an API call to Consul
         return True
 
-    def get_service_instances(self, service_name: str) -> List[Dict[str, Any]]:
+    def get_service_instances(self, service_name: str) -> list[dict[str, Any]]:
         """
         Get all instances of a service.
 
@@ -154,7 +154,7 @@ class ServiceDiscoveryClient:
                 health_check_path="/health",
             )
 
-    def discover_service(self, service_name: str) -> List[Dict[str, Any]]:
+    def discover_service(self, service_name: str) -> list[dict[str, Any]]:
         """
         Discover instances of a service.
 
@@ -196,8 +196,8 @@ class ServiceDiscoveryClient:
         service_name: str,
         port: int,
         health_check_path: str = "/health",
-        tags: List[str] = None,
-        metadata: Dict[str, str] = None,
+        tags: list[str] = None,
+        metadata: dict[str, str] = None,
     ) -> bool:
         """
         Register a service with the registry.

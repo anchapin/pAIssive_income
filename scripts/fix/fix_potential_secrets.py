@@ -20,7 +20,8 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, Pattern
+from re import Pattern
+from typing import Any
 
 # Configure logging
 

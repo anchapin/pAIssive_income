@@ -13,9 +13,10 @@ import hashlib
 import os
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
 from secrets import compare_digest
-from typing import Any, Callable
+from typing import Any
 
 # Local imports
 from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data

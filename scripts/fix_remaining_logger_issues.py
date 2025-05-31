@@ -8,7 +8,6 @@ and moves it to immediately after imports.
 
 import logging
 import os
-from typing import List
 
 # Configure logging
 
@@ -29,7 +28,7 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 
-def find_imports_end(lines: List[str]) -> int:
+def find_imports_end(lines: list[str]) -> int:
     """Find the line number where imports end."""
     import_end = 0
     docstring_end = 0
@@ -58,7 +57,7 @@ def find_imports_end(lines: List[str]) -> int:
     return import_end
 
 
-def find_logger_lines(lines: List[str]) -> List[int]:
+def find_logger_lines(lines: list[str]) -> list[int]:
     """Find all lines that initialize loggers."""
     logger_lines = []
     for i, line in enumerate(lines):
@@ -119,7 +118,7 @@ def fix_logger_init_too_late(file_path: str) -> bool:
         return False
 
 
-def get_files_with_logger_issues() -> List[str]:
+def get_files_with_logger_issues() -> list[str]:
     """Get list of files that have LOGGER_INIT_TOO_LATE issues."""
     files_with_issues = [
         "add_logging_import.py",

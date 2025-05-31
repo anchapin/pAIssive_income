@@ -13,7 +13,6 @@ This script addresses the most common logger issues found by check_logger_initia
 import logging
 import os
 import re
-from typing import List
 
 # Configure logging
 
@@ -160,7 +159,7 @@ def fix_missing_logger(file_path: str) -> bool:
         return False
 
 
-def get_python_files(directory: str, exclude_patterns: List[str] = None) -> List[str]:
+def get_python_files(directory: str, exclude_patterns: list[str] = None) -> list[str]:
     """Get all Python files in directory, excluding test files and common exclusions."""
     if exclude_patterns is None:
         exclude_patterns = [

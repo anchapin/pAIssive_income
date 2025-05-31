@@ -8,7 +8,7 @@ This module provides common JSON processing functions used across the project.
 import json
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 # Third-party imports
 # Local imports
@@ -177,7 +177,7 @@ def string_to_json(json_str: str) -> Any:
     return json.loads(json_str)
 
 
-def merge_json_objects(obj1: Dict[str, Any], obj2: Dict[str, Any]) -> Dict[str, Any]:
+def merge_json_objects(obj1: dict[str, Any], obj2: dict[str, Any]) -> dict[str, Any]:
     """
     Merge two JSON objects (dictionaries) recursively.
 
@@ -207,7 +207,7 @@ def merge_json_objects(obj1: Dict[str, Any], obj2: Dict[str, Any]) -> Dict[str, 
     return result
 
 
-def flatten_json(obj: Dict[str, Any], delimiter: str = ".") -> Dict[str, Any]:
+def flatten_json(obj: dict[str, Any], delimiter: str = ".") -> dict[str, Any]:
     """
     Flatten a nested JSON object into a single-level dictionary.
 
@@ -225,9 +225,9 @@ def flatten_json(obj: Dict[str, Any], delimiter: str = ".") -> Dict[str, Any]:
         {'a': 1, 'b.c': 2, 'b.d.e': 3}
 
     """
-    result: Dict[str, Any] = {}
+    result: dict[str, Any] = {}
 
-    def _flatten(x: Dict[str, Any], name: str = "") -> None:
+    def _flatten(x: dict[str, Any], name: str = "") -> None:
         for key, value in x.items():
             new_key = f"{name}{delimiter}{key}" if name else key
 
@@ -240,7 +240,7 @@ def flatten_json(obj: Dict[str, Any], delimiter: str = ".") -> Dict[str, Any]:
     return result
 
 
-def unflatten_json(obj: Dict[str, Any], delimiter: str = ".") -> Dict[str, Any]:
+def unflatten_json(obj: dict[str, Any], delimiter: str = ".") -> dict[str, Any]:
     """
     Unflatten a single-level dictionary into a nested JSON object.
 
@@ -258,7 +258,7 @@ def unflatten_json(obj: Dict[str, Any], delimiter: str = ".") -> Dict[str, Any]:
         {'a': 1, 'b': {'c': 2, 'd': {'e': 3}}}
 
     """
-    result: Dict[str, Any] = {}
+    result: dict[str, Any] = {}
 
     for key, value in obj.items():
         parts = key.split(delimiter)

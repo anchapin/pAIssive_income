@@ -3,7 +3,7 @@
 # Standard library imports
 import logging
 import sys
-from typing import Dict, List, Optional
+from typing import Optional
 
 # Configure logging
 
@@ -35,7 +35,7 @@ except ImportError as e:
 # Local imports
 
 # Cache for loggers to avoid creating multiple instances
-_loggers: Dict[str, logging.Logger] = {}
+_loggers: dict[str, logging.Logger] = {}
 
 
 def get_logger(name: str) -> logging.Logger:
@@ -64,7 +64,7 @@ def setup_logger(
     name: str,
     level: int = logging.INFO,
     format_str: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers: Optional[List[logging.Handler]] = None,
+    handlers: Optional[list[logging.Handler]] = None,
     propagate: bool = True,
 ) -> logging.Logger:
     """

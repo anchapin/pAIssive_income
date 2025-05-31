@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, TypeVar
+from typing import Any, TypeVar
 
 # Define type variables for forward references
 AgentVar = TypeVar("AgentVar", bound="Agent")
@@ -11,9 +11,9 @@ TaskVar = TypeVar("TaskVar", bound="Task")
 CrewVar = TypeVar("CrewVar", bound="Crew")
 
 # Define type aliases
-AgentDict = Dict[str, Any]
-TaskDict = Dict[str, Any]
-CrewDict = Dict[str, Any]
+AgentDict = dict[str, Any]
+TaskDict = dict[str, Any]
+CrewDict = dict[str, Any]
 
 # Define enums for agent, task, and crew types
 class AgentType(Enum):

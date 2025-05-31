@@ -9,7 +9,8 @@ the calculator and text_analyzer tools.
 import ast
 import logging
 import re
-from typing import Any, Callable, Dict
+from collections.abc import Callable
+from typing import Any, Dict
 from unittest.mock import patch
 
 import pytest

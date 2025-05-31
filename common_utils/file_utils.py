@@ -9,7 +9,7 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from typing import List, Union
+from typing import Union
 
 # Third-party imports
 # Local imports
@@ -56,7 +56,7 @@ def list_files(
     directory_path: Union[str, Path],
     pattern: str = "*",
     recursive: bool = False,
-) -> List[Path]:
+) -> list[Path]:
     """
     List files in a directory, optionally matching a pattern.
 
@@ -99,7 +99,7 @@ def list_files(
     return list(path.glob(pattern))
 
 
-def list_python_files(directory_path: Union[str, Path], recursive: bool = True) -> List[Path]:
+def list_python_files(directory_path: Union[str, Path], recursive: bool = True) -> list[Path]:
     """
     List Python files in a directory.
 

@@ -42,7 +42,7 @@ __all__ = [
 
 
 # Logger cache to avoid creating duplicate loggers
-_logger_cache: Dict[str, Union[SecureLogger, logging.Logger]] = {}
+_logger_cache: dict[str, Union[SecureLogger, logging.Logger]] = {}
 
 # Create a default secure logger instance
 secure_logger = get_secure_logger("secure_logger")

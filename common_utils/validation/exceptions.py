@@ -1,7 +1,7 @@
 """exceptions - Module for common_utils/validation.exceptions."""
 
 # Standard library imports
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 # Third-party imports
 
@@ -18,7 +18,7 @@ class ValidationError(Exception):
     def __init__(
         self,
         message: str = "Validation error",
-        errors: Optional[List[Dict[str, Any]]] = None
+        errors: Optional[list[dict[str, Any]]] = None
     ) -> None:
         """
         Initialize ValidationError with message and optional errors.
@@ -48,7 +48,7 @@ class ValidationError(Exception):
             "type": error_type
         })
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Convert the error to a dictionary representation.
 

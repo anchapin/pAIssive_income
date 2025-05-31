@@ -10,7 +10,7 @@ Note: This is a demonstration script and not intended for production use.
 """
 
 import os
-from typing import Dict, Optional
+from typing import Optional
 
 # Import mem0 - this requires the package to be installed
 try:
@@ -103,7 +103,7 @@ class MemoryEnhancedAgent(MockAgent):
 
         return response
 
-    def _build_context_from_memories(self, memories: Optional[Dict]) -> str:
+    def _build_context_from_memories(self, memories: Optional[dict]) -> str:
         """
         Convert memories to a format usable by the agent.
 
