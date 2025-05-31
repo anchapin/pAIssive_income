@@ -22,7 +22,7 @@ from typing import Any
 
 # Third-party imports
 import matplotlib.pyplot as plt
-import pandas as pd
+import polars as pl
 
 # Constants
 DEFAULT_LOOKBACK_DAYS = 30
@@ -87,48 +87,52 @@ def load_metrics(input_file: str) -> list[dict[str, Any]]:
     return metrics_data
 
 
-def process_metrics(metrics_data: list[dict[str, Any]]) -> pd.DataFrame:
+def process_metrics(metrics_data: list[dict[str, Any]]) -> pl.DataFrame:
     """
-    Process raw metrics into pandas DataFrame.
+    Process raw metrics into polars DataFrame.
 
     Args:
         metrics_data (list): List of workflow metrics records
 
     Returns:
-        pandas.DataFrame: Processed metrics data
+        polars.DataFrame: Processed metrics data
 
     """
     if not metrics_data:
         logger.warning("No metrics data to process")
-        return pd.DataFrame()
+        return pl.DataFrame()
 
     # Convert to DataFrame
-    metrics_df = pd.DataFrame(metrics_data)
+    metrics_df = pl.DataFrame(metrics_data)
 
     # Convert timestamps to datetime
     if "timestamp" in metrics_df.columns:
-        metrics_df["timestamp"] = pd.to_datetime(metrics_df["timestamp"])
-        metrics_df["date"] = metrics_df["timestamp"].dt.date
+        metrics_df = metrics_df.with_columns([
+            pl.col("timestamp").str.strptime(pl.Datetime, strict=False).alias("timestamp"),
+            pl.col("timestamp").dt.date().alias("date")
+        ])
 
     # Ensure duration is numeric
     if "duration" in metrics_df.columns:
-        metrics_df["duration"] = pd.to_numeric(
-            metrics_df["duration"], errors="coerce"
-        ).fillna(0)
+        metrics_df = metrics_df.with_columns([
+            pl.col("duration").cast(pl.Float64).fill_null(0).alias("duration")
+        ])
 
     # Add derived columns
     if "status" in metrics_df.columns:
-        metrics_df["is_success"] = metrics_df["status"] == "success"
+        metrics_df = metrics_df.with_columns([
+            (pl.col("status") == "success").alias("is_success")
+        ])
 
     return metrics_df
 
 
-def generate_success_rate_chart(df: pd.DataFrame, output_dir: str) -> None:
+def generate_success_rate_chart(df: pl.DataFrame, output_dir: str) -> None:
     """
     Generate success rate chart.
 
     Args:
-        df (pandas.DataFrame): Processed metrics data
+        df (polars.DataFrame): Processed metrics data
         output_dir (str): Output directory for charts
 
     """
@@ -139,9 +143,12 @@ def generate_success_rate_chart(df: pd.DataFrame, output_dir: str) -> None:
     plt.figure(figsize=(10, 6))
 
     # Group by workflow and count statuses
-    workflow_status = pd.pivot_table(
-        df, index="workflow", columns="status", aggfunc="size", fill_value=0
-    )
+    workflow_status = df.pivot(
+        values="status",
+        index="workflow",
+        columns="status",
+        aggfunc="count"
+    ).fill_null(0)
 
     # Calculate success rate
     workflow_status["total"] = workflow_status.sum(axis=1)
@@ -170,12 +177,12 @@ def generate_success_rate_chart(df: pd.DataFrame, output_dir: str) -> None:
     plt.close()
 
 
-def generate_duration_chart(df: pd.DataFrame, output_dir: str) -> None:
+def generate_duration_chart(df: pl.DataFrame, output_dir: str) -> None:
     """
     Generate workflow duration chart.
 
     Args:
-        df (pandas.DataFrame): Processed metrics data
+        df (polars.DataFrame): Processed metrics data
         output_dir (str): Output directory for charts
 
     """
@@ -214,12 +221,12 @@ def generate_duration_chart(df: pd.DataFrame, output_dir: str) -> None:
     plt.close()
 
 
-def generate_trend_chart(df: pd.DataFrame, output_dir: str) -> None:
+def generate_trend_chart(df: pl.DataFrame, output_dir: str) -> None:
     """
     Generate workflow trend chart showing success/failure over time.
 
     Args:
-        df (pandas.DataFrame): Processed metrics data
+        df (polars.DataFrame): Processed metrics data
         output_dir (str): Output directory for charts
 
     """
@@ -230,9 +237,12 @@ def generate_trend_chart(df: pd.DataFrame, output_dir: str) -> None:
     plt.figure(figsize=(12, 6))
 
     # Group by date and status
-    daily_status = pd.pivot_table(
-        df, index="date", columns="status", aggfunc="size", fill_value=0
-    )
+    daily_status = df.pivot(
+        values="status",
+        index="date",
+        columns="status",
+        aggfunc="count"
+    ).fill_null(0)
 
     # Fill missing statuses
     for status in ["success", "failure", "cancelled", "skipped"]:
@@ -261,12 +271,12 @@ def generate_trend_chart(df: pd.DataFrame, output_dir: str) -> None:
     plt.close()
 
 
-def generate_branch_performance_chart(df: pd.DataFrame, output_dir: str) -> None:
+def generate_branch_performance_chart(df: pl.DataFrame, output_dir: str) -> None:
     """
     Generate branch performance chart.
 
     Args:
-        df (pandas.DataFrame): Processed metrics data
+        df (polars.DataFrame): Processed metrics data
         output_dir (str): Output directory for charts
 
     """

@@ -13,10 +13,16 @@ on:
         required: false
         default: false
         type: boolean
+  workflow_run:
+    workflows: ["Gradual Lint Check"]
+    types:
+      - completed
 
 jobs:
   vitest:
     runs-on: ubuntu-latest
+    # Only run if auto-fix workflow completed successfully, or if triggered by other events
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     defaults:
       run:
         working-directory: ui/react_frontend

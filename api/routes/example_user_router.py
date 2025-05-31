@@ -32,7 +32,7 @@ class CreateUserModel(BaseModel):
     age: int = Field(..., ge=0, le=120)
 
 
-@router.post("/", summary="Create a new user")
+@router.post("/", summary="Create a new user", status_code=status.HTTP_200_OK)
 async def create_user(request: Request) -> dict[str, Any]:
     """Create a new user with validated input data."""
     try:
@@ -42,7 +42,11 @@ async def create_user(request: Request) -> dict[str, Any]:
         return {"message": "User created", "user": user_in.model_dump()}
     except ValidationError as exc:
         result: dict[str, Any] = validation_error_response(exc)
-        return result
+        # Set the appropriate status code for validation errors
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=result
+        )
     except Exception as exc:
         logger.exception("An unexpected error occurred")
         raise HTTPException(

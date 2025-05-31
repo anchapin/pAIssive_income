@@ -10,7 +10,7 @@ The project uses PostgreSQL as the database backend. The database connection is 
 
 ```python
 SQLALCHEMY_DATABASE_URI = os.environ.get(
-    "DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb"
+    "DATABASE_URL", "postgresql://myuser:mypassword@db:5433/mydb"
 )
 ```
 

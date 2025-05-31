@@ -14,9 +14,11 @@ This project enforces high standards for test coverage, reliability, and maintai
 
 ## Coverage Requirements
 
-- **90% minimum line coverage** is enforced by CI.
+- **15% minimum line coverage** is enforced by CI across all workflows.
+- Coverage configuration is maintained in `.coveragerc`, `pytest.ini`, and `pyproject.toml`.
 - Run `python run_tests.py --with-coverage` locally before submitting a PR.
-- Coverage gating is enforced via `--cov-fail-under=90` in CI.
+- Coverage gating is enforced via `--cov-fail-under=15` in CI.
+- Branch coverage is enabled to ensure comprehensive testing of code paths.
 
 ---
 

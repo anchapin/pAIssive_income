@@ -1,0 +1,230 @@
+
+.\add_logging_import.py:
+  Line 21: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\coverage_placeholder.py:
+  Line 27: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 9: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\debug_workflow.py:
+  Line 10: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\demo_vector_rag.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\fix_line_endings.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\fix_pr_139_critical_issues.py:
+  Line 574: STRING_CONCAT_IN_LOGGING: Using string concatenation in logging call instead of formatting
+
+.\fix_workflow_issues.py:
+  Line 19: GLOBAL_BASICCONFIG: logging.basicConfig should be used in a main guard or function, not in global scope
+  Line 16: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\logging_config.py:
+  Line 27: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\main_artist_agent.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\main_demo_vector_rag.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\main_health_check.py:
+  Line 10: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\run_pre_commit.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\run_pre_commit_on_all_files.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\run_ui.py:
+  Line 225: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\ai_models\mock_aiohttp.py:
+  Line 29: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 11: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\ai_models\adapters\ollama_adapter.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\common_utils\logging\centralized_logging.py:
+  Line 1105: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 1135: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 1195: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\common_utils\logging\examples.py:
+  Line 55: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\common_utils\logging\logger.py:
+  Line 21: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 58: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\common_utils\logging\log_aggregation.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\common_utils\logging\log_utils.py:
+  Line 177: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\common_utils\logging\ml_log_analysis.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\common_utils\logging\secure_logging.py:
+  Line 28: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 350: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\common_utils\logging\__init__.py:
+  Line 70: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 74: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\dev_tools\health_check.py:
+  Line 9: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+
+.\interfaces\knowledge_interfaces.py:
+  Line 30: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 13: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\migrations\env.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\scripts\check_logger_initialization.py:
+  Line 50: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 32: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\check_logging_in_modified_files.py:
+  Line 178: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\fix_logger_issues.py:
+  Line 34: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 16: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\scripts\fix_remaining_logger_issues.py:
+  Line 29: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 11: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\scripts\manage_quality.py:
+  Line 40: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 22: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\sues.py:
+  Line 30: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 12: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\fix\fix_all_files.py:
+  Line 15: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\fix\fix_bandit_security_scan.py:
+  Line 23: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\fix\fix_codeql_issues.py:
+  Line 20: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\fix\fix_github_actions_bandit.py:
+  Line 20: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\fix\fix_linting_issues.py:
+  Line 23: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\fix\fix_potential_secrets.py:
+  Line 23: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\scripts\fix\fix_syntax_errors.py:
+  Line 24: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 5: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\fix\run_pre_commit_on_all_files.py:
+  Line 15: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\run\run_github_actions_locally.py:
+  Line 27: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 12: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\run\run_linters.py:
+  Line 22: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\run\run_linting.py:
+  Line 32: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 14: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\run\run_tests.py:
+  Line 20: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\scripts\setup\regenerate_venv.py:
+  Line 12: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\setup\setup_pre_commit.py:
+  Line 34: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 16: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\utils\cleanup_egg_info.py:
+  Line 24: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 6: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\utils\create_sarif_files.py:
+  Line 11: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\utils\debug_filtering.py:
+  Line 23: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 29: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 6: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\utils\format_script_files.py:
+  Line 26: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 8: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\utils\missing_schemas.py:
+  Line 24: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 6: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\utils\sarif_utils.py:
+  Line 26: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 8: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\utils\service_initialization.py:
+  Line 23: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 29: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 6: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\scripts\utils\verify_tracked_files.py:
+  Line 24: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\services\ai_models_service\app.py:
+  Line 22: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 3: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\services\message_queue_service\app.py:
+  Line 22: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 3: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\services\niche_analysis_service\app.py:
+  Line 22: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 3: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\services\service_discovery\discovery_client.py:
+  Line 26: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 9: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\services\service_discovery\load_balancer.py:
+  Line 24: LOGGER_INIT_TOO_LATE: Logger should be initialized immediately after imports
+  Line 6: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+.\tools\log_dashboard.py:
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\tools\run_centralized_logging_service.py:
+  Line 36: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+  Line 0: NO_LOGGER_EXCEPTION: Module has exception handling but doesn't use logger.exception()
+
+.\tools\run_log_aggregation.py:
+  Line 39: MISSING_LOGGER: Logging module imported but no logger initialized
+  Line 39: NO_TRY_EXCEPT_IMPORT: Consider using try/except blocks around third-party imports
+
+Found 102 issues in 63 files

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 """
 Script to fix common linting issues across the codebase.
 
@@ -19,11 +23,19 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s: %(message)s",
-)
-logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
 
 
 def get_executable_path(name: str) -> str:
@@ -372,6 +384,11 @@ def _process_files_in_parallel(
 
 def main() -> None:
     """Run the script."""
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s: %(message)s",
+    )
     args = _parse_arguments()
 
     # Process exclude patterns

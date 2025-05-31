@@ -1,17 +1,36 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """Fix line endings in a file."""
 
 import logging
 import os
 import sys
-from pathlib import Path
+
+try:
+    from pathlib import Path
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s: %(message)s",
-)
-logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
+except ImportError:
+
+    sys.exit(1)
+
 
 # Constants
 EXPECTED_ARG_COUNT = 2
@@ -40,6 +59,11 @@ def fix_line_endings(file_path: str) -> None:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s: %(message)s",
+    )
     if len(sys.argv) != EXPECTED_ARG_COUNT:
         logger.error("Usage: %s <file_path>", sys.argv[0])
         sys.exit(1)

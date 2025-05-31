@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""Test script to verify the mock_crewai module fixes."""
+
+import os
+import sys
+
+# Add the project root to the Python path
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+def test_mock_crewai() -> bool | None:
+    """Test the mock_crewai module."""
+    try:
+        # Import the module
+        import mock_crewai
+
+        # Check version attribute
+        assert hasattr(mock_crewai, "__version__")
+        assert mock_crewai.__version__ == "0.120.0"
+
+        # Check enum types
+        assert hasattr(mock_crewai, "AgentType")
+        assert hasattr(mock_crewai.AgentType, "DEFAULT")
+        assert hasattr(mock_crewai.AgentType, "OPENAI")
+        assert hasattr(mock_crewai.AgentType, "ANTHROPIC")
+
+        assert hasattr(mock_crewai, "TaskType")
+        assert hasattr(mock_crewai.TaskType, "DEFAULT")
+        assert hasattr(mock_crewai.TaskType, "SEQUENTIAL")
+        assert hasattr(mock_crewai.TaskType, "PARALLEL")
+
+        assert hasattr(mock_crewai, "CrewType")
+        assert hasattr(mock_crewai.CrewType, "DEFAULT")
+        assert hasattr(mock_crewai.CrewType, "HIERARCHICAL")
+
+        # Test creating instances
+        agent = mock_crewai.Agent(
+            role="Test Agent",
+            goal="Test Goal",
+            backstory="Test Backstory",
+            agent_type=mock_crewai.AgentType.DEFAULT
+        )
+
+        task = mock_crewai.Task(
+            description="Test Task",
+            agent=agent,
+            task_type=mock_crewai.TaskType.DEFAULT
+        )
+
+        crew = mock_crewai.Crew(
+            agents=[agent],
+            tasks=[task],
+            crew_type=mock_crewai.CrewType.DEFAULT
+        )
+
+        # Test methods
+        agent.execute_task(task)
+
+        crew.kickoff()
+
+        # Test run alias
+        assert crew.run == crew.kickoff
+
+        return True
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        return False
+
+if __name__ == "__main__":
+    success = test_mock_crewai()
+    sys.exit(0 if success else 1)

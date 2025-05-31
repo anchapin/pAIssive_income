@@ -1,0 +1,122 @@
+# CI-friendly requirements file for Windows
+# This file contains dependencies needed for GitHub Actions workflows on Windows
+# Excludes packages that don't support Windows
+
+# Core testing dependencies
+pytest>=8.0.0
+pytest-cov>=4.0.0
+pytest-asyncio>=0.21.0
+pytest-xdist>=3.0.0
+pytest-mock>=3.10.0
+pytest-timeout>=2.1.0
+
+# Code quality tools
+ruff>=0.1.0
+pyright>=1.1.0
+black>=23.0.0
+
+# Security scanning tools (Windows compatible only)
+safety>=2.3.0
+bandit>=1.7.0
+pip-audit>=2.6.0
+# semgrep>=1.0.0  # EXCLUDED: Does not support Windows
+
+# Core dependencies (filtered for CI compatibility)
+fastapi>=0.100.0
+uvicorn>=0.23.0
+pydantic>=2.0.0
+sqlalchemy>=2.0.0
+alembic>=1.11.0
+python-multipart>=0.0.6
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-dotenv>=1.0.0
+requests>=2.31.0
+aiohttp>=3.8.0
+httpx>=0.24.0
+jinja2>=3.1.0
+click>=8.1.0
+rich>=13.0.0
+typer>=0.9.0
+
+# Database drivers
+psycopg2-binary>=2.9.0
+asyncpg>=0.28.0
+
+# Async support
+asyncio-mqtt>=0.13.0
+aiofiles>=23.0.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3
+pyyaml>=6.0
+toml>=0.10.0
+packaging>=23.0
+
+# Web framework support
+flask>=2.3.0
+werkzeug>=2.3.0
+flask-cors>=4.0.0
+flask-sqlalchemy>=3.0.0
+flask-migrate>=4.0.0
+
+# Machine Learning (basic packages only)
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+gymnasium>=1.0.0
+
+# OpenTelemetry dependencies (pinned to avoid conflicts)
+opentelemetry-api>=1.30.0,<1.32.0
+opentelemetry-sdk>=1.30.0,<1.32.0
+opentelemetry-exporter-otlp-proto-grpc>=1.30.0,<1.32.0
+opentelemetry-exporter-otlp-proto-http>=1.30.0,<1.32.0
+opentelemetry-semantic-conventions>=0.51b0,<0.54b0
+wrapt>=1.14.0,<1.16.0
+backoff>=1.10.0,<2.0.0
+
+# Monitoring and logging
+structlog>=23.0.0
+prometheus-client>=0.17.0
+
+# Development tools
+ipython>=8.0.0
+jupyter>=1.0.0
+
+# Documentation
+sphinx>=7.0.0
+sphinx-rtd-theme>=1.3.0
+
+# Additional testing utilities
+hypothesis>=6.80.0
+factory-boy>=3.3.0
+freezegun>=1.2.0
+
+# Redis support
+redis>=4.5.0
+
+# EXCLUDED PACKAGES FOR CI COMPATIBILITY:
+# The following packages are commented out because they cause CI failures
+
+# MCP integration - commented out for CI compatibility
+# modelcontextprotocol>=0.1.0
+# mcp-server-stdio>=0.1.0
+# mcp-client>=0.1.0
+
+# CrewAI - commented out for CI compatibility  
+# crewai>=0.120.0
+
+# Memory layer - commented out for CI compatibility
+# mem0ai>=0.1.100
+# qdrant-client>=1.9.1
+
+# Advanced ML packages that can cause CI issues
+# torch>=1.10.0
+# transformers>=4.20.0
+# sentence-transformers>=2.2.0
+
+# Windows incompatible packages
+# semgrep>=1.0.0  # Does not support Windows
+
+# Note: Mock modules are created automatically in CI for these excluded packages 

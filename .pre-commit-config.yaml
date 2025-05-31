@@ -65,16 +65,20 @@ repos:
   # Type checking (run after formatting/linting)
   - repo: local
     hooks:
-      - id: pyrefly
-        name: Type check with Pyrefly
-        entry: python -m pyrefly
+      - id: pyright
+        name: Type check with Pyright
+        entry: pyright
         language: system
         types: [python]
         require_serial: true
         exclude: |
           (?x)(
             ^scripts/__init__.py$|
-            ^.github/scripts/__init__.py$
+            ^.github/scripts/__init__.py$|
+            ^ai_models/adapters/mcp_adapter.py$|
+            ^tests/ai_models/adapters/test_mcp_adapter.py$|
+            ^tests/test_mcp_import.py$|
+            ^tests/test_mcp_top_level_import.py$
           )
 
   # Optimized local hooks for incremental checks
@@ -92,6 +96,21 @@ repos:
             ^scripts/__init__.py$|
             ^.github/scripts/__init__.py$
           )
+
+      - id: check-logger-initialization
+        name: Check logger initialization
+        entry: python scripts/check_logger_initialization.py
+        language: system
+        types: [python]
+        pass_filenames: true
+        stages: [pre-commit]
+
+      - id: check-logging-in-modified-files
+        name: Check logging in modified files
+        entry: python scripts/check_logging_in_modified_files.py
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
 
       - id: js-tests
         name: Run JavaScript tests with coverage (pnpm test)

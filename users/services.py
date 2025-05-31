@@ -12,10 +12,10 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any, Protocol, cast
 
-# Third-party imports
 import jwt
+from sqlalchemy.exc import SQLAlchemyError
 
-# Local imports
+from app_flask import db
 from common_utils.logging import get_logger
 from users.auth import hash_credential, verify_credential
 
@@ -75,6 +75,14 @@ except ImportError:
 class AuthenticationError(ValueError):
     """Raised when there's an authentication-related error."""
 
+    USERNAME_REQUIRED = "Username is required"
+    EMAIL_REQUIRED = "Email is required"
+    PASSWORD_REQUIRED = "Password is required"
+
+    def __init__(self, message: str | None = None) -> None:
+        """Initialize with a default message if none provided."""
+        super().__init__(message or "Authentication error")
+
 
 class UserExistsError(ValueError):
     """Raised when a user already exists."""
@@ -107,7 +115,7 @@ class DatabaseSessionNotAvailableError(ValueError):
 
 
 class UserService:
-    """Service for user management."""
+    """Service for user management operations."""
 
     def __init__(
         self,
@@ -119,31 +127,28 @@ class UserService:
         Initialize the user service.
 
         Args:
-            user_repository: Repository for user data
-            token_secret: Secret for JWT token generation
-            token_expiry: Expiry time for JWT tokens in seconds
+            token_secret: Secret key for JWT token generation/verification
+
+        Raises:
+            AuthenticationError: If token_secret is not provided
 
         """
-        # Store the user repository if provided
-        if user_repository is not None:
-            self.user_repository = user_repository
-
-        # Don't set a default token secret - require it to be provided
         if not token_secret:
             logger.error("No token secret provided")
             raise AuthenticationError
 
-        # Enhanced security: Store token secret in a private variable
         self.__token_secret = token_secret
-
-        logger.debug("Token secret configured successfully")
-
-        self.token_expiry = token_expiry or 3600  # 1 hour default
+        self.__token_expiry = 3600  # 1 hour default
 
     @property
     def token_secret(self) -> str:
-        """Securely access the token secret."""
+        """Get the token secret."""
         return self.__token_secret
+
+    @property
+    def token_expiry(self) -> int:
+        """Get the token expiry time in seconds."""
+        return self.__token_expiry
 
     def create_user(
         self, username: str, email: str, auth_credential: str, **kwargs: object
@@ -152,20 +157,27 @@ class UserService:
         Create a new user.
 
         Args:
-        ----
             username: Username for the new user
-            email: Email for the new user
-            auth_credential: Authentication credential for the new user
-            **kwargs: Additional user data
+            email: Email address for the new user
+            password: Password for the new user
 
         Returns:
-        -------
-            Dict: The created user data (without sensitive information)
+            Dict containing user data
+
+        Raises:
+            AuthenticationError: If required fields are missing
+            UserExistsError: If username/email already exists
+            UserModelNotAvailableError: If User model not available
+            DatabaseSessionNotAvailableError: If db session not available
 
         """
         # Validate inputs
-        if not username or not email or not auth_credential:
-            raise AuthenticationError
+        if not username:
+            raise AuthenticationError(AuthenticationError.USERNAME_REQUIRED)
+        if not email:
+            raise AuthenticationError(AuthenticationError.EMAIL_REQUIRED)
+        if not auth_credential:
+            raise AuthenticationError(AuthenticationError.PASSWORD_REQUIRED)
 
         # Check if user already exists
         if hasattr(self, "user_repository") and self.user_repository:
@@ -213,9 +225,13 @@ class UserService:
             **{k: v for k, v in kwargs.items() if hasattr(model, k)},
         )
         db.session.add(user)
-        db.session.commit()
-
-        logger.info("User created successfully", extra={"user_id": user.id})
+        try:
+            db.session.commit()
+            logger.info("User created successfully", extra={"user_id": user.id})
+        except SQLAlchemyError as e:
+            logger.exception("Database error creating user")
+            db.session.rollback()
+            raise DatabaseSessionNotAvailableError from e
 
         # Return user data without sensitive information
         created_at = getattr(user, "created_at", None)
@@ -258,56 +274,58 @@ class UserService:
         ).first()
 
         if not user:
-            # Don't leak whether the username exists - just log an event with a hash
-            user_hash = hash(username_or_email) % 10000  # Simple hash for privacy
-            logger.info(
-                "Authentication attempt for non-existent user",
-                extra={"user_hash": user_hash},
-            )
             return False, None
 
         # Verify the credential
         if not verify_credential(auth_credential, user.password_hash):
-            logger.info("Failed authentication attempt", extra={"user_id": user.id})
             return False, None
 
-        # Update last login time if field exists
-        if hasattr(user, "last_login"):
-            user.last_login = datetime.now(tz=timezone.utc)
+        try:
+            # Update last login time if field exists
+            if hasattr(user, "last_login"):
+                user.last_login = datetime.now(tz=timezone.utc)
 
-            # Check if db_session is available
-            if db_session is None:
-                raise DatabaseSessionNotAvailableError
+                # Check if db_session is available
+                if db_session is None:
+                    raise DatabaseSessionNotAvailableError
 
-            # Use db_session directly since we've checked it's not None
-            db = db_session
-            db.session.commit()
+                # Use db_session directly since we've checked it's not None
+                db = db_session
+                db.session.commit()
+        except SQLAlchemyError:
+            logger.exception("Database error updating last login")
+            if "db" in locals():
+                db.session.rollback()
+            return False, None
 
         # Return user data without sensitive information
-        user_data = {
+        created_at = getattr(user, "created_at", None)
+        updated_at = getattr(user, "updated_at", None)
+
+        return True, {
             "id": user.id,
             "username": user.username,
             "email": user.email,
+            "created_at": str(created_at) if created_at else None,
+            "updated_at": str(updated_at) if updated_at else None,
         }
-        logger.info("Authentication successful", extra={"user_id": user.id})
-        return True, user_data
+
+# This method has been replaced by the authenticate_user method above
 
     def generate_token(self, user_id: str, **additional_claims: object) -> str:
         """
         Generate a JWT token for a user.
 
         Args:
-        ----
             user_id: ID of the user
-            **additional_claims: Additional claims to include in the token
+            claims: Additional claims to include in token
 
         Returns:
-        -------
-            str: The generated JWT token
+            JWT token string
 
         """
         now = datetime.now(tz=timezone.utc)
-        expiry = now + timedelta(seconds=self.token_expiry)
+        expiry = now + timedelta(seconds=self.__token_expiry)
 
         # Sanitize additional claims to prevent sensitive data leakage
         safe_claims = {}
@@ -340,9 +358,9 @@ class UserService:
         payload = {
             "sub": user_id,
             "iat": now.timestamp(),
-            "exp": expiry.timestamp(),
-            "jti": str(uuid.uuid4()),  # Add unique JWT ID to prevent replay attacks
-            **safe_claims,
+            "exp": now.timestamp() + self.__token_expiry,
+            "jti": str(uuid.uuid4()),
+            **safe_claims
         }
 
         auth_token = jwt.encode(payload, self.__token_secret, algorithm="HS256")
@@ -367,22 +385,203 @@ class UserService:
         Verify a JWT token.
 
         Args:
-            auth_token: The JWT token to verify
+            auth_token: JWT token string
 
         Returns:
             Tuple[bool, Optional[Dict[str, Any]]]: (success, payload)
 
         """
-        try:
-            payload = jwt.decode(auth_token, self.token_secret, algorithms=["HS256"])
-        except jwt.ExpiredSignatureError:
-            logger.warning("Authentication verification failed: expired material")
+        if not auth_token:
             return False, None
-        except jwt.InvalidTokenError:
-            logger.warning("Authentication verification failed: invalid material")
+
+        try:
+            payload = jwt.decode(
+                auth_token,
+                self.__token_secret,
+                algorithms=["HS256"]
+            )
+
+            # Verify required claims are present
+            required_claims = ["sub"]
+            if not all(claim in payload for claim in required_claims):
+                return False, None
+            return True, payload
+
+        except jwt.ExpiredSignatureError:
+            logger.warning("Token expired")
+            return False, None
+        except jwt.InvalidTokenError as e:
+            logger.warning(f"Invalid token: {e}")
             return False, None
         except Exception:
-            logger.exception("Token verification failed")
-            raise
-        else:
-            return True, payload
+            logger.exception("Token verification error")
+            return False, None
+
+    def get_users(self) -> list[dict[str, object]]:
+        """
+        Get all users.
+
+        Returns:
+            List of user dictionaries
+
+        Raises:
+            UserModelNotAvailableError: If User model not available
+
+        """
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError
+
+        # Use UserModel directly since we've checked it's not None
+        model = UserModel
+        users = model.query.all()
+
+        # Return user data without sensitive information
+        result = []
+        for user in users:
+            created_at = getattr(user, "created_at", None)
+            updated_at = getattr(user, "updated_at", None)
+            result.append({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "created_at": str(created_at) if created_at else None,
+                "updated_at": str(updated_at) if updated_at else None,
+            })
+        return result
+
+    def get_user_by_id(self, user_id: int) -> dict[str, object] | None:
+        """
+        Get a user by ID.
+
+        Args:
+            user_id: ID of the user to retrieve
+
+        Returns:
+            User dictionary or None if not found
+
+        Raises:
+            UserModelNotAvailableError: If User model not available
+
+        """
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError
+
+        # Use UserModel directly since we've checked it's not None
+        model = UserModel
+        user = model.query.filter(model.id == user_id).first()
+
+        if not user:
+            return None
+
+        # Return user data without sensitive information
+        created_at = getattr(user, "created_at", None)
+        updated_at = getattr(user, "updated_at", None)
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "created_at": str(created_at) if created_at else None,
+            "updated_at": str(updated_at) if updated_at else None,
+        }
+
+    def update_user(self, user_id: int, update_data: dict[str, object]) -> dict[str, object] | None:
+        """
+        Update a user.
+
+        Args:
+            user_id: ID of the user to update
+            update_data: Dictionary containing fields to update
+
+        Returns:
+            Updated user dictionary or None if not found
+
+        Raises:
+            UserModelNotAvailableError: If User model not available
+            DatabaseSessionNotAvailableError: If db session not available
+
+        """
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError
+
+        # Check if db_session is available
+        if db_session is None:
+            raise DatabaseSessionNotAvailableError
+
+        # Use variables directly since we've checked they're not None
+        model = UserModel
+        db = db_session
+
+        user = model.query.filter(model.id == user_id).first()
+        if not user:
+            return None
+
+        # Update user fields
+        for key, value in update_data.items():
+            if hasattr(user, key) and key not in ["id", "password_hash"]:
+                setattr(user, key, value)
+            elif key == "password" and value:
+                # Hash password if provided
+                user.password_hash = hash_credential(str(value))
+
+        try:
+            db.session.commit()
+            logger.info("User updated successfully", extra={"user_id": user.id})
+        except SQLAlchemyError as e:
+            logger.exception("Database error updating user")
+            db.session.rollback()
+            raise DatabaseSessionNotAvailableError from e
+
+        # Return updated user data without sensitive information
+        created_at = getattr(user, "created_at", None)
+        updated_at = getattr(user, "updated_at", None)
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "created_at": str(created_at) if created_at else None,
+            "updated_at": str(updated_at) if updated_at else None,
+        }
+
+    def delete_user(self, user_id: int) -> bool:
+        """
+        Delete a user.
+
+        Args:
+            user_id: ID of the user to delete
+
+        Returns:
+            True if user was deleted, False if not found
+
+        Raises:
+            UserModelNotAvailableError: If User model not available
+            DatabaseSessionNotAvailableError: If db session not available
+
+        """
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError
+
+        # Check if db_session is available
+        if db_session is None:
+            raise DatabaseSessionNotAvailableError
+
+        # Use variables directly since we've checked they're not None
+        model = UserModel
+        db = db_session
+
+        user = model.query.filter(model.id == user_id).first()
+        if not user:
+            return False
+
+        try:
+            db.session.delete(user)
+            db.session.commit()
+            logger.info("User deleted successfully", extra={"user_id": user_id})
+            return True
+        except SQLAlchemyError as e:
+            logger.exception("Database error deleting user")
+            db.session.rollback()
+            raise DatabaseSessionNotAvailableError from e

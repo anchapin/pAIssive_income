@@ -7,10 +7,47 @@ This is a scaffold for further expansion.
 
 from __future__ import annotations
 
+import logging  # Added import
+import os  # Added import for os.environ check
 import re
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging (logger only, basicConfig in main)
+
+try:
+    import anthropic
+
+    ANTHROPIC_AVAILABLE = True
+except ImportError as e:
+    logger.exception(
+        f"Anthropic SDK not found or import failed: {e}. Optional features depending on Anthropic will be unavailable."
+    )
+    anthropic = None  # type: ignore
+    ANTHROPIC_AVAILABLE = False
 
 from common_utils import tooling
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
 
 
 class ArtistAgent:
@@ -85,25 +122,32 @@ class ArtistAgent:
             # For calculator, try to extract the mathematical expression
             # Try to find the mathematical part of the prompt
             # Look for patterns like "What is 12 * 8?" -> extract "12 * 8"
-            calc_match = re.search(r'(?:what\s+is\s+|calculate\s+|compute\s+)?([0-9\+\-\*/\(\)\.\s%]+)', prompt, re.IGNORECASE)
+            calc_match = re.search(
+                r"(?:what\s+is\s+|calculate\s+|compute\s+)?([0-9\+\-\*/\(\)\.\s%]+)",
+                prompt,
+                re.IGNORECASE,
+            )
             if calc_match:
                 expression = calc_match.group(1).strip()
                 # Validate that it contains at least one operator
-                if any(op in expression for op in ['+', '-', '*', '/', '%']):
+                if any(op in expression for op in ["+", "-", "*", "/", "%"]):
                     return expression
 
             # Fallback: extract any sequence of numbers and operators
-            math_parts = re.findall(r'[0-9\+\-\*/\(\)\.\s%]+', prompt)
+            math_parts = re.findall(r"[0-9\+\-\*/\(\)\.\s%]+", prompt)
             if math_parts:
                 # Take the longest match that contains operators
                 for part in sorted(math_parts, key=len, reverse=True):
                     part = part.strip()
-                    if any(op in part for op in ['+', '-', '*', '/', '%']) and len(part) > 1:
+                    if (
+                        any(op in part for op in ["+", "-", "*", "/", "%"])
+                        and len(part) > 1
+                    ):
                         return part
 
             # Final fallback to the entire prompt
             return prompt
-        elif tool_name == "text_analyzer":
+        if tool_name == "text_analyzer":
             # For text analysis, try to extract the text to analyze
             # Look for patterns like "analyze this: 'text'" or "sentiment of 'text'"
 
@@ -113,11 +157,19 @@ class ArtistAgent:
                 return quoted_match.group(1)
 
             # Try to find text after "analyze" or "sentiment of"
-            analyze_match = re.search(r"analyze(?:\s+the)?\s+(?:sentiment\s+of\s+)?(?:this\s+)?(?:phrase:?\s*)?(.+)", prompt, re.IGNORECASE)
+            analyze_match = re.search(
+                r"analyze(?:\s+the)?\s+(?:sentiment\s+of\s+)?(?:this\s+)?(?:phrase:?\s*)?(.+)",
+                prompt,
+                re.IGNORECASE,
+            )
             if analyze_match:
                 return analyze_match.group(1).strip()
 
-            sentiment_match = re.search(r"sentiment\s+of\s+(?:this\s+)?(?:phrase:?\s*)?(.+)", prompt, re.IGNORECASE)
+            sentiment_match = re.search(
+                r"sentiment\s+of\s+(?:this\s+)?(?:phrase:?\s*)?(.+)",
+                prompt,
+                re.IGNORECASE,
+            )
             if sentiment_match:
                 return sentiment_match.group(1).strip()
 
@@ -148,10 +200,16 @@ class ArtistAgent:
 
 def main() -> None:
     """Run example usage of ArtistAgent."""
-    import logging
-
+    # logging.basicConfig is now at the start of this function
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    logger = logging.getLogger(__name__)
+    # logger is now initialized globally
+
+    if not ANTHROPIC_AVAILABLE:
+        logger.error("Anthropic SDK not installed. Cannot run example.")
+        return
+    if "ANTHROPIC_API_KEY" not in os.environ:
+        logger.error("ANTHROPIC_API_KEY not found in environment variables.")
+        return
 
     agent = ArtistAgent()
     # Example usage

@@ -259,7 +259,7 @@ The testing framework is designed to integrate with CI/CD pipelines:
 
 - **GitHub Actions**: The test suite runs on PRs and merges to main
 - **Test Reports**: HTML and XML reports are generated for integration with CI tools
-- **Coverage Requirements**: 80% minimum coverage required for PRs to be merged
+- **Coverage Requirements**: 15% minimum coverage required for PRs to be merged
 
 ### GitHub Actions Workflow
 

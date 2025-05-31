@@ -53,6 +53,18 @@ The `frontend-e2e.yml` workflow has been updated with:
 
 For detailed information, see [E2E Testing](frontend/e2e-testing.md).
 
+## Python Testing
+
+### Reusable Test Workflow
+
+The `test.yml` workflow has been updated with several improvements:
+
+- **Enhanced Artifact Management**: Improved artifact naming and upload conditions
+- **Dependency Management**: Updated caching and fallback mechanisms
+- **Test Execution**: Added support for customizable test paths and parallel execution
+
+For detailed information, see [Python Tests Workflow](github_actions_test_workflow.md).
+
 ## Development Environment Setup
 
 ### Reusable PNPM Setup

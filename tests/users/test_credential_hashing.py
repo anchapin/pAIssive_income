@@ -3,6 +3,8 @@
 # Standard library imports
 
 # Third-party imports
+import logging
+
 import pytest
 
 # Local imports

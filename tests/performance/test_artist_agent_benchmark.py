@@ -1,5 +1,5 @@
 """
-Benchmark: ArtistAgent vs DataGathererAgent (ADK) on Reasoning and Tool Use
+Benchmark: ArtistAgent vs DataGathererAgent (ADK) on Reasoning and Tool Use.
 
 Runs both agents on a suite of prompts, measuring accuracy and response time.
 Writes a Markdown summary table to tests/performance/artist_agent_benchmark.md.
@@ -7,9 +7,9 @@ Writes a Markdown summary table to tests/performance/artist_agent_benchmark.md.
 Extend this script by adding new agents/prompts as new tools or reasoning abilities are added.
 """
 
-import time
-import sys
 import os
+import sys
+import time
 from pathlib import Path
 
 # Import ArtistAgent
@@ -17,6 +17,7 @@ from pathlib import Path
 # If main_artist_agent.py becomes part of an installed package, replace this with a standard import.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from main_artist_agent import ArtistAgent
+
 
 # Import DataGathererAgent from ADK demo (main_agents.py)
 # Create a mock DataGathererAgent for benchmarking since the real one has dependency issues
@@ -61,22 +62,19 @@ PROMPTS = [
 ]
 
 def is_correct(output, expected, kind):
-    """
-    Returns True if output matches expected answer for the prompt type.
-    """
+    """Returns True if output matches expected answer for the prompt type."""
     if kind == "arithmetic":
         # Accept if expected number is in output (handles calc output variants)
         return str(expected) in str(output)
-    elif kind == "info":
+    if kind == "info":
         # Accept if the phrase "Data found for" and query appears
         return "Data found for" in str(output)
-    elif kind == "no_tool":
+    if kind == "no_tool":
         # Accept if agent indicates no tool is available
         return ("no suitable tool" in str(output).lower() or
                 "not available" in str(output).lower() or
                 "can't help" in str(output).lower())
-    else:
-        return False
+    return False
 
 def run_artist_agent(prompt, agent=None):
     """Run prompt through ArtistAgent. If agent is provided, reuse it. Only time the run() call."""
@@ -153,7 +151,6 @@ def main():
         f.write("> - Add more agents (columns) as you implement new agent types.\n")
         f.write("> - Consider evaluating multi-step reasoning/tool chaining in future versions.\n")
 
-    print(f"Benchmark complete. Results written to {md_path}")
 
 if __name__ == "__main__":
     main()

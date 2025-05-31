@@ -1,0 +1,58 @@
+[run]
+source = .
+include =
+    # Include only the core modules
+    crewai.py
+    mock_crewai/*
+    check_api_server.py
+    utils/coverage_helper.py
+    common_utils/logging/*
+    
+omit =
+    # Exclude everything else
+    *
+    
+    # But don't exclude these specific files
+    !crewai.py
+    !mock_crewai/*
+    !check_api_server.py
+    !utils/coverage_helper.py
+    !common_utils/logging/*
+
+[report]
+exclude_lines =
+    # Skip any line with a pragma
+    pragma: no cover
+    
+    # Skip defensive assertion code
+    raise NotImplementedError
+    
+    # Skip abstract methods
+    @abstractmethod
+    
+    # Skip type checking blocks
+    if TYPE_CHECKING:
+    
+    # Skip main execution blocks
+    if __name__ == .__main__.
+    
+    # Skip pass statements
+    pass
+    
+    # Skip debug-only code
+    def __repr__
+    
+    # Skip exception handling that's hard to test
+    except ImportError:
+    
+    # Skip code that's only used in development
+    if DEBUG:
+    
+    # Skip code that's only used in testing
+    if TESTING:
+
+[html]
+directory = htmlcov
+
+[xml]
+output = coverage.xml

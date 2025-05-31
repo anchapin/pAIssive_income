@@ -17,10 +17,11 @@ import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import TYPE_CHECKING
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 logger = logging.getLogger(__name__)
 
 # Set to DEBUG for more verbose output
@@ -211,9 +212,9 @@ def count_tests(validated_args: list[str]) -> int:
         logger.warning("Error collecting tests: %s. Falling back to single worker.", e)
         return default_test_count if has_test_files else 0
 
-    except Exception as e:
-        logger.warning(
-            "Unexpected error collecting tests: %s. Falling back to single worker.", e
+    except Exception:
+        logger.exception(
+            "Unexpected error collecting tests. Falling back to single worker."
         )
         return default_test_count if has_test_files else 0
 
@@ -352,9 +353,8 @@ def check_venv_exists() -> bool:
 
         # Method 4: Check for common virtual environment directories
         for venv_dir in [".venv", "venv", "env", ".env"]:
-            if os.path.isdir(venv_dir) and os.path.isfile(
-                os.path.join(venv_dir, "pyvenv.cfg")
-            ):
+            venv_path = Path(venv_dir)
+            if venv_path.is_dir() and (venv_path / "pyvenv.cfg").is_file():
                 return True
 
         # Not in a virtual environment
@@ -576,14 +576,14 @@ def main() -> None:
                 logger.info("Pytest stdout: %s", result.stdout)
             if result.stderr:
                 logger.error("Pytest stderr: %s", result.stderr)
-    except subprocess.TimeoutExpired as timeout_error:
-        logger.error("Pytest execution timed out after 1 hour: %s", timeout_error)
+    except subprocess.TimeoutExpired:
+        logger.exception("Pytest execution timed out after 1 hour")
         sys.exit(2)
-    except subprocess.SubprocessError as subprocess_error:
-        logger.error("Error running pytest: %s", subprocess_error)
+    except subprocess.SubprocessError:
+        logger.exception("Error running pytest")
         sys.exit(1)
-    except Exception as e:
-        logger.error("Unexpected error running pytest: %s", e)
+    except Exception:
+        logger.exception("Unexpected error running pytest")
         sys.exit(1)
 
     # Exit with the same exit code as pytest
@@ -598,5 +598,6 @@ if __name__ == "__main__":
 
     # Skip virtual environment check by setting a flag
     os.environ["SKIP_VENV_CHECK"] = "1"
-
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     main()

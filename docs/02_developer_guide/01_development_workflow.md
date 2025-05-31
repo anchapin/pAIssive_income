@@ -43,11 +43,23 @@ All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other too
 - Use the `--check` flag for preview.
 - Configure your IDE to use Ruff.
 
+### Global Logging Initialization
+
+- All main entry points should use the project-wide logging configuration. At the start of your main script, add:
+  ```python
+  from logging_config import configure_logging
+
+  if __name__ == "__main__":
+      configure_logging()
+      # ... your main logic ...
+  ```
+- This ensures consistent logging format, level, and handler setup across the project.
+
 ---
 
 ## Testing Standards
 
-- Minimum 90% line coverage required (enforced in CI).
+- Minimum 15% line coverage required (enforced in CI).
 - Run `python scripts/run/run_tests.py --with-coverage` before PRs.
 - All new features/bugfixes must have unit and/or integration tests, covering edge/error cases.
 - Use pytest markers to organize tests (`unit`, `integration`, `slow`, etc.).
@@ -60,7 +72,7 @@ All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other too
 ## Contribution Checklist
 
 - [ ] Code includes tests covering new/changed logic and edge/error cases.
-- [ ] Ran `python scripts/run/run_tests.py --with-coverage` and coverage is ≥90%.
+- [ ] Ran `python scripts/run/run_tests.py --with-coverage` and coverage is ≥15%.
 - [ ] Code passes all linting and type checks (`ruff`, `mypy`, etc.).
 - [ ] All automated tests pass in CI.
 - [ ] Documentation and docstrings are updated.

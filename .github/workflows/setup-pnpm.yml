@@ -3,30 +3,41 @@ name: Setup pnpm (Reusable)
 on:
   workflow_call:
     inputs:
-      node-version:
-        required: false
-        type: string
-        default: '18'
       pnpm-version:
-        required: false
+        description: 'Version of pnpm to use'
+        required: true
         type: string
         default: '8'
+      node-version:
+        description: 'Version of Node.js to use'
+        required: true
+        type: string
+        default: '20'
       working-directory:
+        description: 'Working directory to use'
         required: false
         type: string
         default: '.'
-      install-dependencies:
-        required: false
-        type: boolean
-        default: true
       verify-package-json:
+        description: 'Whether to verify package.json exists'
         required: false
         type: boolean
         default: true
       create-if-missing:
+        description: 'Whether to create package.json if missing'
+        required: false
+        type: boolean
+        default: false
+      install-dependencies:
+        description: 'Whether to install dependencies'
         required: false
         type: boolean
         default: true
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Gradual Lint Check"]
+    types:
+      - completed
 
 jobs:
   setup-pnpm:
@@ -36,174 +47,83 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v2
         with:
           version: ${{ inputs.pnpm-version }}
 
-      # Linux-specific pnpm PATH setup
-      - name: Add pnpm to PATH (Linux)
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
-          export PATH=$(pnpm bin):$PATH
-          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
-          echo "Current PATH: $PATH"
-          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
-
-      # Windows-specific pnpm PATH setup with fallbacks
-      - name: Add pnpm to PATH (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          Write-Host "Current PATH: $($env:PATH)"
-          $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
-          if (-not $pnpmCmd) {
-              Write-Host "pnpm not found in PATH. Attempting to add it manually..."
-              
-              # Try to find Node.js installation directory
-              $nodePath = (Get-Command node -ErrorAction SilentlyContinue).Source
-              if ($nodePath) {
-                  $nodeDir = Split-Path -Parent $nodePath
-                  Write-Host "Node.js found at: $nodeDir"
-                  
-                  # Add Node.js directory to PATH (pnpm might be there)
-                  $env:PATH = "$nodeDir;$env:PATH"
-                  [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH, [System.EnvironmentVariableTarget]::Process)
-                  
-                  # Check for pnpm in common locations
-                  $pnpmLocations = @(
-                      "$nodeDir\pnpm.cmd",
-                      "$nodeDir\node_modules\pnpm\bin\pnpm.js",
-                      "$env:APPDATA\npm\pnpm.cmd",
-                      "$env:LOCALAPPDATA\pnpm\pnpm.cmd"
-                  )
-                  
-                  foreach ($loc in $pnpmLocations) {
-                      if (Test-Path $loc) {
-                          Write-Host "Found pnpm at: $loc"
-                          $pnpmDir = Split-Path -Parent $loc
-                          $env:PATH = "$pnpmDir;$env:PATH"
-                          [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH, [System.EnvironmentVariableTarget]::Process)
-                          break
-                      }
-                  }
-              }
-              
-              # Try again after PATH modifications
-              $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
-              if (-not $pnpmCmd) {
-                  # Last resort: Install pnpm globally with npm
-                  Write-Host "Still can't find pnpm. Installing globally with npm..."
-                  npm install -g pnpm
-                  if ($LASTEXITCODE -ne 0) {
-                      Write-Error "Failed to install pnpm globally with npm."
-                      exit 1
-                  }
-                  
-                  # Refresh PATH after npm install
-                  $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::Process)
-                  $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
-              }
-              
-              # Final check
-              if (-not $pnpmCmd) {
-                  Write-Error "Error: pnpm is still not found in PATH after all attempts."
-                  exit 1
-              }
-          }
-          
-          Write-Host "pnpm command found at: $($pnpmCmd.Source)"
-          Write-Host "Verifying pnpm version:"
-          pnpm --version
-
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
-      # Verify or create package.json
-      - name: Verify package.json (Linux)
-        if: inputs.verify-package-json && runner.os == 'Linux'
+      - name: Add pnpm to PATH
         shell: bash
-        working-directory: ${{ inputs.working-directory }}
         run: |
-          echo "Current working directory: $(pwd)"
-          echo "Searching for package.json..."
-          
-          if [ -f "package.json" ]; then
-            echo "Found package.json in current directory."
-            echo "Contents of package.json:"
-            cat package.json
-          elif [ "${{ inputs.create-if-missing }}" == "true" ]; then
-            echo "Creating a minimal package.json for testing purposes."
-            echo '{
-              "name": "paissive_income_test",
-              "version": "1.0.0",
-              "description": "Temporary package.json for testing",
-              "private": true
-            }' > package.json
-            echo "Created minimal package.json:"
-            cat package.json
-          else
-            echo "Error: package.json not found in the current directory."
-            ls -la
-            exit 1
+          # Get pnpm path
+          PNPM_PATH=$(which pnpm)
+          if [ -z "$PNPM_PATH" ]; then
+            echo "pnpm not found in PATH, attempting to find it..."
+            if [ "$RUNNER_OS" = "Windows" ]; then
+              PNPM_PATH="$APPDATA/npm/pnpm.cmd"
+              if [ ! -f "$PNPM_PATH" ]; then
+                PNPM_PATH="$LOCALAPPDATA/pnpm/pnpm.cmd"
+              fi
+            else
+              PNPM_PATH="$HOME/.local/share/pnpm/pnpm"
+            fi
           fi
 
-      - name: Verify package.json (Windows)
-        if: inputs.verify-package-json && runner.os == 'Windows'
-        shell: powershell
-        working-directory: ${{ inputs.working-directory }}
-        run: |
-          Write-Host "Current working directory: $(Get-Location)"
-          Write-Host "Searching for package.json..."
-          
-          if (Test-Path "package.json") {
-            Write-Host "Found package.json in current directory."
-            Write-Host "Contents of package.json:"
-            Get-Content package.json
-          } elseif ("${{ inputs.create-if-missing }}" -eq "true") {
-            Write-Host "Creating a minimal package.json for testing purposes."
-            $minimalPackageJson = @{
-              name = "paissive_income_test"
-              version = "1.0.0"
-              description = "Temporary package.json for testing"
-              private = $true
-            } | ConvertTo-Json
-            
-            Set-Content -Path "package.json" -Value $minimalPackageJson
-            Write-Host "Created minimal package.json:"
-            Get-Content "package.json"
-          } else {
-            Write-Host "Error: package.json not found in the current directory."
-            Get-ChildItem -Force
+          if [ -f "$PNPM_PATH" ]; then
+            echo "Found pnpm at: $PNPM_PATH"
+            echo "PNPM_PATH=$PNPM_PATH" >> $GITHUB_ENV
+            echo "$(dirname "$PNPM_PATH")" >> $GITHUB_PATH
+          else
+            echo "pnpm not found, installing globally with npm..."
+            npm install -g pnpm@${{ inputs.pnpm-version }}
+            if [ $? -ne 0 ]; then
+              echo "Failed to install pnpm globally"
+              exit 1
+            fi
+          fi
+
+          # Verify pnpm is available
+          pnpm --version || {
+            echo "pnpm is still not available after setup"
             exit 1
           }
 
-      # Install dependencies if requested
-      - name: Install dependencies (Linux)
-        if: inputs.install-dependencies && runner.os == 'Linux'
+      - name: Verify package.json
+        if: inputs.verify-package-json
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ ! -f "package.json" ]; then
+            if [ "${{ inputs.create-if-missing }}" = "true" ]; then
+              echo "Creating minimal package.json..."
+              echo '{
+                "name": "paissive_income_test",
+                "version": "1.0.0",
+                "description": "Temporary package.json for testing",
+                "private": true
+              }' > package.json
+            else
+              echo "Error: package.json not found"
+              exit 1
+            fi
+          fi
+
+      - name: Install dependencies
+        if: inputs.install-dependencies
         shell: bash
         working-directory: ${{ inputs.working-directory }}
         run: |
           pnpm install --reporter=default || {
-            echo "Failed to install Node.js dependencies with pnpm. Possible issues:";
-            echo "- Missing or conflicting dependencies in package.json.";
-            echo "- pnpm not set up properly.";
-            exit 1;
-          }
-
-      - name: Install dependencies (Windows)
-        if: inputs.install-dependencies && runner.os == 'Windows'
-        shell: powershell
-        working-directory: ${{ inputs.working-directory }}
-        run: |
-          pnpm install --reporter=default
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to install Node.js dependencies with pnpm. Possible issues:"
-            Write-Error "- Missing or conflicting dependencies in package.json."
-            Write-Error "- pnpm not set up properly."
-            exit 1
+            echo "Failed to install dependencies with pnpm"
+            echo "Attempting to install with npm..."
+            npm install || {
+              echo "Failed to install dependencies with npm"
+              exit 1
+            }
           }

@@ -8,19 +8,43 @@ from __future__ import annotations
 
 import logging
 import re
+import sys  # Added sys import
 
-import sympy as sp
-from sympy.parsing.sympy_parser import parse_expr
+logger = logging.getLogger(__name__)
 
-from ai_models.artist_agent import ArtistAgent
-from common_utils import tooling
+try:
+    import sympy as sp
+    from sympy.parsing.sympy_parser import parse_expr
+except ImportError:
+    logger.exception(
+        "Sympy library not found. Please install it using 'pip install sympy'"
+    )
+    sys.exit(1)
+
+try:
+    from ai_models.artist_agent import ArtistAgent
+    from common_utils import tooling
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
+except ImportError:
+
+    logger.exception(
+        "Failed to import local modules (ArtistAgent or tooling). Ensure they are in PYTHONPATH."
+    )
+    sys.exit(1)
 
 
 class MathTool:
@@ -69,7 +93,7 @@ class MathTool:
             expr = parse_expr(equation_str)
             return str(expr.evalf())
         except Exception as e:
-            logger.error(f"Error solving equation: {e}")
+            logger.exception(f"Error solving equation: {equation_str}")
             return f"Error: {e!s}"
 
     @staticmethod
@@ -89,7 +113,7 @@ class MathTool:
             factored = sp.factor(expr)
             return str(factored)
         except Exception as e:
-            logger.error(f"Error factoring expression: {e}")
+            logger.exception(f"Error factoring expression: {expr_str}")
             return f"Error: {e!s}"
 
     @staticmethod
@@ -109,7 +133,7 @@ class MathTool:
             expanded = sp.expand(expr)
             return str(expanded)
         except Exception as e:
-            logger.error(f"Error expanding expression: {e}")
+            logger.exception(f"Error expanding expression: {expr_str}")
             return f"Error: {e!s}"
 
 

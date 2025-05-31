@@ -5,14 +5,34 @@ from __future__ import annotations
 # Standard library imports
 import logging
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+logger = logging.getLogger(__name__)
+
 # Third-party imports
 # Local imports
-from common_utils.logging import get_logger
 
-# Initialize logger
-logger = get_logger(__name__)
+# Configure logging
+logger = logging.getLogger(__name__)
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+# Configure logging
+
+
+# Use the existing logger from line 13
 
 
 def filter_debug_logs(
@@ -33,6 +53,7 @@ def filter_debug_logs(
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     """Demo usage of the debug log filtering utility."""
     sample_logs = [
         (logging.DEBUG, "Debug message"),

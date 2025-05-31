@@ -1,0 +1,562 @@
+C:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\.venv\Lib\site-packages\pytest_asyncio\plugin.py:208: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+..........................ssssss........................................ [  3%]
+...............................FFFFFFFFFF
+================================== FAILURES ===================================
+______________________________ test_list_models _______________________________
+
+self = <MagicMock name='mock.get' id='2018255508144'>
+args = ('http://test-lmstudio:1234/v1/models',), kwargs = {}
+expected = call('http://test-lmstudio:1234/v1/models')
+actual = call('http://test-lmstudio:1234/v1/models', headers={'Content-Type': 'application/json'})
+_error_message = <function NonCallableMock.assert_called_with.<locals>._error_message at 0x000001D5B016FA60>
+cause = None
+
+    def assert_called_with(self, /, *args, **kwargs):
+        """assert that the last call was made with the specified arguments.
+    
+        Raises an AssertionError if the args and keyword args passed in are
+        different to the last call to the mock."""
+        if self.call_args is None:
+            expected = self._format_mock_call_signature(args, kwargs)
+            actual = 'not called.'
+            error_message = ('expected call not found.\nExpected: %s\n  Actual: %s'
+                    % (expected, actual))
+            raise AssertionError(error_message)
+    
+        def _error_message():
+            msg = self._format_mock_failure_message(args, kwargs)
+            return msg
+        expected = self._call_matcher(_Call((args, kwargs), two=True))
+        actual = self._call_matcher(self.call_args)
+        if actual != expected:
+            cause = expected if isinstance(expected, Exception) else None
+>           raise AssertionError(_error_message()) from cause
+E           AssertionError: expected call not found.
+E           Expected: get('http://test-lmstudio:1234/v1/models')
+E             Actual: get('http://test-lmstudio:1234/v1/models', headers={'Content-Type': 'application/json'})
+
+C:\Python313\Lib\unittest\mock.py:979: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+self = <MagicMock name='mock.get' id='2018255508144'>
+args = ('http://test-lmstudio:1234/v1/models',), kwargs = {}
+
+    def assert_called_once_with(self, /, *args, **kwargs):
+        """assert that the mock was called exactly once and that that call was
+        with the specified arguments."""
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to be called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+            raise AssertionError(msg)
+>       return self.assert_called_with(*args, **kwargs)
+E       AssertionError: expected call not found.
+E       Expected: get('http://test-lmstudio:1234/v1/models')
+E         Actual: get('http://test-lmstudio:1234/v1/models', headers={'Content-Type': 'application/json'})
+E       
+E       pytest introspection follows:
+E       
+E       Kwargs:
+E       assert {'headers': {...cation/json'}} == {}
+E         
+E         Left contains 1 more item:
+E         {'headers': {'Content-Type': 'application/json'}}
+E         Use -v to get more diff
+
+C:\Python313\Lib\unittest\mock.py:991: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+mock_aiohttp_session = (<MagicMock id='2018256324992'>, <MagicMock name='mock.get().__aenter__()' id='2018277276848'>)
+
+    @pytest.mark.asyncio
+    async def test_list_models(mock_aiohttp_session):
+        """Test listing models from LM Studio."""
+        mock_session, mock_response = mock_aiohttp_session
+        mock_response.json.return_value = {
+            "data": [
+                {"id": "model1", "object": "model", "name": "Model 1"},
+                {"id": "model2", "object": "model", "name": "Model 2"}
+            ]
+        }
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+            models = await adapter.list_models()
+    
+            # Verify the request was made correctly
+>           mock_session.get.assert_called_once_with("http://test-lmstudio:1234/v1/models")
+E           AssertionError: expected call not found.
+E           Expected: get('http://test-lmstudio:1234/v1/models')
+E             Actual: get('http://test-lmstudio:1234/v1/models', headers={'Content-Type': 'application/json'})
+E           
+E           pytest introspection follows:
+E           
+E           Kwargs:
+E           assert {'headers': {...cation/json'}} == {}
+E             
+E             Left contains 1 more item:
+E             {'headers': {'Content-Type': 'application/json'}}
+E             Use -v to get more diff
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:50: AssertionError
+___________________________ test_list_models_error ____________________________
+
+mock_aiohttp_session = (<MagicMock id='2018256328352'>, <MagicMock name='mock.get().__aenter__()' id='2018256328688'>)
+
+    @pytest.mark.asyncio
+    async def test_list_models_error(mock_aiohttp_session):
+        """Test error handling when listing models from LM Studio."""
+        mock_session, mock_response = mock_aiohttp_session
+        mock_response.status = 500
+        mock_response.text.return_value = "Internal server error"
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+>           models = await adapter.list_models()
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <ai_models.adapters.lmstudio_adapter.LMStudioAdapter object at 0x000001D5CDFD0B90>
+
+    async def list_models(self) -> List[Dict[str, Any]]:
+        """
+        List available models from LM Studio.
+    
+        Returns:
+            List of model information dictionaries
+    
+        """
+        session = await self._get_session()
+        url = f"{self.base_url}/models"
+        try:
+            async with session.get(url, headers={"Content-Type": "application/json"}) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data.get("data", [])
+                error_text = await response.text()
+>               raise Exception(f"Failed to list models (status {response.status}): {error_text}")
+E               Exception: Failed to list models (status 500): Internal server error
+
+ai_models\adapters\lmstudio_adapter.py:97: Exception
+_________________________ test_list_models_exception __________________________
+
+mock_aiohttp_session = (<MagicMock id='2018256334064'>, <MagicMock name='mock.get().__aenter__()' id='2018256333056'>)
+
+    @pytest.mark.asyncio
+    async def test_list_models_exception(mock_aiohttp_session):
+        """Test exception handling when listing models from LM Studio."""
+        mock_session, _ = mock_aiohttp_session
+        mock_session.get.side_effect = Exception("Connection refused")
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+>           models = await adapter.list_models()
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ai_models\adapters\lmstudio_adapter.py:92: in list_models
+    async with session.get(url, headers={"Content-Type": "application/json"}) as response:
+C:\Python313\Lib\unittest\mock.py:1169: in __call__
+    return self._mock_call(*args, **kwargs)
+C:\Python313\Lib\unittest\mock.py:1173: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <MagicMock name='mock.get' id='2018256336752'>
+args = ('http://test-lmstudio:1234/v1/models',)
+kwargs = {'headers': {'Content-Type': 'application/json'}}
+effect = Exception('Connection refused')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               Exception: Connection refused
+
+C:\Python313\Lib\unittest\mock.py:1228: Exception
+_____________________________ test_generate_text ______________________________
+
+mock_aiohttp_session = (<MagicMock id='2017317072784'>, <MagicMock name='mock.get().__aenter__()' id='2017317073120'>)
+
+    @pytest.mark.asyncio
+    async def test_generate_text(mock_aiohttp_session):
+        """Test generating text with LM Studio."""
+        mock_session, mock_response = mock_aiohttp_session
+        mock_response.json.return_value = {
+            "id": "cmpl-123",
+            "object": "text_completion",
+            "created": 1677858242,
+            "model": "model1",
+            "choices": [
+                {
+                    "text": "This is a test response",
+                    "index": 0,
+                    "logprobs": None,
+                    "finish_reason": "stop"
+                }
+            ],
+            "usage": {
+                "prompt_tokens": 5,
+                "completion_tokens": 7,
+                "total_tokens": 12
+            }
+        }
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+            result = await adapter.generate_text("model1", "This is a test")
+    
+            # Verify the request was made correctly
+            mock_session.post.assert_called_once()
+            args, kwargs = mock_session.post.call_args
+            assert args[0] == "http://test-lmstudio:1234/v1/completions"
+>           assert kwargs["json"]["model"] == "model1"
+E           KeyError: 'json'
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:122: KeyError
+_______________________ test_generate_text_with_params ________________________
+
+mock_aiohttp_session = (<MagicMock id='2018256331376'>, <MagicMock name='mock.get().__aenter__()' id='2018256330368'>)
+
+    @pytest.mark.asyncio
+    async def test_generate_text_with_params(mock_aiohttp_session):
+        """Test generating text with additional parameters."""
+        mock_session, mock_response = mock_aiohttp_session
+        mock_response.json.return_value = {
+            "id": "cmpl-123",
+            "object": "text_completion",
+            "created": 1677858242,
+            "model": "model1",
+            "choices": [
+                {
+                    "text": "This is a test response",
+                    "index": 0,
+                    "logprobs": None,
+                    "finish_reason": "stop"
+                }
+            ]
+        }
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+            result = await adapter.generate_text(
+                "model1",
+                "This is a test",
+                max_tokens=100,
+                temperature=0.5,
+                top_p=0.9,
+                n=2,
+                stream=True,
+                stop=["END"],
+                presence_penalty=0.1,
+                frequency_penalty=0.2
+            )
+    
+            # Verify the request was made with all parameters
+            mock_session.post.assert_called_once()
+            args, kwargs = mock_session.post.call_args
+            assert args[0] == "http://test-lmstudio:1234/v1/completions"
+>           assert kwargs["json"]["model"] == "model1"
+E           KeyError: 'json'
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:168: KeyError
+_______________________ test_generate_chat_completions ________________________
+
+mock_aiohttp_session = (<MagicMock id='2018256322976'>, <MagicMock name='mock.get().__aenter__()' id='2018256325328'>)
+
+    @pytest.mark.asyncio
+    async def test_generate_chat_completions(mock_aiohttp_session):
+        """Test generating chat completions with LM Studio."""
+        mock_session, mock_response = mock_aiohttp_session
+        mock_response.json.return_value = {
+            "id": "chatcmpl-123",
+            "object": "chat.completion",
+            "created": 1677858242,
+            "model": "model1",
+            "choices": [
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": "I'm an AI assistant. How can I help you today?"
+                    },
+                    "index": 0,
+                    "finish_reason": "stop"
+                }
+            ],
+            "usage": {
+                "prompt_tokens": 10,
+                "completion_tokens": 12,
+                "total_tokens": 22
+            }
+        }
+    
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Who are you?"}
+        ]
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+            result = await adapter.generate_chat_completions("model1", messages)
+    
+            # Verify the request was made correctly
+            mock_session.post.assert_called_once()
+            args, kwargs = mock_session.post.call_args
+            assert args[0] == "http://test-lmstudio:1234/v1/chat/completions"
+>           assert kwargs["json"]["model"] == "model1"
+E           KeyError: 'json'
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:219: KeyError
+_________________ test_generate_chat_completions_with_params __________________
+
+mock_aiohttp_session = (<MagicMock id='2018255503776'>, <MagicMock name='mock.get().__aenter__()' id='2018255504112'>)
+
+    @pytest.mark.asyncio
+    async def test_generate_chat_completions_with_params(mock_aiohttp_session):
+        """Test generating chat completions with additional parameters."""
+        mock_session, mock_response = mock_aiohttp_session
+        mock_response.json.return_value = {
+            "id": "chatcmpl-123",
+            "object": "chat.completion",
+            "created": 1677858242,
+            "model": "model1",
+            "choices": [
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": "I'm an AI assistant. How can I help you today?"
+                    },
+                    "index": 0,
+                    "finish_reason": "stop"
+                }
+            ]
+        }
+    
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Who are you?"}
+        ]
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+            result = await adapter.generate_chat_completions(
+                "model1",
+                messages,
+                max_tokens=100,
+                temperature=0.5,
+                top_p=0.9,
+                n=2,
+                stream=True,
+                stop=["END"],
+                presence_penalty=0.1,
+                frequency_penalty=0.2
+            )
+    
+            # Verify the request was made with all parameters
+            mock_session.post.assert_called_once()
+            args, kwargs = mock_session.post.call_args
+            assert args[0] == "http://test-lmstudio:1234/v1/chat/completions"
+>           assert kwargs["json"]["model"] == "model1"
+E           KeyError: 'json'
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:273: KeyError
+_____________________________ test_error_handling _____________________________
+
+mock_aiohttp_session = (<MagicMock id='2018277272144'>, <MagicMock name='mock.get().__aenter__()' id='2018277270800'>)
+
+    @pytest.mark.asyncio
+    async def test_error_handling(mock_aiohttp_session):
+        """Test error handling in the LM Studio adapter."""
+        mock_session, mock_response = mock_aiohttp_session
+        mock_response.status = 400
+        mock_response.text.return_value = "Bad request"
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+>           result = await adapter.generate_text("model1", "This is a test")
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <ai_models.adapters.lmstudio_adapter.LMStudioAdapter object at 0x000001D5ECDC9F20>
+model = 'model1', prompt = 'This is a test', kwargs = {}
+session = <MagicMock id='2018277272144'>
+url = 'http://test-lmstudio:1234/v1/completions'
+payload = {'frequency_penalty': 0.0, 'max_tokens': 1024, 'model': 'model1', 'n': 1, ...}
+headers = {'Content-Type': 'application/json'}
+_json = <module 'json' from 'C:\\Python313\\Lib\\json\\__init__.py'>
+response = <MagicMock name='mock.get().__aenter__()' id='2018277270800'>
+error_text = 'Bad request'
+
+    async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
+        """
+        Generate text using the specified model.
+    
+        Args:
+            model: The name of the model to use
+            prompt: The input prompt
+            **kwargs: Additional parameters to pass to the model
+    
+        Returns:
+            Response dictionary containing the generated text
+    
+        """
+        session = await self._get_session()
+        url = f"{self.base_url}/completions"
+        payload = {
+            "model": model,
+            "prompt": prompt,
+            "max_tokens": kwargs.get("max_tokens", 1024),
+            "temperature": kwargs.get("temperature", 0.7),
+            "top_p": kwargs.get("top_p", 1.0),
+            "n": kwargs.get("n", 1),
+            "stream": kwargs.get("stream", False),
+            "stop": kwargs.get("stop"),
+            "presence_penalty": kwargs.get("presence_penalty", 0.0),
+            "frequency_penalty": kwargs.get("frequency_penalty", 0.0),
+        }
+        headers = {"Content-Type": "application/json"}
+        import json as _json
+        try:
+            async with session.post(url, headers=headers, data=_json.dumps(payload)) as response:
+                if response.status == 200:
+                    return await response.json()
+                error_text = await response.text()
+>               raise Exception(f"Failed to generate text (status {response.status}): {error_text}")
+E               Exception: Failed to generate text (status 400): Bad request
+
+ai_models\adapters\lmstudio_adapter.py:139: Exception
+___________________________ test_exception_handling ___________________________
+
+mock_aiohttp_session = (<MagicMock id='2018277273824'>, <MagicMock name='mock.get().__aenter__()' id='2018277267776'>)
+
+    @pytest.mark.asyncio
+    async def test_exception_handling(mock_aiohttp_session):
+        """Test exception handling in the LM Studio adapter."""
+        mock_session, _ = mock_aiohttp_session
+        mock_session.post.side_effect = Exception("Connection refused")
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+>           result = await adapter.generate_text("model1", "This is a test")
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:309: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ai_models\adapters\lmstudio_adapter.py:135: in generate_text
+    async with session.post(url, headers=headers, data=_json.dumps(payload)) as response:
+C:\Python313\Lib\unittest\mock.py:1169: in __call__
+    return self._mock_call(*args, **kwargs)
+C:\Python313\Lib\unittest\mock.py:1173: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <MagicMock name='mock.post' id='2018277270128'>
+args = ('http://test-lmstudio:1234/v1/completions',)
+kwargs = {'data': '{"model": "model1", "prompt": "This is a test", "max_tokens": 1024, "temperature": 0.7, "top_p": 1.0, "n": 1...se, "stop": null, "presence_penalty": 0.0, "frequency_penalty": 0.0}', 'headers': {'Content-Type': 'application/json'}}
+effect = Exception('Connection refused')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               Exception: Connection refused
+
+C:\Python313\Lib\unittest\mock.py:1228: Exception
+____________________ test_chat_completions_error_handling _____________________
+
+mock_aiohttp_session = (<MagicMock id='2018277271808'>, <MagicMock name='mock.get().__aenter__()' id='2018277264752'>)
+
+    @pytest.mark.asyncio
+    async def test_chat_completions_error_handling(mock_aiohttp_session):
+        """Test error handling in chat completions."""
+        mock_session, mock_response = mock_aiohttp_session
+        mock_response.status = 400
+        mock_response.text.return_value = "Bad request"
+    
+        messages = [
+            {"role": "user", "content": "Hello"}
+        ]
+    
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1")
+>           result = await adapter.generate_chat_completions("model1", messages)
+
+tests\ai_models\adapters\test_lmstudio_adapter.py:329: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <ai_models.adapters.lmstudio_adapter.LMStudioAdapter object at 0x000001D5E95E3350>
+model = 'model1', messages = [{'content': 'Hello', 'role': 'user'}], kwargs = {}
+session = <MagicMock id='2018277271808'>
+url = 'http://test-lmstudio:1234/v1/chat/completions'
+payload = {'frequency_penalty': 0.0, 'max_tokens': 1024, 'messages': [{'content': 'Hello', 'role': 'user'}], 'model': 'model1', ...}
+headers = {'Content-Type': 'application/json'}
+_json = <module 'json' from 'C:\\Python313\\Lib\\json\\__init__.py'>
+response = <MagicMock name='mock.get().__aenter__()' id='2018277264752'>
+error_text = 'Bad request'
+
+    async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+        """
+        Generate chat completions using the specified model.
+    
+        Args:
+            model: The name of the model to use
+            messages: List of message dictionaries with 'role' and 'content' keys
+            **kwargs: Additional parameters to pass to the model
+    
+        Returns:
+            Response dictionary containing the generated chat completion
+    
+        """
+        session = await self._get_session()
+        url = f"{self.base_url}/chat/completions"
+        payload = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": kwargs.get("max_tokens", 1024),
+            "temperature": kwargs.get("temperature", 0.7),
+            "top_p": kwargs.get("top_p", 1.0),
+            "n": kwargs.get("n", 1),
+            "stream": kwargs.get("stream", False),
+            "stop": kwargs.get("stop"),
+            "presence_penalty": kwargs.get("presence_penalty", 0.0),
+            "frequency_penalty": kwargs.get("frequency_penalty", 0.0),
+        }
+        headers = {"Content-Type": "application/json"}
+        import json as _json
+        try:
+            async with session.post(url, headers=headers, data=_json.dumps(payload)) as response:
+                if response.status == 200:
+                    return await response.json()
+                error_text = await response.text()
+>               raise Exception(f"Failed to generate chat completion (status {response.status}): {error_text}")
+E               Exception: Failed to generate chat completion (status 400): Bad request
+
+ai_models\adapters\lmstudio_adapter.py:181: Exception
+=========================== short test summary info ===========================
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_list_models - ...
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_list_models_error
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_list_models_exception
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_generate_text
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_generate_text_with_params
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_generate_chat_completions
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_generate_chat_completions_with_params
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_error_handling
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_exception_handling
+FAILED tests/ai_models/adapters/test_lmstudio_adapter.py::test_chat_completions_error_handling
+!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 10 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+10 failed, 97 passed, 6 skipped, 21 warnings in 41.67s

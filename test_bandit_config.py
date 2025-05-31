@@ -12,6 +12,8 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import sys
 from pathlib import Path
 
+from logging_config import configure_logging
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -248,6 +250,7 @@ def check_venv_exists() -> bool:
 
 
 if __name__ == "__main__":
+    configure_logging()
     # Skip virtual environment check entirely
     logger.info("Skipping virtual environment check")
 

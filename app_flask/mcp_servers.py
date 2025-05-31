@@ -7,11 +7,33 @@ import logging
 import os
 import re
 import stat
+import sys  # Added sys import
 import threading
 from pathlib import Path
 from typing import Any, Optional
 
-from flask import Blueprint, Response, jsonify, request
+logger = logging.getLogger(__name__)
+
+try:
+    from flask import Blueprint, Response, jsonify, request
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
+except ImportError:
+
+    sys.exit(1)
 
 # Use a safer path construction with Path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,9 +48,6 @@ MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
 
 # Thread safety
 _LOCK = threading.Lock()
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 
 # Custom exceptions
@@ -137,6 +156,7 @@ def save_settings(data: dict[str, Any]) -> None:
     # Type checking is handled by the function signature
 
     # Continue with the save operation
+    temp_file = None
     try:
         # Ensure parent directory exists
         MCP_SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -165,7 +185,7 @@ def save_settings(data: dict[str, Any]) -> None:
     except (OSError, PermissionError):
         logger.exception("Error writing settings file '%s'", MCP_SETTINGS_FILE)
         # Clean up temporary file if it exists
-        if "temp_file" in locals() and temp_file.exists():
+        if temp_file is not None and temp_file.exists():
             try:
                 temp_file.unlink()
             except OSError as cleanup_error:
@@ -190,6 +210,11 @@ def validate_server_data(server: dict[str, Any]) -> Optional[tuple[str, int]]:
         # Check if server data is valid
         (not server or not isinstance(server, dict), "Invalid JSON data"),
     ]
+
+    # Check if server is None or not a dict before trying to access fields
+    if not server or not isinstance(server, dict):
+        # Return early with the first validation error
+        return "Invalid JSON data", 400
 
     # Validate required fields
     required_fields = ["name", "host", "port"]

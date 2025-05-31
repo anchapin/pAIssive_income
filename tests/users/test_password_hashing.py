@@ -1,6 +1,7 @@
 """test_credential_hashing - Module for tests/users.test_credential_hashing."""
 
 # Standard library imports
+import logging
 import uuid
 
 # Third-party imports

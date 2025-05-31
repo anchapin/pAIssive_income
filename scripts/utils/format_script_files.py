@@ -7,12 +7,28 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 # Use built-in types for type annotations
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
 # Set up a dedicated logger for this module
-logger = logging.getLogger(__name__)
 
 
 def run_command(command: list[str]) -> tuple[int, str, str]:
@@ -65,6 +81,7 @@ def format_file(file_path: str) -> bool:
 
 
 def main() -> int:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     """Format all Python files in the scripts directory."""
     script_files = [
         "scripts/debug_filtering.py",

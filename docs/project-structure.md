@@ -1,144 +1,186 @@
 # Project Structure
 
-This document provides an overview of the pAIssive Income Framework's project structure, explaining how the different components are organized and how they relate to each other.
+This document provides a comprehensive overview of the pAIssive Income project structure and organization.
 
-## Directory Structure
-
-The framework is organized into the following main directories:
+## Repository Root Structure
 
 ```
 pAIssive_income/
-├── agent_team/           # Agent Team module
-├── ai_models/            # AI Models module
-├── docs/                 # Documentation
-├── marketing/            # Marketing module
-├── monetization/         # Monetization module
-├── niche_analysis/       # Niche Analysis module
-├── tool_templates/       # Tool Templates module
-├── ui/                   # UI module
-├── tests/                # Tests
-├── examples/             # Example scripts
-├── LICENSE               # MIT License
-└── README.md             # Project README
+├── .github/                    # GitHub Actions workflows and templates
+├── .vscode/                    # VS Code configuration
+├── adk_demo/                   # Agent Development Kit (ADK) demonstration
+├── agent_team/                 # CrewAI agent orchestration
+├── ai_models/                  # AI model management and utilities
+├── api/                        # API server and endpoints
+├── common_utils/               # Shared utilities and common functions
+├── docs/                       # All project documentation
+├── scripts/                    # Development and utility scripts
+├── tests/                      # Unit and integration tests
+├── ui/                         # User interface components
+├── requirements.txt            # Python dependencies
+├── requirements-dev.txt        # Development dependencies
+├── package.json               # Node.js dependencies
+├── pyproject.toml             # Python project configuration
+├── .uv.toml                   # uv package manager configuration
+└── README.md                  # Main project documentation
 ```
 
-## Module Descriptions
+## Key Directories
 
-### Agent Team Module
+### `/docs/` - Documentation
 
-The `agent_team` directory contains the implementation of the Agent Team, which is a team of specialized AI agents that collaborate on developing and monetizing niche AI tools.
+Centralized documentation organized by topic:
 
-Key files:
-- `__init__.py`: Module initialization
-- `agent_team.py`: Main AgentTeam class
-- `researcher_agent.py`: Researcher Agent implementation
-- `developer_agent.py`: Developer Agent implementation
-- `monetization_agent.py`: Monetization Agent implementation
-- `marketing_agent.py`: Marketing Agent implementation
-- `feedback_agent.py`: Feedback Agent implementation
+- `00_introduction/` - Project overview and getting started
+- `01_user_guide/` - User manuals and guides
+- `02_developer_guide/` - Development workflow and API reference
+- `03_devops_and_cicd/` - CI/CD and deployment documentation
+- `04_security_and_compliance/` - Security policies and compliance
+- `05_sdk_and_integrations/` - SDK documentation and integrations
+- `06_tooling_and_scripts/` - Development tools and scripts
+- `07_troubleshooting_and_faq/` - Troubleshooting and FAQ
+- `08_team_and_collaboration/` - Team guidelines and collaboration
+- `09_archive_and_notes/` - Historical notes and archived content
 
-### AI Models Module
+### `/agent_team/` - AI Agent Orchestration
 
-The `ai_models` directory contains the implementation of the AI Models system, which manages and uses local AI models for various tasks.
+CrewAI-based agent team implementation:
 
-Key files:
-- `__init__.py`: Module initialization
-- `model_manager.py`: Model Manager implementation
-- `model_config.py`: Model configuration
-- `model_downloader.py`: Model downloader
-- `performance_monitor.py`: Performance monitoring
-- `adapters/`: Adapters for different model backends
+- Agent definitions and configurations
+- Team coordination and workflow management
+- Memory-enhanced agents with mem0 integration
+- Agent communication and task delegation
 
-### Niche Analysis Module
+### `/ai_models/` - AI Model Management
 
-The `niche_analysis` directory contains the implementation of the Niche Analysis system, which analyzes market segments and identifies profitable niches.
+AI model utilities and management:
 
-Key files:
-- `__init__.py`: Module initialization
-- `market_analyzer.py`: Market Analyzer implementation
-- `problem_identifier.py`: Problem Identifier implementation
-- `opportunity_scorer.py`: Opportunity Scorer implementation
+- Model configuration and loading
+- Model abstraction layers
+- Integration with various AI providers
+- Model performance monitoring
 
-### Monetization Module
+### `/api/` - API Server
 
-The `monetization` directory contains the implementation of the Monetization system, which creates subscription models and pricing strategies.
+REST API implementation:
 
-Key files:
-- `__init__.py`: Module initialization
-- `subscription_models.py`: Subscription Models implementation
-- `pricing_calculator.py`: Pricing Calculator implementation
-- `revenue_projector.py`: Revenue Projector implementation
-- `subscription_management.py`: Subscription Management implementation
-- `payment_processing.py`: Payment Processing implementation
+- Flask-based API server
+- Endpoint definitions and routing
+- Authentication and authorization
+- API documentation and testing
 
-### Marketing Module
+### `/ui/` - User Interface
 
-The `marketing` directory contains the implementation of the Marketing system, which creates marketing strategies and content.
+Frontend components and interfaces:
 
-Key files:
-- `__init__.py`: Module initialization
-- `user_personas.py`: User Personas implementation
-- `channel_strategies.py`: Channel Strategies implementation
-- `content_templates.py`: Content Templates implementation
-- `content_generators.py`: Content Generators implementation
-- `content_optimization.py`: Content Optimization implementation
+- `react_frontend/` - React-based web interface
+- CopilotKit integration for AI-powered UI
+- Component library and styling
+- E2E testing with Playwright
 
-### Tool Templates Module
+### `/tests/` - Testing
 
-The `tool_templates` directory contains templates for creating different types of AI-powered tools.
+Comprehensive test suite:
 
-Key files:
-- `__init__.py`: Module initialization
-- `ui_templates.py`: UI Templates implementation
-- `backend_templates.py`: Backend Templates implementation
-- `integration_templates.py`: Integration Templates implementation
-- `deployment_templates.py`: Deployment Templates implementation
+- Unit tests for individual components
+- Integration tests for system interactions
+- Performance benchmarks
+- Security testing
+- Coverage reporting
 
-### UI Module
+### `/scripts/` - Development Scripts
 
-The `ui` directory contains the implementation of the web interface for interacting with the framework.
+Development and utility scripts:
 
-Key files:
-- `__init__.py`: Module initialization
-- `app.py`: Entry point for running the web interface
-- `routes.py`: URL routes and request handlers
-- `services/`: Service classes for interacting with the framework components
-- `templates/`: HTML templates for the web interface
-- `static/`: Static files (CSS, JavaScript, images)
-- `data/`: Data storage for the UI (JSON files)
+- Code quality management
+- Testing automation
+- Deployment scripts
+- Development environment setup
 
-## Relationships Between Components
+### `/common_utils/` - Shared Utilities
 
-The components of the framework are designed to work together to provide a complete solution for developing and monetizing niche AI tools:
+Common utilities and helper functions:
 
-1. The **Agent Team** coordinates the overall process, using the other components to perform specific tasks.
-2. The **Niche Analysis** component identifies profitable niches for AI tools.
-3. The **AI Models** component provides the AI capabilities for the tools.
-4. The **Tool Templates** component provides templates for creating the tools.
-5. The **Monetization** component creates subscription models and pricing strategies.
-6. The **Marketing** component creates marketing strategies and content.
-7. The **UI** component provides a web interface for interacting with the framework.
+- Logging configuration
+- Error handling
+- Data validation
+- Utility functions
 
-## Flow of Information
+### `/adk_demo/` - Agent Development Kit
 
-The typical flow of information through the framework is as follows:
+Demonstration of the Agent Development Kit:
 
-1. The user selects market segments to analyze.
-2. The Researcher Agent uses the Niche Analysis component to identify profitable niches.
-3. The user selects a niche to develop a solution for.
-4. The Developer Agent uses the AI Models and Tool Templates components to design and develop a solution.
-5. The Monetization Agent uses the Monetization component to create a monetization strategy.
-6. The Marketing Agent uses the Marketing component to create a marketing campaign.
-7. The Feedback Agent collects and analyzes user feedback to improve the solution.
+- Example agent implementations
+- Tool registry and usage examples
+- Memory-enhanced agent examples
+- Integration demonstrations
 
-## Extending the Framework
+## Configuration Files
 
-The framework is designed to be extensible, allowing users to add new components or modify existing ones. To extend the framework:
+### Python Configuration
 
-1. Create a new directory for your component.
-2. Implement the necessary classes and functions.
-3. Update the documentation to reflect your changes.
-4. Add tests for your component.
-5. Submit a pull request if you want to contribute your changes to the main repository.
+- `pyproject.toml` - Python project metadata and build configuration
+- `.uv.toml` - uv package manager configuration
+- `requirements.txt` - Production dependencies
+- `requirements-dev.txt` - Development dependencies
+- `mypy.ini` - Type checking configuration
+- `.ruff.toml` - Linting and formatting configuration
 
-For more information on contributing to the framework, see the [Contributing](contributing.md) guide.
+### Node.js Configuration
+
+- `package.json` - Node.js project metadata and dependencies
+- `pnpm-lock.yaml` - Dependency lock file
+- `ui/react_frontend/package.json` - Frontend-specific dependencies
+
+### CI/CD Configuration
+
+- `.github/workflows/` - GitHub Actions workflow definitions
+- `.pre-commit-config.yaml` - Pre-commit hooks configuration
+- `Dockerfile` - Container build configuration
+- `docker-compose.yml` - Multi-service orchestration
+
+### Development Tools
+
+- `.vscode/` - VS Code editor configuration
+- `.gitignore` - Git ignore patterns
+- `Makefile` - Common development tasks
+- `.env.example` - Environment variable template
+
+## Architecture Overview
+
+The project follows a microservices-inspired architecture with clear separation of concerns:
+
+1. **Frontend Layer** - React-based UI with AI integration
+2. **API Layer** - RESTful API for frontend-backend communication
+3. **Agent Layer** - AI agent orchestration and coordination
+4. **Model Layer** - AI model management and inference
+5. **Data Layer** - Database and vector storage
+6. **Utility Layer** - Shared utilities and common functions
+
+## Development Workflow
+
+1. **Setup** - Use automated setup scripts for environment configuration
+2. **Development** - Follow TDD practices with comprehensive testing
+3. **Quality** - Automated linting, formatting, and security scanning
+4. **Testing** - Unit, integration, and E2E testing with coverage requirements
+5. **Documentation** - Maintain up-to-date documentation alongside code changes
+6. **Deployment** - Automated CI/CD pipeline with quality gates
+
+For detailed development guidelines, see [Development Workflow](02_developer_guide/01_development_workflow.md).
+
+## Getting Started
+
+For new developers and contributors:
+
+1. Review the [Getting Started Guide](getting-started.md)
+2. Set up your development environment
+3. Explore the [Developer Guide](02_developer_guide/)
+4. Review the [Contributing Guidelines](../CONTRIBUTING.md)
+5. Check the [Troubleshooting Guide](07_troubleshooting_and_faq/troubleshooting.md)
+
+## Additional Resources
+
+- [API Reference](02_developer_guide/05_api_reference/)
+- [Security Overview](04_security_and_compliance/01_security_overview.md)
+- [Deployment Guide](03_devops_and_cicd/)
+- [FAQ](07_troubleshooting_and_faq/faq.md)

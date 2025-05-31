@@ -14,10 +14,13 @@ import argparse
 import os
 import subprocess
 import sys
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Optional
 
 # Local imports
 from common_utils.logging import get_logger
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # Initialize logger
 logger = get_logger(__name__)

@@ -1,5 +1,5 @@
-# Bandit Configuration Template
-# This configuration is used by GitHub Advanced Security for Bandit scanning
+# Bandit Configuration for macOS (Run ID: generic)
+# This configuration is used by GitHub Advanced Security for Bandit scanning on macOS
 
 # Exclude directories from security scans
 exclude_dirs:

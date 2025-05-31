@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Convert Bandit JSON output to SARIF format.
 
@@ -11,10 +16,6 @@ import logging
 import os
 import shutil
 from pathlib import Path
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-logger = logging.getLogger(__name__)
 
 
 def _write_sarif_file(sarif_data: dict, output_file: str) -> bool:
@@ -287,6 +288,21 @@ def _try_temp_dir() -> bool:
     try:
         import tempfile
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
         temp_dir = Path(tempfile.gettempdir()) / "security-reports"
         temp_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Created security-reports directory in temp location: %s", temp_dir)
@@ -538,4 +554,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     main()
