@@ -212,7 +212,7 @@ class TestSecretConfig:
         assert result == 123
         mock_get_secret.assert_not_called()
 
-    @patch("common_utils.secrets.secrets_manager.delete_secret")
+    @patch("common_utils.secrets.config.delete_secret")
     @patch("builtins.open", new_callable=mock_open)
     @patch("os.path.exists", return_value=True)
     @patch("json.dump")

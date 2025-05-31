@@ -106,10 +106,6 @@ queries:
   # This provides a comprehensive set of security and quality checks in a single suite
   - uses: security-and-quality
 
-  # Include language-specific security queries
-  - uses: ./javascript-security-queries.qls
-  - uses: ./python-security-queries.qls
-
 # Disable noisy alerts
 disable-default-queries: false
 

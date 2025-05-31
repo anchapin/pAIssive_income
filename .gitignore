@@ -100,6 +100,7 @@ bandit-results-*.txt
 test-bandit-*.json
 test_bandit_sample.py
 run_tests_bandit.json
+security-reports/current-bandit-results.json
 security-reports/bandit-results-*.sarif
 !security-reports/bandit-results.sarif
 !security-reports/bandit-results-ini.sarif

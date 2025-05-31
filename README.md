@@ -522,7 +522,7 @@ Running the main script generates a complete project plan including:
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.10+ (required for CrewAI compatibility)
 - [`uv`](https://github.com/astral-sh/uv) (Python package installer and resolver; **required for all Python environments/dependencies**)
   - Install via: `curl -LsSf https://astral.sh/uv/install.sh | sh`
   - If `curl` is unavailable, you may use `pip install uv` ONLY for initial installation.
@@ -783,7 +783,7 @@ You can deploy your own server or connect to one of the many public options.
 
 ### Requirements
 
-- Python 3.8+
+- Python 3.10+ (required for CrewAI compatibility)
 - The [`mcp-use`](https://pypi.org/project/mcp-use/) Python library (already included in requirements)
 - (Optional) See [modelcontextprotocol.io](https://modelcontextprotocol.io/) for protocol and SDK docs
 

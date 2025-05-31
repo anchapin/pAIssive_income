@@ -87,16 +87,14 @@ jobs:
           if [ ! -f "install_mcp_sdk.py" ] && [ ! -f "scripts/setup/install_mcp_sdk.py" ]; then
             echo "Creating mock MCP SDK module..."
             mkdir -p modelcontextprotocol
-            cat > modelcontextprotocol/__init__.py << 'EOF'
-class Client:
-    def __init__(self, endpoint, **kwargs):
-        self.endpoint = endpoint
-        self.kwargs = kwargs
-    def connect(self): pass
-    def disconnect(self): pass
-    def send_message(self, message):
-        return f"Mock response to: {message}"
-EOF
+            echo 'class Client:' > modelcontextprotocol/__init__.py
+            echo '    def __init__(self, endpoint, **kwargs):' >> modelcontextprotocol/__init__.py
+            echo '        self.endpoint = endpoint' >> modelcontextprotocol/__init__.py
+            echo '        self.kwargs = kwargs' >> modelcontextprotocol/__init__.py
+            echo '    def connect(self): pass' >> modelcontextprotocol/__init__.py
+            echo '    def disconnect(self): pass' >> modelcontextprotocol/__init__.py
+            echo '    def send_message(self, message):' >> modelcontextprotocol/__init__.py
+            echo '        return f"Mock response to: " + str(message)' >> modelcontextprotocol/__init__.py
             pip install -e .
           else
             # Try to run the installation script
@@ -104,32 +102,28 @@ EOF
               python install_mcp_sdk.py || {
                 echo "Warning: Failed to run install_mcp_sdk.py, using mock module"
                 mkdir -p modelcontextprotocol
-                cat > modelcontextprotocol/__init__.py << 'EOF'
-class Client:
-    def __init__(self, endpoint, **kwargs):
-        self.endpoint = endpoint
-        self.kwargs = kwargs
-    def connect(self): pass
-    def disconnect(self): pass
-    def send_message(self, message):
-        return f"Mock response to: {message}"
-EOF
+                echo 'class Client:' > modelcontextprotocol/__init__.py
+                echo '    def __init__(self, endpoint, **kwargs):' >> modelcontextprotocol/__init__.py
+                echo '        self.endpoint = endpoint' >> modelcontextprotocol/__init__.py
+                echo '        self.kwargs = kwargs' >> modelcontextprotocol/__init__.py
+                echo '    def connect(self): pass' >> modelcontextprotocol/__init__.py
+                echo '    def disconnect(self): pass' >> modelcontextprotocol/__init__.py
+                echo '    def send_message(self, message):' >> modelcontextprotocol/__init__.py
+                echo '        return f"Mock response to: " + str(message)' >> modelcontextprotocol/__init__.py
                 pip install -e .
               }
             else
               python scripts/setup/install_mcp_sdk.py || {
                 echo "Warning: Failed to run install_mcp_sdk.py, using mock module"
                 mkdir -p modelcontextprotocol
-                cat > modelcontextprotocol/__init__.py << 'EOF'
-class Client:
-    def __init__(self, endpoint, **kwargs):
-        self.endpoint = endpoint
-        self.kwargs = kwargs
-    def connect(self): pass
-    def disconnect(self): pass
-    def send_message(self, message):
-        return f"Mock response to: {message}"
-EOF
+                echo 'class Client:' > modelcontextprotocol/__init__.py
+                echo '    def __init__(self, endpoint, **kwargs):' >> modelcontextprotocol/__init__.py
+                echo '        self.endpoint = endpoint' >> modelcontextprotocol/__init__.py
+                echo '        self.kwargs = kwargs' >> modelcontextprotocol/__init__.py
+                echo '    def connect(self): pass' >> modelcontextprotocol/__init__.py
+                echo '    def disconnect(self): pass' >> modelcontextprotocol/__init__.py
+                echo '    def send_message(self, message):' >> modelcontextprotocol/__init__.py
+                echo '        return f"Mock response to: " + str(message)' >> modelcontextprotocol/__init__.py
                 pip install -e .
               }
             fi

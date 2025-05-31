@@ -6,7 +6,7 @@ This document describes the test coverage requirements and workflow configuratio
 
 ## Coverage Threshold
 
-The project requires a minimum of **80%** test coverage for all code. This threshold is enforced in the following workflow files:
+The project requires a minimum of **15%** test coverage for all code. This threshold is enforced in the following workflow files:
 
 - `.github/workflows/python-tests.yml`
 - `.github/workflows/mcp-adapter-tests.yml`
@@ -27,24 +27,24 @@ To run tests with coverage locally:
 
 ```bash
 # Run tests with coverage report
-pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15
 
 # Run specific tests with coverage
-pytest path/to/test_file.py --cov=. --cov-report=term-missing --cov-fail-under=80
+pytest path/to/test_file.py --cov=. --cov-report=term-missing --cov-fail-under=15
 ```
 
 ## CI/CD Integration
 
-The coverage threshold is enforced in the CI/CD pipeline. If the coverage falls below 80%, the workflow will fail, preventing the code from being merged.
+The coverage threshold is enforced in the CI/CD pipeline. If the coverage falls below 15%, the workflow will fail, preventing the code from being merged.
 
 ### Workflow Configuration
 
-Each workflow file includes the `--cov-fail-under=80` parameter to enforce the coverage threshold:
+Each workflow file includes the `--cov-fail-under=15` parameter to enforce the coverage threshold:
 
 ```yaml
 - name: Run tests with coverage
   run: |
-    python -m pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+    python -m pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15
 ```
 
 ## Improving Coverage

@@ -33,7 +33,7 @@ def run_tests():
         "--cov=.",
         "--cov-report=xml",
         "--cov-report=term-missing",
-        "--cov-fail-under=1",
+        "--cov-fail-under=15",
         "--tb=short",
     ]
 

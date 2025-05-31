@@ -8,7 +8,7 @@ This guide will help you get started with the pAIssive Income Framework. It cove
 
 ## Prerequisites
 
-- Python 3.8 or higher
+- Python 3.10 or higher (required for CrewAI compatibility)
 - [`uv`](https://github.com/astral-sh/uv) (Python package installer and resolver)
 - Node.js 16.10+ (for UI components)
 - [`pnpm`](https://pnpm.io/) (Node.js package manager)

@@ -8,6 +8,11 @@ to prevent sensitive information from being logged in clear text.
 import logging
 import sys
 
+# Configure logging at module level for testing
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
 logger = logging.getLogger(__name__)
 
 try:

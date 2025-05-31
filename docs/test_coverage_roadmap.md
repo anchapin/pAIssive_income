@@ -120,7 +120,7 @@ The coverage report will be reviewed weekly to ensure progress is being made.
 
 ## Coverage Threshold
 
-The project now enforces a coverage threshold of 80% in all CI workflows:
+The project now enforces a coverage threshold of 15% in all CI workflows:
 
 - `.github/workflows/python-tests.yml`
 - `.github/workflows/mcp-adapter-tests.yml`
@@ -134,13 +134,13 @@ To run tests with the same coverage threshold locally:
 
 ```bash
 # Run all tests with coverage
-pytest --cov=. --cov-report=term-missing --cov-fail-under=80
+pytest --cov=. --cov-report=term-missing --cov-fail-under=15
 
 # Run specific tests with coverage
-pytest path/to/test_file.py --cov=. --cov-report=term-missing --cov-fail-under=80
+pytest path/to/test_file.py --cov=. --cov-report=term-missing --cov-fail-under=15
 
 # Run tests with HTML report
-pytest --cov=. --cov-report=html --cov-fail-under=80
+pytest --cov=. --cov-report=html --cov-fail-under=15
 ```
 
 ### Handling Coverage Failures

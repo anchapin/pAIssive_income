@@ -66,4 +66,4 @@ exclude_lines =
     if TYPE_CHECKING:
     # Skip exception handling that can't be tested easily
     except ImportError:
-fail_under = 1
+fail_under = 15

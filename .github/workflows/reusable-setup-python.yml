@@ -1,16 +1,7 @@
 name: Reusable Python Setup
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-  workflow_run:
-    workflows: ["Gradual Lint Check"]
-    types:
-      - completed
-
+  workflow_call:
     inputs:
       python-version:
         description: 'The Python version to use'
@@ -22,7 +13,6 @@ on:
         required: false
         default: 'requirements.txt'
         type: string
-
     outputs:
       venv-path:
         description: 'Path to the created virtual environment'
@@ -58,5 +48,4 @@ jobs:
       - name: Save venv path output
         id: save-venv-path
         run: echo "venv-path=$(pwd)/.venv" >> $GITHUB_OUTPUT
-
-      if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+        if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
