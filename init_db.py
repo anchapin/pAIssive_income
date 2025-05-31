@@ -1,26 +1,55 @@
 #!/usr/bin/env python3
-"""init_db.py - Initialize the database with tables and initial data."""
-
 from __future__ import annotations
 
 import logging
+import os
 import string
 import sys
 from secrets import randbelow
 from typing import Any
 
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-
-from app_flask import create_app, db
-from app_flask.models import Agent, Team, User
-from users.auth import hash_credential
-
-# Set up logger with more detailed formatting
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+# Configure logging
 logger = logging.getLogger(__name__)
+
+"""init_db.py - Initialize the database with tables and initial data."""
+
+# Configure logging
+
+
+# Configure logging
+
+
+try:
+    from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+except ImportError:
+    print("Error: SQLAlchemy module not found. Please install it with 'pip install SQLAlchemy'")
+    sys.exit(1)
+
+try:
+    from app_flask import create_app, db
+    from app_flask.models import Agent, Team, User
+    from users.auth import hash_credential
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
+except ImportError as e:
+
+    print(f"Error importing Flask app components: {e}. Ensure app_flask and users modules are correctly set up.")
+    sys.exit(1)
+
+
 
 
 def generate_secure_password(length: int = 16) -> str:
@@ -83,8 +112,8 @@ def _initialize_database_data() -> bool:
 
     """
     try:
-        # Generate a random password
-        password = generate_secure_password()
+        # Use environment variable for password if available, otherwise generate one
+        password = os.environ.get("ADMIN_INITIAL_PASSWORD") or generate_secure_password()
 
         # Create admin user
         admin = User(
@@ -177,6 +206,11 @@ def _verify_initialization(agents: list[Any]) -> bool:
 
 
 if __name__ == "__main__":
+    # Set up logger with more detailed formatting
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     success = init_db()
     if not success:
         logger.error("Database initialization failed")

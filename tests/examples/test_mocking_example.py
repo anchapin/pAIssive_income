@@ -12,6 +12,7 @@ Mocking is especially useful for:
 4. Speeding up tests by replacing slow operations with fast mocks
 """
 
+import logging
 import time
 from unittest.mock import MagicMock, patch
 

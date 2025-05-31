@@ -2,7 +2,7 @@ name: "CodeQL Analysis"
 
 # This workflow performs CodeQL analysis for JavaScript/TypeScript and Python
 # It runs on push to main branches, pull requests to main branches, and on a weekly schedule
-# The workflow is designed to provide comprehensive security analysis with detailed configuration
+# The workflow is designed to provide comprehensive security analysis with optimized timeouts
 
 on:
   push:
@@ -44,6 +44,15 @@ on:
   schedule:
     - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Gradual Lint Check"]
+    types:
+      - completed
+    branches:
+      - main
+      - dev
+      - master
+      - develop
 
 # Limit concurrent runs to conserve resources
 concurrency:
@@ -64,11 +73,15 @@ jobs:
     # Platform-specific analysis is handled by dedicated workflows
     runs-on: ubuntu-latest
     timeout-minutes: 90  # Increased timeout for larger codebases
-
+    # Only run if auto-fix workflow completed successfully, or if triggered by other events
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
       matrix:
         language: [ 'javascript-typescript', 'python' ]
+    env:
+      ACTIONS_RUNNER_DEBUG: true
+      ACTIONS_STEP_DEBUG: true
 
     steps:
       - name: Checkout repository
@@ -79,7 +92,7 @@ jobs:
       # Set up pnpm first for JavaScript/TypeScript analysis
       - name: Setup pnpm
         if: matrix.language == 'javascript-typescript'
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v4
         with:
           version: '8.15.4'
           run_install: false
@@ -114,7 +127,7 @@ jobs:
         run: |
           try {
             # Add pnpm to PATH
-            $pnpmPath = "$env:LOCALAPPDATA\pnpm"
+            $pnpmPath = "$env:LOCALAPPDATA\\pnpm"
             if (Test-Path $pnpmPath) {
               echo "Adding $pnpmPath to PATH"
               echo "$pnpmPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -163,6 +176,27 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      # Install Python dependencies
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          echo "Installing Python dependencies from requirements.txt..."
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "requirements.txt not found, skipping."
+          fi
+          echo "Installing project in editable mode (if setup.py or pyproject.toml exists)..."
+          if [ -f setup.py ] || [ -f pyproject.toml ]; then
+            python -m pip install --upgrade setuptools wheel
+            pip install -e .
+          else
+            echo "No setup.py or pyproject.toml found, skipping project installation."
+          fi
+          echo "Python dependency installation step complete."
+
       # Display disk space before analysis
       - name: Check disk space
         shell: bash
@@ -180,7 +214,7 @@ jobs:
             echo "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
 
             # Create a minimal valid package-lock.json with echo
-            echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
+            echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{}}}' > package-lock.json
 
             echo "Created minimal package-lock.json in the root directory."
 
@@ -199,7 +233,7 @@ jobs:
             else
               echo "CRITICAL ERROR: Failed to create package-lock.json"
               # Try alternative method
-              node -e "fs.writeFileSync('package-lock.json', JSON.stringify({name:'paissive-income',version:'1.0.0',lockfileVersion:3,packages:{'':{'name':'paissive-income','version':'1.0.0'}}}))" || true
+              node -e "fs.writeFileSync('package-lock.json', JSON.stringify({name:'paissive-income',version:'1.0.0',lockfileVersion:3,packages:{'':{name:'paissive-income',version:'1.0.0'}}}))" || true
               if [ -f "package-lock.json" ]; then
                 echo "Successfully created package-lock.json using Node.js"
               fi
@@ -209,10 +243,11 @@ jobs:
             echo "$LOCK_FILES"
           fi
 
-      # Install dependencies for JavaScript/TypeScript
+      # Install dependencies for JavaScript/TypeScript with timeout
       - name: Install Node.js dependencies
         if: matrix.language == 'javascript-typescript'
         shell: bash
+        timeout-minutes: 10  # Add timeout for dependency installation
         run: |
           # Function to install dependencies with fallback
           install_deps() {
@@ -228,9 +263,9 @@ jobs:
             # Try with pnpm first (preferred)
             if command -v pnpm &>/dev/null; then
               echo "Using pnpm to install dependencies..."
-              pnpm install || {
-                echo "pnpm install failed, trying with npm..."
-                npm install || {
+              timeout 8m pnpm install || {
+                echo "pnpm install failed or timed out, trying with npm..."
+                timeout 8m npm install || {
                   echo "Both pnpm and npm installation failed in $(pwd)"
                   if [ -n "$dir" ]; then
                     cd "$original_dir"
@@ -241,7 +276,7 @@ jobs:
             else
               # Fallback to npm if pnpm is not available
               echo "pnpm not found, using npm..."
-              npm install || {
+              timeout 8m npm install || {
                 echo "npm install failed in $(pwd)"
                 if [ -n "$dir" ]; then
                   cd "$original_dir"
@@ -291,37 +326,47 @@ jobs:
         run: |
           if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
             echo "Running ensure-codeql-configs.sh script..."
-            bash .github/scripts/ensure-codeql-configs.sh
+            timeout 5m bash .github/scripts/ensure-codeql-configs.sh
+          elif [ -f ".github/scripts/ensure_codeql_configs.py" ]; then
+            echo "Running ensure_codeql_configs.py script..."
+            python .github/scripts/ensure_codeql_configs.py
           else
-            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
-
+            echo "Ensure scripts not found. Creating minimal configuration..."
             # Ensure directory exists
             mkdir -p .github/codeql
 
             # Create minimal unified configuration
             cat > .github/codeql/security-os-config.yml << 'EOF'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
+            name: "Unified CodeQL Configuration"
+            queries:
+              - uses: security-and-quality
+              - uses: security-extended
+              - uses: security
+            disable-default-queries: false
+            trap-for-errors: true
+          EOF
+            # Create minimal qls files if they don't exist, pointing to security-and-quality
+            if [ ! -f ".github/codeql/javascript-security-queries.qls" ]; then
+              echo "- description: Minimal JS Security Queries\n- uses: security-and-quality" > .github/codeql/javascript-security-queries.qls
+            fi
+            if [ ! -f ".github/codeql/python-security-queries.qls" ]; then
+              echo "- description: Minimal Python Security Queries\n- uses: security-and-quality" > .github/codeql/python-security-queries.qls
+            fi
           fi
 
-      # Initialize CodeQL
+      # Initialize CodeQL with timeout
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          queries: security-and-quality
           config-file: .github/codeql/security-os-config.yml
-          debug: true
+          debug: false
+        timeout-minutes: 10
 
-      # Autobuild attempts to build any compiled languages
+      # Autobuild attempts to build any compiled languages with timeout
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
+        timeout-minutes: 15
         continue-on-error: true
 
       # Verify environment before CodeQL analysis
@@ -341,7 +386,7 @@ EOF
             # Final check for package-lock.json - create it if it still doesn't exist
             if [ ! -f "package-lock.json" ]; then
               echo "WARNING: package-lock.json still not found! Creating it as a last resort..."
-              echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
+              echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{}}}' > package-lock.json
               echo "Created minimal package-lock.json in the root directory."
             fi
 
@@ -363,13 +408,14 @@ EOF
 
           echo "Environment verification complete."
 
-      # Perform CodeQL Analysis with enhanced error handling
+      # Perform CodeQL Analysis with enhanced error handling and timeout
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
           upload: true
           output: sarif-results/${{ matrix.language }}-${{ runner.os }}.sarif
+        timeout-minutes: 20  # Add timeout for analysis step
         continue-on-error: false # Fail the workflow if CodeQL analysis fails
 
       # Upload SARIF results as an artifact
