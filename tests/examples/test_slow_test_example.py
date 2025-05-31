@@ -12,6 +12,7 @@ To run tests excluding slow tests:
     pytest -m "not slow"
 """
 
+import logging
 import time
 
 import pytest
