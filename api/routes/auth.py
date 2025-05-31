@@ -76,10 +76,22 @@ def sanitize_log_data(data):
     """Sanitize data for logging to prevent log injection."""
     if data is None:
         return '<none>'
+
+    # Max length for sanitized data
+    MAX_LOG_LENGTH = 256
+
     if isinstance(data, str):
-        # Replace newlines and sanitize HTML
-        return html.escape(data.replace('\n', ' ').replace('\r', ' '))
-    return str(data)
+        # Replace newlines
+        sanitized = data.replace('\n', ' ').replace('\r', ' ')
+        # Remove non-printable characters
+        sanitized = ''.join(ch for ch in sanitized if ch.isprintable())
+        # Truncate
+        sanitized = sanitized[:MAX_LOG_LENGTH]
+        # Sanitize HTML
+        return html.escape(sanitized)
+    else:
+        # Convert to string and truncate
+        return str(data)[:MAX_LOG_LENGTH]
 
 @auth_bp.route('/forgot-password', methods=['POST'])
 @limiter.limit("5 per minute")
