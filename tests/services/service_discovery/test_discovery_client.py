@@ -33,7 +33,7 @@ class TestServiceDiscoveryClient(unittest.TestCase):
             mock_registry = MagicMock()
             mock_registry_class.return_value = mock_registry
 
-            client = ServiceDiscoveryClient(
+            ServiceDiscoveryClient(
                 service_name="test-service",
                 port=8000,
                 auto_register=True
@@ -61,7 +61,7 @@ class TestServiceDiscoveryClient(unittest.TestCase):
         instances = self.client.discover_service("target-service")
 
         # Verify the result
-        self.assertEqual(instances, mock_instances)
+        assert instances == mock_instances
         self.mock_registry.get_service_instances.assert_called_once_with("target-service")
 
     def test_discover_service_empty(self):
@@ -73,7 +73,7 @@ class TestServiceDiscoveryClient(unittest.TestCase):
         instances = self.client.discover_service("target-service")
 
         # Verify the result
-        self.assertEqual(instances, [])
+        assert instances == []
         self.mock_registry.get_service_instances.assert_called_once_with("target-service")
 
     def test_get_service_url(self):
@@ -92,7 +92,7 @@ class TestServiceDiscoveryClient(unittest.TestCase):
         url = self.client.get_service_url("target-service", "/api/resource")
 
         # Verify the result
-        self.assertEqual(url, "http://localhost:8001/api/resource")
+        assert url == "http://localhost:8001/api/resource"
         self.mock_registry.get_service_instances.assert_called_once_with("target-service")
         self.client.load_balancer.select_instance.assert_called_once_with(mock_instances)
 
@@ -105,7 +105,7 @@ class TestServiceDiscoveryClient(unittest.TestCase):
         url = self.client.get_service_url("target-service", "/api/resource")
 
         # Verify the result
-        self.assertIsNone(url)
+        assert url is None
         self.mock_registry.get_service_instances.assert_called_once_with("target-service")
 
     def test_register_service(self):

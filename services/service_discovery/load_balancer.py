@@ -54,13 +54,14 @@ class LoadBalancingStrategy(Protocol):
         # Fix for CodeQL "Statement has no effect" issue
         # This is a Protocol method that should be implemented by concrete classes
         # Replacing the ellipsis with a proper NotImplementedError
-        raise NotImplementedError("This method must be implemented by concrete strategy classes")
+        msg = "This method must be implemented by concrete strategy classes"
+        raise NotImplementedError(msg)
 
 
 class RoundRobinStrategy:
     """Round-robin load balancing strategy."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the round-robin strategy."""
         self.current_index = 0
 
@@ -106,7 +107,7 @@ class RandomStrategy:
 class WeightedRandomStrategy:
     """Weighted random load balancing strategy."""
 
-    def __init__(self, weight_function: Callable[[dict[str, Any]], float]):
+    def __init__(self, weight_function: Callable[[dict[str, Any]], float]) -> None:
         """
         Initialize the weighted random strategy.
 
@@ -157,7 +158,7 @@ class LeastConnectionsStrategy:
 class LoadBalancer:
     """Load balancer for service instances."""
 
-    def __init__(self, strategy: str = "round_robin"):
+    def __init__(self, strategy: str = "round_robin") -> None:
         """
         Initialize the load balancer.
 
@@ -190,7 +191,8 @@ class LoadBalancer:
             return WeightedRandomStrategy(lambda _: 1.0)
         if strategy_name == "least_connections":
             return LeastConnectionsStrategy()
-        raise ValueError(f"Invalid load balancing strategy: {strategy_name}")
+        msg = f"Invalid load balancing strategy: {strategy_name}"
+        raise ValueError(msg)
 
     def select_instance(self, instances: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
         """

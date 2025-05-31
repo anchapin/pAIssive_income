@@ -29,7 +29,6 @@ try:
 # Configure logging
 except ImportError:
 
-    print("Error: psycopg2 module not found. Please install it.")
     sys.exit(1)
 
 

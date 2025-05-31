@@ -182,10 +182,12 @@ class TestCentralizedLoggingServiceImproved:
             nonlocal call_count
             call_count += 1
             if call_count == 1:
-                raise Exception("Test exception")
+                msg = "Test exception"
+                raise Exception(msg)
             # Stop the service to exit the loop
             self.service.running = False
-            raise Exception("Stop loop")
+            msg = "Stop loop"
+            raise Exception(msg)
 
         with patch.object(self.service, "receive_log", side_effect=mock_receive_log):
             # Mock time.sleep to avoid waiting
@@ -284,6 +286,6 @@ class TestCentralizedLoggingFunctionsImproved:
                 mock_logger = MagicMock()
                 mock_get_secure_logger.return_value = mock_logger
                 # Get a centralized logger
-                logger = get_centralized_logger("test_logger")
+                get_centralized_logger("test_logger")
                 # Verify that get_secure_logger was called
                 mock_get_secure_logger.assert_called_once_with("test_logger")

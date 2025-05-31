@@ -33,7 +33,6 @@ try:
 # Configure logging
 except ImportError:
 
-    print("Error: pathlib module not found. Please install it.")
     sys.exit(1)
 
 
@@ -47,7 +46,7 @@ if not target_script.exists():
     logger.error("Target script not found at %s", target_script)
     sys.exit(1)
 
-def main():
+def main() -> None:
     """Runs the pre-commit script."""
     # Configure logging
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

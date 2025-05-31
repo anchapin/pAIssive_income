@@ -42,7 +42,6 @@ try:
 # Configure logging
 except ImportError:
 
-    print("Error: pathlib module not found. Please install it.")
     sys.exit(1)
 
 

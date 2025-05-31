@@ -60,7 +60,7 @@ def test_module_imports(module_name):
 
 # Test the hash_credential function with various inputs
 @pytest.mark.parametrize(
-    "credential,expected_exception",
+    ("credential", "expected_exception"),
     [
         ("password123", None),
         ("", ValueError),
@@ -80,7 +80,7 @@ def test_hash_credential_parametrized(credential, expected_exception):
 
 # Test the verify_credential function with various inputs
 @pytest.mark.parametrize(
-    "plain_credential,hashed_credential,expected_result",
+    ("plain_credential", "hashed_credential", "expected_result"),
     [
         ("password123", "$2b$12$abcdefghijklmnopqrstuvwxyz123456789", False),  # Invalid hash
         ("", "$2b$12$abcdefghijklmnopqrstuvwxyz123456789", False),  # Empty credential

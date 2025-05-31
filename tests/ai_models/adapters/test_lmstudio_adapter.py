@@ -423,7 +423,7 @@ async def test_get_session_with_api_key():
         adapter = LMStudioAdapter(host_or_base_url="http://test-lmstudio:1234/v1", api_key="test-key", timeout=30)
 
         # Get session
-        session = await adapter._get_session()
+        await adapter._get_session()
 
         # Verify session was created with correct parameters
         mock_client_session.assert_called_once()

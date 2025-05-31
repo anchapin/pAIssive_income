@@ -96,7 +96,7 @@ def parse_log_file(file_path: str) -> list[dict[str, Any]]:
                 elif log_entries:
                     log_entries[-1]["message"] += "\n" + line.strip()
     except Exception as e:
-        logger.error(f"Error parsing log file {file_path}: {e}")
+        logger.exception(f"Error parsing log file {file_path}: {e}")
 
     return log_entries
 
@@ -234,7 +234,7 @@ class LogAggregator:
             try:
                 handler.handle(log_entry)
             except Exception as e:
-                logger.error(f"Error handling log entry with {handler.__class__.__name__}: {e}")
+                logger.exception(f"Error handling log entry with {handler.__class__.__name__}: {e}")
 
     def aggregate_log_file(self, file_path: str) -> None:
         """
@@ -305,7 +305,7 @@ class ElasticsearchHandler:
                 document=log_entry,
             )
         except Exception as e:
-            logger.error(f"Error indexing log entry in Elasticsearch: {e}")
+            logger.exception(f"Error indexing log entry in Elasticsearch: {e}")
 
 
 class LogstashHandler:
@@ -355,7 +355,7 @@ class LogstashHandler:
             if self.socket is None:
                 sock.close()
         except Exception as e:
-            logger.error(f"Error sending log entry to Logstash: {e}")
+            logger.exception(f"Error sending log entry to Logstash: {e}")
 
 
 class FileRotatingHandler:
@@ -420,7 +420,7 @@ class FileRotatingHandler:
             # Emit the record
             self.handler.emit(record)
         except Exception as e:
-            logger.error(f"Error writing log entry to file: {e}")
+            logger.exception(f"Error writing log entry to file: {e}")
 
 
 def aggregate_logs(
@@ -481,9 +481,9 @@ def aggregate_logs(
 
             logger.info(f"Added Elasticsearch handler for {es_host}:{es_port}")
         except ImportError:
-            logger.error("Elasticsearch module not found. Install with: pip install elasticsearch")
+            logger.exception("Elasticsearch module not found. Install with: pip install elasticsearch")
         except Exception as e:
-            logger.error(f"Error creating Elasticsearch client: {e}")
+            logger.exception(f"Error creating Elasticsearch client: {e}")
 
     # Add Logstash handler if host is provided
     if logstash_host:
@@ -536,7 +536,7 @@ def configure_log_aggregation(
     """
 
     # Define the aggregation function
-    def _aggregate():
+    def _aggregate() -> None:
         # In test mode, run only once
         if test_mode:
             try:
@@ -552,7 +552,7 @@ def configure_log_aggregation(
                     output_file=output_file,
                 )
             except Exception as e:
-                logger.error(f"Error aggregating logs: {e}")
+                logger.exception(f"Error aggregating logs: {e}")
             return
 
         # In normal mode, run continuously
@@ -570,7 +570,7 @@ def configure_log_aggregation(
                     output_file=output_file,
                 )
             except Exception as e:
-                logger.error(f"Error aggregating logs: {e}")
+                logger.exception(f"Error aggregating logs: {e}")
 
             # Sleep for 5 minutes
             time.sleep(300)

@@ -21,8 +21,7 @@ class TestAPIHandlerAdditional:
         # Create mock request and client_address
         mock_request = MagicMock()
         mock_request.makefile.return_value = MagicMock()
-        client_address = ("127.0.0.1", 12345)
-        server = MagicMock()
+        MagicMock()
 
         # Create handler with mocks
         with patch.object(APIHandler, "__init__", return_value=None):

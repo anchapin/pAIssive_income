@@ -1,6 +1,4 @@
-"""
-Test file to ensure we have at least 80% test coverage for users.auth module.
-"""
+"""Test file to ensure we have at least 80% test coverage for users.auth module."""
 import logging
 from unittest.mock import MagicMock, patch
 

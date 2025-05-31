@@ -45,7 +45,6 @@ try:
 # Configure logging
 except ImportError:
 
-    print("Error: psycopg2 module not found. Please install it (e.g., pip install psycopg2-binary).")
     sys.exit(1)
 
 
@@ -336,7 +335,8 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
                 logger.exception(
                     "Failed to start server after %d attempts", max_retries
                 )
-                raise OSError(f"Failed to start server after {max_retries} attempts")
+                msg = f"Failed to start server after {max_retries} attempts"
+                raise OSError(msg)
 
     # Verify that httpd was successfully initialized
     if httpd is None:

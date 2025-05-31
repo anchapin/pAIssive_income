@@ -59,7 +59,7 @@ class TestSecretsInit:
         found = False
         for key, value in result.items():
             if key == "TEST_KEY" or "SENSITIVE_KEY" in key:
-                if value == "****" or value == "********":
+                if value in ("****", "********"):
                     found = True
                     break
 

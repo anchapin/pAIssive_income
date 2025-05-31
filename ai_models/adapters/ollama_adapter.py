@@ -17,17 +17,17 @@ try:
 except ImportError:
     # If aiohttp is not available, try to use our mock implementation
     try:
-        from .. import mock_aiohttp as aiohttp
+        from ai_models import mock_aiohttp as aiohttp
         logger.info("Using mock aiohttp in ollama_adapter")
     except ImportError as e:
-        logger.error(f"Failed to import mock_aiohttp: {e}")
+        logger.exception(f"Failed to import mock_aiohttp: {e}")
         # Create a minimal mock to prevent import errors
         class aiohttp:
             class ClientSession:
-                def __init__(self, *args, **kwargs):
+                def __init__(self, *args, **kwargs) -> None:
                     pass
             class ClientTimeout:
-                def __init__(self, *args, **kwargs):
+                def __init__(self, *args, **kwargs) -> None:
                     pass
 
 # Local imports
@@ -52,7 +52,7 @@ from .base_adapter import BaseModelAdapter
 class OllamaAdapter(BaseModelAdapter):
     """Adapter for connecting to Ollama, a local API server for running large language models."""
 
-    def __init__(self, base_url: str = "http://localhost:11434", timeout: int = 60):
+    def __init__(self, base_url: str = "http://localhost:11434", timeout: int = 60) -> None:
         """
         Initialize the Ollama adapter.
 
@@ -87,13 +87,17 @@ class OllamaAdapter(BaseModelAdapter):
                     data = await response.json()
                     return data.get("models", [])
                 error_text = await response.text()
-                raise Exception(f"Failed to list models (status {response.status}): {error_text}")
+                msg = f"Failed to list models (status {response.status}): {error_text}"
+                raise Exception(msg)
         except aiohttp.ClientConnectionError as e:
-            raise Exception(f"Failed to connect to Ollama server: {e}")
+            msg = f"Failed to connect to Ollama server: {e}"
+            raise Exception(msg)
         except asyncio.TimeoutError:
-            raise Exception("Request to Ollama server timed out")
+            msg = "Request to Ollama server timed out"
+            raise Exception(msg)
         except Exception as e:
-            raise Exception(f"Error listing models: {e}")
+            msg = f"Error listing models: {e}"
+            raise Exception(msg)
 
     async def generate_text(self, model: str, prompt: str, **kwargs) -> dict[str, Any]:
         """
@@ -120,13 +124,17 @@ class OllamaAdapter(BaseModelAdapter):
                 if response.status == 200:
                     return await response.json()
                 error_text = await response.text()
-                raise Exception(f"Failed to generate text (status {response.status}): {error_text}")
+                msg = f"Failed to generate text (status {response.status}): {error_text}"
+                raise Exception(msg)
         except aiohttp.ClientConnectionError as e:
-            raise Exception(f"Failed to connect to Ollama server: {e}")
+            msg = f"Failed to connect to Ollama server: {e}"
+            raise Exception(msg)
         except asyncio.TimeoutError:
-            raise Exception("Request to Ollama server timed out")
+            msg = "Request to Ollama server timed out"
+            raise Exception(msg)
         except Exception as e:
-            raise Exception(f"Error generating text: {e}")
+            msg = f"Error generating text: {e}"
+            raise Exception(msg)
 
     async def generate_chat_completions(self, model: str, messages: list[dict[str, str]], **kwargs) -> dict[str, Any]:
         """
@@ -153,21 +161,25 @@ class OllamaAdapter(BaseModelAdapter):
                 if response.status == 200:
                     return await response.json()
                 error_text = await response.text()
-                raise Exception(f"Failed to generate chat completion (status {response.status}): {error_text}")
+                msg = f"Failed to generate chat completion (status {response.status}): {error_text}"
+                raise Exception(msg)
         except aiohttp.ClientConnectionError as e:
-            raise Exception(f"Failed to connect to Ollama server: {e}")
+            msg = f"Failed to connect to Ollama server: {e}"
+            raise Exception(msg)
         except asyncio.TimeoutError:
-            raise Exception("Request to Ollama server timed out")
+            msg = "Request to Ollama server timed out"
+            raise Exception(msg)
         except Exception as e:
-            raise Exception(f"Error generating chat completion: {e}")
+            msg = f"Error generating chat completion: {e}"
+            raise Exception(msg)
 
-    async def close(self):
+    async def close(self) -> None:
         """Close the aiohttp session."""
         if self._session and not self._session.closed:
             await self._session.close()
         self._session = None
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Ensure the session is closed when the adapter is garbage collected."""
         if self._session and not self._session.closed:
             asyncio.create_task(self._session.close())

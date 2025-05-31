@@ -354,7 +354,8 @@ def test_logging_client_send_log_entry_exception(monkeypatch):
     # Patch socket.socket to raise exception on sendto
     class DummySocket:
         def sendto(self, *a, **kw):
-            raise OSError("fail")
+            msg = "fail"
+            raise OSError(msg)
         def close(self):
             pass
     monkeypatch.setattr("socket.socket", lambda *a, **kw: DummySocket())

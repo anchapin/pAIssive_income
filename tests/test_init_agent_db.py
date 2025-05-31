@@ -47,7 +47,7 @@ class TestInitAgentDB(unittest.TestCase):
         result = init_agent_db()
 
         # Verify result
-        self.assertTrue(result)
+        assert result
 
         # Verify connection was established
         mock_connect.assert_called_once_with(
@@ -56,7 +56,7 @@ class TestInitAgentDB(unittest.TestCase):
         )
 
         # Verify tables were created
-        self.assertEqual(mock_cursor.execute.call_count, 6)
+        assert mock_cursor.execute.call_count == 6
 
         # Verify connection was closed
         mock_conn.close.assert_called_once()
@@ -84,15 +84,15 @@ class TestInitAgentDB(unittest.TestCase):
         result = init_agent_db()
 
         # Verify result
-        self.assertTrue(result)
+        assert result
 
         # Verify tables were not created
-        self.assertEqual(mock_cursor.execute.call_count, 3)
+        assert mock_cursor.execute.call_count == 3
 
         # Verify agent data was not inserted
         # Check that no INSERT INTO agent was called
         insert_calls = [call for call in mock_cursor.execute.call_args_list if "INSERT INTO agent" in str(call)]
-        self.assertEqual(len(insert_calls), 0)
+        assert len(insert_calls) == 0
 
         # Verify existing records were logged
         self.mock_logger.info.assert_any_call("Agent table already has %d records", 5)
@@ -117,7 +117,7 @@ class TestInitAgentDB(unittest.TestCase):
         result = init_agent_db()
 
         # Verify result
-        self.assertTrue(result)
+        assert result
 
         # Verify agent data was inserted
         self.mock_logger.info.assert_any_call("Inserting test agent data...")
@@ -131,7 +131,7 @@ class TestInitAgentDB(unittest.TestCase):
             result = init_agent_db()
 
             # Verify result
-            self.assertFalse(result)
+            assert not result
 
             # Verify error was logged
             self.mock_logger.error.assert_called_once_with("DATABASE_URL environment variable not set")
@@ -146,7 +146,7 @@ class TestInitAgentDB(unittest.TestCase):
         result = init_agent_db()
 
         # Verify result
-        self.assertFalse(result)
+        assert not result
 
         # Verify error was logged
         self.mock_logger.exception.assert_called_once_with("Error initializing agent database")

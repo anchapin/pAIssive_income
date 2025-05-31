@@ -79,9 +79,9 @@ class TestLogAggregationFunctions:
             # Parse the non-existent file
             log_entries = parse_log_file(non_existent_file)
 
-            # Verify that an error was logged
-            mock_logger.error.assert_called_once()
-            assert "Error parsing log file" in mock_logger.error.call_args[0][0]
+            # Verify that an exception was logged
+            mock_logger.exception.assert_called_once()
+            assert "Error parsing log file" in mock_logger.exception.call_args[0][0]
 
             # Verify that an empty list was returned
             assert log_entries == []

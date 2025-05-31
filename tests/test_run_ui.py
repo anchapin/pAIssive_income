@@ -12,7 +12,7 @@ class TestRunUI(unittest.TestCase):
 
     def test_dummy(self):
         """Dummy test to ensure test file passes."""
-        self.assertTrue(True)
+        assert True
 
 
 if __name__ == "__main__":

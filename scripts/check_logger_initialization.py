@@ -89,7 +89,7 @@ class LoggerIssue:
         line_number: int,
         message: str,
         fixable: bool = False,
-    ):
+    ) -> None:
         """
         Initialize a logger issue.
 
@@ -115,7 +115,7 @@ class LoggerIssue:
 class LoggerChecker(ast.NodeVisitor):
     """AST visitor to check for logger initialization issues."""
 
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str) -> None:
         """
         Initialize the logger checker.
 
@@ -299,7 +299,7 @@ class LoggerChecker(ast.NodeVisitor):
             )  # Parent of Expr node
 
             is_in_function = isinstance(
-                scope_defining_node, (ast.FunctionDef, ast.AsyncFunctionDef)
+                scope_defining_node, ast.FunctionDef | ast.AsyncFunctionDef
             )
             is_in_main_guard = False
 
@@ -392,7 +392,7 @@ class LoggerChecker(ast.NodeVisitor):
         """
         # Check for try/except blocks around imports
         for stmt in node.body:
-            if isinstance(stmt, ast.Import) or isinstance(stmt, ast.ImportFrom):
+            if isinstance(stmt, ast.Import | ast.ImportFrom):
                 self.has_try_except_import = True
                 break
 
@@ -422,9 +422,7 @@ class LoggerChecker(ast.NodeVisitor):
             # Only suggest try/except for third-party imports
             with open(self.file_path, encoding="utf-8") as f:
                 content = f.read()
-                if "import " in content and not content.count(
-                    "import"
-                ) == content.count("import logging"):
+                if "import " in content and content.count("import") != content.count("import logging"):
                     self.issues.append(
                         LoggerIssue(
                             self.file_path,
@@ -520,8 +518,7 @@ def fix_file(file_path: str, issues: list[LoggerIssue]) -> bool:
         insert_line = 0
         for issue in issues:
             if (
-                issue.issue_type == "MISSING_LOGGER"
-                or issue.issue_type == "LOGGER_INIT_TOO_LATE"
+                issue.issue_type in ("MISSING_LOGGER", "LOGGER_INIT_TOO_LATE")
             ):
                 # Find the end of imports
                 import_pattern = re.compile(r"^(import|from)\s+")

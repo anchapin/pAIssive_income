@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def create_mock_mcp_module():
+def create_mock_mcp_module() -> None:
     """Create a mock MCP module for environments where it can't be installed."""
     logger.info("Creating mock MCP module...")
 
@@ -34,20 +34,20 @@ def create_mock_mcp_module():
 
 class MockClient:
     """Mock MCP client for testing."""
-    
+
     def __init__(self, url):
         self.url = url
         self.connected = False
-    
+
     def connect(self):
         """Mock connect method."""
         self.connected = True
         return True
-    
+
     def disconnect(self):
         """Mock disconnect method."""
         self.connected = False
-    
+
     def send_message(self, message):
         """Mock send_message method."""
         return f"Mock response to: {message}"
@@ -67,7 +67,7 @@ mcp = MockMCP()
     logger.info(f"Created mock MCP module at {mock_mcp_dir}")
 
 
-def create_fallback_test_scripts():
+def create_fallback_test_scripts() -> None:
     """Create fallback test scripts for missing components."""
     logger.info("Creating fallback test scripts...")
 
@@ -85,10 +85,10 @@ logger = logging.getLogger(__name__)
 def main():
     """Run CrewAI tests or skip if not available."""
     logger.info("CrewAI test script - checking for CrewAI availability...")
-    
+
     # Check if we're in CI
     is_ci = os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true"
-    
+
     try:
         import crewai
         logger.info("CrewAI is available, running tests...")
@@ -117,7 +117,7 @@ if __name__ == "__main__":
         logger.info("Created fallback run_crewai_tests.py")
 
 
-def create_security_scan_fallbacks():
+def create_security_scan_fallbacks() -> None:
     """Create fallback files for security scanning."""
     logger.info("Creating security scan fallbacks...")
 
@@ -164,7 +164,7 @@ def create_security_scan_fallbacks():
     logger.info("Created security scan fallback files")
 
 
-def fix_requirements_for_ci():
+def fix_requirements_for_ci() -> None:
     """Create CI-friendly requirements files."""
     logger.info("Creating CI-friendly requirements files...")
 
@@ -193,7 +193,7 @@ def fix_requirements_for_ci():
         logger.info("Created requirements-ci.txt for CI environments")
 
 
-def create_improved_run_tests_wrapper():
+def create_improved_run_tests_wrapper() -> None:
     """Create an improved test runner wrapper."""
     logger.info("Creating improved test runner wrapper...")
 
@@ -231,7 +231,7 @@ def setup_ci_environment():
 def run_tests_with_fallback(test_args):
     """Run tests with fallback handling."""
     setup_ci_environment()
-    
+
     # Try to run tests with the main script
     if Path("run_tests.py").exists():
         logger.info("Using run_tests.py script")
@@ -239,15 +239,15 @@ def run_tests_with_fallback(test_args):
     else:
         logger.info("Using pytest directly")
         cmd = [sys.executable, "-m", "pytest"] + test_args
-    
+
     try:
         result = subprocess.run(cmd, check=False)
-        
+
         # In CI, don't fail the build for test failures
         if is_ci_environment() and result.returncode != 0:
             logger.warning(f"Tests failed with code {result.returncode}, but continuing in CI")
             return 0
-        
+
         return result.returncode
     except Exception as e:
         logger.error(f"Error running tests: {e}")
@@ -275,7 +275,7 @@ if __name__ == "__main__":
     logger.info("Created run_tests_ci_wrapper.py")
 
 
-def create_workflow_debug_script():
+def create_workflow_debug_script() -> None:
     """Create a script to help debug workflow issues."""
     logger.info("Creating workflow debug script...")
 
@@ -316,7 +316,7 @@ def check_environment():
     logger.info(f"Python version: {sys.version}")
     logger.info(f"Python executable: {sys.executable}")
     logger.info(f"Working directory: {os.getcwd()}")
-    
+
     # Check CI environment
     is_ci = os.environ.get("CI") == "true"
     is_github_actions = os.environ.get("GITHUB_ACTIONS") == "true"
@@ -326,11 +326,11 @@ def check_environment():
 def check_dependencies():
     """Check for required dependencies."""
     logger.info("=== Dependency Check ===")
-    
+
     required_packages = [
         "pytest", "ruff", "pyrefly", "safety", "bandit"
     ]
-    
+
     for package in required_packages:
         try:
             __import__(package)
@@ -341,14 +341,14 @@ def check_dependencies():
 def check_files():
     """Check for required files."""
     logger.info("=== File Check ===")
-    
+
     required_files = [
         "requirements.txt",
         "pytest.ini",
         "pyproject.toml",
         "run_tests.py"
     ]
-    
+
     for file_path in required_files:
         if Path(file_path).exists():
             logger.info(f"✓ {file_path} exists")
@@ -377,7 +377,7 @@ if __name__ == "__main__":
     logger.info("Created debug_workflow.py")
 
 
-def main():
+def main() -> int | None:
     """Main function to fix workflow issues."""
     logger.info("Starting workflow issue fixes...")
 
@@ -401,7 +401,7 @@ def main():
         return 0
 
     except Exception as e:
-        logger.error(f"Error applying workflow fixes: {e}")
+        logger.exception(f"Error applying workflow fixes: {e}")
         return 1
 
 

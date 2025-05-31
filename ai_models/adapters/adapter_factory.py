@@ -219,7 +219,7 @@ class AdapterFactory:
         return adapter_types
 
     @classmethod
-    def register_adapter(cls, name: str, adapter_class):
+    def register_adapter(cls, name: str, adapter_class) -> None:
         """
         Register a new adapter type.
 
@@ -280,4 +280,5 @@ class AdapterFactory:
         except Exception as e:
             logger.exception(f"Error creating adapter of type {adapter_type} for {host}:{port}")
             # Optionally, re-raise a more specific error or return None/default
-            raise AdapterError(f"Failed to create adapter {adapter_type}: {e}") from e
+            msg = f"Failed to create adapter {adapter_type}: {e}"
+            raise AdapterError(msg) from e

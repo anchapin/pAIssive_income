@@ -42,7 +42,7 @@ except ImportError:
     logger.exception("Failed to import local modules (ArtistAgent or tooling). Ensure they are in PYTHONPATH.")
     sys.exit(1)
 
-def setup_logging():
+def setup_logging() -> None:
     """Configures basic logging."""
     logging.basicConfig(
         level=logging.INFO,

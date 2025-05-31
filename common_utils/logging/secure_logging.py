@@ -162,8 +162,7 @@ def prevent_log_injection(data: object) -> object:
     if isinstance(data, str):
         # Replace newlines and control characters
         sanitized = PATTERNS["log_injection_newlines"].sub(" [FILTERED] ", data)
-        sanitized = PATTERNS["log_injection_control_chars"].sub(" [FILTERED] ", sanitized)
-        return sanitized
+        return PATTERNS["log_injection_control_chars"].sub(" [FILTERED] ", sanitized)
 
     if isinstance(data, dict):
         # Recursively sanitize values in dictionary

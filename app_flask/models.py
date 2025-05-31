@@ -38,11 +38,11 @@ class User(db.Model):  # type: ignore[name-defined]
         self,
         username: str,
         email: str,
-        password_hash: str = None,
-        password: str = None,
+        password_hash: str | None = None,
+        password: str | None = None,
         is_active: bool = True,
         is_admin: bool = False,
-    ):
+    ) -> None:
         """
         Initialize user model.
 
@@ -147,9 +147,9 @@ class User(db.Model):  # type: ignore[name-defined]
         try:
             self.last_login = datetime.utcnow()
             db.session.commit()
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            raise e
+            raise
 
 
 class Team(db.Model):  # type: ignore[name-defined]
@@ -169,7 +169,7 @@ class Team(db.Model):  # type: ignore[name-defined]
         "Agent", back_populates="team", cascade="all, delete-orphan"
     )
 
-    def __init__(self, name, description=None, owner_id=None):
+    def __init__(self, name, description=None, owner_id=None) -> None:
         self.name = name
         self.description = description
         self.owner_id = owner_id
@@ -208,11 +208,11 @@ class Agent(db.Model):  # type: ignore[name-defined]
     def __init__(
         self,
         name: str,
-        role: str = None,
-        description: str = None,
-        team_id: str = None,
+        role: str | None = None,
+        description: str | None = None,
+        team_id: str | None = None,
         team=None,
-    ):
+    ) -> None:
         """
         Initialize agent model.
 

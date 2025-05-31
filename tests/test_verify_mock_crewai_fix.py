@@ -203,7 +203,7 @@ class TestVerifyMockCrewAIFix:
     def test_main_function(self):
         """Test the main function execution path."""
         # Mock sys.exit to avoid exiting the test
-        with patch("sys.exit") as mock_exit:
+        with patch("sys.exit"):
             # Mock main to return a specific value
             with patch("verify_mock_crewai_fix.main", return_value=42):
                 # Simulate the module-level code

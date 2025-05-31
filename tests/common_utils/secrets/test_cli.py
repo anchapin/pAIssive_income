@@ -56,17 +56,17 @@ class TestCli(unittest.TestCase):
 
         # Test with failed authentication
         with patch("common_utils.secrets.cli._check_auth", return_value=False):
-            with self.assertRaises(PermissionError):
+            with pytest.raises(PermissionError):
                 test_function()
 
         # Test with successful authentication
         with patch("common_utils.secrets.cli._check_auth", return_value=True):
-            self.assertEqual(test_function(), "Success")
+            assert test_function() == "Success"
 
     def test_check_auth_no_token_file(self):
         """Test _check_auth with no token file."""
         with patch("os.path.exists", return_value=False):
-            self.assertFalse(_check_auth())
+            assert not _check_auth()
 
     def test_check_auth_with_token(self):
         """Test _check_auth with token."""
@@ -77,7 +77,7 @@ class TestCli(unittest.TestCase):
              patch("pathlib.Path.open", mock_open(read_data="hash_value")), \
              patch.dict(os.environ, {"SECRETS_ADMIN_TOKEN": "token"}), \
              patch("hashlib.sha256", return_value=MagicMock(hexdigest=lambda: "hash_value")):
-            self.assertTrue(_check_auth())
+            assert _check_auth()
 
     def test_check_auth_with_wrong_token(self):
         """Test _check_auth with wrong token."""
@@ -87,7 +87,7 @@ class TestCli(unittest.TestCase):
              patch("builtins.open", mock_open(read_data="hash_value")), \
              patch.dict(os.environ, {"SECRETS_ADMIN_TOKEN": "wrong_token"}), \
              patch("hashlib.sha256", return_value=MagicMock(hexdigest=lambda: "wrong_hash")):
-            self.assertFalse(_check_auth())
+            assert not _check_auth()
 
     def test_check_rate_limit_no_lockout(self):
         """Test _check_rate_limit with no lockout."""
@@ -104,61 +104,61 @@ class TestCli(unittest.TestCase):
         # Set up lockout
         with patch("common_utils.secrets.cli.lockout_times", {"test_operation": time.time()}), \
              patch("time.time", return_value=time.time()):
-            with self.assertRaises(PermissionError):
+            with pytest.raises(PermissionError):
                 _check_rate_limit("test_operation")
 
     def test_check_rate_limit_too_many_attempts(self):
         """Test _check_rate_limit with too many attempts."""
         # Set up too many failed attempts
         with patch("common_utils.secrets.cli.failed_attempts", {"test_operation": MAX_FAILED_ATTEMPTS}):
-            with self.assertRaises(PermissionError):
+            with pytest.raises(PermissionError):
                 _check_rate_limit("test_operation")
 
     def test_validate_secret_value_valid(self):
         """Test _validate_secret_value with valid secret."""
         # Valid secret with uppercase, lowercase, digit, and special character
-        self.assertTrue(_validate_secret_value("ValidSecret123!"))
+        assert _validate_secret_value("ValidSecret123!")
 
     def test_validate_secret_value_invalid(self):
         """Test _validate_secret_value with invalid secrets."""
         # Too short
-        self.assertFalse(_validate_secret_value("Short1!"))
+        assert not _validate_secret_value("Short1!")
 
         # Missing uppercase
-        self.assertFalse(_validate_secret_value("validsecret123!"))
+        assert not _validate_secret_value("validsecret123!")
 
         # Missing lowercase
-        self.assertFalse(_validate_secret_value("VALIDSECRET123!"))
+        assert not _validate_secret_value("VALIDSECRET123!")
 
         # Missing digit
-        self.assertFalse(_validate_secret_value("ValidSecret!"))
+        assert not _validate_secret_value("ValidSecret!")
 
         # Missing special character
-        self.assertFalse(_validate_secret_value("ValidSecret123"))
+        assert not _validate_secret_value("ValidSecret123")
 
     def test_parse_args(self):
         """Test parse_args function."""
         # Test with get command
         with patch("sys.argv", ["secrets_cli.py", "get", "test_key"]):
             args = parse_args()
-            self.assertEqual(args.command, "get")
-            self.assertEqual(args.key, "test_key")
+            assert args.command == "get"
+            assert args.key == "test_key"
 
         # Test with set command
         with patch("sys.argv", ["secrets_cli.py", "set", "test_key"]):
             args = parse_args()
-            self.assertEqual(args.command, "set")
-            self.assertEqual(args.key, "test_key")
+            assert args.command == "set"
+            assert args.key == "test_key"
 
     def test_get_secret_value(self):
         """Test get_secret_value function."""
         # Test with valid secret
         with patch("getpass.getpass", return_value="ValidSecret123!"):
-            self.assertEqual(get_secret_value("test_key"), "ValidSecret123!")
+            assert get_secret_value("test_key") == "ValidSecret123!"
 
         # Test with invalid secret
         with patch("getpass.getpass", return_value="invalid"):
-            self.assertIsNone(get_secret_value("test_key"))
+            assert get_secret_value("test_key") is None
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
     @patch("common_utils.secrets.cli.get_secret")

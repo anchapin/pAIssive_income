@@ -28,7 +28,10 @@ class TestInitDb:
         has_uppercase = any(c.isupper() for c in password)
         has_digit = any(c.isdigit() for c in password)
         has_special = any(not c.isalnum() for c in password)
-        assert has_lowercase and has_uppercase and has_digit and has_special
+        assert has_lowercase
+        assert has_uppercase
+        assert has_digit
+        assert has_special
 
     @patch("init_db.create_app")
     @patch("init_db.User")

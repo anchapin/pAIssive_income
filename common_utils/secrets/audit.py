@@ -772,7 +772,7 @@ class SecretsAuditor:
         directory: str,
         output_file: Optional[str] = None,
         format: str = "text",
-        json_format: bool = None,  # For backward compatibility
+        json_format: bool | None = None,  # For backward compatibility
     ) -> dict[str, list[tuple[str, int, str, str]]]:
         """
         Audit a directory for potential secrets and generate a report.

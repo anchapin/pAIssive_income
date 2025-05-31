@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Enhanced CI test wrapper with comprehensive exclusions and error handling.
-"""
+"""Enhanced CI test wrapper with comprehensive exclusions and error handling."""
 
 import logging
 import os
@@ -18,7 +16,7 @@ except ImportError:
     logger.exception("Failed to import requests")
     raise
 
-def create_mock_modules():
+def create_mock_modules() -> None:
     """Ensure mock modules exist."""
     # Mock MCP
     mock_mcp_dir = Path("mock_mcp")
@@ -32,7 +30,7 @@ def create_mock_modules():
 
 def get_test_exclusions():
     """Get comprehensive list of test exclusions for CI."""
-    exclusions = [
+    return [
         "--ignore=tests/ai_models/adapters/test_mcp_adapter.py",
         "--ignore=tests/test_mcp_import.py",
         "--ignore=tests/test_mcp_top_level_import.py",
@@ -73,9 +71,8 @@ def get_test_exclusions():
         "--ignore=tests/test_validation.py",
         "--ignore=tests/test_crewai_copilotkit_integration.py",
     ]
-    return exclusions
 
-def run_tests():
+def run_tests() -> int | None:
     """Run tests with comprehensive error handling and exclusions."""
     # Set environment variables
     os.environ["PYTHONPATH"] = os.getcwd()
@@ -101,9 +98,8 @@ def run_tests():
         logger.info("Running tests with comprehensive exclusions...")
         result = subprocess.run(cmd, check=False, capture_output=True, text=True)
 
-        print(result.stdout)
         if result.stderr:
-            print("STDERR:", result.stderr)
+            pass
 
         # Return 0 for success, but don't fail CI on test failures
         # This allows the workflow to continue and report results
@@ -117,7 +113,7 @@ def run_tests():
         return 0  # Still don't fail CI to allow other jobs to run
 
     except Exception as e:
-        logger.error(f"Test execution failed: {e}")
+        logger.exception(f"Test execution failed: {e}")
         return 0  # Don't fail CI
 
 if __name__ == "__main__":

@@ -41,10 +41,10 @@ __version__ = "3.9.0-mock"
 class ClientResponse:
     """Mock implementation of aiohttp.ClientResponse."""
 
-    def __init__(self, status: int = 200, content: str = "", json_data: Optional[dict[str, Any]] = None):
+    def __init__(self, status: int = 200, content: str = "", json_data: Optional[dict[str, Any]] = None) -> None:
         """
         Initialize the mock client response.
-        
+
         Args:
             status: HTTP status code
             content: Response content as string
@@ -59,7 +59,7 @@ class ClientResponse:
     async def text(self) -> str:
         """
         Get the response content as text.
-        
+
         Returns:
             Response content as string
 
@@ -69,7 +69,7 @@ class ClientResponse:
     async def json(self) -> dict[str, Any]:
         """
         Get the response content as JSON.
-        
+
         Returns:
             Response data as dict
 
@@ -87,10 +87,10 @@ class ClientResponse:
 class ClientSession:
     """Mock implementation of aiohttp.ClientSession."""
 
-    def __init__(self, timeout: Optional[Any] = None):
+    def __init__(self, timeout: Optional[Any] = None) -> None:
         """
         Initialize the mock client session.
-        
+
         Args:
             timeout: Request timeout (ignored in mock)
 
@@ -103,11 +103,11 @@ class ClientSession:
     async def get(self, url: str, **kwargs) -> AsyncIterator[ClientResponse]:
         """
         Make a GET request.
-        
+
         Args:
             url: Request URL
             **kwargs: Additional request parameters
-            
+
         Yields:
             Mock client response
 
@@ -122,12 +122,12 @@ class ClientSession:
     async def post(self, url: str, json: Optional[dict[str, Any]] = None, **kwargs) -> AsyncIterator[ClientResponse]:
         """
         Make a POST request.
-        
+
         Args:
             url: Request URL
             json: Request JSON data
             **kwargs: Additional request parameters
-            
+
         Yields:
             Mock client response
 
@@ -149,7 +149,7 @@ class ClientSession:
         else:
             yield ClientResponse(status=200, json_data={"status": "success"})
 
-    async def close(self):
+    async def close(self) -> None:
         """Close the session."""
         logger.info("Closing mock ClientSession")
         self.closed = True
@@ -157,10 +157,10 @@ class ClientSession:
 class ClientTimeout:
     """Mock implementation of aiohttp.ClientTimeout."""
 
-    def __init__(self, total: Optional[float] = None):
+    def __init__(self, total: Optional[float] = None) -> None:
         """
         Initialize the mock client timeout.
-        
+
         Args:
             total: Total timeout in seconds
 

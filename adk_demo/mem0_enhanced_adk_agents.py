@@ -21,7 +21,7 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, Optional, Union
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ except ImportError:
     class Message:
         """Placeholder for Message class when ADK is not installed."""
 
-        def __init__(self, type: str, payload: Dict[str, Any], sender: str) -> None:
+        def __init__(self, type: str, payload: dict[str, Any], sender: str) -> None:
             self.type = type
             self.payload = payload
             self.sender = sender
@@ -250,7 +250,7 @@ class MemoryEnhancedAgent(Agent):
         return f"Message of type {message.type} from {message.sender}"
 
     def _enhance_message_with_memories(
-        self, message: Message, memories: List[Dict[str, Any]]
+        self, message: Message, memories: list[dict[str, Any]]
     ) -> Message:
         """
         Enhance a message with relevant memories.
@@ -298,8 +298,8 @@ class MemoryEnhancedAgent(Agent):
 
     def _store_memory(
         self,
-        content: Union[str, List[Dict[str, str]]],
-        metadata: Optional[Dict[str, str]] = None,
+        content: Union[str, list[dict[str, str]]],
+        metadata: Optional[dict[str, str]] = None,
     ) -> None:
         """
         Store a memory using mem0.
@@ -324,7 +324,7 @@ class MemoryEnhancedAgent(Agent):
 
     def _retrieve_relevant_memories(
         self, query: str, limit: int = 5
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories for a query.
 

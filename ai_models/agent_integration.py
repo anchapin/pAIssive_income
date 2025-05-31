@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 try:
     from ai_models.adapters.adapter_factory import AdapterError, get_adapter
 except ImportError:
-    logger.error("Failed to import AdapterError or get_adapter from ai_models.adapters.adapter_factory. Ensure it is in PYTHONPATH.")
+    logger.exception("Failed to import AdapterError or get_adapter from ai_models.adapters.adapter_factory. Ensure it is in PYTHONPATH.")
     sys.exit(1)
 
 # Use a safer path construction with Path

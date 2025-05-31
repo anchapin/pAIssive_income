@@ -10,8 +10,7 @@ from __future__ import annotations
 import logging  # Added import
 import os  # Added import for os.environ check
 import re
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -31,6 +30,9 @@ except ImportError as e:
     ANTHROPIC_AVAILABLE = False
 
 from common_utils import tooling
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # Configure logging
 

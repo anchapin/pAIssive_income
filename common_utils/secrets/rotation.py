@@ -117,16 +117,18 @@ class SecretRotation:
             logger.error("Rotation interval %s is too small (minimum: %s)",
                         interval_days, MIN_ROTATION_INTERVAL)
             from common_utils.exceptions import InvalidRotationIntervalError
+            msg = f"Rotation interval must be at least {MIN_ROTATION_INTERVAL} day(s)"
             raise InvalidRotationIntervalError(
-                f"Rotation interval must be at least {MIN_ROTATION_INTERVAL} day(s)"
+                msg
             )
 
         if interval_days > MAX_ROTATION_INTERVAL:
             logger.error("Rotation interval %s is too large (maximum: %s)",
                         interval_days, MAX_ROTATION_INTERVAL)
             from common_utils.exceptions import InvalidRotationIntervalError
+            msg = f"Rotation interval must be at most {MAX_ROTATION_INTERVAL} days"
             raise InvalidRotationIntervalError(
-                f"Rotation interval must be at most {MAX_ROTATION_INTERVAL} days"
+                msg
             )
 
         now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()

@@ -36,7 +36,7 @@ class TestMockBaseModelAdapter:
 
     def test_initialization(self):
         """Test that the adapter initializes correctly."""
-        adapter = MockBaseModelAdapter()
+        MockBaseModelAdapter()
 
         mock_logger.info.assert_called_with("Initialized MockBaseModelAdapter")
 

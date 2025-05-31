@@ -11,19 +11,19 @@ import sys
 
 
 class LoggerIssue:
-    def __init__(self, file_path: str, line_number: int, issue_type: str, description: str, severity: str = "critical"):
+    def __init__(self, file_path: str, line_number: int, issue_type: str, description: str, severity: str = "critical") -> None:
         self.file_path = file_path
         self.line_number = line_number
         self.issue_type = issue_type
         self.description = description
         self.severity = severity
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.file_path}:{self.line_number}: {self.severity.upper()}: {self.issue_type} - {self.description}"
 
 
 class SmartLoggerChecker(ast.NodeVisitor):
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str) -> None:
         self.file_path = file_path
         self.issues: list[LoggerIssue] = []
         self.imports_seen = False
@@ -204,12 +204,9 @@ def find_python_files(directory: str) -> list[str]:
     return python_files
 
 
-def main():
+def main() -> int:
     """Main function to check all Python files."""
-    if len(sys.argv) > 1:
-        directory = sys.argv[1]
-    else:
-        directory = "."
+    directory = sys.argv[1] if len(sys.argv) > 1 else "."
 
     python_files = find_python_files(directory)
     all_issues = []

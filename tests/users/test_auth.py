@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import bcrypt
+import pytest
 
 from users.auth import hash_auth, hash_credential, verify_auth, verify_credential
 
@@ -28,11 +29,11 @@ class TestAuth(unittest.TestCase):
         # Verify mocks were called correctly
         mock_gensalt.assert_called_once_with(rounds=12)
         mock_hashpw.assert_called_once_with(b"password", mock_salt)
-        self.assertEqual(result, "hashed_credential")
+        assert result == "hashed_credential"
 
     def test_hash_credential_empty(self):
         """Test hash_credential with empty credential."""
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             hash_credential("")
 
     @patch("bcrypt.checkpw")
@@ -46,7 +47,7 @@ class TestAuth(unittest.TestCase):
 
         # Verify mock was called correctly
         mock_checkpw.assert_called_once_with(b"password", b"hashed_password")
-        self.assertTrue(result)
+        assert result
 
     @patch("bcrypt.checkpw")
     def test_verify_credential_bytes(self, mock_checkpw):
@@ -59,13 +60,13 @@ class TestAuth(unittest.TestCase):
 
         # Verify mock was called correctly
         mock_checkpw.assert_called_once_with(b"password", b"hashed_password")
-        self.assertTrue(result)
+        assert result
 
     def test_verify_credential_empty(self):
         """Test verify_credential with empty credentials."""
-        self.assertFalse(verify_credential("", "hashed_password"))
-        self.assertFalse(verify_credential("password", ""))
-        self.assertFalse(verify_credential("", ""))
+        assert not verify_credential("", "hashed_password")
+        assert not verify_credential("password", "")
+        assert not verify_credential("", "")
 
     @patch("bcrypt.checkpw")
     def test_verify_credential_exception(self, mock_checkpw):
@@ -77,16 +78,16 @@ class TestAuth(unittest.TestCase):
         result = verify_credential("password", "hashed_password")
 
         # Verify result
-        self.assertFalse(result)
+        assert not result
 
     def test_verify_credential_invalid_format(self):
         """Test verify_credential with invalid hashed credential format."""
         # Test with invalid format that raises UnicodeEncodeError
         with patch("users.auth.logger") as mock_logger:
             result = verify_credential("password", object())
-            self.assertFalse(result)
+            assert not result
             # Check that error was logged, but don't be strict about the exact message
-            self.assertTrue(mock_logger.error.called)
+            assert mock_logger.error.called
 
     def test_hash_auth_alias(self):
         """Test hash_auth alias."""
@@ -100,7 +101,7 @@ class TestAuth(unittest.TestCase):
 
                 # Test the alias directly
                 result = hash_auth("password")
-                self.assertEqual(result, "hashed_credential")
+                assert result == "hashed_credential"
 
     def test_verify_auth_alias(self):
         """Test verify_auth alias."""
@@ -110,7 +111,7 @@ class TestAuth(unittest.TestCase):
 
             # Test the alias directly
             result = verify_auth("password", "hashed_password")
-            self.assertTrue(result)
+            assert result
             mock_checkpw.assert_called_once_with(b"password", b"hashed_password")
 
 

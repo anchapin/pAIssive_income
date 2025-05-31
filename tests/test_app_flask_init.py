@@ -23,10 +23,10 @@ class TestAppFlaskInit(unittest.TestCase):
         app = create_app()
 
         # Check that the app was created
-        self.assertIsNotNone(app)
+        assert app is not None
 
         # Check that the app has the expected name
-        self.assertEqual(app.name, "app_flask")
+        assert app.name == "app_flask"
 
         # Check that the database was initialized
         mock_db_init.assert_called_once_with(app)
@@ -35,10 +35,10 @@ class TestAppFlaskInit(unittest.TestCase):
         mock_migrate_init.assert_called_once_with(app, db)
 
         # Check that models were imported
-        self.assertTrue(mock_models is not None)
+        assert mock_models is not None
 
         # Check that tables were created
-        self.assertTrue(mock_create_all.called)
+        assert mock_create_all.called
 
     @patch("app_flask.db.init_app")
     @patch("app_flask.migrate.init_app")
@@ -50,11 +50,11 @@ class TestAppFlaskInit(unittest.TestCase):
         app = create_app(test_config)
 
         # Check that the app was created
-        self.assertIsNotNone(app)
+        assert app is not None
 
         # Check that the test config was applied
-        self.assertTrue(app.config["TESTING"])
-        self.assertTrue(app.config["DEBUG"])
+        assert app.config["TESTING"]
+        assert app.config["DEBUG"]
 
         # Check that the database was initialized
         mock_db_init.assert_called_once_with(app)
@@ -77,10 +77,10 @@ class TestAppFlaskInit(unittest.TestCase):
             app = create_app()
 
             # Check that the app was created
-            self.assertIsNotNone(app)
+            assert app is not None
 
             # Check that the blueprint was registered
-            self.assertTrue(hasattr(app, "blueprints"))
+            assert hasattr(app, "blueprints")
 
 
 if __name__ == "__main__":

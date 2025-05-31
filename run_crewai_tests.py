@@ -14,7 +14,6 @@ import sys
 try:
     from pathlib import Path
 except ImportError:
-    print("Error: pathlib module not found. Please install it.")
     sys.exit(1)
 
 logger = logging.getLogger(__name__)

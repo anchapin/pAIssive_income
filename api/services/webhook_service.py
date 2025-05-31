@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 class WebhookService:
     """Service for managing and delivering webhooks."""
 
-    def __init__(self, db=None):
+    def __init__(self, db=None) -> None:
         """
         Initialize the webhook service.
 
@@ -49,7 +49,8 @@ class WebhookService:
         """
         # Validate required fields
         if "url" not in webhook_data:
-            raise ValueError("URL")
+            msg = "URL"
+            raise ValueError(msg)
 
         # Generate a webhook ID and secret
         webhook_id = f"webhook-{uuid.uuid4().hex[:8]}"
@@ -65,8 +66,7 @@ class WebhookService:
 
         # Store in database
         if self.db:
-            stored_webhook = self.db.add_webhook(webhook)
-            return stored_webhook
+            return self.db.add_webhook(webhook)
 
         return webhook
 

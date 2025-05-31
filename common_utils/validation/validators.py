@@ -51,10 +51,7 @@ def validate_email(email: str) -> bool:
 
     domain = parts[1]
     # Check for consecutive dots in domain
-    if ".." in domain:
-        return False
-
-    return True
+    return ".." not in domain
 
 
 def validate_url(url: str) -> bool:
@@ -89,10 +86,7 @@ def validate_url(url: str) -> bool:
             return True
 
         # Check if the URL matches the regex for standard URLs
-        if not URL_REGEX.match(url):
-            return False
-
-        return True
+        return URL_REGEX.match(url)
     except Exception:
         return False
 
@@ -195,7 +189,8 @@ class ValidationMixin:
     def validate_email_field(cls, v):
         """Validate email field."""
         if not validate_email(v):
-            raise ValueError("Invalid email address")
+            msg = "Invalid email address"
+            raise ValueError(msg)
         return v
 
     @field_validator("url")
@@ -203,7 +198,8 @@ class ValidationMixin:
     def validate_url_field(cls, v):
         """Validate URL field."""
         if not validate_url(v):
-            raise ValueError("Invalid URL")
+            msg = "Invalid URL"
+            raise ValueError(msg)
         return v
 
     @field_validator("username")

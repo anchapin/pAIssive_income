@@ -79,10 +79,12 @@ class TestExceptionsAdditional:
         try:
             try:
                 # Raise a built-in exception
-                raise ValueError("Original error")
+                msg = "Original error"
+                raise ValueError(msg)
             except ValueError as e:
                 # Raise our custom exception with the built-in as the cause
-                raise DirectoryPermissionError("Custom error") from e
+                msg = "Custom error"
+                raise DirectoryPermissionError(msg) from e
         except DirectoryPermissionError as e:
             # Verify the exception chain
             assert str(e) == "Custom error"
@@ -93,7 +95,8 @@ class TestExceptionsAdditional:
         """Test that exceptions preserve traceback information."""
         try:
             # Raise our custom exception
-            raise FilePermissionError("test_file.txt")
+            msg = "test_file.txt"
+            raise FilePermissionError(msg)
         except FilePermissionError:
             # Verify traceback information is present
             assert sys.exc_info()[2] is not None

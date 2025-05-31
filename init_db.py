@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 try:
     from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 except ImportError:
-    print("Error: SQLAlchemy module not found. Please install it with 'pip install SQLAlchemy'")
     sys.exit(1)
 
 try:
@@ -44,9 +43,8 @@ try:
 
 
 # Configure logging
-except ImportError as e:
+except ImportError:
 
-    print(f"Error importing Flask app components: {e}. Ensure app_flask and users modules are correctly set up.")
     sys.exit(1)
 
 

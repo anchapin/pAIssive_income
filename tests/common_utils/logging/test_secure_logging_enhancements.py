@@ -81,7 +81,6 @@ class TestSecureLoggingEnhancements(unittest.TestCase):
         test_string = "password=secret123\napi_key=abcdef"
 
         # The expected result should have both the sensitive data masked and the newline removed
-        expected = "password=****secret123 [FILTERED] api_key=****abcdef"
 
         # Call mask_sensitive_data
         result = mask_sensitive_data(test_string)
@@ -256,7 +255,8 @@ class TestSecureLoggingEnhancements(unittest.TestCase):
         # Log an exception message with sensitive data
         test_message = "password=secret123"
         try:
-            raise ValueError("Test exception")
+            msg = "Test exception"
+            raise ValueError(msg)
         except ValueError:
             secure_logger.exception(test_message)
 

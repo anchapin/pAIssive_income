@@ -1,6 +1,4 @@
-"""
-Common utilities for secure logging and log management.
-"""
+"""Common utilities for secure logging and log management."""
 
 import logging
 import sys  # Added sys import

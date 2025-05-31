@@ -27,7 +27,7 @@ Usage:
         from_email="alerts@example.com",
         to_emails=["admin@example.com"]
     ))
-    
+
     alert_system.add_notifier(WebhookNotifier(
         url="https://example.com/webhook",
         headers={"Authorization": "Bearer token"}
@@ -107,7 +107,7 @@ try:
 # Configure logging
 except ImportError as e:
 
-    _logger.error(f"Failed to import third-party library: {e}")
+    _logger.exception(f"Failed to import third-party library: {e}")
     sys.exit(1)
 
 
@@ -172,7 +172,7 @@ class AlertNotifier(ABC):
     def __init__(self, name: str) -> None:
         """
         Initialize the notifier.
-        
+
         Args:
             name: Name of the notifier
 
@@ -183,11 +183,11 @@ class AlertNotifier(ABC):
     def send_alert(self, alert_rule: AlertRule, context: dict[str, Any]) -> bool:
         """
         Send an alert notification.
-        
+
         Args:
             alert_rule: The alert rule that triggered
             context: Additional context for the alert
-            
+
         Returns:
             bool: True if the alert was sent successfully, False otherwise
 
@@ -210,7 +210,7 @@ class EmailNotifier(AlertNotifier):
     ) -> None:
         """
         Initialize the email notifier.
-        
+
         Args:
             smtp_host: SMTP server host
             smtp_port: SMTP server port
@@ -234,11 +234,11 @@ class EmailNotifier(AlertNotifier):
     def send_alert(self, alert_rule: AlertRule, context: dict[str, Any]) -> bool:
         """
         Send an email alert.
-        
+
         Args:
             alert_rule: The alert rule that triggered
             context: Additional context for the alert
-            
+
         Returns:
             bool: True if the alert was sent successfully, False otherwise
 
@@ -275,7 +275,7 @@ class EmailNotifier(AlertNotifier):
             _logger.info(f"Sent email alert: {alert_rule.name}")
             return True
         except Exception as e:
-            _logger.error(f"Failed to send email alert '{alert_rule.name}': {e}")
+            _logger.exception(f"Failed to send email alert '{alert_rule.name}': {e}")
             return False
 
 
@@ -291,7 +291,7 @@ class WebhookNotifier(AlertNotifier):
     ) -> None:
         """
         Initialize the webhook notifier.
-        
+
         Args:
             url: Webhook URL
             headers: HTTP headers
@@ -307,11 +307,11 @@ class WebhookNotifier(AlertNotifier):
     def send_alert(self, alert_rule: AlertRule, context: dict[str, Any]) -> bool:
         """
         Send a webhook alert.
-        
+
         Args:
             alert_rule: The alert rule that triggered
             context: Additional context for the alert
-            
+
         Returns:
             bool: True if the alert was sent successfully, False otherwise
 
@@ -338,7 +338,7 @@ class WebhookNotifier(AlertNotifier):
             _logger.info(f"Sent webhook alert: {alert_rule.name}")
             return True
         except Exception as e:
-            _logger.error(f"Failed to send webhook alert '{alert_rule.name}': {e}")
+            _logger.exception(f"Failed to send webhook alert '{alert_rule.name}': {e}")
             return False
 
 
@@ -352,7 +352,7 @@ class InAppNotifier(AlertNotifier):
     ) -> None:
         """
         Initialize the in-app notifier.
-        
+
         Args:
             callback: Callback function to handle in-app notifications
             name: Name of the notifier
@@ -364,11 +364,11 @@ class InAppNotifier(AlertNotifier):
     def send_alert(self, alert_rule: AlertRule, context: dict[str, Any]) -> bool:
         """
         Send an in-app alert.
-        
+
         Args:
             alert_rule: The alert rule that triggered
             context: Additional context for the alert
-            
+
         Returns:
             bool: True if the alert was sent successfully, False otherwise
 
@@ -395,7 +395,7 @@ class AlertSystem:
     def add_rule(self, rule: AlertRule) -> None:
         """
         Add an alert rule.
-        
+
         Args:
             rule: The alert rule to add
 
@@ -416,10 +416,10 @@ class AlertSystem:
     def remove_rule(self, rule_id: str) -> bool:
         """
         Remove an alert rule.
-        
+
         Args:
             rule_id: ID of the rule to remove
-            
+
         Returns:
             bool: True if the rule was removed, False if not found
 
@@ -435,7 +435,7 @@ class AlertSystem:
     def add_notifier(self, notifier: AlertNotifier) -> None:
         """
         Add a notifier.
-        
+
         Args:
             notifier: The notifier to add
 
@@ -447,10 +447,10 @@ class AlertSystem:
     def remove_notifier(self, name: str) -> bool:
         """
         Remove a notifier.
-        
+
         Args:
             name: Name of the notifier to remove
-            
+
         Returns:
             bool: True if the notifier was removed, False if not found
 
@@ -466,10 +466,10 @@ class AlertSystem:
     def process_logs(self, log_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Process logs and trigger alerts.
-        
+
         Args:
             log_entries: List of log entries to process
-            
+
         Returns:
             List[Dict[str, Any]]: List of triggered alerts
 
@@ -506,14 +506,14 @@ class AlertSystem:
                         "context": context,
                     })
             except Exception as e:
-                _logger.error(f"Error processing rule {rule.name}: {e}")
+                _logger.exception(f"Error processing rule {rule.name}: {e}")
 
         return triggered_alerts
 
     def _update_metrics_history(self, log_entries: list[dict[str, Any]]) -> None:
         """
         Update metrics history.
-        
+
         Args:
             log_entries: List of log entries
 
@@ -544,10 +544,10 @@ class AlertSystem:
     def _calculate_metrics(self, log_entries: list[dict[str, Any]]) -> dict[str, float]:
         """
         Calculate metrics from log entries.
-        
+
         Args:
             log_entries: List of log entries
-            
+
         Returns:
             Dict[str, float]: Dictionary of metrics
 
@@ -584,11 +584,11 @@ class AlertSystem:
     ) -> tuple[bool, dict[str, Any]]:
         """
         Check if a rule condition is met.
-        
+
         Args:
             rule: The alert rule to check
             log_entries: List of log entries
-            
+
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
 
@@ -617,12 +617,12 @@ class AlertSystem:
     ) -> tuple[bool, dict[str, Any]]:
         """
         Check pattern condition.
-        
+
         Args:
             rule: The alert rule
             log_entries: List of log entries
             context: Alert context
-            
+
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
 
@@ -635,7 +635,7 @@ class AlertSystem:
         try:
             regex = re.compile(pattern)
         except re.error:
-            _logger.error(f"Invalid regex pattern in rule {rule.name}: {pattern}")
+            _logger.exception(f"Invalid regex pattern in rule {rule.name}: {pattern}")
             return False, context
 
         # Check for matches
@@ -664,11 +664,11 @@ class AlertSystem:
     ) -> tuple[bool, dict[str, Any]]:
         """
         Check threshold condition.
-        
+
         Args:
             rule: The alert rule
             context: Alert context
-            
+
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
 
@@ -730,11 +730,11 @@ class AlertSystem:
     ) -> tuple[bool, dict[str, Any]]:
         """
         Check anomaly condition.
-        
+
         Args:
             rule: The alert rule
             context: Alert context
-            
+
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
 
@@ -774,10 +774,7 @@ class AlertSystem:
             std = np.std(historical_values)
 
             # Avoid division by zero
-            if std == 0:
-                z_score = 0
-            else:
-                z_score = abs((recent_value - mean) / std)
+            z_score = 0 if std == 0 else abs((recent_value - mean) / std)
 
             is_triggered = z_score > sensitivity
 
@@ -802,12 +799,12 @@ class AlertSystem:
     ) -> tuple[bool, dict[str, Any]]:
         """
         Check frequency condition.
-        
+
         Args:
             rule: The alert rule
             log_entries: List of log entries
             context: Alert context
-            
+
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
 
@@ -849,12 +846,12 @@ class AlertSystem:
     ) -> tuple[bool, dict[str, Any]]:
         """
         Check absence condition.
-        
+
         Args:
             rule: The alert rule
             log_entries: List of log entries
             context: Alert context
-            
+
         Returns:
             tuple[bool, Dict[str, Any]]: Tuple of (is_triggered, context)
 
@@ -886,7 +883,7 @@ class AlertSystem:
                     if regex.search(entry.get("message", ""))
                 ]
             except re.error:
-                _logger.error(f"Invalid regex pattern in rule {rule.name}: {pattern}")
+                _logger.exception(f"Invalid regex pattern in rule {rule.name}: {pattern}")
                 matches = []
         else:
             matches = window_logs
@@ -907,7 +904,7 @@ class AlertSystem:
     def _send_notifications(self, rule: AlertRule, context: dict[str, Any]) -> None:
         """
         Send notifications for a triggered alert.
-        
+
         Args:
             rule: The triggered alert rule
             context: Alert context
@@ -919,6 +916,6 @@ class AlertSystem:
                 try:
                     notifier.send_alert(rule, context)
                 except Exception as e:
-                    _logger.error(f"Error sending notification via {notifier_name}: {e}")
+                    _logger.exception(f"Error sending notification via {notifier_name}: {e}")
             else:
                 _logger.error(f"Notifier '{notifier_name}' not found for alert '{rule.name}'")

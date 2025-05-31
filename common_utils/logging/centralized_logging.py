@@ -125,7 +125,7 @@ class LogFilter(ABC):
 class LevelFilter(LogFilter):
     """Filter logs based on level."""
 
-    def __init__(self, min_level: Union[str, int, LogLevel] = LogLevel.INFO):
+    def __init__(self, min_level: Union[str, int, LogLevel] = LogLevel.INFO) -> None:
         """
         Initialize the level filter.
 
@@ -159,7 +159,7 @@ class LevelFilter(LogFilter):
 class SensitiveDataFilter(LogFilter):
     """Filter sensitive data from logs."""
 
-    def __init__(self, fields: Optional[list[str]] = None):
+    def __init__(self, fields: Optional[list[str]] = None) -> None:
         """
         Initialize the sensitive data filter.
 
@@ -364,7 +364,7 @@ class ElasticsearchOutput(LogOutput):
 
     def __init__(
         self,
-        hosts: list[str] = ["localhost:9200"],
+        hosts: list[str] | None = None,
         index_prefix: str = "logs",
         batch_size: int = 100,
         flush_interval: int = 5,
@@ -379,8 +379,11 @@ class ElasticsearchOutput(LogOutput):
             flush_interval: Interval in seconds to flush the batch
 
         """
+        if hosts is None:
+            hosts = ["localhost:9200"]
         if not ELASTICSEARCH_AVAILABLE:
-            raise ImportError("Elasticsearch package is not installed")
+            msg = "Elasticsearch package is not installed"
+            raise ImportError(msg)
 
         self.hosts = hosts
         self.index_prefix = index_prefix
@@ -481,7 +484,8 @@ class LogstashOutput(LogOutput):
 
         """
         if not LOGSTASH_AVAILABLE:
-            raise ImportError("Logstash package is not installed")
+            msg = "Logstash package is not installed"
+            raise ImportError(msg)
 
         self.host = host
         self.port = port
@@ -583,7 +587,8 @@ class CentralizedLoggingService:
         self.logger = get_secure_logger("centralized_logging_service")
 
         if use_ssl and (not ssl_cert or not ssl_key):
-            raise ValueError("SSL is enabled but ssl_cert or ssl_key is missing.")
+            msg = "SSL is enabled but ssl_cert or ssl_key is missing."
+            raise ValueError(msg)
 
     def start(self) -> None:
         """Start the centralized logging service."""
@@ -685,7 +690,8 @@ class CentralizedLoggingService:
 
         """
         if not self.running or not self.socket:
-            raise RuntimeError("Service is not running")
+            msg = "Service is not running"
+            raise RuntimeError(msg)
 
         try:
             if self.use_ssl:
@@ -1090,7 +1096,8 @@ def configure_centralized_logging(
 
     # Set formatter if provided
     if formatter is not None and not isinstance(formatter, logging.Formatter):
-        raise TypeError("formatter must be a logging.Formatter instance or None")
+        msg = "formatter must be a logging.Formatter instance or None"
+        raise TypeError(msg)
     if formatter:
         handler.setFormatter(formatter)
     else:

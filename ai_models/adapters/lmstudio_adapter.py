@@ -24,7 +24,7 @@ from .base_adapter import BaseModelAdapter
 class LMStudioAdapter(BaseModelAdapter):
     """Adapter for connecting to LM Studio, a local API server for running large language models."""
 
-    def __init__(self, host_or_base_url: str = "http://localhost:1234/v1", port: int = None, api_key: str = "", timeout: int = 60):
+    def __init__(self, host_or_base_url: str = "http://localhost:1234/v1", port: int | None = None, api_key: str = "", timeout: int = 60) -> None:
         """
         Initialize the LM Studio adapter.
 
@@ -94,11 +94,14 @@ class LMStudioAdapter(BaseModelAdapter):
                     data = await response.json()
                     return data.get("data", [])
                 error_text = await response.text()
-                raise Exception(f"Failed to list models (status {response.status}): {error_text}")
+                msg = f"Failed to list models (status {response.status}): {error_text}"
+                raise Exception(msg)
         except aiohttp.ClientConnectionError as e:
-            raise Exception(f"Failed to connect to LMStudio server: {e}")
+            msg = f"Failed to connect to LMStudio server: {e}"
+            raise Exception(msg)
         except asyncio.TimeoutError:
-            raise Exception("Request to LMStudio server timed out")
+            msg = "Request to LMStudio server timed out"
+            raise Exception(msg)
         except Exception:
             raise
 
@@ -136,11 +139,14 @@ class LMStudioAdapter(BaseModelAdapter):
                 if response.status == 200:
                     return await response.json()
                 error_text = await response.text()
-                raise Exception(f"Failed to generate text (status {response.status}): {error_text}")
+                msg = f"Failed to generate text (status {response.status}): {error_text}"
+                raise Exception(msg)
         except aiohttp.ClientConnectionError as e:
-            raise Exception(f"Failed to connect to LMStudio server: {e}")
+            msg = f"Failed to connect to LMStudio server: {e}"
+            raise Exception(msg)
         except asyncio.TimeoutError:
-            raise Exception("Request to LMStudio server timed out")
+            msg = "Request to LMStudio server timed out"
+            raise Exception(msg)
         except Exception:
             raise
 
@@ -194,21 +200,24 @@ class LMStudioAdapter(BaseModelAdapter):
                 if response.status == 200:
                     return await response.json()
                 error_text = await response.text()
-                raise Exception(f"Failed to generate chat completion (status {response.status}): {error_text}")
+                msg = f"Failed to generate chat completion (status {response.status}): {error_text}"
+                raise Exception(msg)
         except aiohttp.ClientConnectionError as e:
-            raise Exception(f"Failed to connect to LMStudio server: {e}")
+            msg = f"Failed to connect to LMStudio server: {e}"
+            raise Exception(msg)
         except asyncio.TimeoutError:
-            raise Exception("Request to LMStudio server timed out")
+            msg = "Request to LMStudio server timed out"
+            raise Exception(msg)
         except Exception:
             raise
 
-    async def close(self):
+    async def close(self) -> None:
         """Close the aiohttp session."""
         if self._session and not self._session.closed:
             await self._session.close()
         self._session = None
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Ensure the session is closed when the adapter is garbage collected."""
         if self._session and not self._session.closed:
             asyncio.create_task(self._session.close())

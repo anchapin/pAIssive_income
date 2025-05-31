@@ -53,18 +53,18 @@ class TestAuditExtended(unittest.TestCase):
         report = generate_json_report(results)
 
         # Verify report
-        self.assertIsInstance(report, str)
+        assert isinstance(report, str)
         json_report = json.loads(report)
-        self.assertEqual(len(json_report), 2)
-        self.assertIn("file1.py", json_report)
-        self.assertIn("file2.py", json_report)
-        self.assertEqual(len(json_report["file1.py"]), 2)
-        self.assertEqual(len(json_report["file2.py"]), 1)
+        assert len(json_report) == 2
+        assert "file1.py" in json_report
+        assert "file2.py" in json_report
+        assert len(json_report["file1.py"]) == 2
+        assert len(json_report["file2.py"]) == 1
 
         # Check that value is redacted
         for file_data in json_report.values():
             for item in file_data:
-                self.assertEqual(item["value"], "[REDACTED]")
+                assert item["value"] == "[REDACTED]"
 
     @patch("common_utils.secrets.audit.mask_sensitive_data")
     def test_generate_text_report(self, mock_mask_sensitive_data):
@@ -92,16 +92,16 @@ class TestAuditExtended(unittest.TestCase):
         report = generate_text_report(results)
 
         # Verify report
-        self.assertIsInstance(report, str)
-        self.assertIn("Security Scan Report", report)
-        self.assertIn("file1.py", report)
-        self.assertIn("file2.py", report)
-        self.assertIn("Line 10", report)
-        self.assertIn("Line 20", report)
-        self.assertIn("Line 5", report)
+        assert isinstance(report, str)
+        assert "Security Scan Report" in report
+        assert "file1.py" in report
+        assert "file2.py" in report
+        assert "Line 10" in report
+        assert "Line 20" in report
+        assert "Line 5" in report
 
         # Verify that mask_sensitive_data was called
-        self.assertGreater(mock_mask_sensitive_data.call_count, 0)
+        assert mock_mask_sensitive_data.call_count > 0
 
     def test_encrypt_report_content(self):
         """Test encrypt_report_content function."""
@@ -112,13 +112,13 @@ class TestAuditExtended(unittest.TestCase):
         salt, encrypted_content = encrypt_report_content(content)
 
         # Verify results
-        self.assertIsInstance(salt, bytes)
-        self.assertEqual(len(salt), 16)
-        self.assertIsInstance(encrypted_content, bytes)
-        self.assertGreater(len(encrypted_content), 0)
+        assert isinstance(salt, bytes)
+        assert len(salt) == 16
+        assert isinstance(encrypted_content, bytes)
+        assert len(encrypted_content) > 0
 
         # Ensure the original content is not in the encrypted content
-        self.assertNotIn(b"abcdefghijklmnopqrstuvwxyz123456", encrypted_content)
+        assert b"abcdefghijklmnopqrstuvwxyz123456" not in encrypted_content
 
     @patch("pathlib.Path.mkdir")
     @patch("pathlib.Path.open", new_callable=mock_open)
@@ -157,10 +157,10 @@ class TestAuditExtended(unittest.TestCase):
         # Verify results
         mock_logger.warning.assert_called_once()
         call_args = mock_logger.warning.call_args[1]
-        self.assertEqual(call_args["extra"]["total_files"], 100)
-        self.assertEqual(call_args["extra"]["error_files"], 2)
-        self.assertEqual(call_args["extra"]["files_with_secrets"], 2)
-        self.assertEqual(call_args["extra"]["error_types"], {"PermissionError", "UnicodeDecodeError"})
+        assert call_args["extra"]["total_files"] == 100
+        assert call_args["extra"]["error_files"] == 2
+        assert call_args["extra"]["files_with_secrets"] == 2
+        assert call_args["extra"]["error_types"] == {"PermissionError", "UnicodeDecodeError"}
 
     @patch("common_utils.secrets.audit.logger")
     def test_log_scan_completion_without_errors(self, mock_logger):
@@ -179,9 +179,9 @@ class TestAuditExtended(unittest.TestCase):
         # Verify results
         mock_logger.info.assert_called_once()
         call_args = mock_logger.info.call_args[1]
-        self.assertEqual(call_args["extra"]["total_files"], 100)
-        self.assertEqual(call_args["extra"]["files_with_secrets"], 2)
-        self.assertEqual(call_args["extra"]["clean_files"], 98)
+        assert call_args["extra"]["total_files"] == 100
+        assert call_args["extra"]["files_with_secrets"] == 2
+        assert call_args["extra"]["clean_files"] == 98
 
     @patch("common_utils.secrets.audit.generate_report")
     @patch("common_utils.secrets.audit.scan_directory")
@@ -201,7 +201,7 @@ class TestAuditExtended(unittest.TestCase):
         # Verify results
         mock_scan_directory.assert_called_once_with(directory, auditor.exclude_dirs)
         mock_generate_report.assert_called_once_with(results, "report.txt", True)
-        self.assertEqual(audit_results, results)
+        assert audit_results == results
 
     @patch("common_utils.secrets.audit.logger")
     @patch("common_utils.secrets.audit.generate_json_report")

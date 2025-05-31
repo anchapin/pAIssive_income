@@ -1,5 +1,6 @@
 """Test module for common_utils.logging.log_aggregation with improved coverage (part 2)."""
 
+import contextlib
 import json
 import logging
 import os
@@ -98,10 +99,8 @@ class TestFileRotatingHandlerImproved:
         """Tear down test fixtures."""
         # Close and remove the temporary file
         if hasattr(self, "temp_file") and self.temp_file:
-            try:
+            with contextlib.suppress(Exception):
                 self.temp_file.close()
-            except Exception:
-                pass
 
         # Remove the file if it exists
         if hasattr(self, "temp_file_path") and os.path.exists(self.temp_file_path):
@@ -110,7 +109,7 @@ class TestFileRotatingHandlerImproved:
             except PermissionError:
                 # On Windows, file may still be locked; log a warning and skip
                 import warnings
-                warnings.warn(f"Could not delete temp file: {self.temp_file_path} (still in use)")
+                warnings.warn(f"Could not delete temp file: {self.temp_file_path} (still in use)", stacklevel=2)
 
     def test_handle_with_exception(self):
         """Test handle method with an exception."""

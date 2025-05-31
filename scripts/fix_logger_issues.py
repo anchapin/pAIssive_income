@@ -47,16 +47,13 @@ def fix_logger_init_too_late(file_path: str) -> bool:
 
         # Check for module docstring
         if lines and (lines[0].startswith('"""') or lines[0].startswith("'''")):
-            in_docstring = True
             quote_type = '"""' if lines[0].startswith('"""') else "'''"
             if lines[0].count(quote_type) >= 2:
                 docstring_end = 0
-                in_docstring = False
             else:
                 for i, line in enumerate(lines[1:], 1):
                     if quote_type in line:
                         docstring_end = i
-                        in_docstring = False
                         break
 
         # Find end of imports
@@ -64,7 +61,7 @@ def fix_logger_init_too_late(file_path: str) -> bool:
             if i <= docstring_end:
                 continue
             stripped = line.strip()
-            if stripped.startswith("import ") or stripped.startswith("from "):
+            if stripped.startswith(("import ", "from ")):
                 import_end = max(import_end, i)
             elif stripped and not stripped.startswith("#"):
                 break
@@ -133,7 +130,7 @@ def fix_missing_logger(file_path: str) -> bool:
         import_end = 0
         for i, line in enumerate(lines):
             stripped = line.strip()
-            if stripped.startswith("import ") or stripped.startswith("from "):
+            if stripped.startswith(("import ", "from ")):
                 import_end = max(import_end, i)
 
         # Insert logger initialization
@@ -159,7 +156,7 @@ def fix_missing_logger(file_path: str) -> bool:
         return False
 
 
-def get_python_files(directory: str, exclude_patterns: list[str] = None) -> list[str]:
+def get_python_files(directory: str, exclude_patterns: list[str] | None = None) -> list[str]:
     """Get all Python files in directory, excluding test files and common exclusions."""
     if exclude_patterns is None:
         exclude_patterns = [
@@ -192,7 +189,7 @@ def get_python_files(directory: str, exclude_patterns: list[str] = None) -> list
     return python_files
 
 
-def main():
+def main() -> None:
     """Main function to fix logger issues."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 

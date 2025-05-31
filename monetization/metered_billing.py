@@ -56,7 +56,8 @@ class MeteredBilling:
             timestamp = datetime.now()
 
         if quantity < 0:
-            raise ValueError("Usage quantity cannot be negative")
+            msg = "Usage quantity cannot be negative"
+            raise ValueError(msg)
 
         record = UsageRecord(timestamp, quantity, self.unit)
         self.usage_records.append(record)
@@ -75,14 +76,14 @@ class MeteredBilling:
 
         """
         if start_time > end_time:
-            raise ValueError("Start time must be before end time")
+            msg = "Start time must be before end time"
+            raise ValueError(msg)
 
-        total_usage = sum(
+        return sum(
             record.quantity
             for record in self.usage_records
             if start_time <= record.timestamp <= end_time
         )
-        return total_usage
 
     def calculate_bill(self, start_time: datetime, end_time: datetime) -> float:
         """

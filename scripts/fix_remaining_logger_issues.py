@@ -49,7 +49,7 @@ def find_imports_end(lines: list[str]) -> int:
         if i <= docstring_end:
             continue
         stripped = line.strip()
-        if stripped.startswith("import ") or stripped.startswith("from "):
+        if stripped.startswith(("import ", "from ")):
             import_end = max(import_end, i)
         elif stripped and not stripped.startswith("#") and not stripped.startswith('"""') and not stripped.startswith("'''"):
             break
@@ -143,7 +143,7 @@ def get_files_with_logger_issues() -> list[str]:
     return existing_files
 
 
-def main():
+def main() -> None:
     """Main function to fix remaining logger issues."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 

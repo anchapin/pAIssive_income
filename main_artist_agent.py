@@ -30,7 +30,6 @@ try:
 # Configure logging
 except ImportError:
 
-    print("Error: common_utils.tooling module not found. Ensure it is in the PYTHONPATH.")
     sys.exit(1)
 
 

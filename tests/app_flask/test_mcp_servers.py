@@ -331,7 +331,6 @@ class TestMCPServersAPI:
         assert data["server"]["description"] == "Test server"
 
         # Verify save_settings was called with the correct data
-        expected_data = {MCP_SERVERS_KEY: [server_data]}
         mock_save_settings.assert_called_once()
         # Extract the first positional argument from the call
         actual_data = mock_save_settings.call_args[0][0]

@@ -255,7 +255,7 @@ def _create_in_memory_module() -> bool:
         return True
 
     except Exception as e:
-        logger.error("Failed to create in-memory mock module: %s", e)
+        logger.exception("Failed to create in-memory mock module: %s", e)
         return False
 
 
@@ -385,7 +385,7 @@ def _install_physical_module(temp_dir: str) -> bool:
         return True
 
     except Exception as e:
-        logger.error("Failed to install physical module: %s", e)
+        logger.exception("Failed to install physical module: %s", e)
         return False
 
 
@@ -442,7 +442,7 @@ def create_mock_mcp_module() -> None:
             _raise_installation_error("All module creation methods failed")
 
         except Exception as e:
-            logger.error("Error in mock module creation: %s", e)
+            logger.exception("Error in mock module creation: %s", e)
             # In CI environments, don't fail the build
             if (
                 os.environ.get("CI") == "true"

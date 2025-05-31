@@ -7,7 +7,7 @@ from dash import dcc, html
 def create_error_monitoring_dashboard():
     """
     Create an error monitoring dashboard.
-    
+
     Returns:
         Dashboard layout components
 
@@ -114,7 +114,7 @@ def create_error_monitoring_dashboard():
 def create_performance_monitoring_dashboard():
     """
     Create a performance monitoring dashboard.
-    
+
     Returns:
         Dashboard layout components
 
@@ -221,7 +221,7 @@ def create_performance_monitoring_dashboard():
 def create_security_monitoring_dashboard():
     """
     Create a security monitoring dashboard.
-    
+
     Returns:
         Dashboard layout components
 
@@ -328,7 +328,7 @@ def create_security_monitoring_dashboard():
 def create_service_health_dashboard():
     """
     Create a service health dashboard.
-    
+
     Returns:
         Dashboard layout components
 
@@ -435,10 +435,10 @@ def create_service_health_dashboard():
 def get_dashboard_layout(dashboard_type):
     """
     Get the layout for a specific dashboard type.
-    
+
     Args:
         dashboard_type: Type of dashboard to create
-        
+
     Returns:
         Dashboard layout components
 

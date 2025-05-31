@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from typing import Annotated
 
 # Type checking imports
 from fastapi import APIRouter, HTTPException, Path, status
@@ -31,7 +32,7 @@ async def get_users_endpoint():
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-async def get_user_endpoint(user_id: int = Path(..., ge=1)):
+async def get_user_endpoint(user_id: Annotated[int, Path(ge=1)]):
     """Get a user by ID."""
     user = user_service.get_user_by_id(user_id)
     if not user:
@@ -61,7 +62,7 @@ async def create_user_endpoint(user: UserCreate):
 
 
 @router.put("/{user_id}", response_model=UserResponse)
-async def update_user_endpoint(user: UserUpdate, user_id: int = Path(..., ge=1)):
+async def update_user_endpoint(user: UserUpdate, user_id: Annotated[int, Path(ge=1)]):
     """Update a user."""
     updated_user = user_service.update_user(user_id, user.model_dump(exclude_unset=True))
     if not updated_user:
@@ -73,7 +74,7 @@ async def update_user_endpoint(user: UserUpdate, user_id: int = Path(..., ge=1))
 
 
 @router.delete("/{user_id}")
-async def delete_user_endpoint(user_id: int = Path(..., ge=1)):
+async def delete_user_endpoint(user_id: Annotated[int, Path(ge=1)]):
     """Delete a user."""
     if not user_service.delete_user(user_id):
         raise HTTPException(

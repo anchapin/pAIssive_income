@@ -297,7 +297,7 @@ class TestCrewAIAgents:
         )
 
         # Add a task
-        task = agent_team.add_task(
+        agent_team.add_task(
             description="Test Task",
             agent=agent
         )
@@ -318,7 +318,8 @@ class TestCrewAIAgents:
         # Mock the import to simulate CrewAI not being available
         def mock_import(name, *args, **kwargs):
             if name == "crewai":
-                raise ImportError("No module named 'crewai'")
+                msg = "No module named 'crewai'"
+                raise ImportError(msg)
             return original_import(name, *args, **kwargs)
 
         # Apply the mock import

@@ -11,6 +11,8 @@ import unittest
 from io import StringIO
 from unittest.mock import MagicMock, call, mock_open, patch
 
+import pytest
+
 # Local imports
 from common_utils.secrets.cli import (
     ADMIN_TOKEN_DIR,
@@ -52,22 +54,22 @@ class TestCliExtended(unittest.TestCase):
     def test_validate_secret_value_invalid(self):
         """Test _validate_secret_value with invalid secrets."""
         # Too short
-        self.assertFalse(_validate_secret_value("Short1!"))
+        assert not _validate_secret_value("Short1!")
 
         # No uppercase
-        self.assertFalse(_validate_secret_value("lowercase123!"))
+        assert not _validate_secret_value("lowercase123!")
 
         # No lowercase
-        self.assertFalse(_validate_secret_value("UPPERCASE123!"))
+        assert not _validate_secret_value("UPPERCASE123!")
 
         # No digit
-        self.assertFalse(_validate_secret_value("NoDigits!"))
+        assert not _validate_secret_value("NoDigits!")
 
         # No special character
-        self.assertFalse(_validate_secret_value("NoSpecialChars123"))
+        assert not _validate_secret_value("NoSpecialChars123")
 
         # Empty string
-        self.assertFalse(_validate_secret_value(""))
+        assert not _validate_secret_value("")
 
     @patch("getpass.getpass")
     def test_get_secret_value_success(self, mock_getpass):
@@ -79,7 +81,7 @@ class TestCliExtended(unittest.TestCase):
         result = get_secret_value("test_key")
 
         # Assert
-        self.assertEqual(result, "ValidSecret123!")
+        assert result == "ValidSecret123!"
         mock_getpass.assert_called_once_with("Enter value for test_key: ")
 
     @patch("getpass.getpass")
@@ -93,7 +95,7 @@ class TestCliExtended(unittest.TestCase):
             result = get_secret_value("test_key")
 
         # Assert
-        self.assertIsNone(result)
+        assert result is None
         mock_logger.warning.assert_called_once()
 
     @patch("getpass.getpass")
@@ -107,7 +109,7 @@ class TestCliExtended(unittest.TestCase):
             result = get_secret_value("test_key")
 
         # Assert
-        self.assertIsNone(result)
+        assert result is None
         mock_logger.exception.assert_called_once()
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
@@ -140,10 +142,10 @@ class TestCliExtended(unittest.TestCase):
         mock_check_rate_limit.side_effect = PermissionError("Rate limited")
 
         # Act/Assert
-        with patch("sys.exit") as mock_exit, \
-             patch("common_utils.secrets.cli.logger") as mock_logger:
+        with patch("sys.exit"), \
+             patch("common_utils.secrets.cli.logger"):
             # This will raise the PermissionError
-            with self.assertRaises(PermissionError):
+            with pytest.raises(PermissionError):
                 handle_get(args)
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
@@ -162,7 +164,7 @@ class TestCliExtended(unittest.TestCase):
 
         # Assert
         # The implementation may call exit multiple times in different paths
-        self.assertTrue(mock_exit.called)
+        assert mock_exit.called
         mock_logger.error.assert_called()
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
@@ -181,9 +183,9 @@ class TestCliExtended(unittest.TestCase):
             handle_set(args)
 
         # Assert
-        self.assertTrue(mock_exit.called)
+        assert mock_exit.called
         # The implementation may call error multiple times
-        self.assertTrue(mock_logger.error.called)
+        assert mock_logger.error.called
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
     @patch("common_utils.secrets.cli._check_rate_limit")
@@ -196,10 +198,10 @@ class TestCliExtended(unittest.TestCase):
         mock_check_rate_limit.side_effect = PermissionError("Rate limited")
 
         # Act/Assert
-        with patch("sys.exit") as mock_exit, \
-             patch("common_utils.secrets.cli.logger") as mock_logger:
+        with patch("sys.exit"), \
+             patch("common_utils.secrets.cli.logger"):
             # This will raise the PermissionError
-            with self.assertRaises(PermissionError):
+            with pytest.raises(PermissionError):
                 handle_set(args)
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
@@ -218,9 +220,9 @@ class TestCliExtended(unittest.TestCase):
             handle_delete(args)
 
         # Assert
-        self.assertTrue(mock_exit.called)
+        assert mock_exit.called
         # The implementation may call warning instead of error
-        self.assertTrue(mock_logger.warning.called or mock_logger.error.called)
+        assert mock_logger.warning.called or mock_logger.error.called
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
     @patch("common_utils.secrets.cli.list_secrets", return_value={})
@@ -237,7 +239,7 @@ class TestCliExtended(unittest.TestCase):
         # Assert
         # Check if any info call contains "No secrets found"
         info_calls = [call[0][0] for call in mock_logger.info.call_args_list]
-        self.assertTrue(any("No secrets found" in str(call) for call in info_calls))
+        assert any("No secrets found" in str(call) for call in info_calls)
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
     @patch("common_utils.secrets.cli.list_secrets", return_value={"key1": "value1", "key2": "value2"})
@@ -254,7 +256,7 @@ class TestCliExtended(unittest.TestCase):
 
         # Assert
         # The implementation might use print instead of logger.info
-        self.assertTrue(mock_logger.info.called or mock_print.called)
+        assert mock_logger.info.called or mock_print.called
 
     @patch("argparse.ArgumentParser.parse_args")
     def test_parse_args(self, mock_parse_args):
@@ -271,7 +273,7 @@ class TestCliExtended(unittest.TestCase):
             args = parse_args()
 
         # Assert
-        self.assertEqual(args, mock_args)
+        assert args == mock_args
 
     @patch("common_utils.secrets.cli.parse_args")
     def test_main_get_command(self, mock_parse_args):
@@ -392,7 +394,7 @@ class TestCliExtended(unittest.TestCase):
 
         # Act
         with patch("common_utils.secrets.cli.SecretsAuditor") as mock_auditor_class, \
-             patch("sys.exit") as mock_exit:
+             patch("sys.exit"):
             mock_auditor = MagicMock()
             mock_auditor_class.return_value = mock_auditor
             handle_audit(args)
@@ -455,7 +457,7 @@ class TestCliExtended(unittest.TestCase):
         # Patch get_secret_value to return a value
         with patch("common_utils.secrets.cli.get_secret_value", return_value="secret_value"), \
              patch("common_utils.secrets.cli.logger") as mock_logger, \
-             patch("sys.exit") as mock_exit:
+             patch("sys.exit"):
             _handle_rotate_secret(rotation, args, masked_key)
 
         # Assert
@@ -493,7 +495,7 @@ class TestCliExtended(unittest.TestCase):
         # Assert
         rotation.get_due_secrets.assert_called_once()
         # There should be 4 info calls: 2 headers, 2 keys
-        self.assertEqual(mock_logger.info.call_count, 4)
+        assert mock_logger.info.call_count == 4
         mock_logger.info.assert_any_call("Found %d secrets due for rotation", 2)
         mock_logger.info.assert_any_call("Found %d secrets due for rotation:", 2)
         mock_logger.info.assert_any_call("  %s", "key1")

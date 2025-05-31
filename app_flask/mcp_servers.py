@@ -33,7 +33,6 @@ try:
 # Configure logging
 except ImportError:
 
-    print("Error: Flask module not found. Please install it (e.g., pip install Flask).")
     sys.exit(1)
 
 # Use a safer path construction with Path

@@ -26,9 +26,6 @@ try:
         MemoryEnhancedCrewAIAgentTeam,
     )
 except ImportError:
-    print(
-        "Error: agent_team.mem0_enhanced_agents module not found. Ensure it's in the PYTHONPATH."
-    )
     sys.exit(1)
 
 
@@ -92,16 +89,16 @@ def create_research_team(user_id: str) -> MemoryEnhancedCrewAIAgentTeam:
     )
 
     # Add tasks
-    research_task = team.add_task(
+    team.add_task(
         description="Research the market for AI-powered productivity tools",
         agent=researcher,
     )
 
-    development_task = team.add_task(
+    team.add_task(
         description="Design an AI tool based on the market research", agent=developer
     )
 
-    monetization_task = team.add_task(
+    team.add_task(
         description="Create a monetization strategy for the AI tool", agent=monetization
     )
 

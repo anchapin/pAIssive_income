@@ -5,6 +5,8 @@ import unittest
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
+import pytest
+
 from monetization.metered_billing import MeteredBilling, UsageRecord
 
 
@@ -15,9 +17,9 @@ class TestUsageRecord(unittest.TestCase):
         """Test basic usage record initialization."""
         timestamp = datetime.now()
         record = UsageRecord(timestamp, 10.5, "requests")
-        self.assertEqual(record.timestamp, timestamp)
-        self.assertEqual(record.quantity, 10.5)
-        self.assertEqual(record.unit, "requests")
+        assert record.timestamp == timestamp
+        assert record.quantity == 10.5
+        assert record.unit == "requests"
 
 
 class TestMeteredBilling(unittest.TestCase):
@@ -31,27 +33,27 @@ class TestMeteredBilling(unittest.TestCase):
 
     def test_initialization(self):
         """Test metered billing initialization."""
-        self.assertEqual(self.billing.price_per_unit, 0.01)
-        self.assertEqual(self.billing.unit, "requests")
-        self.assertEqual(len(self.billing.usage_records), 0)
+        assert self.billing.price_per_unit == 0.01
+        assert self.billing.unit == "requests"
+        assert len(self.billing.usage_records) == 0
 
     def test_record_usage(self):
         """Test recording usage."""
         with patch("logging.Logger.info") as mock_info:
             self.billing.record_usage(10.5)
-            self.assertEqual(len(self.billing.usage_records), 1)
-            self.assertEqual(self.billing.usage_records[0].quantity, 10.5)
+            assert len(self.billing.usage_records) == 1
+            assert self.billing.usage_records[0].quantity == 10.5
             mock_info.assert_called_once()
 
     def test_record_usage_with_timestamp(self):
         """Test recording usage with specific timestamp."""
         timestamp = datetime(2024, 1, 1, 12, 0, 0)
         self.billing.record_usage(10.5, timestamp)
-        self.assertEqual(self.billing.usage_records[0].timestamp, timestamp)
+        assert self.billing.usage_records[0].timestamp == timestamp
 
     def test_record_usage_negative_quantity(self):
         """Test recording negative usage quantity."""
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             self.billing.record_usage(-10.5)
 
     def test_get_usage_for_period(self):
@@ -62,11 +64,11 @@ class TestMeteredBilling(unittest.TestCase):
         self.billing.record_usage(5.5, self.end_time + timedelta(hours=1))
 
         usage = self.billing.get_usage_for_period(self.start_time, self.end_time)
-        self.assertEqual(usage, 10.5)
+        assert usage == 10.5
 
     def test_get_usage_for_period_invalid_dates(self):
         """Test getting usage with invalid date range."""
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             self.billing.get_usage_for_period(self.end_time, self.start_time)
 
     def test_calculate_bill(self):
@@ -76,15 +78,15 @@ class TestMeteredBilling(unittest.TestCase):
 
         with patch("logging.Logger.info") as mock_info:
             bill = self.billing.calculate_bill(self.start_time, self.end_time)
-            self.assertEqual(bill, 1.50)  # (100 + 50) * 0.01
+            assert bill == 1.5  # (100 + 50) * 0.01
             mock_info.assert_called_once()
 
     def test_get_usage_summary_empty(self):
         """Test getting usage summary with no records."""
         summary = self.billing.get_usage_summary()
-        self.assertEqual(summary["total_usage"], 0.0)
-        self.assertEqual(summary["record_count"], 0)
-        self.assertEqual(summary["average_usage"], 0.0)
+        assert summary["total_usage"] == 0.0
+        assert summary["record_count"] == 0
+        assert summary["average_usage"] == 0.0
 
     def test_get_usage_summary_with_records(self):
         """Test getting usage summary with records."""
@@ -93,16 +95,16 @@ class TestMeteredBilling(unittest.TestCase):
         self.billing.record_usage(300)
 
         summary = self.billing.get_usage_summary()
-        self.assertEqual(summary["total_usage"], 600.0)
-        self.assertEqual(summary["record_count"], 3)
-        self.assertEqual(summary["average_usage"], 200.0)
+        assert summary["total_usage"] == 600.0
+        assert summary["record_count"] == 3
+        assert summary["average_usage"] == 200.0
 
     def test_multiple_units(self):
         """Test handling multiple units of measurement."""
         billing = MeteredBilling(price_per_unit=0.5, unit="GB")
         billing.record_usage(10.5)
-        self.assertEqual(billing.unit, "GB")
-        self.assertEqual(billing.usage_records[0].unit, "GB")
+        assert billing.unit == "GB"
+        assert billing.usage_records[0].unit == "GB"
 
 
 if __name__ == "__main__":

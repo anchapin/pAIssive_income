@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Workflow debug script to help identify common issues.
-"""
+"""Workflow debug script to help identify common issues."""
 
 import logging
 import os
@@ -12,7 +10,7 @@ from pathlib import Path
 # Configure logging
 logger = logging.getLogger(__name__)
 
-def check_environment():
+def check_environment() -> None:
     """Check the current environment."""
     logger.info("=== Environment Check ===")
     logger.info(f"Platform: {platform.system()} {platform.release()}")
@@ -26,7 +24,7 @@ def check_environment():
     logger.info(f"CI environment: {is_ci}")
     logger.info(f"GitHub Actions: {is_github_actions}")
 
-def check_dependencies():
+def check_dependencies() -> None:
     """Check for required dependencies."""
     logger.info("=== Dependency Check ===")
 
@@ -41,7 +39,7 @@ def check_dependencies():
         except ImportError:
             logger.warning(f"✗ {package} is not available")
 
-def check_files():
+def check_files() -> None:
     """Check for required files."""
     logger.info("=== File Check ===")
 
@@ -58,7 +56,7 @@ def check_files():
         else:
             logger.warning(f"✗ {file_path} is missing")
 
-def main():
+def main() -> None:
     """Main debug function."""
     logger.info("Starting workflow debug check...")
     check_environment()

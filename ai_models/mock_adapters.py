@@ -22,7 +22,7 @@ except ImportError as e:
 class MockBaseModelAdapter:
     """Mock implementation of BaseModelAdapter for testing."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the mock base model adapter."""
         logger.info("Initialized MockBaseModelAdapter")
 
@@ -88,7 +88,7 @@ class MockBaseModelAdapter:
         logger.info("Chat completion generated")
         return response
 
-    async def close(self):
+    async def close(self) -> None:
         """Close any resources."""
         logger.info("Closing mock adapter resources")
 
@@ -96,7 +96,7 @@ class MockBaseModelAdapter:
 class MockOllamaAdapter(MockBaseModelAdapter):
     """Mock implementation of OllamaAdapter for testing."""
 
-    def __init__(self, base_url: str = "http://localhost:11434", timeout: int = 60):
+    def __init__(self, base_url: str = "http://localhost:11434", timeout: int = 60) -> None:
         """
         Initialize the mock Ollama adapter.
 
@@ -115,7 +115,7 @@ class MockOllamaAdapter(MockBaseModelAdapter):
 class MockLMStudioAdapter(MockBaseModelAdapter):
     """Mock implementation of LMStudioAdapter for testing."""
 
-    def __init__(self, base_url: str = "http://localhost:1234/v1", api_key: Optional[str] = None, timeout: int = 60):
+    def __init__(self, base_url: str = "http://localhost:1234/v1", api_key: Optional[str] = None, timeout: int = 60) -> None:
         """
         Initialize the mock LM Studio adapter.
 
@@ -136,7 +136,7 @@ class MockLMStudioAdapter(MockBaseModelAdapter):
 class MockOpenAICompatibleAdapter(MockBaseModelAdapter):
     """Mock implementation of OpenAICompatibleAdapter for testing."""
 
-    def __init__(self, base_url: str, api_key: str, timeout: int = 60):
+    def __init__(self, base_url: str, api_key: str, timeout: int = 60) -> None:
         """
         Initialize the mock OpenAI-compatible adapter.
 
@@ -157,7 +157,7 @@ class MockOpenAICompatibleAdapter(MockBaseModelAdapter):
 class MockTensorRTAdapter(MockBaseModelAdapter):
     """Mock implementation of TensorRTAdapter for testing."""
 
-    def __init__(self, base_url: str = "http://localhost:8000", timeout: int = 60):
+    def __init__(self, base_url: str = "http://localhost:8000", timeout: int = 60) -> None:
         """
         Initialize the mock TensorRT adapter.
 
@@ -176,7 +176,7 @@ class MockTensorRTAdapter(MockBaseModelAdapter):
 class MockMCPAdapter(MockBaseModelAdapter):
     """Mock implementation of MCPAdapter for testing."""
 
-    def __init__(self, host: str = "localhost", port: int = 9000, timeout: int = 60):
+    def __init__(self, host: str = "localhost", port: int = 9000, timeout: int = 60) -> None:
         """
         Initialize the mock MCP adapter.
 

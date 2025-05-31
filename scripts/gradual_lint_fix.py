@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Gradual Lint Fix Strategy Script
+Gradual Lint Fix Strategy Script.
 
 This script implements a gradual approach to fixing linting issues:
 1. For PRs: Only lint changed files
@@ -43,13 +43,12 @@ def get_changed_files(base_branch: str = "main") -> list[str]:
         )
 
         # Filter for Python files
-        changed_files = [
+        return [
             line.strip()
             for line in result.stdout.strip().split("\n")
             if line.strip().endswith(".py") and Path(line.strip()).exists()
         ]
 
-        return changed_files
     except subprocess.CalledProcessError:
         print("Warning: Could not get changed files from git. Checking all files.")
         return []
@@ -141,7 +140,7 @@ def get_baseline_errors() -> dict[str, int]:
         return {}
 
 
-def save_baseline(baseline: dict[str, int], filename: str = "lint_baseline.json"):
+def save_baseline(baseline: dict[str, int], filename: str = "lint_baseline.json") -> None:
     """Save baseline error counts to file."""
     baseline_file = Path(filename)
     with baseline_file.open("w", encoding="utf-8") as f:
@@ -233,7 +232,7 @@ def check_progress_mode() -> int:
             new_files.append((filename, current_count))
 
     # Files that were completely fixed
-    fixed_files = [f for f in baseline.keys() if f not in current_errors]
+    fixed_files = [f for f in baseline if f not in current_errors]
 
     # Report progress
     print("📈 Progress Report:")

@@ -163,7 +163,7 @@ def test_crewai_agent_team_with_custom_agents():
             MockAgent.side_effect = [mock_agent1, mock_agent2]
 
             # Add custom agents to the agent team
-            researcher = agent_team.add_agent(
+            agent_team.add_agent(
                 role="Researcher",
                 goal="Research the topic",
                 backstory="Expert researcher",

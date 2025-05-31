@@ -1,6 +1,4 @@
-"""
-Tests for the utils.math_utils module.
-"""
+"""Tests for the utils.math_utils module."""
 
 import pytest
 

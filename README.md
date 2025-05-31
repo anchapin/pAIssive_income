@@ -27,7 +27,7 @@ Framework for generating passive income by utilizing a team of AI agents to gene
 ## 🚀 Quick Start
 
 - **Getting Started:**
-  See [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md) for installation and setup instructions.
+  See [docs/getting-started.md](docs/getting-started.md) for installation and setup instructions.
 
 - **Global Logging Configuration:**
   All main scripts should use the project-wide logging setup. At the start of your main script, add:
@@ -62,7 +62,7 @@ All project documentation is now centralized in [docs/](docs/):
 - [Archive & Historical Notes](docs/09_archive_and_notes/)
 - [Changelog](docs/changelog.md)
 
-For a full directory map, see [docs/00_introduction/03_project_structure.md](docs/00_introduction/03_project_structure.md).
+For a full directory map, see [docs/project-structure.md](docs/project-structure.md).
 
 ---
 
@@ -347,14 +347,14 @@ For more details on the mem0 integration and best practices for combining mem0 w
 
 ## 🚀 Getting Started
 
-For installation, setup, and usage, see our [Getting Started Guide](docs/00_introduction/02_getting_started.md).
+For installation, setup, and usage, see our [Getting Started Guide](docs/getting-started.md).
 
 ---
 
 ## 📚 Documentation
 
 - [Project Overview](docs/00_introduction/01_overview.md)
-- [Getting Started](docs/00_introduction/02_getting_started.md)
+- [Getting Started](docs/getting-started.md)
 - [User Guide](docs/01_user_guide/01_application_ui_manual.md)
 - [Developer Guide](docs/02_developer_guide/01_development_workflow.md)
 - [API Reference](docs/02_developer_guide/05_api_reference/README.md)
@@ -363,7 +363,7 @@ For installation, setup, and usage, see our [Getting Started Guide](docs/00_intr
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](docs/changelog.md)
 
-For a full breakdown of directory structure and module deep dives, see [docs/00_introduction/03_project_structure.md](docs/00_introduction/03_project_structure.md) and [docs/02_developer_guide/06_module_deep_dives/README.md](docs/02_developer_guide/06_module_deep_dives/README.md).
+For a full breakdown of directory structure and module deep dives, see [docs/project-structure.md](docs/project-structure.md) and [docs/02_developer_guide/06_module_deep_dives/README.md](docs/02_developer_guide/06_module_deep_dives/README.md).
 
 ---
 
@@ -419,20 +419,7 @@ These secrets are used for Docker Hub authentication to avoid rate limits when p
 
 This repository contains a summary of the project and high-level information. The main onboarding guide, including development setup, installation, and usage details, is maintained in the documentation directory for consistency and easier updates.
 
-If you are new to this project, start here:
 
-- [Getting Started Guide](docs/getting-started.md)
-
-For quick reference, the following topics are included in the full guide:
-
-- Development environment setup (Python, Node, etc.)
-- Installing dependencies
-- Running and developing with the framework
-- Using the CLI and web UI
-- Pre-commit hooks and code quality
-- Linting, syntax fixes, and CI workflows
-
-**Note:** This README is intentionally concise. See the documentation for complete and up-to-date instructions.
 
 ---
 

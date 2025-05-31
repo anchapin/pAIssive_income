@@ -134,7 +134,8 @@ class TestToolRegistry:
     def test_register_tool_with_lambda(self, clean_registry):
         """Test register_tool function with a lambda function."""
         # Define a lambda function
-        lambda_func = lambda x: x * 2
+        def lambda_func(x):
+            return x * 2
 
         # Register the lambda function
         register_tool("lambda_tool", lambda_func)

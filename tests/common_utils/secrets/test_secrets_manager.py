@@ -122,7 +122,7 @@ class TestSecretsManager:
         found = False
         for key, value in secrets.items():
             if key == "TEST_SECRET_KEY" or "SENSITIVE_KEY" in key:
-                if value == "****" or value == "********":
+                if value in ("****", "********"):
                     found = True
                     break
 
@@ -310,7 +310,7 @@ class TestSecretsManager:
         unknown_backend.name = "UNKNOWN"
 
         # The implementation should handle unknown backends gracefully
-        with patch("common_utils.secrets.secrets_manager.logger") as mock_logger:
+        with patch("common_utils.secrets.secrets_manager.logger"):
             result = manager.get_secret("TEST_SECRET_KEY", unknown_backend)
             # Just check that the function completes without error
             # The result might be None or it might fall back to environment variables
@@ -325,7 +325,7 @@ class TestSecretsManager:
 
         # The implementation might return True for unknown backends in some cases
         # Just check that it doesn't raise an exception
-        with patch("common_utils.secrets.secrets_manager.logger") as mock_logger:
+        with patch("common_utils.secrets.secrets_manager.logger"):
             result = manager.set_secret("TEST_SECRET_KEY", "value", unknown_backend)
             # Don't assert the result value as it might vary
             # Just ensure the function completes without error
@@ -339,7 +339,7 @@ class TestSecretsManager:
         unknown_backend.name = "UNKNOWN"
 
         # The implementation should handle unknown backends gracefully
-        with patch("common_utils.secrets.secrets_manager.logger") as mock_logger:
+        with patch("common_utils.secrets.secrets_manager.logger"):
             result = manager.delete_secret("TEST_SECRET_KEY", unknown_backend)
             # Just check that the function completes without error
             # The result might be False or it might fall back to environment variables
@@ -354,7 +354,7 @@ class TestSecretsManager:
 
         # The implementation might fall back to environment variables
         # Just check that it returns a dictionary and doesn't raise an exception
-        with patch("common_utils.secrets.secrets_manager.logger") as mock_logger:
+        with patch("common_utils.secrets.secrets_manager.logger"):
             result = manager.list_secrets(unknown_backend)
             assert isinstance(result, dict)
 
@@ -424,7 +424,7 @@ class TestModuleFunctions:
         found = False
         for key, value in secrets.items():
             if key == "TEST_SECRET_KEY" or "SENSITIVE_KEY" in key:
-                if value == "****" or value == "********":
+                if value in ("****", "********"):
                     found = True
                     break
 

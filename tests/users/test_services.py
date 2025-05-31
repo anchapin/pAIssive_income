@@ -45,11 +45,11 @@ class TestUserService(unittest.TestCase):
     def test_init_with_token_secret(self):
         """Test initialization with token secret."""
         service = UserService(token_secret=self.token_secret)
-        self.assertEqual(service.token_secret, self.token_secret)
+        assert service.token_secret == self.token_secret
 
     def test_init_without_token_secret(self):
         """Test initialization without token secret."""
-        with self.assertRaises(AuthenticationError):
+        with pytest.raises(AuthenticationError):
             UserService(token_secret="")
 
     @patch("users.services.hash_credential")
@@ -76,9 +76,9 @@ class TestUserService(unittest.TestCase):
         result = self.service.create_user("testuser", "test@example.com", "password123")
 
         # Verify the result
-        self.assertEqual(result["id"], 1)
-        self.assertEqual(result["username"], "testuser")
-        self.assertEqual(result["email"], "test@example.com")
+        assert result["id"] == 1
+        assert result["username"] == "testuser"
+        assert result["email"] == "test@example.com"
 
         # Verify that hash_credential was called
         mock_hash_credential.assert_called_once_with("password123")
@@ -89,21 +89,21 @@ class TestUserService(unittest.TestCase):
 
     def test_create_user_missing_username(self):
         """Test create_user with missing username."""
-        with self.assertRaises(AuthenticationError) as context:
+        with pytest.raises(AuthenticationError) as context:
             self.service.create_user("", "test@example.com", "password123")
-        self.assertEqual(str(context.exception), AuthenticationError.USERNAME_REQUIRED)
+        assert str(context.value) == AuthenticationError.USERNAME_REQUIRED
 
     def test_create_user_missing_email(self):
         """Test create_user with missing email."""
-        with self.assertRaises(AuthenticationError) as context:
+        with pytest.raises(AuthenticationError) as context:
             self.service.create_user("testuser", "", "password123")
-        self.assertEqual(str(context.exception), AuthenticationError.EMAIL_REQUIRED)
+        assert str(context.value) == AuthenticationError.EMAIL_REQUIRED
 
     def test_create_user_missing_password(self):
         """Test create_user with missing password."""
-        with self.assertRaises(AuthenticationError) as context:
+        with pytest.raises(AuthenticationError) as context:
             self.service.create_user("testuser", "test@example.com", "")
-        self.assertEqual(str(context.exception), AuthenticationError.PASSWORD_REQUIRED)
+        assert str(context.value) == AuthenticationError.PASSWORD_REQUIRED
 
     @patch("users.services.UserModel")
     @patch("users.services.db")
@@ -118,9 +118,9 @@ class TestUserService(unittest.TestCase):
         mock_user_model.query = mock_query
 
         # Call the method and verify the exception
-        with self.assertRaises(UserExistsError) as context:
+        with pytest.raises(UserExistsError) as context:
             self.service.create_user("testuser", "test@example.com", "password123")
-        self.assertEqual(str(context.exception), UserExistsError.USERNAME_EXISTS)
+        assert str(context.value) == UserExistsError.USERNAME_EXISTS
 
     @patch("users.services.UserModel")
     @patch("users.services.db")
@@ -135,9 +135,9 @@ class TestUserService(unittest.TestCase):
         mock_user_model.query = mock_query
 
         # Call the method and verify the exception
-        with self.assertRaises(UserExistsError) as context:
+        with pytest.raises(UserExistsError) as context:
             self.service.create_user("testuser", "test@example.com", "password123")
-        self.assertEqual(str(context.exception), UserExistsError.EMAIL_EXISTS)
+        assert str(context.value) == UserExistsError.EMAIL_EXISTS
 
     @patch("users.services.hash_credential")
     @patch("users.services.UserModel")
@@ -161,7 +161,7 @@ class TestUserService(unittest.TestCase):
         mock_db_session.session.commit.side_effect = SQLAlchemyError("Database error")
 
         # Call the method and verify the exception
-        with self.assertRaises(DatabaseSessionNotAvailableError):
+        with pytest.raises(DatabaseSessionNotAvailableError):
             self.service.create_user("testuser", "test@example.com", "password123")
 
         # Verify that rollback was called
@@ -193,10 +193,10 @@ class TestUserService(unittest.TestCase):
         success, user_data = self.service.authenticate_user("testuser", "password123")
 
         # Verify the result
-        self.assertTrue(success)
-        self.assertEqual(user_data["id"], 1)
-        self.assertEqual(user_data["username"], "testuser")
-        self.assertEqual(user_data["email"], "test@example.com")
+        assert success
+        assert user_data["id"] == 1
+        assert user_data["username"] == "testuser"
+        assert user_data["email"] == "test@example.com"
 
         # Verify that verify_credential was called
         mock_verify_credential.assert_called_once_with("password123", "hashed_password")
@@ -209,13 +209,13 @@ class TestUserService(unittest.TestCase):
         """Test authenticate_user with missing credentials."""
         # Call the method with missing username
         success1, user_data1 = self.service.authenticate_user("", "password123")
-        self.assertFalse(success1)
-        self.assertIsNone(user_data1)
+        assert not success1
+        assert user_data1 is None
 
         # Call the method with missing password
         success2, user_data2 = self.service.authenticate_user("testuser", "")
-        self.assertFalse(success2)
-        self.assertIsNone(user_data2)
+        assert not success2
+        assert user_data2 is None
 
     @patch("users.services.UserModel")
     def test_authenticate_user_user_not_found(self, mock_user_model):
@@ -229,8 +229,8 @@ class TestUserService(unittest.TestCase):
         success, user_data = self.service.authenticate_user("testuser", "password123")
 
         # Verify the result
-        self.assertFalse(success)
-        self.assertIsNone(user_data)
+        assert not success
+        assert user_data is None
 
     @patch("users.services.UserModel")
     @patch("users.services.verify_credential")
@@ -249,8 +249,8 @@ class TestUserService(unittest.TestCase):
         success, user_data = self.service.authenticate_user("testuser", "password123")
 
         # Verify the result
-        self.assertFalse(success)
-        self.assertIsNone(user_data)
+        assert not success
+        assert user_data is None
 
     @patch("users.services.UserModel")
     @patch("users.services.verify_credential")
@@ -282,8 +282,8 @@ class TestUserService(unittest.TestCase):
         success, user_data = self.service.authenticate_user("testuser", "password123")
 
         # Verify the result
-        self.assertFalse(success)
-        self.assertIsNone(user_data)
+        assert not success
+        assert user_data is None
 
         # Verify rollback was called
         mock_db_session.session.rollback.assert_called_once()
@@ -303,12 +303,12 @@ class TestUserService(unittest.TestCase):
         # Decode the token and verify the payload
         # Use the verify=False option to skip signature verification since we're testing token generation
         payload = jwt.decode(token, self.token_secret, algorithms=["HS256"], options={"verify_exp": False})
-        self.assertEqual(payload["sub"], "user123")
-        self.assertEqual(payload["iat"], mock_now.timestamp())
-        self.assertEqual(payload["exp"], mock_now.timestamp() + 3600)
-        self.assertEqual(payload["jti"], "test-uuid")
-        self.assertEqual(payload["role"], "admin")
-        self.assertEqual(payload["name"], "Test User")
+        assert payload["sub"] == "user123"
+        assert payload["iat"] == mock_now.timestamp()
+        assert payload["exp"] == mock_now.timestamp() + 3600
+        assert payload["jti"] == "test-uuid"
+        assert payload["role"] == "admin"
+        assert payload["name"] == "Test User"
 
     def test_verify_token_valid(self):
         """Test verify_token with valid token."""
@@ -326,9 +326,9 @@ class TestUserService(unittest.TestCase):
         success, decoded_payload = self.service.verify_token(token)
 
         # Verify the result
-        self.assertTrue(success)
-        self.assertEqual(decoded_payload["sub"], "user123")
-        self.assertEqual(decoded_payload["role"], "admin")
+        assert success
+        assert decoded_payload["sub"] == "user123"
+        assert decoded_payload["role"] == "admin"
 
     def test_verify_token_missing_token(self):
         """Test verify_token with missing token."""
@@ -336,8 +336,8 @@ class TestUserService(unittest.TestCase):
         success, payload = self.service.verify_token("")
 
         # Verify the result
-        self.assertFalse(success)
-        self.assertIsNone(payload)
+        assert not success
+        assert payload is None
 
     def test_verify_token_expired(self):
         """Test verify_token with expired token."""
@@ -354,8 +354,8 @@ class TestUserService(unittest.TestCase):
         success, decoded_payload = self.service.verify_token(token)
 
         # Verify the result
-        self.assertFalse(success)
-        self.assertIsNone(decoded_payload)
+        assert not success
+        assert decoded_payload is None
 
     def test_verify_token_invalid_signature(self):
         """Test verify_token with invalid signature."""
@@ -372,8 +372,8 @@ class TestUserService(unittest.TestCase):
         success, decoded_payload = self.service.verify_token(token)
 
         # Verify the result
-        self.assertFalse(success)
-        self.assertIsNone(decoded_payload)
+        assert not success
+        assert decoded_payload is None
 
     def test_verify_token_missing_required_claims(self):
         """Test verify_token with missing required claims."""
@@ -389,8 +389,8 @@ class TestUserService(unittest.TestCase):
         success, decoded_payload = self.service.verify_token(token)
 
         # Verify the result
-        self.assertFalse(success)
-        self.assertIsNone(decoded_payload)
+        assert not success
+        assert decoded_payload is None
 
 
 if __name__ == "__main__":

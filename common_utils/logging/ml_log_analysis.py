@@ -51,7 +51,7 @@ try:
     import numpy as np
     # from sentence_transformers import SentenceTransformer
 except ImportError as e:
-    logger.error(f"Failed to import required ML packages: {e}")
+    logger.exception(f"Failed to import required ML packages: {e}")
     sys.exit(1)
 
 try:
@@ -73,7 +73,7 @@ try:
 # Configure logging
 except ImportError:
 
-    logger.error("Error: common_utils.logging.secure_logging module not found.")
+    logger.exception("Error: common_utils.logging.secure_logging module not found.")
     sys.exit(1)
 
 
@@ -370,12 +370,11 @@ class LogClusterer:
 
         # Get common terms (appear in at least 50% of messages)
         threshold = len(messages) * 0.5
-        common_terms = [
+        return [
             term for term, count in token_counts.most_common(10)
             if count >= threshold and len(term) > 2
         ]
 
-        return common_terms
 
 
 class LogAnalyzer:

@@ -259,7 +259,7 @@ class TestLogAggregatorImproved:
         # Mock parse_log_file to use our custom function
         with patch("common_utils.logging.log_aggregation.parse_log_file", mock_parse_log_file):
             # Mock the logger
-            with patch("common_utils.logging.log_aggregation.logger.error") as mock_error:
+            with patch("common_utils.logging.log_aggregation.logger.error"):
                 # Aggregate a log file
                 self.aggregator.aggregate_log_file("nonexistent.log")
 

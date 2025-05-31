@@ -27,7 +27,7 @@ except ImportError:
     raise
 
 
-def install_missing_dependencies():
+def install_missing_dependencies() -> None:
     """Install missing dependencies that are causing workflow failures."""
     logger.info("Installing missing dependencies...")
 
@@ -59,7 +59,7 @@ def install_missing_dependencies():
             continue
 
 
-def fix_security_scan_issues():
+def fix_security_scan_issues() -> None:
     """Fix security scan configuration issues."""
     logger.info("Fixing security scan issues...")
 
@@ -101,7 +101,7 @@ def fix_security_scan_issues():
     logger.info("✓ Created security scan fallback files")
 
 
-def fix_test_configuration():
+def fix_test_configuration() -> None:
     """Fix test configuration issues."""
     logger.info("Fixing test configuration...")
 
@@ -133,7 +133,7 @@ filterwarnings =
     logger.info("✓ Updated pytest configuration")
 
 
-def create_workflow_test_script():
+def create_workflow_test_script() -> None:
     """Create a robust test script for workflows."""
     logger.info("Creating workflow test script...")
 
@@ -222,7 +222,7 @@ if __name__ == "__main__":
     logger.info("✓ Created workflow test script")
 
 
-def update_workflow_timeouts():
+def update_workflow_timeouts() -> None:
     """Update workflow files to have more reasonable timeouts."""
     logger.info("Checking workflow timeout configurations...")
 
@@ -244,7 +244,7 @@ def update_workflow_timeouts():
                 logger.info(f"ℹ {workflow_file} may need timeout adjustment")
 
 
-def create_ci_requirements():
+def create_ci_requirements() -> None:
     """Create CI-specific requirements file."""
     logger.info("Creating CI requirements...")
 
@@ -285,7 +285,7 @@ def create_ci_requirements():
         logger.info("✓ Created requirements-ci.txt")
 
 
-def main():
+def main() -> int | None:
     """Main function to apply all fixes."""
     logger.info("=" * 60)
     logger.info("Fixing PR #139 Workflow Issues")
@@ -303,16 +303,11 @@ def main():
         logger.info("✅ All workflow fixes applied successfully!")
         logger.info("=" * 60)
 
-        print("\n🚀 Next Steps:")
-        print("1. Commit these changes to your PR branch")
-        print("2. Push to trigger workflow runs")
-        print("3. Monitor the workflow execution")
-        print("4. Use 'python run_workflow_tests.py' for local testing")
 
         return 0
 
     except Exception as e:
-        logger.error(f"Failed to apply fixes: {e}")
+        logger.exception(f"Failed to apply fixes: {e}")
         return 1
 
 

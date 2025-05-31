@@ -87,7 +87,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     - Team execution
     """
 
-    def __init__(self, llm_provider: object = None, user_id: str = None) -> None:
+    def __init__(self, llm_provider: object = None, user_id: str | None = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
 
@@ -223,7 +223,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         return result
 
     def _store_memory(
-        self, content: Union[str, list[dict[str, str]]], metadata: dict[str, str] = None
+        self, content: Union[str, list[dict[str, str]]], metadata: dict[str, str] | None = None
     ) -> None:
         """
         Store a memory using the RAG coordinator (mem0 backend).
@@ -244,7 +244,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             logger.warning("Failed to store memory via RAG coordinator.")
 
     def _retrieve_relevant_memories(
-        self, query: str = None, limit: int = 5
+        self, query: str | None = None, limit: int = 5
     ) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories for the current context using MemoryRAGCoordinator.
@@ -304,7 +304,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         )
 
         # Combine memories with original context
-        enhanced_context = f"""
+        return f"""
 Relevant memories:
 {memory_text}
 
@@ -312,7 +312,6 @@ Original context:
 {context}
 """
 
-        return enhanced_context
 
 
 # Example usage

@@ -1,6 +1,4 @@
-"""
-A simple module with 100% test coverage to help meet the 80% threshold.
-"""
+"""A simple module with 100% test coverage to help meet the 80% threshold."""
 
 
 def add(a, b):
@@ -21,7 +19,8 @@ def multiply(a, b):
 def divide(a, b):
     """Divide a by b and return the result."""
     if b == 0:
-        raise ValueError("Cannot divide by zero")
+        msg = "Cannot divide by zero"
+        raise ValueError(msg)
     return a / b
 
 
@@ -45,4 +44,5 @@ def format_string(template, **kwargs):
     try:
         return template.format(**kwargs)
     except KeyError as e:
-        raise ValueError(f"Missing required key: {e}")
+        msg = f"Missing required key: {e}"
+        raise ValueError(msg)

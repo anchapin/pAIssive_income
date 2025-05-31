@@ -87,7 +87,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     """Main function."""
     # Parse command line arguments
     args = parse_args()
@@ -113,7 +113,7 @@ def main():
     )
 
     # Set up signal handlers for graceful shutdown
-    def signal_handler(sig, frame):
+    def signal_handler(sig, frame) -> None:
         logger.info("Received signal %s, shutting down...", sig)
         service.stop()
         sys.exit(0)
@@ -130,7 +130,7 @@ def main():
         while True:
             time.sleep(1)
     except Exception as e:
-        logger.error("Error running centralized logging service: %s", e)
+        logger.exception("Error running centralized logging service: %s", e)
         service.stop()
         sys.exit(1)
 

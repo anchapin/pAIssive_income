@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class ConsulServiceRegistry:
     """Service registry implementation using Consul."""
 
-    def __init__(self, host: str = "localhost", port: int = 8500):
+    def __init__(self, host: str = "localhost", port: int = 8500) -> None:
         """
         Initialize the Consul service registry.
 
@@ -47,8 +47,8 @@ class ConsulServiceRegistry:
         service_name: str,
         port: int,
         health_check_path: str = "/health",
-        tags: list[str] = None,
-        metadata: dict[str, str] = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, str] | None = None,
     ) -> bool:
         """
         Register a service with the registry.
@@ -129,7 +129,7 @@ class ServiceDiscoveryClient:
         registry_host: str = "localhost",
         registry_port: int = 8500,
         load_balancer_strategy: str = "round_robin",
-    ):
+    ) -> None:
         """
         Initialize the service discovery client.
 
@@ -188,16 +188,15 @@ class ServiceDiscoveryClient:
         if not instance:
             return None
 
-        url = f"http://{instance['address']}:{instance['port']}{path}"
-        return url
+        return f"http://{instance['address']}:{instance['port']}{path}"
 
     def register_service(
         self,
         service_name: str,
         port: int,
         health_check_path: str = "/health",
-        tags: list[str] = None,
-        metadata: dict[str, str] = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, str] | None = None,
     ) -> bool:
         """
         Register a service with the registry.

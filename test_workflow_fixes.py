@@ -25,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def test_essential_dependencies():
+def test_essential_dependencies() -> bool:
     """Test that essential dependencies can be installed."""
     logger.info("Testing essential dependency installation...")
 
@@ -37,7 +37,7 @@ def test_essential_dependencies():
     failed_deps = []
     for dep in essential_deps:
         try:
-            result = subprocess.run(
+            subprocess.run(
                 [sys.executable, "-c", f"import {dep.replace('-', '_')}"],
                 check=True, capture_output=True, text=True
             )
@@ -52,7 +52,7 @@ def test_essential_dependencies():
                     "pytest-mock": "pytest_mock"
                 }
                 alt_name = alt_names.get(dep, dep)
-                result = subprocess.run(
+                subprocess.run(
                     [sys.executable, "-c", f"import {alt_name}"],
                     check=True, capture_output=True, text=True
                 )
@@ -69,7 +69,7 @@ def test_essential_dependencies():
     return True
 
 
-def test_mock_modules():
+def test_mock_modules() -> bool | None:
     """Test that mock modules are created correctly."""
     logger.info("Testing mock module creation...")
 
@@ -140,23 +140,23 @@ Task = MockTask
         # Test mock MCP functionality
         client = mock_mcp.Client()
         client.connect()
-        tools = client.list_tools()
-        result = client.call_tool("test")
+        client.list_tools()
+        client.call_tool("test")
 
         # Test mock CrewAI functionality
-        agent = mock_crewai.Agent()
-        crew = mock_crewai.Crew()
-        task = mock_crewai.Task()
+        mock_crewai.Agent()
+        mock_crewai.Crew()
+        mock_crewai.Task()
 
         logger.info("✓ Mock modules created and working correctly")
         return True
 
     except Exception as e:
-        logger.error(f"✗ Mock module test failed: {e}")
+        logger.exception(f"✗ Mock module test failed: {e}")
         return False
 
 
-def test_pyright_configuration():
+def test_pyright_configuration() -> bool | None:
     """Test that pyright configuration is working."""
     logger.info("Testing pyright configuration...")
 
@@ -206,11 +206,11 @@ def test_pyright_configuration():
             return True  # Config is valid even if pyright not installed
 
     except Exception as e:
-        logger.error(f"✗ Pyright configuration test failed: {e}")
+        logger.exception(f"✗ Pyright configuration test failed: {e}")
         return False
 
 
-def test_security_scan_setup():
+def test_security_scan_setup() -> bool | None:
     """Test that security scan setup is working."""
     logger.info("Testing security scan setup...")
 
@@ -257,11 +257,11 @@ def test_security_scan_setup():
         return True
 
     except Exception as e:
-        logger.error(f"✗ Security scan setup failed: {e}")
+        logger.exception(f"✗ Security scan setup failed: {e}")
         return False
 
 
-def test_ci_requirements():
+def test_ci_requirements() -> bool | None:
     """Test that CI requirements file is valid."""
     logger.info("Testing CI requirements file...")
 
@@ -302,11 +302,11 @@ def test_ci_requirements():
         return True
 
     except Exception as e:
-        logger.error(f"✗ CI requirements test failed: {e}")
+        logger.exception(f"✗ CI requirements test failed: {e}")
         return False
 
 
-def test_ci_wrapper():
+def test_ci_wrapper() -> bool | None:
     """Test that the CI test wrapper is working."""
     logger.info("Testing CI test wrapper...")
 
@@ -331,11 +331,11 @@ def test_ci_wrapper():
         return True
 
     except Exception as e:
-        logger.error(f"✗ CI wrapper test failed: {e}")
+        logger.exception(f"✗ CI wrapper test failed: {e}")
         return False
 
 
-def run_comprehensive_test():
+def run_comprehensive_test() -> int:
     """Run all tests and report results."""
     logger.info("Starting comprehensive workflow fix verification...")
 
@@ -357,7 +357,7 @@ def run_comprehensive_test():
         try:
             results[test_name] = test_func()
         except Exception as e:
-            logger.error(f"Test {test_name} failed with exception: {e}")
+            logger.exception(f"Test {test_name} failed with exception: {e}")
             results[test_name] = False
 
     # Report summary

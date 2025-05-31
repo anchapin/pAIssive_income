@@ -156,7 +156,7 @@ def app():
         db.drop_all()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def test_db(app):
     """Create a fresh database for each test."""
     # Skip if Flask is not available
@@ -170,7 +170,7 @@ def test_db(app):
         db.drop_all()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def session(test_db):
     """Create a new database session for a test."""
     # Skip if Flask is not available
@@ -180,7 +180,7 @@ def session(test_db):
     connection = test_db.engine.connect()
     transaction = connection.begin()
 
-    options = dict(bind=connection, binds={})
+    options = {"bind": connection, "binds": {}}
     session = test_db.create_scoped_session(options=options)
 
     # Replace the session with our test session

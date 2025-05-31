@@ -60,9 +60,8 @@ def slugify(text: Optional[Union[str, int, bool]], separator: str = "-", allow_u
         # For Unicode, we need a more permissive pattern
         text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE).strip()
 
-    text = re.sub(r"[-\s]+", separator, text)
+    return re.sub(r"[-\s]+", separator, text)
 
-    return text
 
 
 def camel_to_snake(text: str) -> str:
@@ -234,16 +233,19 @@ def format_number(number: float, decimal_places: int = 2) -> str:
 
     """
     # Type checking for number
-    if not isinstance(number, (int, float)):
-        raise TypeError("Number must be an int or float")
+    if not isinstance(number, int | float):
+        msg = "Number must be an int or float"
+        raise TypeError(msg)
 
     # Type checking for decimal_places
     if not isinstance(decimal_places, int):
-        raise TypeError("decimal_places must be an integer")
+        msg = "decimal_places must be an integer"
+        raise TypeError(msg)
 
     # Value checking for decimal_places
     if decimal_places < 0:
-        raise ValueError("decimal_places must be a non-negative integer")
+        msg = "decimal_places must be a non-negative integer"
+        raise ValueError(msg)
 
     # Handle special float values
     if number == float("inf"):

@@ -84,7 +84,7 @@ try:
 
     from tools.predefined_dashboards import get_dashboard_layout
 except ImportError as e:
-    logger.error(f"Required packages not installed: {e}")
+    logger.exception(f"Required packages not installed: {e}")
     logger.info("Install required packages with: pip install dash dash-bootstrap-components polars plotly numpy scipy")
     sys.exit(1)
 
@@ -249,7 +249,7 @@ def parse_log_file(file_path: str) -> list[dict[str, Any]]:
                         # Handle multi-line entries (e.g., tracebacks)
                         log_entries[-1]["message"] += "\n" + line.strip()
     except Exception as e:
-        logger.error(f"Error parsing log file {file_path}: {e}")
+        logger.exception(f"Error parsing log file {file_path}: {e}")
         logger.debug(traceback.format_exc())
 
     return log_entries
@@ -466,7 +466,7 @@ def fetch_logs_from_elasticsearch(
 
         return log_entries
     except Exception as e:
-        logger.error(f"Error fetching logs from Elasticsearch: {e}")
+        logger.exception(f"Error fetching logs from Elasticsearch: {e}")
         logger.debug(traceback.format_exc())
         return []
 
@@ -644,7 +644,7 @@ def create_dashboard(
     )
 
     # Add in-app notifier
-    def in_app_notification_callback(alert_rule, context):
+    def in_app_notification_callback(alert_rule, context) -> None:
         """Callback for in-app notifications."""
         # This will be used to store alerts that will be displayed in the UI
         if not hasattr(app, "alerts"):
@@ -1922,7 +1922,7 @@ def create_dashboard(
         ]
 
         # Get unique modules
-        modules = sorted(set(entry["name"] for entry in log_entries))
+        modules = sorted({entry["name"] for entry in log_entries})
         module_options = [{"label": module, "value": module} for module in modules]
 
         return log_entries, file_info, module_options
@@ -2916,7 +2916,7 @@ def create_dashboard(
 
         # Create pattern cards
         pattern_cards = []
-        for i, pattern in enumerate(patterns[:10]):  # Limit to 10 patterns
+        for _i, pattern in enumerate(patterns[:10]):  # Limit to 10 patterns
             # Get examples
             examples = pattern.get("examples", [])
             example_items = []

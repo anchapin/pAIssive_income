@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Robust test runner for GitHub Actions workflows.
-"""
+"""Robust test runner for GitHub Actions workflows."""
 
 import logging
 import os
@@ -52,15 +50,14 @@ def run_tests():
         logger.info("Running tests...")
         result = subprocess.run(cmd, check=False, capture_output=True, text=True)
 
-        print(result.stdout)
         if result.stderr:
-            print("STDERR:", result.stderr)
+            pass
 
         # Return 0 for success, but don't fail CI on test failures
         return 0 if result.returncode in [0, 1] else result.returncode
 
     except Exception as e:
-        logger.error(f"Test execution failed: {e}")
+        logger.exception(f"Test execution failed: {e}")
         return 0  # Don't fail CI
 
 

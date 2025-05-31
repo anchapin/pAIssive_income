@@ -29,38 +29,38 @@ class TestLoadBalancer(unittest.TestCase):
     def test_init_with_default_strategy(self):
         """Test initialization with default strategy."""
         load_balancer = LoadBalancer()
-        self.assertIsInstance(load_balancer.strategy, RoundRobinStrategy)
+        assert isinstance(load_balancer.strategy, RoundRobinStrategy)
 
     def test_init_with_round_robin_strategy(self):
         """Test initialization with round robin strategy."""
         load_balancer = LoadBalancer(strategy="round_robin")
-        self.assertIsInstance(load_balancer.strategy, RoundRobinStrategy)
+        assert isinstance(load_balancer.strategy, RoundRobinStrategy)
 
     def test_init_with_random_strategy(self):
         """Test initialization with random strategy."""
         load_balancer = LoadBalancer(strategy="random")
-        self.assertIsInstance(load_balancer.strategy, RandomStrategy)
+        assert isinstance(load_balancer.strategy, RandomStrategy)
 
     def test_init_with_weighted_random_strategy(self):
         """Test initialization with weighted random strategy."""
         load_balancer = LoadBalancer(strategy="weighted_random")
-        self.assertIsInstance(load_balancer.strategy, WeightedRandomStrategy)
+        assert isinstance(load_balancer.strategy, WeightedRandomStrategy)
 
     def test_init_with_least_connections_strategy(self):
         """Test initialization with least connections strategy."""
         load_balancer = LoadBalancer(strategy="least_connections")
-        self.assertIsInstance(load_balancer.strategy, LeastConnectionsStrategy)
+        assert isinstance(load_balancer.strategy, LeastConnectionsStrategy)
 
     def test_init_with_invalid_strategy(self):
         """Test initialization with invalid strategy."""
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             LoadBalancer(strategy="invalid_strategy")
 
     def test_select_instance_with_empty_instances(self):
         """Test select_instance with empty instances."""
         load_balancer = LoadBalancer()
         instance = load_balancer.select_instance([])
-        self.assertIsNone(instance)
+        assert instance is None
 
     def test_select_instance_with_round_robin_strategy(self):
         """Test select_instance with round robin strategy."""
@@ -68,19 +68,19 @@ class TestLoadBalancer(unittest.TestCase):
 
         # First call should return the first instance
         instance = load_balancer.select_instance(self.instances)
-        self.assertEqual(instance, self.instances[0])
+        assert instance == self.instances[0]
 
         # Second call should return the second instance
         instance = load_balancer.select_instance(self.instances)
-        self.assertEqual(instance, self.instances[1])
+        assert instance == self.instances[1]
 
         # Third call should return the third instance
         instance = load_balancer.select_instance(self.instances)
-        self.assertEqual(instance, self.instances[2])
+        assert instance == self.instances[2]
 
         # Fourth call should wrap around to the first instance
         instance = load_balancer.select_instance(self.instances)
-        self.assertEqual(instance, self.instances[0])
+        assert instance == self.instances[0]
 
     def test_select_instance_with_random_strategy(self):
         """Test select_instance with random strategy."""
@@ -89,7 +89,7 @@ class TestLoadBalancer(unittest.TestCase):
         # Mock the random.choice function to return a specific instance
         with patch("random.choice", return_value=self.instances[1]):
             instance = load_balancer.select_instance(self.instances)
-            self.assertEqual(instance, self.instances[1])
+            assert instance == self.instances[1]
 
     def test_select_instance_with_weighted_random_strategy(self):
         """Test select_instance with weighted random strategy."""
@@ -107,7 +107,7 @@ class TestLoadBalancer(unittest.TestCase):
         # Mock the random.choices function to return a specific instance
         with patch("random.choices", return_value=[self.instances[1]]):
             instance = load_balancer.select_instance(self.instances)
-            self.assertEqual(instance, self.instances[1])
+            assert instance == self.instances[1]
 
     def test_select_instance_with_least_connections_strategy(self):
         """Test select_instance with least connections strategy."""
@@ -122,7 +122,7 @@ class TestLoadBalancer(unittest.TestCase):
 
         # The instance with the least connections should be selected
         instance = load_balancer.select_instance(instances_with_connections)
-        self.assertEqual(instance, instances_with_connections[1])
+        assert instance == instances_with_connections[1]
 
 
 class TestRoundRobinStrategy(unittest.TestCase):
@@ -141,19 +141,19 @@ class TestRoundRobinStrategy(unittest.TestCase):
         """Test select_instance method."""
         # First call should return the first instance
         instance = self.strategy.select_instance(self.instances)
-        self.assertEqual(instance, self.instances[0])
+        assert instance == self.instances[0]
 
         # Second call should return the second instance
         instance = self.strategy.select_instance(self.instances)
-        self.assertEqual(instance, self.instances[1])
+        assert instance == self.instances[1]
 
         # Third call should return the third instance
         instance = self.strategy.select_instance(self.instances)
-        self.assertEqual(instance, self.instances[2])
+        assert instance == self.instances[2]
 
         # Fourth call should wrap around to the first instance
         instance = self.strategy.select_instance(self.instances)
-        self.assertEqual(instance, self.instances[0])
+        assert instance == self.instances[0]
 
 
 if __name__ == "__main__":

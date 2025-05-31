@@ -30,20 +30,20 @@ class TestUser(unittest.TestCase):
             "created_at": datetime(2023, 1, 1, 12, 0, 0),
             "updated_at": datetime(2023, 1, 2, 12, 0, 0),
         }
-        self.assertEqual(self.user.to_dict(), expected)
+        assert self.user.to_dict() == expected
 
     def test_tablename(self):
         """Test __tablename__ attribute."""
-        self.assertEqual(User.__tablename__, "users")
+        assert User.__tablename__ == "users"
 
     def test_columns(self):
         """Test column definitions."""
-        self.assertTrue(hasattr(User, "id"))
-        self.assertTrue(hasattr(User, "username"))
-        self.assertTrue(hasattr(User, "email"))
-        self.assertTrue(hasattr(User, "password_hash"))
-        self.assertTrue(hasattr(User, "created_at"))
-        self.assertTrue(hasattr(User, "updated_at"))
+        assert hasattr(User, "id")
+        assert hasattr(User, "username")
+        assert hasattr(User, "email")
+        assert hasattr(User, "password_hash")
+        assert hasattr(User, "created_at")
+        assert hasattr(User, "updated_at")
 
 
 if __name__ == "__main__":

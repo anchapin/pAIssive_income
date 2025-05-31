@@ -39,7 +39,7 @@ from .base_adapter import BaseModelAdapter
 class OpenAICompatibleAdapter(BaseModelAdapter):
     """Adapter for connecting to OpenAI-compatible APIs, including local servers that implement the OpenAI API."""
 
-    def __init__(self, base_url: str = "https://api.openai.com/v1", api_key: str = "sk-", timeout: int = 60):
+    def __init__(self, base_url: str = "https://api.openai.com/v1", api_key: str = "sk-", timeout: int = 60) -> None:
         """
         Initialize the OpenAI-compatible adapter.
 
@@ -197,13 +197,13 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             logger.exception(f"Error creating embeddings: {e}")
             return {"error": str(e)}
 
-    async def close(self):
+    async def close(self) -> None:
         """Close the aiohttp session."""
         if self._session and not self._session.closed:
             await self._session.close()
         self._session = None
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Ensure the session is closed when the adapter is garbage collected."""
         if self._session and not self._session.closed:
             asyncio.create_task(self._session.close())

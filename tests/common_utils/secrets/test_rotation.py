@@ -48,20 +48,20 @@ class TestSecretRotation(unittest.TestCase):
     def test_init_with_file(self):
         """Test initialization with a rotation file."""
         rotation = SecretRotation(rotation_file=self.temp_file.name)
-        self.assertEqual(rotation.rotation_file, self.temp_file.name)
-        self.assertEqual(rotation.secrets_backend, SecretsBackend.ENV)
-        self.assertEqual(rotation.rotation_data, self.rotation_data)
+        assert rotation.rotation_file == self.temp_file.name
+        assert rotation.secrets_backend == SecretsBackend.ENV
+        assert rotation.rotation_data == self.rotation_data
 
     def test_init_without_file(self):
         """Test initialization without a rotation file."""
         with patch("os.environ.get", return_value="default_file.json"):
             rotation = SecretRotation()
-            self.assertEqual(rotation.rotation_file, "default_file.json")
+            assert rotation.rotation_file == "default_file.json"
 
     def test_init_with_nonexistent_file(self):
         """Test initialization with a nonexistent file."""
         rotation = SecretRotation(rotation_file="nonexistent_file.json")
-        self.assertEqual(rotation.rotation_data, {})
+        assert rotation.rotation_data == {}
 
     def test_init_with_invalid_file(self):
         """Test initialization with an invalid file."""
@@ -70,7 +70,7 @@ class TestSecretRotation(unittest.TestCase):
 
         with patch("common_utils.secrets.rotation.logger") as mock_logger:
             rotation = SecretRotation(rotation_file=self.temp_file.name)
-            self.assertEqual(rotation.rotation_data, {})
+            assert rotation.rotation_data == {}
             mock_logger.exception.assert_called_once()
 
     def test_schedule_rotation(self):
@@ -86,15 +86,15 @@ class TestSecretRotation(unittest.TestCase):
             rotation.schedule_rotation("new_secret", 15, "generate_func")
 
             # Check that the rotation data was updated
-            self.assertIn("new_secret", rotation.rotation_data)
-            self.assertEqual(rotation.rotation_data["new_secret"]["last_rotated"], "2023-01-01T00:00:00")
-            self.assertEqual(rotation.rotation_data["new_secret"]["interval_days"], 15)
-            self.assertEqual(rotation.rotation_data["new_secret"]["generator_func"], "generate_func")
+            assert "new_secret" in rotation.rotation_data
+            assert rotation.rotation_data["new_secret"]["last_rotated"] == "2023-01-01T00:00:00"
+            assert rotation.rotation_data["new_secret"]["interval_days"] == 15
+            assert rotation.rotation_data["new_secret"]["generator_func"] == "generate_func"
 
             # Check that the rotation data was saved
             with open(self.temp_file.name, encoding="utf-8") as f:
                 saved_data = json.load(f)
-                self.assertIn("new_secret", saved_data)
+                assert "new_secret" in saved_data
 
     def test_get_secrets_due_for_rotation(self):
         """Test get_secrets_due_for_rotation method."""
@@ -104,9 +104,9 @@ class TestSecretRotation(unittest.TestCase):
         due_secrets = rotation.get_secrets_due_for_rotation()
 
         # Check that only the due secret is returned
-        self.assertEqual(len(due_secrets), 1)
-        self.assertIn("due_secret", due_secrets)
-        self.assertNotIn("test_secret", due_secrets)
+        assert len(due_secrets) == 1
+        assert "due_secret" in due_secrets
+        assert "test_secret" not in due_secrets
 
     def test_rotate_secret_with_new_value(self):
         """Test rotate_secret method with a new value."""
@@ -125,10 +125,10 @@ class TestSecretRotation(unittest.TestCase):
             result = rotation.rotate_secret("test_secret", "new_value")
 
             # Check the result
-            self.assertTrue(result)
+            assert result
 
             # Check that the rotation data was updated
-            self.assertEqual(rotation.rotation_data["test_secret"]["last_rotated"], "2023-01-01T00:00:00")
+            assert rotation.rotation_data["test_secret"]["last_rotated"] == "2023-01-01T00:00:00"
 
     def test_rotate_secret_without_new_value(self):
         """Test rotate_secret method without a new value."""
@@ -147,10 +147,10 @@ class TestSecretRotation(unittest.TestCase):
             result = rotation.rotate_secret("test_secret")
 
             # Check the result
-            self.assertTrue(result)
+            assert result
 
             # Check that the rotation data was updated
-            self.assertEqual(rotation.rotation_data["test_secret"]["last_rotated"], "2023-01-01T00:00:00")
+            assert rotation.rotation_data["test_secret"]["last_rotated"] == "2023-01-01T00:00:00"
 
     def test_rotate_secret_not_scheduled(self):
         """Test rotate_secret method with a secret not scheduled for rotation."""
@@ -160,7 +160,7 @@ class TestSecretRotation(unittest.TestCase):
         result = rotation.rotate_secret("not_scheduled")
 
         # Check the result
-        self.assertFalse(result)
+        assert not result
 
     def test_rotate_secret_not_found(self):
         """Test rotate_secret method with a secret that is not found."""
@@ -172,7 +172,7 @@ class TestSecretRotation(unittest.TestCase):
             result = rotation.rotate_secret("test_secret")
 
             # Check the result
-            self.assertFalse(result)
+            assert not result
 
     def test_rotate_secret_set_failed(self):
         """Test rotate_secret method when set_secret fails."""
@@ -186,7 +186,7 @@ class TestSecretRotation(unittest.TestCase):
             result = rotation.rotate_secret("test_secret", "new_value")
 
             # Check the result
-            self.assertFalse(result)
+            assert not result
 
     def test_rotate_all_due(self):
         """Test rotate_all_due method."""
@@ -198,8 +198,8 @@ class TestSecretRotation(unittest.TestCase):
             count, rotated = rotation.rotate_all_due()
 
             # Check the result
-            self.assertEqual(count, 1)
-            self.assertEqual(rotated, ["due_secret"])
+            assert count == 1
+            assert rotated == ["due_secret"]
 
 
 if __name__ == "__main__":

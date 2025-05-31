@@ -73,7 +73,7 @@ class TestHealthCheck(unittest.TestCase):
         result = check_gitignore("/path/to/file")
 
         # Assert
-        self.assertTrue(result)
+        assert result
 
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")

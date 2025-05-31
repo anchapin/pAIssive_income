@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Log Aggregation Runner
+Log Aggregation Runner.
 
 This script aggregates logs from multiple sources and sends them to various
 destinations, such as Elasticsearch, Logstash, or files.
@@ -104,7 +104,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> int:
     """Main function."""
     # Parse command line arguments
     args = parse_args()
@@ -171,7 +171,7 @@ def main():
                 output_file=args.output_file,
             )
     except Exception as e:
-        logger.error("Error running log aggregation: %s", e)
+        logger.exception("Error running log aggregation: %s", e)
         sys.exit(1)
 
     return 0

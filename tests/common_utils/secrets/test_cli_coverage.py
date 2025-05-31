@@ -56,7 +56,7 @@ class TestCliCoverage(unittest.TestCase):
         with patch("pathlib.Path.exists", side_effect=[False, False]), \
              patch("pathlib.Path.mkdir", side_effect=PermissionError("Permission denied")), \
              patch("common_utils.secrets.cli.logger") as mock_logger:
-            self.assertFalse(_check_auth())
+            assert not _check_auth()
             mock_logger.exception.assert_called_once_with("Could not create secure token directory")
 
     def test_check_auth_insecure_permissions(self):
@@ -68,7 +68,7 @@ class TestCliCoverage(unittest.TestCase):
         with patch("os.path.exists", return_value=True), \
              patch("os.stat", return_value=MagicMock(st_mode=0o666)), \
              patch("common_utils.secrets.cli.logger") as mock_logger:
-            self.assertFalse(_check_auth())
+            assert not _check_auth()
             mock_logger.error.assert_called_once_with("Insecure token file permissions")
 
     def test_check_auth_missing_token(self):
@@ -79,7 +79,7 @@ class TestCliCoverage(unittest.TestCase):
              patch("pathlib.Path.open", mock_open(read_data="hash_value")), \
              patch.dict(os.environ, {}, clear=True), \
              patch("common_utils.secrets.cli.logger") as mock_logger:
-            self.assertFalse(_check_auth())
+            assert not _check_auth()
             mock_logger.warning.assert_called_once_with("Authentication failed: missing token")
 
     def test_check_auth_exception(self):
@@ -87,7 +87,7 @@ class TestCliCoverage(unittest.TestCase):
         with patch("pathlib.Path.exists", return_value=True), \
              patch("pathlib.Path.stat", side_effect=Exception("Test exception")), \
              patch("common_utils.secrets.cli.logger") as mock_logger:
-            self.assertFalse(_check_auth())
+            assert not _check_auth()
             mock_logger.exception.assert_called_once_with("Authentication check failed")
 
     def test_check_rate_limit_reset_lockout(self):
@@ -100,9 +100,9 @@ class TestCliCoverage(unittest.TestCase):
         _check_rate_limit("test_operation")
 
         # Check that failed attempts were reset
-        self.assertEqual(failed_attempts["test_operation"], 0)
+        assert failed_attempts["test_operation"] == 0
         # Check that lockout was removed
-        self.assertNotIn("test_operation", lockout_times)
+        assert "test_operation" not in lockout_times
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
     @patch("common_utils.secrets.cli.get_secret")
@@ -238,7 +238,7 @@ class TestCliCoverage(unittest.TestCase):
                 if (call_args == call("Output directory not found", extra=ANY) or
                     call_args == call("Output directory not found: %s", ANY)):
                     found = True
-            self.assertTrue(found, "Expected logger.error to be called with output directory not found")
+            assert found, "Expected logger.error to be called with output directory not found"
             mock_exit.assert_called_once_with(1)
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)
@@ -276,7 +276,7 @@ class TestCliCoverage(unittest.TestCase):
         args.key = "test_key"
         masked_key = "masked_key"
 
-        with self.assertRaises(InvalidRotationIntervalError):
+        with pytest.raises(InvalidRotationIntervalError):
             _handle_schedule_rotation(rotation, args, masked_key)
 
     def test_handle_rotate_secret_failure(self):
@@ -296,7 +296,7 @@ class TestCliCoverage(unittest.TestCase):
             mock_logger.error.assert_any_call("Failed to rotate secret %s", masked_key)
             mock_exit.assert_called_once_with(1)
             # Verify failed attempts were incremented
-            self.assertEqual(failed_attempts["rotation"], 1)
+            assert failed_attempts["rotation"] == 1
 
     def test_handle_list_due_no_secrets(self):
         """Test _handle_list_due with no secrets due."""
@@ -320,7 +320,7 @@ class TestCliCoverage(unittest.TestCase):
 
             # Verify logger messages
             mock_logger.error.assert_any_call("Missing rotation command")
-            self.assertEqual(mock_logger.error.call_count, 2)
+            assert mock_logger.error.call_count == 2
             mock_exit.assert_called_with(1)
 
     def test_handle_rotation_exception(self):
@@ -340,7 +340,7 @@ class TestCliCoverage(unittest.TestCase):
             mock_logger.exception.assert_any_call("Error in rotation command")
             mock_exit.assert_called_with(1)
             # Verify failed attempts were incremented
-            self.assertEqual(failed_attempts["rotation"], 1)
+            assert failed_attempts["rotation"] == 1
 
     def test_handle_rotation_command_exception(self):
         """Test handle_rotation with exception in command handling."""
@@ -394,7 +394,7 @@ class TestCliCoverage(unittest.TestCase):
             mock_logger.exception.assert_any_call("Error listing secrets", extra={"error": "List error"})
             mock_exit.assert_called_with(1)
             # Verify failed attempts were incremented
-            self.assertEqual(failed_attempts["list"], 1)
+            assert failed_attempts["list"] == 1
 
     def test_main_function(self):
         """Test main function with different commands."""
@@ -406,7 +406,7 @@ class TestCliCoverage(unittest.TestCase):
 
             # Verify logger messages
             mock_logger.error.assert_any_call("Unknown command")
-            self.assertEqual(mock_logger.error.call_count, 1)
+            assert mock_logger.error.call_count == 1
             mock_exit.assert_called_with(1)
 
     def test_main_function_get(self):
@@ -484,22 +484,22 @@ class TestCliCoverage(unittest.TestCase):
     def test_validate_secret_value_comprehensive(self):
         """Test _validate_secret_value with various inputs."""
         # Test empty value
-        self.assertFalse(_validate_secret_value(""))
+        assert not _validate_secret_value("")
 
         # Test short value
-        self.assertFalse(_validate_secret_value("Abc1!"))
+        assert not _validate_secret_value("Abc1!")
 
         # Test missing uppercase
-        self.assertFalse(_validate_secret_value("abcdefg123!@#"))
+        assert not _validate_secret_value("abcdefg123!@#")
 
         # Test missing lowercase
-        self.assertFalse(_validate_secret_value("ABCDEFG123!@#"))
+        assert not _validate_secret_value("ABCDEFG123!@#")
 
         # Test missing digit
-        self.assertFalse(_validate_secret_value("ABCDEFGabcdefg!@#"))
+        assert not _validate_secret_value("ABCDEFGabcdefg!@#")
 
         # Test missing special character
-        self.assertFalse(_validate_secret_value("ABCDEFGabcdefg123"))
+        assert not _validate_secret_value("ABCDEFGabcdefg123")
 
 
 if __name__ == "__main__":

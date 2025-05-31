@@ -102,7 +102,7 @@ except ImportError:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
 
-        def kickoff(self):
+        def kickoff(self) -> str:
             """
             Kickoff the crew workflow.
 
@@ -136,7 +136,7 @@ class CrewAIAgentTeam:
     running workflows.
     """
 
-    def __init__(self, llm_provider=None):
+    def __init__(self, llm_provider=None) -> None:
         """
         Initialize a CrewAI agent team.
 
@@ -190,7 +190,8 @@ class CrewAIAgentTeam:
         # If agent is a string (role), look it up in the agent_map
         if isinstance(agent, str):
             if agent not in self.agent_map:
-                raise ValueError(f"Agent with role '{agent}' not found. Add the agent first.")
+                msg = f"Agent with role '{agent}' not found. Add the agent first."
+                raise ValueError(msg)
             agent_obj = self.agent_map[agent]
         else:
             agent_obj = agent
@@ -236,9 +237,11 @@ class CrewAIAgentTeam:
             raise ImportError(error_msg)
 
         if not self.agents:
-            raise ValueError("No agents added to the team. Add at least one agent.")
+            msg = "No agents added to the team. Add at least one agent."
+            raise ValueError(msg)
         if not self.tasks:
-            raise ValueError("No tasks added to the team. Add at least one task.")
+            msg = "No tasks added to the team. Add at least one task."
+            raise ValueError(msg)
 
         crew = self._create_crew(**kwargs)
 

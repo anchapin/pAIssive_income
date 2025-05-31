@@ -141,6 +141,36 @@ class SecretsManager:
         # Don't log the actual backend value as it might contain sensitive information
         logger.info("Secrets manager initialized with default backend")
 
+    def _get_backend_instance(self, backend_type: SecretsBackend) -> Any:
+        """
+        Get a backend instance for the specified backend type.
+
+        Args:
+            backend_type: The backend type to get an instance for
+
+        Returns:
+            The backend instance, or None if the backend type is unknown or an error occurs
+
+        """
+        try:
+            if backend_type == SecretsBackend.ENV:
+                # For ENV backend, return the manager itself as it handles env operations
+                return self
+            if backend_type == SecretsBackend.FILE:
+                from .file_backend import FileBackend
+                return FileBackend()
+            if backend_type == SecretsBackend.MEMORY:
+                from .memory_backend import MemoryBackend
+                return MemoryBackend()
+            if backend_type == SecretsBackend.VAULT:
+                from .vault_backend import VaultBackend
+                return VaultBackend()
+            logger.error("Unknown backend type specified")
+            return None
+        except Exception:
+            logger.exception("Error creating backend instance")
+            return None
+
     def _get_env_secret(self, key: str) -> str | None:
         """
         Get a secret from environment variables.

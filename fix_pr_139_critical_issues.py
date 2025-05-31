@@ -24,7 +24,7 @@ except ImportError:
     raise
 
 
-def fix_mock_crewai_module():
+def fix_mock_crewai_module() -> None:
     """Fix the mock CrewAI module to have proper attributes and methods."""
     logger.info("Fixing mock CrewAI module...")
 
@@ -37,7 +37,7 @@ __version__ = "0.1.0"
 
 class MockAgent:
     """Mock implementation of CrewAI Agent."""
-    
+
     def __init__(self, role="Mock Agent", goal="Mock goal", backstory="Mock backstory", **kwargs):
         self.role = role
         self.goal = goal
@@ -45,13 +45,13 @@ class MockAgent:
         self.verbose = kwargs.get('verbose', False)
         self.allow_delegation = kwargs.get('allow_delegation', False)
         self.tools = kwargs.get('tools', [])
-    
+
     def __str__(self):
         return f"Agent(role='{self.role}')"
-    
+
     def __repr__(self):
         return self.__str__()
-    
+
     def execute_task(self, task, context=None):
         """Mock task execution."""
         return f"Mock execution of task: {task}"
@@ -59,39 +59,39 @@ class MockAgent:
 
 class MockTask:
     """Mock implementation of CrewAI Task."""
-    
+
     def __init__(self, description="Mock task", agent=None, **kwargs):
         self.description = description
         self.agent = agent
         self.expected_output = kwargs.get('expected_output', 'Mock output')
         self.tools = kwargs.get('tools', [])
-    
+
     def __str__(self):
         return f"Task(description='{self.description}')"
-    
+
     def __repr__(self):
         return self.__str__()
 
 
 class MockCrew:
     """Mock implementation of CrewAI Crew."""
-    
+
     def __init__(self, agents=None, tasks=None, **kwargs):
         self.agents = agents or []
         self.tasks = tasks or []
         self.verbose = kwargs.get('verbose', False)
         self.process = kwargs.get('process', 'sequential')
-    
+
     def __str__(self):
         return f"Crew(agents={len(self.agents)}, tasks={len(self.tasks)})"
-    
+
     def __repr__(self):
         return self.__str__()
-    
+
     def kickoff(self, inputs=None):
         """Mock crew execution."""
         return "Mock crew output"
-    
+
     def run(self, inputs=None):
         """Alias for kickoff."""
         return self.kickoff(inputs)
@@ -100,11 +100,11 @@ class MockCrew:
 # Mock tools module
 class MockBaseTool:
     """Mock implementation of CrewAI BaseTool."""
-    
+
     def __init__(self, name="Mock Tool", description="Mock tool description"):
         self.name = name
         self.description = description
-    
+
     def execute(self, *args, **kwargs):
         """Mock tool execution."""
         return "Mock tool result"
@@ -163,7 +163,7 @@ __all__ = [
     logger.info("✓ Mock CrewAI module fixed")
 
 
-def fix_pytest_asyncio_config():
+def fix_pytest_asyncio_config() -> None:
     """Fix pytest asyncio configuration to eliminate deprecation warnings."""
     logger.info("Fixing pytest asyncio configuration...")
 
@@ -289,7 +289,7 @@ def create_workflow_test_exclusions():
     return exclusions
 
 
-def update_ci_test_wrapper():
+def update_ci_test_wrapper() -> None:
     """Update the CI test wrapper with better exclusions and error handling."""
     logger.info("Updating CI test wrapper...")
 
@@ -330,7 +330,7 @@ def create_mock_modules():
     if not (mock_mcp_dir / "__init__.py").exists():
         with open(mock_mcp_dir / "__init__.py", "w") as f:
             f.write("# Mock MCP module\\nclass MockMCPClient: pass\\nClient = MockMCPClient\\n")
-    
+
     # Mock CrewAI is handled by the main fix script
     logger.info("✓ Mock modules ensured")
 
@@ -385,13 +385,13 @@ def run_tests():
     os.environ["PYTHONPATH"] = os.getcwd()
     os.environ["CI"] = "true"
     os.environ["GITHUB_ACTIONS"] = "true"
-    
+
     # Ensure mock modules exist
     create_mock_modules()
-    
+
     # Get exclusions
     exclusions = get_test_exclusions()
-    
+
     # Basic test command with comprehensive exclusions
     cmd = [
         sys.executable, "-m", "pytest",
@@ -400,15 +400,15 @@ def run_tests():
         "--disable-warnings",
         "--maxfail=50",  # Stop after 50 failures to avoid overwhelming output
     ] + exclusions
-    
+
     try:
         logger.info("Running tests with comprehensive exclusions...")
         result = subprocess.run(cmd, check=False, capture_output=True, text=True)
-        
+
         print(result.stdout)
         if result.stderr:
             print("STDERR:", result.stderr)
-        
+
         # Return 0 for success, but don't fail CI on test failures
         # This allows the workflow to continue and report results
         if result.returncode == 0:
@@ -420,7 +420,7 @@ def run_tests():
         else:
             logger.error(f"Test execution failed with code {result.returncode}")
             return 0  # Still don't fail CI to allow other jobs to run
-            
+
     except Exception as e:
         logger.error(f"Test execution failed: {e}")
         return 0  # Don't fail CI
@@ -436,7 +436,7 @@ if __name__ == "__main__":
     logger.info("✓ Enhanced CI test wrapper created")
 
 
-def create_workflow_status_summary():
+def create_workflow_status_summary() -> None:
     """Create a summary of the current workflow status and fixes."""
     logger.info("Creating workflow status summary...")
 
@@ -557,7 +557,7 @@ python run_tests_ci_wrapper_enhanced.py
     logger.info("✓ Workflow status summary created")
 
 
-def main():
+def main() -> int | None:
     """Apply all critical fixes for PR #139 workflow issues."""
     logger.info("=" * 60)
     logger.info("Applying Critical Fixes for PR #139 Workflow Issues")
@@ -590,7 +590,7 @@ def main():
         return 0
 
     except Exception as e:
-        logger.error(f"Failed to apply fixes: {e}")
+        logger.exception(f"Failed to apply fixes: {e}")
         return 1
 
 

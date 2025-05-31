@@ -65,19 +65,20 @@ class TestExceptionsComprehensive:
         """Test handling of adapter exceptions."""
         # Test catching AdapterError
         try:
-            raise AdapterError("Test error")
+            msg = "Test error"
+            raise AdapterError(msg)
         except AdapterError as e:
             assert str(e) == "Test error"
 
         # Test catching ModelContextProtocolError
         try:
-            raise ModelContextProtocolError()
+            raise ModelContextProtocolError
         except ModelContextProtocolError as e:
             assert "modelcontextprotocol-python-sdk is not installed" in str(e)
 
         # Test catching ModelContextProtocolError as AdapterError
         try:
-            raise ModelContextProtocolError()
+            raise ModelContextProtocolError
         except AdapterError as e:
             assert "modelcontextprotocol-python-sdk is not installed" in str(e)
 
@@ -103,10 +104,12 @@ class TestExceptionsComprehensive:
         try:
             try:
                 # Raise a built-in exception
-                raise ValueError("Original error")
+                msg = "Original error"
+                raise ValueError(msg)
             except ValueError as original_error:
                 # Wrap it in an AdapterError
-                raise AdapterError("Wrapped error") from original_error
+                msg = "Wrapped error"
+                raise AdapterError(msg) from original_error
         except AdapterError as adapter_error:
             # Verify the exception chain
             assert str(adapter_error) == "Wrapped error"

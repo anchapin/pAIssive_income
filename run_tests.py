@@ -16,8 +16,11 @@ import platform
 import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
-from collections.abc import Sequence
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 

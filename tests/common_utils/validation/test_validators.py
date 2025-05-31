@@ -18,7 +18,7 @@ class TestValidateEmail:
     """Test suite for validate_email function."""
 
     @pytest.mark.parametrize(
-        "email,expected",
+        ("email", "expected"),
         [
             ("user@example.com", True),
             ("user.name@example.co.uk", True),
@@ -42,7 +42,7 @@ class TestValidateUrl:
     """Test suite for validate_url function."""
 
     @pytest.mark.parametrize(
-        "url,expected",
+        ("url", "expected"),
         [
             ("https://example.com", True),
             ("http://example.com", True),

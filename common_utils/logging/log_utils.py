@@ -19,7 +19,7 @@ try:
         prevent_log_injection,
     )
 except ImportError:
-    logger.error("Error: common_utils.logging.secure_logging module not found. Ensure it's in the PYTHONPATH.")
+    logger.exception("Error: common_utils.logging.secure_logging module not found. Ensure it's in the PYTHONPATH.")
     sys.exit(1)
 
 

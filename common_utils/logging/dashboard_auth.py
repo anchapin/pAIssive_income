@@ -79,14 +79,12 @@ try:
     from dash.exceptions import PreventUpdate
     from flask import g, request, session
 except ImportError:
-    print("Error: Dash or Flask module not found. Please install them (e.g., pip install dash flask).")
     sys.exit(1)
 
 
 try:
     from common_utils.logging.secure_logging import get_secure_logger
 except ImportError:
-    print("Error: common_utils.logging.secure_logging module not found. Ensure it's in the PYTHONPATH.")
     sys.exit(1)
 
 
@@ -610,13 +608,12 @@ class DashboardAuth:
         now = int(time.time())
         expiry = now + self.session_expiry
 
-        session_data = {
+        return {
             "username": username,
             "created_at": now,
             "expires_at": expiry,
         }
 
-        return session_data
 
     def validate_session(self, session_data: dict[str, Any]) -> bool:
         """
@@ -645,10 +642,7 @@ class DashboardAuth:
 
         # Check if session has expired
         now = int(time.time())
-        if now > expires_at:
-            return False
-
-        return True
+        return not now > expires_at
 
     def init_app(self, app: dash.Dash) -> None:
         """
@@ -722,8 +716,7 @@ class DashboardAuth:
                     session["session_id"] = str(uuid.uuid4())
 
                 # Generate CSRF token
-                token = self.generate_csrf_token(session["session_id"])
-                return token
+                return self.generate_csrf_token(session["session_id"])
             return ""
 
         # Add login callback
@@ -848,7 +841,7 @@ class DashboardAuth:
 
         # Add middleware for audit logging
         @app.server.before_request
-        def before_request():
+        def before_request() -> None:
             # Set request start time for performance logging
             g.start_time = time.time()
 
@@ -889,7 +882,8 @@ def require_auth(f=None, *, context_getter=None):
     """
     if context_getter is None:
         import dash
-        context_getter = lambda: dash.callback_context
+        def context_getter():
+            return dash.callback_context
 
     def decorator(func):
         @wraps(func)
@@ -933,7 +927,8 @@ def require_permission(permission, *, context_getter=None):
     """
     if context_getter is None:
         import dash
-        context_getter = lambda: dash.callback_context
+        def context_getter():
+            return dash.callback_context
 
     def decorator(f):
         @wraps(f)

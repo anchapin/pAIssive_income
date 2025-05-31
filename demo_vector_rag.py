@@ -32,9 +32,6 @@ try:
     import chromadb
     from chromadb.config import Settings
 except ImportError:
-    print(
-        "Error: chromadb module not found. Please install it with 'pip install chromadb'"
-    )
     sys.exit(1)
 
 try:
@@ -56,9 +53,6 @@ try:
 # Configure logging
 except ImportError:
 
-    print(
-        "Error: sentence_transformers module not found. Please install it with 'pip install sentence-transformers'"
-    )
     sys.exit(1)
 
 # Configure logging
@@ -81,8 +75,7 @@ def canonicalize_text(text: str) -> str:
     - Lowercase, strip, remove extra whitespace, apply NFC unicode normalization.
     """
     text = unicodedata.normalize("NFC", text.lower().strip())
-    text = " ".join(text.split())
-    return text
+    return " ".join(text.split())
 
 
 def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
@@ -186,7 +179,7 @@ def embed_and_insert_documents_with_dedup(
 ) -> tuple[list[dict], list[str]]:
     """
     Embed documents, canonicalize, deduplicate, and insert into collection.
-    Returns: (inserted_docs, skipped_duplicate_ids)
+    Returns: (inserted_docs, skipped_duplicate_ids).
     """
     stored_hashes = set()
     # Retrieve all existing documents' canonical hashes (if any)
@@ -198,7 +191,7 @@ def embed_and_insert_documents_with_dedup(
             # Use user_id from metadatas, content from doc, and source from metadata
             meta = existing["metadatas"][i]
             uid = meta.get("user_id", user_id_default)
-            source = meta.get("source", "demo")
+            meta.get("source", "demo")
             content = doc
             doc_hash = canonical_doc_hash(uid, content, meta)
             stored_hashes.add(doc_hash)
@@ -268,13 +261,12 @@ def query_with_metadata_filter(
         where["user_id"] = user_id
     if metadata_filter:
         where.update(metadata_filter)
-    results = collection.query(
+    return collection.query(
         query_embeddings=[query_embedding],
         n_results=n_results,
         where=where if where else None,
         include=["documents", "metadatas", "distances", "ids"],
     )
-    return results
 
 
 # Demo query: Retrieve facts only, for user 'global'
@@ -301,7 +293,7 @@ for i, doc in enumerate(all_facts["documents"]):
 # 8. Test block: Verify deduplication and filtering
 
 
-def test_deduplication_and_metadata():
+def test_deduplication_and_metadata() -> None:
     """
     Test deduplication (should not insert duplicates)
     and metadata filtering (should return only filtered docs).
@@ -342,7 +334,7 @@ def test_deduplication_and_metadata():
     logger.info("Metadata filtering test passed.")
 
 
-def main():
+def main() -> None:
     """Main function to run the demo."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     logger.info("\n--- Running Test Block ---")

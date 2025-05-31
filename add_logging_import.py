@@ -36,14 +36,13 @@ except ImportError as e:
     logger.exception("Failed to import some_third_party_module", exc_info=e)
 
 
-def add_logging_import(file_path):
+def add_logging_import(file_path) -> bool:
     """Add logging import to a Python file if it's missing."""
     with open(file_path, encoding="utf-8") as f:
         content = f.read()
 
     # Check if logging is already imported
     if re.search(r"import\s+logging", content) or re.search(r"from\s+logging\s+import", content):
-        print(f"Logging already imported in {file_path}")
         return False
 
     # Find the first import statement
@@ -65,7 +64,6 @@ def add_logging_import(file_path):
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(new_content)
 
-    print(f"Added logging import to {file_path}")
     return True
 
 def process_directory(directory):
@@ -80,10 +78,6 @@ def process_directory(directory):
     return count
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        directory = sys.argv[1]
-    else:
-        directory = "tests"
+    directory = sys.argv[1] if len(sys.argv) > 1 else "tests"
 
     count = process_directory(directory)
-    print(f"Added logging import to {count} files")

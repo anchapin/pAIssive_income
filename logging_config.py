@@ -15,7 +15,7 @@ except ImportError as e:
 def configure_logging(
     level=logging.INFO,
     format_str="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-):
+) -> None:
     """
     Configure the root logger for the entire application.
 

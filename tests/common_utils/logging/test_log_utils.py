@@ -58,7 +58,7 @@ class TestLogUtils:
         # Test with non-string input
         # The implementation might return the number or convert it to a string
         result = sanitize_user_input(123)
-        assert result == 123 or result == "123"
+        assert result in (123, "123")
 
         # Test with complex input containing multiple issues
         sanitized = sanitize_user_input("test\ninjection%s\rwith\x00control\x01chars")

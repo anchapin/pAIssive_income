@@ -68,9 +68,8 @@ def get_modified_files() -> list[str]:
         all_files = set(staged_files + unstaged_files + untracked_files)
 
         # Filter for Python files
-        python_files = [f for f in all_files if f.endswith(".py")]
+        return [f for f in all_files if f.endswith(".py")]
 
-        return python_files
     except subprocess.CalledProcessError as e:
         logger.exception(f"Error getting modified files: {e}")
         return []

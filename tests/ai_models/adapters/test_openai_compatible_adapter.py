@@ -262,7 +262,7 @@ async def test_generate_text_with_params(mock_aiohttp_session):
 
     with patch("aiohttp.ClientSession", return_value=mock_session):
         adapter = OpenAICompatibleAdapter(base_url="http://test-openai:8000/v1", api_key="test-key")
-        result = await adapter.generate_text(
+        await adapter.generate_text(
             "gpt-3.5-turbo",
             "This is a test",
             max_tokens=100,
@@ -285,7 +285,7 @@ async def test_generate_text_with_params(mock_aiohttp_session):
         assert kwargs["json"]["temperature"] == 0.5
         assert kwargs["json"]["top_p"] == 0.9
         assert kwargs["json"]["n"] == 2
-        assert kwargs["json"]["stream"] == True
+        assert kwargs["json"]["stream"] is True
         assert kwargs["json"]["stop"] == ["END"]
         assert kwargs["json"]["presence_penalty"] == 0.1
         assert kwargs["json"]["frequency_penalty"] == 0.2
@@ -319,7 +319,7 @@ async def test_generate_chat_completions_with_params(mock_aiohttp_session):
 
     with patch("aiohttp.ClientSession", return_value=mock_session):
         adapter = OpenAICompatibleAdapter(base_url="http://test-openai:8000/v1", api_key="test-key")
-        result = await adapter.generate_chat_completions(
+        await adapter.generate_chat_completions(
             "gpt-3.5-turbo",
             messages,
             max_tokens=100,
@@ -342,7 +342,7 @@ async def test_generate_chat_completions_with_params(mock_aiohttp_session):
         assert kwargs["json"]["temperature"] == 0.5
         assert kwargs["json"]["top_p"] == 0.9
         assert kwargs["json"]["n"] == 2
-        assert kwargs["json"]["stream"] == True
+        assert kwargs["json"]["stream"] is True
         assert kwargs["json"]["stop"] == ["END"]
         assert kwargs["json"]["presence_penalty"] == 0.1
         assert kwargs["json"]["frequency_penalty"] == 0.2
@@ -511,7 +511,7 @@ async def test_get_session():
         adapter = OpenAICompatibleAdapter(base_url="http://test-openai:8000/v1", api_key="test-key", timeout=30)
 
         # Get session
-        session = await adapter._get_session()
+        await adapter._get_session()
 
         # Verify session was created with correct parameters
         mock_client_session.assert_called_once()

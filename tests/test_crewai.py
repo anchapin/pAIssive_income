@@ -203,7 +203,7 @@ class TestCrewAI:
         mock_kickoff.return_value = "Mock crew output"
 
         # Create a crew
-        crew = crewai.Crew(
+        crewai.Crew(
             agents=[],
             tasks=[],
         )

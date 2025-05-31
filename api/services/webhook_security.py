@@ -65,7 +65,7 @@ class WebhookSignatureVerifier:
 class WebhookIPAllowlist:
     """Utility for managing IP allowlists for webhooks."""
 
-    def __init__(self, db=None):
+    def __init__(self, db=None) -> None:
         """
         Initialize the IP allowlist.
 

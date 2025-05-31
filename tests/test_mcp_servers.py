@@ -10,6 +10,8 @@ from unittest.mock import MagicMock, mock_open, patch
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import pytest
+
 from app_flask.mcp_servers import (
     MCP_SERVERS_KEY,
     InvalidDataTypeError,
@@ -31,15 +33,15 @@ class TestMcpServers(unittest.TestCase):
             "description": "Test server"
         }
         result = validate_server_data(server_data)
-        self.assertIsNone(result)
+        assert result is None
 
     def test_validate_server_data_invalid_json(self):
         """Test validation with invalid JSON data."""
         server_data = None
         result = validate_server_data(server_data)
-        self.assertIsNotNone(result)
-        self.assertEqual(result[0], "Invalid JSON data")
-        self.assertEqual(result[1], 400)
+        assert result is not None
+        assert result[0] == "Invalid JSON data"
+        assert result[1] == 400
 
     def test_validate_server_data_missing_fields(self):
         """Test validation with missing required fields."""
@@ -49,9 +51,9 @@ class TestMcpServers(unittest.TestCase):
             # Missing port
         }
         result = validate_server_data(server_data)
-        self.assertIsNotNone(result)
-        self.assertEqual(result[0], "Missing required field: port")
-        self.assertEqual(result[1], 400)
+        assert result is not None
+        assert result[0] == "Missing required field: port"
+        assert result[1] == 400
 
     def test_validate_server_data_invalid_name(self):
         """Test validation with invalid server name."""
@@ -61,9 +63,9 @@ class TestMcpServers(unittest.TestCase):
             "port": 8080
         }
         result = validate_server_data(server_data)
-        self.assertIsNotNone(result)
-        self.assertTrue("Server name must contain only" in result[0])
-        self.assertEqual(result[1], 400)
+        assert result is not None
+        assert "Server name must contain only" in result[0]
+        assert result[1] == 400
 
     def test_validate_server_data_invalid_host(self):
         """Test validation with invalid host."""
@@ -73,9 +75,9 @@ class TestMcpServers(unittest.TestCase):
             "port": 8080
         }
         result = validate_server_data(server_data)
-        self.assertIsNotNone(result)
-        self.assertTrue("Host must contain only" in result[0])
-        self.assertEqual(result[1], 400)
+        assert result is not None
+        assert "Host must contain only" in result[0]
+        assert result[1] == 400
 
     def test_validate_server_data_invalid_port_type(self):
         """Test validation with invalid port type."""
@@ -85,9 +87,9 @@ class TestMcpServers(unittest.TestCase):
             "port": "invalid"  # Not an integer
         }
         result = validate_server_data(server_data)
-        self.assertIsNotNone(result)
-        self.assertEqual(result[0], "Port must be a valid integer")
-        self.assertEqual(result[1], 400)
+        assert result is not None
+        assert result[0] == "Port must be a valid integer"
+        assert result[1] == 400
 
     def test_validate_server_data_invalid_port_range(self):
         """Test validation with port out of range."""
@@ -97,16 +99,16 @@ class TestMcpServers(unittest.TestCase):
             "port": 70000  # Out of range
         }
         result = validate_server_data(server_data)
-        self.assertIsNotNone(result)
-        self.assertTrue("Port must be between" in result[0])
-        self.assertEqual(result[1], 400)
+        assert result is not None
+        assert "Port must be between" in result[0]
+        assert result[1] == 400
 
     @patch("app_flask.mcp_servers.MCP_SETTINGS_FILE")
     def test_load_settings_file_not_exists(self, mock_settings_file):
         """Test loading settings when file doesn't exist."""
         mock_settings_file.exists.return_value = False
         result = load_settings()
-        self.assertEqual(result, {MCP_SERVERS_KEY: []})
+        assert result == {MCP_SERVERS_KEY: []}
 
     @patch("app_flask.mcp_servers.MCP_SETTINGS_FILE")
     def test_load_settings_file_too_large(self, mock_settings_file):
@@ -117,14 +119,14 @@ class TestMcpServers(unittest.TestCase):
         mock_settings_file.stat.return_value = mock_stat
 
         result = load_settings()
-        self.assertEqual(result, {MCP_SERVERS_KEY: []})
+        assert result == {MCP_SERVERS_KEY: []}
 
     @patch("app_flask.mcp_servers.MCP_SETTINGS_FILE")
     def test_save_settings_invalid_data_type(self, mock_settings_file):
         """Test saving settings with invalid data type."""
         data = {MCP_SERVERS_KEY: "not a list"}  # Invalid type
 
-        with self.assertRaises(InvalidDataTypeError):
+        with pytest.raises(InvalidDataTypeError):
             save_settings(data)
 
 

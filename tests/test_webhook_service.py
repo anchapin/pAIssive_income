@@ -160,7 +160,7 @@ def test_deliver_webhook_failure(mock_post, webhook_service, sample_webhook_data
 
 def test_process_event(webhook_service, sample_webhook_data):
     """Test processing an event and delivering to matching webhooks."""
-    webhook = webhook_service.register_webhook(sample_webhook_data)
+    webhook_service.register_webhook(sample_webhook_data)
     event_type = "user.created"
     event_data = {"user_id": "123", "action": "created"}
 

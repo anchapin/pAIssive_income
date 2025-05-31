@@ -13,7 +13,7 @@ try:
     from alembic import context
     from sqlalchemy import create_engine
 except ImportError:
-    logger.error(
+    logger.exception(
         "Error: alembic or sqlalchemy module not found. Please install them (e.g., pip install alembic sqlalchemy)."
     )
     sys.exit(1)

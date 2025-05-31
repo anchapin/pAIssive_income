@@ -28,7 +28,6 @@ try:
     import chromadb
     from chromadb.config import Settings
 except ImportError:
-    print("Error: chromadb module not found. Please install it with 'pip install chromadb'")
     sys.exit(1)
 
 try:
@@ -50,7 +49,6 @@ try:
 # Configure logging
 except ImportError:
 
-    print("Error: sentence_transformers module not found. Please install it with 'pip install sentence-transformers'")
     sys.exit(1)
 
 
@@ -105,7 +103,7 @@ def embed_and_insert_documents(
 
 
 # Call the function to embed and insert documents
-def main():
+def main() -> None:
     """Main function to run the RAG demo."""
     # Configure logging
     logging.basicConfig(level=logging.INFO, format="%(message)s")

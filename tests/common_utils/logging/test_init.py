@@ -70,7 +70,7 @@ class TestLoggingInit:
             mock_logger = MagicMock()
             mock_get_logger.return_value = mock_logger
 
-            logger = get_logger("test_non_secure_logger", secure=False)
+            get_logger("test_non_secure_logger", secure=False)
 
             mock_get_logger.assert_called_once_with("test_non_secure_logger")
             mock_logger.setLevel.assert_called_once_with(logging.INFO)

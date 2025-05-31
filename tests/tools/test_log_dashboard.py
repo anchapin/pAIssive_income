@@ -92,8 +92,7 @@ def get_log_statistics(log_entries):
 def create_dashboard():
     """Mock implementation of create_dashboard."""
     import dash
-    app = dash.Dash()
-    return app
+    return dash.Dash()
 
 
 class TestLogDashboard:

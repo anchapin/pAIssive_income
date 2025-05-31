@@ -33,7 +33,7 @@ except ImportError:
     logger.exception("Flask library not found. Please install it using 'pip install Flask'")
     sys.exit(1)
 
-def setup_logging():
+def setup_logging() -> None:
     """Configures basic logging and ensures log directory exists."""
     log_dir = Path("artist_experiments/logs")
     log_dir.mkdir(parents=True, exist_ok=True)

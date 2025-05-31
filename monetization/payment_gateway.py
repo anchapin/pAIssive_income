@@ -31,7 +31,7 @@ class PaymentMethod(Enum):
 class PaymentGateway:
     """Base payment gateway class."""
 
-    def __init__(self, api_key: str, is_test_mode: bool = False):
+    def __init__(self, api_key: str, is_test_mode: bool = False) -> None:
         """
         Initialize the payment gateway.
 
@@ -47,9 +47,11 @@ class PaymentGateway:
     def _validate_api_key(self) -> None:
         """Validate the API key."""
         if not self.api_key:
-            raise ValueError("API key is required")
+            msg = "API key is required"
+            raise ValueError(msg)
         if len(self.api_key) < 10:
-            raise ValueError("API key is too short")
+            msg = "API key is too short"
+            raise ValueError(msg)
 
     def process_payment(
         self,
@@ -78,11 +80,14 @@ class PaymentGateway:
 
         # Validate inputs
         if amount <= 0:
-            raise ValueError("Amount must be greater than 0")
+            msg = "Amount must be greater than 0"
+            raise ValueError(msg)
         if not currency:
-            raise ValueError("Currency is required")
+            msg = "Currency is required"
+            raise ValueError(msg)
         if not description:
-            raise ValueError("Description is required")
+            msg = "Description is required"
+            raise ValueError(msg)
 
         # Create payment record
         payment = {
@@ -111,7 +116,7 @@ class PaymentGateway:
         except Exception as e:
             payment["status"] = PaymentStatus.FAILED.value
             payment["error"] = str(e)
-            logger.error(f"Payment failed: {payment['id']} - {e!s}")
+            logger.exception(f"Payment failed: {payment['id']} - {e!s}")
             raise
 
     def refund_payment(
@@ -134,13 +139,15 @@ class PaymentGateway:
         """
         # Validate payment ID
         if not payment_id:
-            raise ValueError("Payment ID is required")
+            msg = "Payment ID is required"
+            raise ValueError(msg)
 
         # Convert amount to Decimal if provided
         if amount is not None:
             amount = Decimal(str(amount))
             if amount <= 0:
-                raise ValueError("Refund amount must be greater than 0")
+                msg = "Refund amount must be greater than 0"
+                raise ValueError(msg)
 
         # Create refund record
         refund = {
@@ -167,7 +174,7 @@ class PaymentGateway:
         except Exception as e:
             refund["status"] = PaymentStatus.FAILED.value
             refund["error"] = str(e)
-            logger.error(f"Refund failed: {refund['id']} - {e!s}")
+            logger.exception(f"Refund failed: {refund['id']} - {e!s}")
             raise
 
     def get_payment_status(self, payment_id: str) -> dict:
@@ -183,7 +190,8 @@ class PaymentGateway:
         """
         # Validate payment ID
         if not payment_id:
-            raise ValueError("Payment ID is required")
+            msg = "Payment ID is required"
+            raise ValueError(msg)
 
         # Mock implementation
         return {

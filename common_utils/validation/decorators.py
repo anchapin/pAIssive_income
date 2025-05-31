@@ -53,7 +53,7 @@ def validate_request_body(model_class: type[T]) -> Callable:
 
             except Exception as e:
                 # Handle other exceptions
-                logger.error(f"Error processing request: {e!s}")
+                logger.exception(f"Error processing request: {e!s}")
                 return {
                     "errors": [
                         {
@@ -98,7 +98,7 @@ def validate_query_params(model_class: type[T]) -> Callable:
 
             except Exception as e:
                 # Handle other exceptions
-                logger.error(f"Error processing request: {e!s}")
+                logger.exception(f"Error processing request: {e!s}")
                 return {
                     "errors": [
                         {
@@ -143,7 +143,7 @@ def validate_path_params(model_class: type[T]) -> Callable:
 
             except Exception as e:
                 # Handle other exceptions
-                logger.error(f"Error processing request: {e!s}")
+                logger.exception(f"Error processing request: {e!s}")
                 return {
                     "errors": [
                         {

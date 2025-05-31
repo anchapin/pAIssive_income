@@ -66,13 +66,15 @@ def load_json_file(file_path: Union[str, Path], encoding: str = "utf-8") -> Any:
     """
     path = Path(file_path)
     if not path.exists():
-        raise MissingFileError(f"File {file_path} does not exist")
+        msg = f"File {file_path} does not exist"
+        raise MissingFileError(msg)
 
     try:
         with open(path, encoding=encoding) as f:
             return json.load(f)
     except PermissionError as e:
-        raise FilePermissionError(f"Cannot read file {file_path}: {e}") from e
+        msg = f"Cannot read file {file_path}: {e}"
+        raise FilePermissionError(msg) from e
 
 
 def save_json_file(
@@ -120,7 +122,8 @@ def save_json_file(
         with open(path, "w", encoding=encoding) as f:
             json.dump(data, f, cls=DateTimeEncoder, indent=indent, ensure_ascii=ensure_ascii)
     except PermissionError as e:
-        raise FilePermissionError(f"Cannot write to file {file_path}: {e}") from e
+        msg = f"Cannot write to file {file_path}: {e}"
+        raise FilePermissionError(msg) from e
 
 
 def json_to_string(

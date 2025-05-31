@@ -1,5 +1,7 @@
 """Fixtures for API tests."""
 
+from typing import Annotated
+
 import pytest
 from fastapi import Depends, FastAPI, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -128,7 +130,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
     # Get user data for real tokens
     user_id = TOKENS_DB[token]["user_id"]
-    for username, user_data in USERS_DB.items():
+    for user_data in USERS_DB.values():
         if user_data["id"] == user_id:
             return user_data
 
@@ -181,7 +183,7 @@ async def rate_limit_middleware(request, call_next):
 
 # Auth endpoints
 @mock_app.post("/auth/token", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user = USERS_DB.get(form_data.username)
     if not user or user["hashed_password"] != f"hashed_{form_data.password}":
         raise HTTPException(
@@ -197,7 +199,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 @mock_app.post("/auth/token/refresh", response_model=Token)
-async def refresh_token(refresh_token: str = Form(...)):
+async def refresh_token(refresh_token: Annotated[str, Form()] = ...):
     # Handle known test tokens
     if refresh_token == "invalid":
         raise HTTPException(
@@ -238,7 +240,7 @@ async def refresh_token(refresh_token: str = Form(...)):
 
 
 @mock_app.post("/auth/token/revoke", status_code=204)
-async def revoke_token(current_user: dict = Depends(get_current_user), token: str = Depends(oauth2_scheme)):
+async def revoke_token(current_user: Annotated[dict, Depends(get_current_user)], token: Annotated[str, Depends(oauth2_scheme)]):
     # Add the token to the revoked tokens set
     RATE_LIMITS["revoked_tokens"].add(token)
     return {}
@@ -274,7 +276,7 @@ async def create_user(user: UserCreate):
 
 
 @mock_app.get("/users/me", response_model=User)
-async def get_current_user_info(current_user: dict = Depends(get_current_user)):
+async def get_current_user_info(current_user: Annotated[dict, Depends(get_current_user)]):
     # This endpoint is used for token validation tests
     return current_user
 
@@ -296,7 +298,7 @@ async def update_user(user_id: int, user_update: UserUpdate):
     if user_id == 999999:
         raise HTTPException(status_code=404, detail="User not found")
 
-    for username, user_data in USERS_DB.items():
+    for user_data in USERS_DB.values():
         if user_data["id"] == user_id:
             if user_update.username:
                 user_data["username"] = user_update.username

@@ -63,8 +63,7 @@ class MockClient:
             result = self.app.routes[path](json)
             if isinstance(result, tuple) and len(result) == 3:
                 data, status_code, headers = result
-                response = MockResponse(data, status_code, headers)
-                return response
+                return MockResponse(data, status_code, headers)
         return MockResponse('{"error": "Not found"}', 404, {})
 
 class MockResponse:
@@ -267,7 +266,7 @@ class TestFlaskApp(unittest.TestCase):
 
         # Check that the user creation route exists
         with self.app.app_context():
-            rules = [rule for rule in self.app.url_map.iter_rules()]
+            rules = list(self.app.url_map.iter_rules())
             # Look for any endpoint that might be related to users
             user_endpoints = [rule.endpoint for rule in rules if "user" in rule.endpoint.lower()]
             assert len(user_endpoints) > 0, "No user-related endpoints found"

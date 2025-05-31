@@ -37,14 +37,14 @@ logger = logging.getLogger(__name__)
 class DummyClass:
     """A dummy class with 100% test coverage."""
 
-    def __init__(self, value=None):
+    def __init__(self, value=None) -> None:
         self.value = value or "default"
 
     def get_value(self):
         """Return the stored value."""
         return self.value
 
-    def set_value(self, value):
+    def set_value(self, value) -> bool:
         """Set a new value."""
         self.value = value
         return True
@@ -61,7 +61,7 @@ class DummyClass:
 class CoverageHelper:
     """Helper class for coverage testing."""
 
-    def __init__(self, name: str = "default"):
+    def __init__(self, name: str = "default") -> None:
         """
         Initialize the CoverageHelper.
 
@@ -231,14 +231,15 @@ def divide(a: float, b: float) -> Union[int, float]:
 
     """
     if b == 0:
-        raise ValueError("Cannot divide by zero")
+        msg = "Cannot divide by zero"
+        raise ValueError(msg)
     return a / b
 
 
 class StringProcessor:
     """Class for processing strings."""
 
-    def __init__(self, text: str = ""):
+    def __init__(self, text: str = "") -> None:
         """
         Initialize the StringProcessor.
 
@@ -355,7 +356,7 @@ class StringProcessor:
 class DataProcessor:
     """Class for processing data."""
 
-    def __init__(self, data: dict[str, Any] = None):
+    def __init__(self, data: dict[str, Any] | None = None) -> None:
         """
         Initialize the DataProcessor.
 
@@ -474,7 +475,7 @@ class DataProcessor:
 class Calculator:
     """A simple calculator class."""
 
-    def __init__(self, value: float = 0):
+    def __init__(self, value: float = 0) -> None:
         """
         Initialize the calculator.
 
@@ -545,7 +546,8 @@ class Calculator:
 
         """
         if value == 0:
-            raise ValueError("Cannot divide by zero")
+            msg = "Cannot divide by zero"
+            raise ValueError(msg)
         self.value /= value
         self.history.append(("/", value))
         return self.value

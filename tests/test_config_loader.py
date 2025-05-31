@@ -11,6 +11,8 @@ from unittest.mock import MagicMock, patch
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import pytest
+
 from common_utils.config_loader import ExampleConfigModel, load_config
 from common_utils.validation.core import ValidationError
 
@@ -25,9 +27,9 @@ class TestConfigLoader(unittest.TestCase):
             debug=True,
             max_connections=50
         )
-        self.assertEqual(config.db_url, "postgresql://user:pass@localhost:5432/db")
-        self.assertTrue(config.debug)
-        self.assertEqual(config.max_connections, 50)
+        assert config.db_url == "postgresql://user:pass@localhost:5432/db"
+        assert config.debug
+        assert config.max_connections == 50
 
     def test_example_config_model_defaults(self):
         """Test ExampleConfigModel with default values."""
@@ -35,9 +37,9 @@ class TestConfigLoader(unittest.TestCase):
             db_url="postgresql://user:pass@localhost:5432/db",
             max_connections=50
         )
-        self.assertEqual(config.db_url, "postgresql://user:pass@localhost:5432/db")
-        self.assertFalse(config.debug)  # Default value
-        self.assertEqual(config.max_connections, 50)
+        assert config.db_url == "postgresql://user:pass@localhost:5432/db"
+        assert not config.debug  # Default value
+        assert config.max_connections == 50
 
     @patch("common_utils.config_loader.validate_input")
     def test_load_config_success(self, mock_validate_input):
@@ -62,9 +64,9 @@ class TestConfigLoader(unittest.TestCase):
             config = load_config(temp_file_path)
 
             # Verify the config was loaded correctly
-            self.assertEqual(config.db_url, "postgresql://user:pass@localhost:5432/db")
-            self.assertTrue(config.debug)
-            self.assertEqual(config.max_connections, 50)
+            assert config.db_url == "postgresql://user:pass@localhost:5432/db"
+            assert config.debug
+            assert config.max_connections == 50
 
             # Verify validate_input was called
             mock_validate_input.assert_called_once()
@@ -92,7 +94,7 @@ class TestConfigLoader(unittest.TestCase):
 
         try:
             # Test loading the config should raise ValidationError
-            with self.assertRaises(ValidationError):
+            with pytest.raises(ValidationError):
                 load_config(temp_file_path)
         finally:
             # Clean up the temporary file

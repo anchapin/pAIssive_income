@@ -236,7 +236,7 @@ class MemoryRAGCoordinator:
         def parse_timestamp(ts):
             if ts is None:
                 return 0
-            if isinstance(ts, (int, float)):
+            if isinstance(ts, int | float):
                 return ts
             try:
                 # Try parsing ISO8601 string
@@ -257,7 +257,7 @@ class MemoryRAGCoordinator:
         """
         return 0.0
 
-    def store_memory(self, content: Any, user_id: str, metadata: dict = None) -> bool:
+    def store_memory(self, content: Any, user_id: str, metadata: dict | None = None) -> bool:
         """
         Store a memory in the mem0 memory system and ChromaDB if available.
 

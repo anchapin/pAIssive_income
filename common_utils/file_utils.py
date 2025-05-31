@@ -48,7 +48,8 @@ def ensure_directory_exists(directory_path: Union[str, Path]) -> Path:
     try:
         path.mkdir(parents=True, exist_ok=True)
     except PermissionError as e:
-        raise DirectoryPermissionError(f"Cannot create directory {directory_path}: {e}") from e
+        msg = f"Cannot create directory {directory_path}: {e}"
+        raise DirectoryPermissionError(msg) from e
     return path
 
 
@@ -92,7 +93,8 @@ def list_files(
     """
     path = Path(directory_path)
     if not path.exists():
-        raise DirectoryNotFoundError(f"Directory {directory_path} does not exist")
+        msg = f"Directory {directory_path} does not exist"
+        raise DirectoryNotFoundError(msg)
 
     if recursive:
         return list(path.glob(f"**/{pattern}"))
@@ -161,13 +163,15 @@ def read_file(file_path: Union[str, Path], encoding: str = "utf-8") -> str:
     """
     path = Path(file_path)
     if not path.exists():
-        raise MissingFileError(f"File {file_path} does not exist")
+        msg = f"File {file_path} does not exist"
+        raise MissingFileError(msg)
 
     try:
         with open(path, encoding=encoding) as f:
             return f.read()
     except PermissionError as e:
-        raise FilePermissionError(f"Cannot read file {file_path}: {e}") from e
+        msg = f"Cannot read file {file_path}: {e}"
+        raise FilePermissionError(msg) from e
 
 
 def write_file(
@@ -209,7 +213,8 @@ def write_file(
         with open(path, "w", encoding=encoding) as f:
             f.write(content)
     except PermissionError as e:
-        raise FilePermissionError(f"Cannot write to file {file_path}: {e}") from e
+        msg = f"Cannot write to file {file_path}: {e}"
+        raise FilePermissionError(msg) from e
 
 
 def copy_file(
@@ -250,7 +255,8 @@ def copy_file(
     destination = Path(destination_path)
 
     if not source.exists():
-        raise MissingFileError(f"Source file {source_path} does not exist")
+        msg = f"Source file {source_path} does not exist"
+        raise MissingFileError(msg)
 
     if create_dirs:
         ensure_directory_exists(destination.parent)
@@ -258,7 +264,8 @@ def copy_file(
     try:
         shutil.copy2(source, destination)
     except PermissionError as e:
-        raise FilePermissionError(f"Cannot copy file {source_path} to {destination_path}: {e}") from e
+        msg = f"Cannot copy file {source_path} to {destination_path}: {e}"
+        raise FilePermissionError(msg) from e
 
 
 def get_file_size(file_path: Union[str, Path]) -> int:
@@ -288,7 +295,8 @@ def get_file_size(file_path: Union[str, Path]) -> int:
     """
     path = Path(file_path)
     if not path.exists():
-        raise MissingFileError(f"File {file_path} does not exist")
+        msg = f"File {file_path} does not exist"
+        raise MissingFileError(msg)
 
     return path.stat().st_size
 

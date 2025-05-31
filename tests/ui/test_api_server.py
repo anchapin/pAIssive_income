@@ -23,6 +23,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.resolve()))
 
 # Local imports - this import must be after sys.path modification
 # flake8: noqa: E402
+import contextlib
+
 from ui.api_server import run_server
 
 
@@ -60,20 +62,16 @@ class TestAPIServer(unittest.TestCase):
                 cls.mock_server.serve_forever()
             except KeyboardInterrupt:
                 # Server will be stopped by the teardown method
-                print("Server interrupted by keyboard")
-            except OSError as e:
+                pass
+            except OSError:
                 # Port might be in use
-                print(f"Could not start server: {e}")
                 cls.server_stopped.set()  # Signal that the server failed to start
-            except Exception as e:
-                print(f"Unexpected error in server thread: {e}")
+            except Exception:
+                pass
             finally:
-                print("Server thread exiting")
                 if cls.mock_server:
-                    try:
+                    with contextlib.suppress(Exception):
                         cls.mock_server.server_close()
-                    except Exception as e:
-                        print(f"Error closing server: {e}")
                 cls.server_stopped.set()  # Signal that the server has stopped
 
         # Start the server in a separate thread
@@ -108,11 +106,11 @@ class TestAPIServer(unittest.TestCase):
 
                 # If the thread is still alive, log a warning and try to force it to stop
                 if cls.server_thread.is_alive():
-                    print("Warning: Server thread did not terminate cleanly")
+                    pass
                     # In Python 3.9+, we could use thread_obj.is_alive() here
                     # For compatibility with older Python versions, we'll just log the warning
-            except Exception as e:
-                print(f"Error shutting down server: {e}")
+            except Exception:
+                pass
             finally:
                 # Ensure the server is marked as stopped
                 cls.server_stopped.set()

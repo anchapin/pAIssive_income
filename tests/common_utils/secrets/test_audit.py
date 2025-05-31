@@ -41,52 +41,52 @@ class TestAudit(unittest.TestCase):
             file_path = os.path.join(self.test_dir, f"test{ext}")
             with open(file_path, "w") as f:
                 f.write("Test content")
-            self.assertTrue(is_text_file(file_path))
+            assert is_text_file(file_path)
 
     def test_is_text_file_with_binary_content(self):
         """Test is_text_file with binary content."""
         file_path = os.path.join(self.test_dir, "binary_file")
         with open(file_path, "wb") as f:
             f.write(b"\x00\x01\x02\x03")
-        self.assertFalse(is_text_file(file_path))
+        assert not is_text_file(file_path)
 
     def test_is_text_file_with_nonexistent_file(self):
         """Test is_text_file with a nonexistent file."""
         file_path = os.path.join(self.test_dir, "nonexistent_file")
-        self.assertFalse(is_text_file(file_path))
+        assert not is_text_file(file_path)
 
     def test_is_example_code_with_example_indicators(self):
         """Test is_example_code with example indicators."""
         content = "Some content"
         for indicator in ["example", "sample", "demo", "test", "mock", "dummy", "placeholder", "todo", "fixme"]:
             line = f"This is an {indicator} line"
-            self.assertTrue(is_example_code(content, line))
+            assert is_example_code(content, line)
 
     def test_is_example_code_with_docstring(self):
         """Test is_example_code with docstring."""
         content = '"""\nThis is a docstring\n"""'
         line = "    This is indented code in a docstring"
-        self.assertTrue(is_example_code(content, line))
+        assert is_example_code(content, line)
 
     def test_is_example_code_with_regular_code(self):
         """Test is_example_code with regular code."""
         content = "def function():\n    pass"
         line = "def function():"
-        self.assertFalse(is_example_code(content, line))
+        assert not is_example_code(content, line)
 
     def test_should_exclude_with_default_exclude_dirs(self):
         """Test should_exclude with default exclude directories."""
         for exclude_dir in DEFAULT_EXCLUDE_DIRS:
             file_path = os.path.join(exclude_dir, "test_file.py")
-            self.assertTrue(should_exclude(file_path))
+            assert should_exclude(file_path)
 
     def test_should_exclude_with_custom_exclude_dirs(self):
         """Test should_exclude with custom exclude directories."""
         custom_exclude_dirs = {"custom_dir", "another_dir"}
         file_path = os.path.join("custom_dir", "test_file.py")
-        self.assertTrue(should_exclude(file_path, custom_exclude_dirs))
+        assert should_exclude(file_path, custom_exclude_dirs)
         file_path = os.path.join("not_excluded", "test_file.py")
-        self.assertFalse(should_exclude(file_path, custom_exclude_dirs))
+        assert not should_exclude(file_path, custom_exclude_dirs)
 
     def test_find_potential_secrets_with_no_secrets(self):
         """Test find_potential_secrets with a file containing no secrets."""
@@ -94,7 +94,7 @@ class TestAudit(unittest.TestCase):
         with open(file_path, "w") as f:
             f.write("def function():\n    pass\n")
         results = find_potential_secrets(file_path)
-        self.assertEqual(results, [])
+        assert results == []
 
     def test_find_potential_secrets_with_secrets(self):
         """Test find_potential_secrets with a file containing secrets."""
@@ -103,9 +103,9 @@ class TestAudit(unittest.TestCase):
             f.write('api_key = "abcdefghijklmnopqrstuvwxyz123456"\n')
             f.write('password = "supersecretpassword"\n')
         results = find_potential_secrets(file_path)
-        self.assertGreater(len(results), 0)
+        assert len(results) > 0
         # Check that we found both secrets
-        self.assertEqual(len(results), 2)
+        assert len(results) == 2
 
     @patch("common_utils.secrets.audit.is_example_code")
     def test_find_potential_secrets_with_example_code(self, mock_is_example_code):
@@ -118,13 +118,13 @@ class TestAudit(unittest.TestCase):
             f.write('# Example code\napi_key = "abcdefghijklmnopqrstuvwxyz123456"\n')
 
         results = find_potential_secrets(file_path)
-        self.assertEqual(results, [])
+        assert results == []
 
     def test_process_file_with_excluded_file(self):
         """Test process_file with an excluded file."""
         file_path = os.path.join("node_modules", "test_file.py")
         results = process_file(file_path)
-        self.assertEqual(results, [])
+        assert results == []
 
     def test_process_file_with_binary_file(self):
         """Test process_file with a binary file."""
@@ -132,17 +132,17 @@ class TestAudit(unittest.TestCase):
         with open(file_path, "wb") as f:
             f.write(b"\x00\x01\x02\x03")
         results = process_file(file_path)
-        self.assertEqual(results, [])
+        assert results == []
 
     def test_handle_file_error(self):
         """Test handle_file_error function."""
         file_path = "test_file.py"
         error = ValueError("Test error")
         result = handle_file_error(file_path, error)
-        self.assertEqual(result["file"], file_path)
-        self.assertEqual(result["error_type"], "ValueError")
-        self.assertIn("timestamp", result)
-        self.assertIn("error_id", result)
+        assert result["file"] == file_path
+        assert result["error_type"] == "ValueError"
+        assert "timestamp" in result
+        assert "error_id" in result
 
     @patch("common_utils.secrets.audit.process_file")
     @patch("os.walk")
@@ -161,11 +161,11 @@ class TestAudit(unittest.TestCase):
         results = scan_directory(self.test_dir)
 
         # Verify results
-        self.assertEqual(len(results), 1)
+        assert len(results) == 1
         file_path = os.path.join(self.test_dir, "file1.py")
-        self.assertIn(file_path, results)
-        self.assertEqual(len(results[file_path]), 1)
-        self.assertEqual(results[file_path][0][0], "credential_type_1")
+        assert file_path in results
+        assert len(results[file_path]) == 1
+        assert results[file_path][0][0] == "credential_type_1"
 
     @patch("common_utils.secrets.audit.process_file")
     @patch("os.walk")
@@ -185,7 +185,7 @@ class TestAudit(unittest.TestCase):
             results = scan_directory(self.test_dir)
 
             # Verify results
-            self.assertEqual(len(results), 0)
+            assert len(results) == 0
             mock_logger.warning.assert_called()
 
 

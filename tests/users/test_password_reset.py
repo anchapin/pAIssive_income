@@ -27,14 +27,14 @@ class MockUserRepository(UserRepository):
 
     def find_by_email(self, email):
         """Find a user by email."""
-        for _, user in self.users.items():
+        for user in self.users.values():
             if user.get("email") == email:
                 return user
         return None
 
     def find_by_reset_token(self, token):
         """Find a user by reset token."""
-        for _, user in self.users.items():
+        for user in self.users.values():
             if user.get("auth_reset_token") == token:
                 return user
         return None

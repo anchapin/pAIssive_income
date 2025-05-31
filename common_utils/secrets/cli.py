@@ -13,10 +13,9 @@ import hashlib
 import os
 import sys
 import time
-from collections.abc import Callable
 from pathlib import Path
 from secrets import compare_digest
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # Local imports
 from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
@@ -30,6 +29,9 @@ from .secrets_manager import (
     list_secrets,
     set_secret,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # Initialize secure logger
 logger = get_secure_logger(__name__)

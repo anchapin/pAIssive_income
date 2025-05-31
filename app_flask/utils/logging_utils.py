@@ -94,7 +94,7 @@ def sanitize_log_data(data: object) -> object:
     if isinstance(data, dict):
         # Recursively sanitize dictionary values
         return {k: sanitize_log_data(v) for k, v in data.items()}
-    if isinstance(data, (list, tuple)):
+    if isinstance(data, list | tuple):
         # Recursively sanitize sequence items
         return type(data)(sanitize_log_data(x) for x in data)
     return data
