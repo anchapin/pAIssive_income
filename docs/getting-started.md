@@ -8,7 +8,7 @@ This guide will help you get started with the pAIssive Income Framework. It cove
 
 ## Prerequisites
 
-- Python 3.8 or higher
+- Python 3.10 or higher (required for CrewAI compatibility)
 - [`uv`](https://github.com/astral-sh/uv) (Python package installer and resolver)
 - Node.js 16.10+ (for UI components)
 - [`pnpm`](https://pnpm.io/) (Node.js package manager)
@@ -149,12 +149,3 @@ Now that you have the framework installed and running, you can:
 
 **Feedback:**
 To request changes or suggest improvements to this guide, [open a documentation issue](https://github.com/anchapin/pAIssive_income/issues/new?labels=documentation) or see [documentation-guide.md](documentation-guide.md).
-
-Now that you have the framework installed and running, you can:
-
-1. Explore the [Agent Team](agent-team.md) documentation to learn about the different agents and how they collaborate.
-2. Learn about [Niche Analysis](niche-analysis.md) to identify profitable niches.
-3. Explore the [AI Models](ai-models.md) documentation to learn how to use local AI models.
-4. Learn about [Monetization](monetization.md) to create effective subscription models.
-5. Explore the [Marketing](marketing.md) documentation to create targeted marketing campaigns.
-6. Learn about the [UI](ui.md) to interact with the framework through a web interface.

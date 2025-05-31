@@ -12,7 +12,7 @@ setup(
     version="0.1.0",
     description="pAIssive income main package",
     packages=find_packages(exclude=["api.middleware*", "services.service_discovery*"]),
-    python_requires=">=3.9",
+    python_requires=">=3.10",
     # Exclude the subdirectories with their own setup.py files
     package_data={
         "": ["*.py", "*.json", "*.yml"],

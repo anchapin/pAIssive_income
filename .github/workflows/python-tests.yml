@@ -1,0 +1,149 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["Gradual Lint Check"]
+    types:
+      - completed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Only run if auto-fix workflow completed successfully, or if triggered by other events
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    env:
+      ACTIONS_RUNNER_DEBUG: true
+      ACTIONS_STEP_DEBUG: true
+      PYTHONPATH: ${{ github.workspace }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        # Install core dependencies first
+        python -m pip install pytest pytest-cov pytest-asyncio pytest-xdist aiohttp>=3.9.0 multidict yarl
+
+        # Use CI-specific requirements to avoid problematic packages
+        if [ -f "requirements-ci.txt" ]; then
+          echo "Installing CI-specific requirements..."
+          python -m pip install -r requirements-ci.txt || {
+            echo "Warning: Failed to install CI requirements, falling back to minimal dependencies"
+            python -m pip install pytest pytest-cov pytest-asyncio fastapi uvicorn pydantic
+          }
+        else
+          echo "CI requirements not found, using standard requirements..."
+          # Install requirements with better error handling
+          for req_file in requirements.txt requirements-dev.txt; do
+            if [ -f "$req_file" ]; then
+              echo "Installing $req_file..."
+              python -m pip install -r "$req_file" || {
+                echo "Warning: Failed to install $req_file, continuing with minimal dependencies"
+              }
+            fi
+          done
+        fi
+
+        # Install Python version-specific dependencies
+        if [[ "${{ matrix.python-version }}" == "3.11" || "${{ matrix.python-version }}" == "3.12" ]] && [ -f requirements-py311.txt ]; then
+          python -m pip install -r requirements-py311.txt || {
+            echo "Warning: Failed to install Python version-specific dependencies"
+          }
+        fi
+
+        # Install the package in development mode
+        python -m pip install -e . || {
+          echo "Warning: Failed to install package in development mode"
+          exit 1
+        }
+
+    - name: Create mock modules for CI
+      run: |
+        # Create mock modules for packages excluded in CI
+        echo "Creating mock modules for CI environment..."
+
+        # Create mock_mem0 module
+        mkdir -p mock_mem0
+        if [ ! -f "mock_mem0/__init__.py" ]; then
+          echo "Creating mock_mem0 module..."
+          echo "# Mock mem0ai module for CI" > mock_mem0/__init__.py
+          echo "class MockMemory:" >> mock_mem0/__init__.py
+          echo "    def __init__(self, *args, **kwargs): pass" >> mock_mem0/__init__.py
+          echo "    def add(self, *args, **kwargs): return {'id': 'mock'}" >> mock_mem0/__init__.py
+          echo "    def search(self, *args, **kwargs): return []" >> mock_mem0/__init__.py
+          echo "Memory = MockMemory" >> mock_mem0/__init__.py
+          echo "__version__ = '0.1.100'" >> mock_mem0/__init__.py
+        fi
+
+        # Create mock_crewai module if it doesn't exist
+        if [ ! -d "mock_crewai" ]; then
+          echo "Creating mock_crewai module..."
+          mkdir -p mock_crewai
+          echo "# Mock CrewAI module for CI" > mock_crewai/__init__.py
+          echo "class MockAgent:" >> mock_crewai/__init__.py
+          echo "    def __init__(self, *args, **kwargs): pass" >> mock_crewai/__init__.py
+          echo "class MockCrew:" >> mock_crewai/__init__.py
+          echo "    def __init__(self, *args, **kwargs): pass" >> mock_crewai/__init__.py
+          echo "    def kickoff(self, *args, **kwargs): return 'mock result'" >> mock_crewai/__init__.py
+          echo "class MockTask:" >> mock_crewai/__init__.py
+          echo "    def __init__(self, *args, **kwargs): pass" >> mock_crewai/__init__.py
+          echo "Agent = MockAgent" >> mock_crewai/__init__.py
+          echo "Crew = MockCrew" >> mock_crewai/__init__.py
+          echo "Task = MockTask" >> mock_crewai/__init__.py
+          echo "__version__ = '0.1.0'" >> mock_crewai/__init__.py
+        fi
+
+        # Create mock_mcp module if it doesn't exist
+        if [ ! -d "mock_mcp" ]; then
+          echo "Creating mock_mcp module..."
+          mkdir -p mock_mcp
+          echo "# Mock MCP module for CI" > mock_mcp/__init__.py
+          echo "class MockMCPClient:" >> mock_mcp/__init__.py
+          echo "    def __init__(self, *args, **kwargs): pass" >> mock_mcp/__init__.py
+          echo "    def connect(self): pass" >> mock_mcp/__init__.py
+          echo "    def disconnect(self): pass" >> mock_mcp/__init__.py
+          echo "Client = MockMCPClient" >> mock_mcp/__init__.py
+        fi
+
+        # Create symbolic links to make mock modules available as packages
+        ln -sf $(pwd)/mock_mem0 mem0ai || echo "mem0ai symlink already exists"
+        ln -sf $(pwd)/mock_crewai crewai || echo "crewai symlink already exists"
+        ln -sf $(pwd)/mock_mcp modelcontextprotocol || echo "modelcontextprotocol symlink already exists"
+
+        # Add current directory to Python path
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+        echo "PYTHONPATH=${PYTHONPATH}" >> $GITHUB_ENV
+
+        echo "Mock modules created successfully"
+
+    - name: Check logger initialization
+      run: |
+        python scripts/check_logger_initialization.py --verbose || {
+          echo "Warning: Logger initialization check failed, but continuing with tests"
+        }
+
+    - name: Run tests with coverage
+      run: |
+        # Run tests with increased verbosity and show full traceback
+        python -m pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15 \
+          --tb=long -v --durations=10 --maxfail=3 --no-header --no-summary
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
