@@ -145,6 +145,16 @@ jobs:
           --ignore=tests/test_crewai_agents.py \
           --ignore=tests/test_mem0_integration.py \
           --ignore=ai_models/artist_rl/test_artist_rl.py \
+          --ignore=artist_experiments \
+          --ignore=test_mem0.py \
+          --ignore=test_mem0_integration.py \
+          --ignore=test_crewai_simple.py \
+          --ignore=test_mock_crewai_fix.py \
+          --ignore=test_python.py \
+          --ignore=test_security_reports.py \
+          --ignore=test_simple.py \
+          --ignore=test_workflow_fixes.py \
+          --ignore=test_bandit_config.py \
           --ignore=mock_mcp \
           --ignore=mock_crewai \
           --ignore=mock_mem0

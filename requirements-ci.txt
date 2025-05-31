@@ -67,6 +67,9 @@ pandas>=2.0.0
 scikit-learn>=1.3.0
 gymnasium>=1.0.0
 
+# Mathematical computation
+sympy>=1.12.0
+
 # OpenTelemetry dependencies (pinned to avoid conflicts)
 opentelemetry-api>=1.30.0,<1.32.0
 opentelemetry-sdk>=1.30.0,<1.32.0
