@@ -28,9 +28,12 @@ class SecretConfig:
     # Constants
     SECRET_PREFIX = "secret:"  # noqa: S105
 
+    # Sentinel value to distinguish between None and not provided
+    _UNSET = object()
+
     def __init__(
         self,
-        config_file: str | None = None,
+        config_file: str | None = _UNSET,
         secrets_backend: SecretsBackend | str | None = None,
     ) -> None:
         """
@@ -42,9 +45,13 @@ class SecretConfig:
             secrets_backend: Backend to use for secrets (SecretsBackend enum, string, or None)
 
         """
-        self.config_file = config_file or os.environ.get(
-            "PAISSIVE_CONFIG_FILE", "config.json"
-        )
+        # Handle config_file parameter properly
+        if config_file is self._UNSET:
+            # Not provided, use environment variable or default
+            self.config_file = os.environ.get("PAISSIVE_CONFIG_FILE", "config.json")
+        else:
+            # Explicitly provided (including None)
+            self.config_file = config_file
 
         # Handle different types for secrets_backend
         if secrets_backend is None:
@@ -98,13 +105,13 @@ class SecretConfig:
             logger.warning("No configuration file specified")
             return
 
-        config_path = Path(self.config_file)
-        if not config_path.exists():
+        # Use os.path.exists for compatibility with tests
+        if not os.path.exists(self.config_file):
             logger.warning("Configuration file %s not found", self.config_file)
             return
 
         try:
-            with config_path.open(encoding="utf-8") as f:
+            with open(self.config_file, encoding="utf-8") as f:
                 self.config = json.load(f)
             logger.debug("Loaded configuration from %s", self.config_file)
         except Exception:
@@ -117,8 +124,7 @@ class SecretConfig:
             return
 
         try:
-            config_path = Path(self.config_file)
-            with config_path.open("w", encoding="utf-8") as f:
+            with open(self.config_file, "w", encoding="utf-8") as f:
                 json.dump(self.config, f, indent=2)
             logger.debug("Saved configuration to %s", self.config_file)
         except Exception:
@@ -173,7 +179,11 @@ class SecretConfig:
             # Extract the key and get the secret
             secret_key = value_to_check[len(self.SECRET_PREFIX) :]
             logger.debug("Getting secret from configuration")
-            return get_secret(secret_key, self.secrets_backend)
+            secret_value = get_secret(secret_key, self.secrets_backend)
+            # If secret is None, return the default value
+            if secret_value is None:
+                return default
+            return secret_value
 
         # Don't log the actual key name as it might reveal sensitive information
         logger.debug("Got configuration value from config file")
@@ -204,7 +214,10 @@ class SecretConfig:
             # Store the value as a secret and save a reference
             # Don't log the actual key name as it might reveal sensitive information
             logger.debug("Setting secret in configuration")
-            set_secret(key, str(value), self.secrets_backend)
+            success = set_secret(key, str(value), self.secrets_backend)
+            if not success:
+                logger.error("Failed to set secret, configuration not updated")
+                return
             value = f"{self.SECRET_PREFIX}{key}"
 
         # Set in the configuration file

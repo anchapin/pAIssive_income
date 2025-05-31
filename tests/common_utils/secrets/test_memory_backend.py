@@ -20,19 +20,19 @@ class TestMemoryBackend:
         """Test that get_secret raises NotImplementedError."""
         backend = MemoryBackend()
         with pytest.raises(NotImplementedError):
-            backend.get_secret()
+            backend.get_secret("test_key")
 
     def test_set_secret_not_implemented(self):
         """Test that set_secret raises NotImplementedError."""
         backend = MemoryBackend()
         with pytest.raises(NotImplementedError):
-            backend.set_secret()
+            backend.set_secret("test_key", "test_value")
 
     def test_delete_secret_not_implemented(self):
         """Test that delete_secret raises NotImplementedError."""
         backend = MemoryBackend()
         with pytest.raises(NotImplementedError):
-            backend.delete_secret()
+            backend.delete_secret("test_key")
 
     def test_list_secrets_not_implemented(self):
         """Test that list_secrets raises NotImplementedError."""
