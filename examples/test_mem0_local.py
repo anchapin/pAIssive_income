@@ -14,16 +14,22 @@ import os
 import sys
 from typing import Any, Optional
 
+import pytest
+
+# Check if mem0 is available
 try:
     from mem0 import Memory
+    MEM0_AVAILABLE = True
 except ImportError:
-    sys.exit(1)
+    Memory = None
+    MEM0_AVAILABLE = False
 
 
 def print_json(data: Any) -> None:
     """Print data as formatted JSON."""
 
 
+@pytest.mark.skipif(not MEM0_AVAILABLE, reason="mem0ai not installed")
 def test_basic_memory_operations() -> None:
     """Test basic memory operations: add, search, get_all."""
     # Initialize memory
@@ -112,8 +118,14 @@ def _test_memory_deletion(user_id: str) -> None:
 
 def main() -> None:
     """Main function to run all tests."""
+    # Check if mem0 is available
+    if not MEM0_AVAILABLE:
+        print("mem0ai not available, skipping tests")
+        return
+
     # Check if OpenAI API key is set
     if "OPENAI_API_KEY" not in os.environ:
+        print("OPENAI_API_KEY not set, skipping tests")
         return
 
     # Run tests

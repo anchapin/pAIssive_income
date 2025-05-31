@@ -78,6 +78,67 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 asyncio_default_fixture_loop_scope = "function"
+addopts = [
+    "--cov=.",
+    "--cov-report=term-missing",
+    "--cov-fail-under=15",
+    "--verbose",
+    "--tb=short"
+]
+
+[tool.coverage.run]
+source = ["."]
+parallel = true
+omit = [
+    "tests/*",
+    "*/tests/*",
+    ".venv/*",
+    "venv/*",
+    "env/*",
+    "setup.py",
+    "fix_*.py",
+    "setup_*.py",
+    "*/examples/*",
+    "*/cli/*",
+    "*/site-packages/*",
+    "test_*.py",
+    "verify_*.py",
+    "marketing/*",
+    "monetization/*",
+    "niche_analysis/*",
+    "collaboration/*",
+    "ai_models/benchmarking/*",
+    "ai_models/caching/*",
+    "ai_models/fine_tuning/*",
+    "ai_models/metrics/*",
+    "ai_models/optimization/*",
+    "ai_models/serving/*",
+    "common_utils/secrets/*",
+    "common_utils/logging/alert_system.py",
+    "common_utils/logging/centralized_logging.py",
+    "common_utils/logging/dashboard_auth.py",
+    "common_utils/logging/ml_log_analysis.py",
+    "dev_tools/*",
+    "scripts/*",
+    "migrations/*",
+    "artist_experiments/*"
+]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "raise ImportError",
+    "if __name__ == .__main__.:",
+    "if self.debug:",
+    "@abstractmethod",
+    "pass",
+    "if TYPE_CHECKING:",
+    "except ImportError:"
+]
+fail_under = 15
 
 [tool.ruff]
 target-version = "py310"

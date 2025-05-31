@@ -285,3 +285,12 @@ artist_experiments/logs/
 # Coverage reports
 coverage*.txt
 *_cov.txt
+
+# Automatically generated/ignored directories and files
+=3.9.0
+crewai
+mem0ai
+mock_crewai/
+mock_mcp/
+mock_mem0/
+modelcontextprotocol

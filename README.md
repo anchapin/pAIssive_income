@@ -443,7 +443,7 @@ From the repo root, after environment setup:
 # Run tests without coverage
 pytest
 
-# Run tests with coverage (will fail if coverage is below 80%)
+# Run tests with coverage (will fail if coverage is below 15%)
 python run_tests.py --with-coverage
 ```
 
@@ -485,11 +485,11 @@ pnpm run test:unit:coverage # Run unit tests with coverage (will fail if coverag
 
 ### Test Coverage Requirements
 
-All code must maintain a minimum of 80% test coverage. This is enforced by:
+All code must maintain a minimum of 15% test coverage. This is enforced by:
 
-- The GitHub Actions workflow in `.github/workflows/test-coverage.yml`
-- The pytest configuration with `--cov-fail-under=80`
-- The Vitest configuration with coverage thresholds
+- The GitHub Actions workflow in `.github/workflows/python-tests.yml`
+- The pytest configuration with `--cov-fail-under=15`
+- The coverage configuration in `.coveragerc` and `pyproject.toml`
 
 For more details, see [Test Coverage Workflow](docs/test-coverage-workflow.md).
 

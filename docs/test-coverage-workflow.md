@@ -15,11 +15,18 @@ The project requires a minimum of **15%** test coverage for all code. This thres
 
 ## Coverage Configuration
 
-The coverage configuration is defined in `.coveragerc`, which specifies:
+The coverage configuration is defined in multiple files:
 
+- **`.coveragerc`**: Main coverage configuration with source directories, exclusions, and fail_under threshold
+- **`pytest.ini`**: Pytest configuration with coverage options (`--cov=.`, `--cov-report=term-missing`, `--cov-fail-under=15`)
+- **`pyproject.toml`**: Additional coverage configuration for modern Python tooling
+
+These configurations specify:
 - Source directories to include in coverage analysis
 - Files and directories to exclude from coverage analysis
 - Lines to exclude from coverage analysis (e.g., debug code, abstract methods)
+- Branch coverage analysis
+- Coverage reporting formats
 
 ## Running Tests with Coverage
 
