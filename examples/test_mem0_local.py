@@ -11,7 +11,6 @@ Note: This script requires an OpenAI API key to be set as an environment variabl
 """
 
 import os
-import sys
 from typing import Any, Optional
 
 import pytest
