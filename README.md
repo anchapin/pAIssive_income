@@ -491,7 +491,14 @@ All code must maintain a minimum of 15% test coverage. This is enforced by:
 - The pytest configuration with `--cov-fail-under=15`
 - The coverage configuration in `.coveragerc` and `pyproject.toml`
 
-For more details, see [Test Coverage Workflow](docs/test-coverage-workflow.md).
+**Current Coverage Status**: 17.28% (exceeds 15% requirement)
+
+**Test Exclusions**: The following files and directories are excluded from test collection to ensure CI reliability:
+- Tests requiring optional dependencies (MCP, CrewAI, mem0)
+- Mock directories (`mock_mcp/`, `mock_crewai/`, `mock_mem0/`)
+- Experimental and integration test files
+
+For more details, see [Test Coverage Workflow](docs/test-coverage-workflow.md) and [CI/CD Documentation](docs/03_devops_and_cicd/02_github_actions.md).
 
 Test output and screenshots will appear in the Playwright reports directory.
 

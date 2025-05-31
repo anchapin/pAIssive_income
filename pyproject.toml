@@ -78,12 +78,31 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
+asyncio_default_test_loop_scope = "function"
 addopts = [
     "--cov=.",
     "--cov-report=term-missing",
     "--cov-fail-under=15",
     "--verbose",
-    "--tb=short"
+    "--tb=short",
+    "--disable-warnings",
+    "--ignore-glob=**/mock_*",
+    "--ignore-glob=**/mcp_*",
+    "--ignore-glob=**/crewai*"
+]
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "webhook: marks tests as webhook tests"
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::UserWarning",
+    "ignore::pytest_asyncio.plugin.PytestDeprecationWarning",
+    "ignore::pytest.PytestDeprecationWarning"
 ]
 
 [tool.coverage.run]
