@@ -130,6 +130,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+        continue-on-error: true
 
       # Display disk space before analysis
       - name: Check disk space
@@ -348,6 +349,7 @@ jobs:
           upload: true
           output: sarif-results/${{ matrix.language }}-ubuntu.sarif
         continue-on-error: false # Fail the workflow if CodeQL analysis fails
+        timeout-minutes: 30
 
       # Upload SARIF results as an artifact
       - name: Upload SARIF results
