@@ -149,6 +149,28 @@ mcp.json
 *.old
 *.temp
 *.tmp
+*.staged
+**
+*.cover
+*.manifest
+*.sage.py
+*.sarif.json
+*-results-*.json
+*-results-*.xml
+secrets.sarif.json
+empty-sarif.json
+github_actions_fixes_summary.md
+FINAL_*.md
+PR_*.md
+LOGGER_FIXES_SUMMARY.md
+NEXT_STEPS.md
+COMMIT_*.md
+sues.py
+
+# Specific files to ignore
+how*
+ersanchaDocumentsAIpAIssive_income4pAIssive_income && git diff --name-only --diff-filter=U
+enhanced_setup_dev_environment.py.staged
 
 # Editor/tool-specific configs
 .cursor/

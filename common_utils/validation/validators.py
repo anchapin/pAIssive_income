@@ -86,7 +86,7 @@ def validate_url(url: str) -> bool:
             return True
 
         # Check if the URL matches the regex for standard URLs
-        return URL_REGEX.match(url)
+        return bool(URL_REGEX.match(url))
     except Exception:
         return False
 

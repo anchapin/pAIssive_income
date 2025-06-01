@@ -1,14 +1,12 @@
 #!/usr/bin/env python
+from __future__ import annotations
 
+import logging
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 """Script to fix all Python files by replacing them with minimal valid Python files."""
-
-from __future__ import annotations
-
-import logging
 import shutil
 import subprocess
 import sys

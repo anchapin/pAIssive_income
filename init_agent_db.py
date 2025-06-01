@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""init_agent_db.py - Initialize the agent database with test data."""
 
 import logging
 import os
@@ -7,28 +8,11 @@ import sys
 # Configure logging
 logger = logging.getLogger(__name__)
 
-"""init_agent_db.py - Initialize the agent database with test data."""
-
 try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-
-# Configure logging
 except ImportError:
-
+    logger.error("psycopg2 is required but not installed")
     sys.exit(1)
 
 

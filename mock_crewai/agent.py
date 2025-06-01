@@ -33,6 +33,7 @@ class Agent:
         self.role = role
         self.goal = goal
         self.backstory = backstory
+        self.name = kwargs.get("name", role)  # Add name attribute
         self.agent_type = agent_type
         self.kwargs = kwargs
 
@@ -54,6 +55,10 @@ class Agent:
         if context:
             return f"Executed task: {task_description} with context: {context}"
         return f"Executed task: {task_description}"
+
+    def execute(self, task: TaskVar, context=None) -> str:
+        """Alias for execute_task for compatibility."""
+        return self.execute_task(task, context)
 
     def __str__(self) -> str:
         """Return a string representation of the agent."""

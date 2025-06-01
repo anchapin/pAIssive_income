@@ -128,6 +128,11 @@ def app():
     if not FLASK_AVAILABLE:
         pytest.skip("Flask is not available - skipping test")
 
+    # Ensure we always use SQLite for tests, regardless of environment variables
+    import os
+    old_database_url = os.environ.get("DATABASE_URL")
+    os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+
     test_config = {
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
@@ -154,6 +159,12 @@ def app():
         # Clean up after tests
         db.session.remove()
         db.drop_all()
+
+        # Restore original DATABASE_URL environment variable
+        if old_database_url is not None:
+            os.environ["DATABASE_URL"] = old_database_url
+        elif "DATABASE_URL" in os.environ:
+            del os.environ["DATABASE_URL"]
 
 
 @pytest.fixture

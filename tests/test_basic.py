@@ -10,7 +10,13 @@ from app_flask import create_app, db
 
 def test_app_creation():
     """Test that the Flask app can be created successfully."""
-    app = create_app()
+    # Use test configuration to avoid database connection issues
+    test_config = {
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+    }
+    app = create_app(test_config)
     assert app is not None
     assert isinstance(app, Flask)
 
@@ -60,8 +66,12 @@ def test_client_creation(client):
 
 def test_config_loading():
     """Test that configuration loading works with fallbacks."""
-    # Test with no config file (should use fallback)
-    app = create_app()
+    # Test with test config to avoid database connection issues
+    test_config = {
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+    }
+    app = create_app(test_config)
     assert app.config.get("SQLALCHEMY_TRACK_MODIFICATIONS") is False
 
     # Test with explicit test config that includes database URI

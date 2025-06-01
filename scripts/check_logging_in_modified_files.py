@@ -175,20 +175,6 @@ def main() -> int:
     # Group issues by file
     from collections import defaultdict
 
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-
-# Configure logging
     issues_by_file = defaultdict(list)
 
     for issue in all_issues:

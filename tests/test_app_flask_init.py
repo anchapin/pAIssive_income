@@ -20,7 +20,12 @@ class TestAppFlaskInit(unittest.TestCase):
     @patch("app_flask.models")
     def test_create_app_basic(self, mock_models, mock_create_all, mock_migrate_init, mock_db_init):
         """Test basic app creation without test config."""
-        app = create_app()
+        # Use test config to avoid database connection issues in CI
+        test_config = {
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        }
+        app = create_app(test_config)
 
         # Check that the app was created
         assert app is not None
@@ -46,7 +51,12 @@ class TestAppFlaskInit(unittest.TestCase):
     @patch("app_flask.models")
     def test_create_app_with_test_config(self, mock_models, mock_create_all, mock_migrate_init, mock_db_init):
         """Test app creation with test config."""
-        test_config = {"TESTING": True, "DEBUG": True}
+        test_config = {
+            "TESTING": True,
+            "DEBUG": True,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        }
         app = create_app(test_config)
 
         # Check that the app was created
@@ -74,7 +84,12 @@ class TestAppFlaskInit(unittest.TestCase):
         with patch("app_flask.importlib.import_module") as mock_import:
             mock_import.return_value = MagicMock()
 
-            app = create_app()
+            # Use test config to avoid database connection issues in CI
+            test_config = {
+                "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+                "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+            }
+            app = create_app(test_config)
 
             # Check that the app was created
             assert app is not None

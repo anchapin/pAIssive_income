@@ -3,7 +3,7 @@ Mock CrewAI module for CI environments.
 Provides mock implementations of CrewAI classes to prevent import errors.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.120.0"
 
 # Import submodules for top-level access
 from . import agent, crew, task, tools, types
@@ -17,19 +17,27 @@ class MockAgent:
         self.role = role
         self.goal = goal
         self.backstory = backstory
+        self.name = kwargs.get("name", role)  # Add name attribute
         self.verbose = kwargs.get("verbose", False)
         self.allow_delegation = kwargs.get("allow_delegation", False)
         self.tools = kwargs.get("tools", [])
+        self.kwargs = kwargs  # Store kwargs for test compatibility
 
     def __str__(self):
-        return f"Agent(role='{self.role}')"
+        return f"Agent(role='{self.role}', goal='{self.goal}', backstory='{self.backstory}')"
 
     def __repr__(self):
         return self.__str__()
 
     def execute_task(self, task, context=None):
         """Mock task execution."""
-        return f"Mock execution of task: {task}"
+        if context:
+            return f"Executed task: {task.description if hasattr(task, 'description') else task} with context: {context}"
+        return f"Executed task: {task.description if hasattr(task, 'description') else task}"
+
+    def execute(self, task, context=None):
+        """Alias for execute_task for compatibility."""
+        return self.execute_task(task, context)
 
 
 class MockTask:
@@ -40,12 +48,21 @@ class MockTask:
         self.agent = agent
         self.expected_output = kwargs.get("expected_output", "Mock output")
         self.tools = kwargs.get("tools", [])
+        self.async_execution = kwargs.get("async_execution", False)  # Add missing attribute
+        self.kwargs = kwargs  # Store kwargs for test compatibility
 
     def __str__(self):
         return f"Task(description='{self.description}')"
 
     def __repr__(self):
-        return self.__str__()
+        agent_repr = f"Agent(role='{self.agent.role}')" if self.agent else "None"
+        return f"Task(description='{self.description}', agent={agent_repr})"
+
+    def execute(self, context=None):
+        """Mock task execution."""
+        if self.agent:
+            return f"Executed: {self.description} by {self.agent.name if hasattr(self.agent, 'name') else 'Agent'} ({self.agent.role})"
+        return f"Executed: {self.description}"
 
 
 class MockCrew:
@@ -56,20 +73,32 @@ class MockCrew:
         self.tasks = tasks or []
         self.verbose = kwargs.get("verbose", False)
         self.process = kwargs.get("process", "sequential")
+        self.memory = kwargs.get("memory", False)  # Add missing attribute
+        self.kwargs = kwargs  # Store kwargs for test compatibility
 
     def __str__(self):
         return f"Crew(agents={len(self.agents)}, tasks={len(self.tasks)})"
 
     def __repr__(self):
-        return self.__str__()
+        return f"Crew(agents={self.agents}, tasks={self.tasks})"
 
     def kickoff(self, inputs=None):
         """Mock crew execution."""
+        if inputs:
+            return f"Mock crew output with inputs: {inputs}"
+        # Return list format for some tests that expect it
+        if self.agents and self.tasks:
+            results = []
+            for task in self.tasks:
+                if task.agent:
+                    results.append(f"Executed: {task.description} by {task.agent.name if hasattr(task.agent, 'name') else 'Agent'} ({task.agent.role})")
+                else:
+                    results.append(f"Executed: {task.description}")
+            return results
         return "Mock crew output"
 
-    def run(self, inputs=None):
-        """Alias for kickoff."""
-        return self.kickoff(inputs)
+    # Make run an alias to kickoff (same method object)
+    run = kickoff
 
 
 # Mock tools module
@@ -89,6 +118,9 @@ class MockBaseTool:
 class MockAgentType:
     """Mock agent type enum."""
 
+    DEFAULT = "default"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
     RESEARCHER = "researcher"
     WRITER = "writer"
     ANALYST = "analyst"
@@ -97,6 +129,7 @@ class MockAgentType:
 class MockCrewType:
     """Mock crew type enum."""
 
+    DEFAULT = "default"
     SEQUENTIAL = "sequential"
     HIERARCHICAL = "hierarchical"
 
@@ -104,6 +137,9 @@ class MockCrewType:
 class MockTaskType:
     """Mock task type enum."""
 
+    DEFAULT = "default"
+    SEQUENTIAL = "sequential"
+    PARALLEL = "parallel"
     RESEARCH = "research"
     WRITING = "writing"
     ANALYSIS = "analysis"

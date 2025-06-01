@@ -31,9 +31,10 @@ class Crew:
         self.agents = agents or []
         self.tasks = tasks or []
         self.crew_type = crew_type
+        self.memory = kwargs.get("memory", False)  # Add missing attribute
         self.kwargs = kwargs
 
-    def kickoff(self, inputs=None) -> str:
+    def kickoff(self, inputs=None):
         """
         Execute the crew's tasks and return a result.
 
@@ -41,14 +42,23 @@ class Crew:
             inputs: Optional inputs for the crew execution
 
         Returns:
-            A string representing the crew execution result
+            A string or list representing the crew execution result
 
         """
         if inputs:
             return f"Mock crew output with inputs: {inputs}"
+        # Return list format for some tests that expect it
+        if self.agents and self.tasks:
+            results = []
+            for task in self.tasks:
+                if task.agent:
+                    results.append(f"Executed: {task.description} by {task.agent.name if hasattr(task.agent, 'name') else 'Agent'} ({task.agent.role})")
+                else:
+                    results.append(f"Executed: {task.description}")
+            return results
         return "Mock crew output"
 
-    # Alias for backward compatibility
+    # Alias for backward compatibility (same method object)
     run = kickoff
 
     def __str__(self):

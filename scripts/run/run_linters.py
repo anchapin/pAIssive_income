@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
+import logging
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -11,10 +13,6 @@ This script runs ruff (format and lint) on all Python files in the project,
 excluding files in node_modules and other directories specified in
 .gitignore.
 """
-
-from __future__ import annotations
-
-import logging
 import os
 import subprocess
 import sys

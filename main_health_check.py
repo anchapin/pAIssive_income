@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -34,11 +35,8 @@ except ImportError as e:
     logger.exception("Failed to import pathlib", exc_info=e)
     sys.exit(1)
 
-try:
-    # Place third-party imports here
-    import some_third_party_module
-except ImportError as e:
-    logger.exception("Failed to import some_third_party_module", exc_info=e)
+# Third-party imports would go here if needed
+# Currently no third-party imports are required for health check
 
 
 def run(cmd: str, desc: str) -> None:
