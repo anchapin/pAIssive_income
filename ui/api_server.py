@@ -13,7 +13,6 @@ import json
 import logging
 import os
 import socketserver
-import sys  # Added sys import
 from typing import Any
 from urllib.parse import urlparse
 

@@ -3,7 +3,6 @@
 # Standard library imports
 import asyncio
 import logging
-import sys  # Added sys import
 
 logger = logging.getLogger(__name__)
 from typing import Any, Union
@@ -50,6 +49,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
 
         Raises:
             ImportError: If aiohttp is not available
+
         """
         if aiohttp is None:
             raise ImportError("aiohttp library is required for OpenAICompatibleAdapter. Please install it using 'pip install aiohttp'")
