@@ -90,25 +90,13 @@ try:
     import numpy as np
     import requests
     from scipy import stats
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-
-# Configure logging
+    HAS_SCIPY_NUMPY = True
 except ImportError as e:
-
-    _logger.exception(f"Failed to import third-party library: {e}")
-    sys.exit(1)
+    _logger.warning(f"Optional dependencies not available: {e}. Some alert features may be limited.")
+    np = None
+    requests = None
+    stats = None
+    HAS_SCIPY_NUMPY = False
 
 
 
@@ -326,6 +314,10 @@ class WebhookNotifier(AlertNotifier):
                 },
                 "context": context,
             }
+
+            if requests is None:
+                _logger.error("requests library not available. Cannot send webhook alert.")
+                return False
 
             response = requests.post(
                 self.url,
@@ -770,8 +762,14 @@ class AlertSystem:
             historical_values = values[:-1]
             recent_value = values[-1]
 
-            mean = np.mean(historical_values)
-            std = np.std(historical_values)
+            if np is None:
+                # Fallback to basic Python statistics
+                mean = sum(historical_values) / len(historical_values)
+                variance = sum((x - mean) ** 2 for x in historical_values) / len(historical_values)
+                std = variance ** 0.5
+            else:
+                mean = np.mean(historical_values)
+                std = np.std(historical_values)
 
             # Avoid division by zero
             z_score = 0 if std == 0 else abs((recent_value - mean) / std)

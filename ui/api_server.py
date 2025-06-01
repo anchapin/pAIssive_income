@@ -28,24 +28,12 @@ try:
     import psycopg2
     import psycopg2.extensions
     from psycopg2.extras import RealDictCursor
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-
-# Configure logging
+    HAS_PSYCOPG2 = True
 except ImportError:
-
-    sys.exit(1)
+    logger.warning("psycopg2 is not available. Database functionality will be limited.")
+    psycopg2 = None
+    RealDictCursor = None
+    HAS_PSYCOPG2 = False
 
 
 
@@ -111,7 +99,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode("utf-8"))
 
-    def _get_db_connection(self) -> psycopg2.extensions.connection:
+    def _get_db_connection(self):
         """
         Establish a PostgreSQL connection using DATABASE_URL env var.
 
@@ -120,9 +108,12 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
         Raises:
             DatabaseConfigError: If DATABASE_URL is not set
-            DatabaseError: If connection fails
+            DatabaseError: If connection fails or psycopg2 not available
 
         """
+        if not HAS_PSYCOPG2:
+            raise DatabaseError("psycopg2 is not available")
+
         db_url = os.environ.get("DATABASE_URL")
         if not db_url:
             raise DatabaseConfigError

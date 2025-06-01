@@ -11,9 +11,12 @@ logger = logging.getLogger(__name__)
 try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
+    HAS_PSYCOPG2 = True
 except ImportError:
-    logger.error("psycopg2 is required but not installed")
-    sys.exit(1)
+    logger.warning("psycopg2 is not available. Database initialization will be skipped.")
+    psycopg2 = None
+    RealDictCursor = None
+    HAS_PSYCOPG2 = False
 
 
 
@@ -25,6 +28,10 @@ def init_agent_db() -> bool:
         bool: True if initialization was successful, False otherwise
 
     """
+    if not HAS_PSYCOPG2:
+        logger.warning("psycopg2 not available. Skipping database initialization.")
+        return False
+
     # Get database URL from environment variable
     db_url = os.environ.get("DATABASE_URL")
     if not db_url:

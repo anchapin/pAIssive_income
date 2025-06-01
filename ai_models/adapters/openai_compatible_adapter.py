@@ -11,8 +11,8 @@ from typing import Any, Union
 try:
     import aiohttp
 except ImportError:
-    logger.exception("aiohttp library not found. Please install it using 'pip install aiohttp'")
-    sys.exit(1)
+    logger.warning("aiohttp library not found. OpenAICompatibleAdapter will not be available.")
+    aiohttp = None
 
 
 # Third-party imports
@@ -48,7 +48,12 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             api_key: API key for authentication
             timeout: Request timeout in seconds
 
+        Raises:
+            ImportError: If aiohttp is not available
         """
+        if aiohttp is None:
+            raise ImportError("aiohttp library is required for OpenAICompatibleAdapter. Please install it using 'pip install aiohttp'")
+
         self.base_url = base_url
         self.api_key = api_key
         self.timeout = timeout
