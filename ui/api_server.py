@@ -13,19 +13,28 @@ import json
 import logging
 import os
 import socketserver
+import sys  # Added sys import
 from typing import Any
 from urllib.parse import urlparse
 
-# Third-party imports
-import psycopg2
-import psycopg2.extensions
-from psycopg2.extras import RealDictCursor
+from logging_config import configure_logging
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
+
+
+# Third-party imports
+try:
+    import psycopg2
+    import psycopg2.extensions
+    from psycopg2.extras import RealDictCursor
+    HAS_PSYCOPG2 = True
+except ImportError:
+    logger.warning("psycopg2 is not available. Database functionality will be limited.")
+    psycopg2 = None
+    RealDictCursor = None
+    HAS_PSYCOPG2 = False
+
 
 
 class DatabaseError(RuntimeError):
@@ -90,7 +99,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode("utf-8"))
 
-    def _get_db_connection(self) -> psycopg2.extensions.connection:
+    def _get_db_connection(self):
         """
         Establish a PostgreSQL connection using DATABASE_URL env var.
 
@@ -99,9 +108,12 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
         Raises:
             DatabaseConfigError: If DATABASE_URL is not set
-            DatabaseError: If connection fails
+            DatabaseError: If connection fails or psycopg2 not available
 
         """
+        if not HAS_PSYCOPG2:
+            raise DatabaseError("psycopg2 is not available")
+
         db_url = os.environ.get("DATABASE_URL")
         if not db_url:
             raise DatabaseConfigError
@@ -314,7 +326,8 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
                 logger.exception(
                     "Failed to start server after %d attempts", max_retries
                 )
-                return  # Exit the function instead of raising an exception
+                msg = f"Failed to start server after {max_retries} attempts"
+                raise OSError(msg)
 
     # Verify that httpd was successfully initialized
     if httpd is None:
@@ -332,6 +345,7 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
 
 
 if __name__ == "__main__":
+    configure_logging()
     # Get port from environment variable or use default
     port_str = os.environ.get("PORT", "8000")
     try:

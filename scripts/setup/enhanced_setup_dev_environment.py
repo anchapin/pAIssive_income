@@ -51,14 +51,11 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import sys
 import venv
 from pathlib import Path
-from typing import Any, Callable, Optional, TextIO
+from typing import TYPE_CHECKING, Any, Optional, TextIO
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s: %(message)s",
-    handlers=[logging.StreamHandler()],
-)
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 logger = logging.getLogger(__name__)
 
 
@@ -890,4 +887,10 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s: %(message)s",
+        handlers=[logging.StreamHandler()],
+    )
     sys.exit(main())
