@@ -5,15 +5,16 @@ import logging
 import os
 import sys
 
-import psycopg2
-from psycopg2.extras import RealDictCursor
-
-# Set up logger with more detailed formatting
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+# Configure logging
 logger = logging.getLogger(__name__)
+
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+except ImportError:
+    logger.error("psycopg2 is required but not installed")
+    sys.exit(1)
+
 
 
 def init_agent_db() -> bool:
@@ -109,6 +110,11 @@ def init_agent_db() -> bool:
 
 
 if __name__ == "__main__":
+    # Set up logger with more detailed formatting
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     success = init_agent_db()
     if not success:
         sys.exit(1)

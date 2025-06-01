@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Fix GitHub Actions Bandit Configuration Issues.
 
@@ -15,10 +20,19 @@ import sys
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
 
 
 def ensure_directory_exists(directory_path: str) -> bool:
@@ -183,6 +197,10 @@ def main() -> int:
         int: 0 for success, 1 for failure
 
     """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     exit_code = 1
 
     try:

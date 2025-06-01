@@ -1,19 +1,35 @@
 #!/usr/bin/env python
-"""Script to clean up .egg-info directories before building packages."""
-
 from __future__ import annotations
 
 import logging
 import shutil
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+"""Script to clean up .egg-info directories before building packages."""
 
 # Set up a dedicated logger for this module
-logger = logging.getLogger(__name__)
 
 
 def cleanup_egg_info() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     """Find and remove all .egg-info directories in the project."""
     count = 0
     for egg_info in Path().glob("**/*.egg-info"):

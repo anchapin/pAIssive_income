@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 """
 Script to fix common linting issues across the codebase.
@@ -6,11 +13,6 @@ Script to fix common linting issues across the codebase.
 This script uses Ruff to automatically fix common linting issues in Python files.
 It can be run on specific files or on all Python files in the repository.
 """
-
-from __future__ import annotations
-
-import argparse
-import logging
 import os
 import shutil
 import subprocess
@@ -19,11 +21,19 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s: %(message)s",
-)
-logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
 
 
 def get_executable_path(name: str) -> str:
@@ -372,6 +382,11 @@ def _process_files_in_parallel(
 
 def main() -> None:
     """Run the script."""
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s: %(message)s",
+    )
     args = _parse_arguments()
 
     # Process exclude patterns

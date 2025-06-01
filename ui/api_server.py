@@ -13,19 +13,40 @@ import json
 import logging
 import os
 import socketserver
+import sys  # Added sys import
 from typing import Any
 from urllib.parse import urlparse
 
-# Third-party imports
-import psycopg2
-import psycopg2.extensions
-from psycopg2.extras import RealDictCursor
+from logging_config import configure_logging
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
+
+
+# Third-party imports
+try:
+    import psycopg2
+    import psycopg2.extensions
+    from psycopg2.extras import RealDictCursor
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
+except ImportError:
+
+    sys.exit(1)
+
 
 
 class DatabaseError(RuntimeError):
@@ -314,7 +335,8 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
                 logger.exception(
                     "Failed to start server after %d attempts", max_retries
                 )
-                return  # Exit the function instead of raising an exception
+                msg = f"Failed to start server after {max_retries} attempts"
+                raise OSError(msg)
 
     # Verify that httpd was successfully initialized
     if httpd is None:
@@ -332,6 +354,7 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
 
 
 if __name__ == "__main__":
+    configure_logging()
     # Get port from environment variable or use default
     port_str = os.environ.get("PORT", "8000")
     try:
