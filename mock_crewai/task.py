@@ -41,8 +41,10 @@ class Task:
         agent_repr = f"Agent(role='{self.agent.role}')" if self.agent else "None"
         return f"Task(description='{self.description}', agent={agent_repr})"
 
-    def execute(self, context=None):
-        """Mock task execution."""
-        if self.agent:
-            return f"Executed: {self.description} by {self.agent.name if hasattr(self.agent, 'name') else 'Agent'} ({self.agent.role})"
-        return f"Executed: {self.description}"
+def execute(self, context=None):
+     """Mock task execution."""
+     if self.agent:
+        agent_name = self.agent.name if hasattr(self.agent, 'name') else 'Agent'
+        agent_role = self.agent.role if hasattr(self.agent, 'role') else 'Unknown Role'
+        return f"Executed: {self.description} by {agent_name} ({agent_role})"
+     return f"Executed: {self.description}"
