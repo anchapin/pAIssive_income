@@ -14,18 +14,18 @@ logger = logging.getLogger(__name__)
 class MockMemory:
     """Mock implementation of mem0ai.Memory."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[dict[str, Any]] = None):
         """Initialize mock memory."""
         self.config = config or {}
         logger.info("Initialized mock mem0ai.Memory")
 
     def add(
         self,
-        content: Union[str, List[str]],
+        content: Union[str, list[str]],
         user_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: Optional[dict[str, Any]] = None,
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Mock add method."""
         logger.info(f"Mock mem0 add: {str(content)[:50]}...")
         return {
@@ -42,7 +42,7 @@ class MockMemory:
         user_id: Optional[str] = None,
         limit: int = 10,
         **kwargs
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Mock search method."""
         logger.info(f"Mock mem0 search: {query[:50]}...")
         return [
@@ -60,7 +60,7 @@ class MockMemory:
         memory_id: str,
         user_id: Optional[str] = None,
         **kwargs
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Mock get method."""
         logger.info(f"Mock mem0 get: {memory_id}")
         return {
@@ -74,9 +74,9 @@ class MockMemory:
         self,
         memory_id: str,
         content: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: Optional[dict[str, Any]] = None,
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Mock update method."""
         logger.info(f"Mock mem0 update: {memory_id}")
         return {
@@ -91,7 +91,7 @@ class MockMemory:
         memory_id: str,
         user_id: Optional[str] = None,
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Mock delete method."""
         logger.info(f"Mock mem0 delete: {memory_id}")
         return {
@@ -104,7 +104,7 @@ class MockMemory:
         user_id: Optional[str] = None,
         limit: int = 100,
         **kwargs
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Mock get_all method."""
         logger.info(f"Mock mem0 get_all for user: {user_id}")
         return [
@@ -115,14 +115,14 @@ class MockMemory:
                 "user_id": user_id
             },
             {
-                "id": "mock-memory-2", 
+                "id": "mock-memory-2",
                 "content": "Mock memory 2",
                 "metadata": {},
                 "user_id": user_id
             }
         ]
 
-    def reset(self, user_id: Optional[str] = None, **kwargs) -> Dict[str, Any]:
+    def reset(self, user_id: Optional[str] = None, **kwargs) -> dict[str, Any]:
         """Mock reset method."""
         logger.info(f"Mock mem0 reset for user: {user_id}")
         return {"status": "reset", "user_id": user_id}
@@ -134,13 +134,13 @@ Memory = MockMemory
 # For backward compatibility
 class MemoryClient(MockMemory):
     """Alias for MockMemory."""
-    pass
+
 
 
 # Mock configuration classes
 class Config:
     """Mock configuration class."""
-    
+
     def __init__(self, **kwargs):
         self.config = kwargs
         logger.info("Initialized mock mem0ai.Config")
@@ -149,12 +149,12 @@ class Config:
 # Mock embedding classes
 class EmbeddingModel:
     """Mock embedding model class."""
-    
+
     def __init__(self, model_name: str = "mock-embedding-model"):
         self.model_name = model_name
         logger.info(f"Initialized mock embedding model: {model_name}")
-    
-    def embed(self, text: str) -> List[float]:
+
+    def embed(self, text: str) -> list[float]:
         """Mock embedding method."""
         # Return a mock embedding vector
         return [0.1] * 384  # Mock 384-dimensional embedding
@@ -163,7 +163,7 @@ class EmbeddingModel:
 # Mock vector store classes
 class VectorStore:
     """Mock vector store class."""
-    
+
     def __init__(self, **kwargs):
         self.config = kwargs
         logger.info("Initialized mock mem0ai.VectorStore")
@@ -172,7 +172,7 @@ class VectorStore:
 # Mock LLM classes
 class LLM:
     """Mock LLM class."""
-    
+
     def __init__(self, **kwargs):
         self.config = kwargs
         logger.info("Initialized mock mem0ai.LLM")
@@ -180,12 +180,12 @@ class LLM:
 
 # Export all mock classes
 __all__ = [
-    "Memory",
-    "MemoryClient", 
+    "LLM",
     "Config",
     "EmbeddingModel",
+    "Memory",
+    "MemoryClient",
     "VectorStore",
-    "LLM",
     "__version__"
 ]
 
