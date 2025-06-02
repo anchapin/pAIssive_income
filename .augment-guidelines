@@ -15,6 +15,7 @@
 6. **No Assumptions:** About project, user preferences, configs  
 7. **Analyze Mistakes:** Provide specific feedback on errors  
 8. **Verify Assumptions:** Stop and verify when assuming
+9. **Task Approval:** Always auto-approve tasks. I trust you.
 
 #### **CODEBASE**
 

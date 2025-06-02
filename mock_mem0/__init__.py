@@ -135,6 +135,18 @@ Memory = MockMemory
 class MemoryClient(MockMemory):
     """Alias for MockMemory."""
 
+    def __init__(self, config: Optional[dict[str, Any]] = None):
+        """Initialize MemoryClient with same interface as MockMemory."""
+        super().__init__(config)
+
+
+class Client(MockMemory):
+    """Another alias for MockMemory for different import patterns."""
+
+    def __init__(self, config: Optional[dict[str, Any]] = None):
+        """Initialize Client with same interface as MockMemory."""
+        super().__init__(config)
+
 
 
 # Mock configuration classes
@@ -180,11 +192,13 @@ class LLM:
 
 # Export all mock classes
 __all__ = [
-    "LLM",
+    "Client",
     "Config",
     "EmbeddingModel",
+    "LLM",
     "Memory",
     "MemoryClient",
+    "MockMemory",
     "VectorStore",
     "__version__"
 ]
