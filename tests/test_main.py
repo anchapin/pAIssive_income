@@ -3,8 +3,9 @@
 import logging
 from unittest.mock import patch
 
-import main
 import pytest
+
+import main
 
 
 class TestMain:

@@ -19,14 +19,15 @@ def configure_logging(level: str = "INFO") -> None:
     
     Args:
         level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+
     """
     # Create logs directory if it doesn't exist
     logs_dir = Path("logs")
     logs_dir.mkdir(exist_ok=True)
-    
+
     # Configure logging format
     log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    
+
     # Configure logging
     logging.basicConfig(
         level=getattr(logging, level.upper()),
@@ -36,7 +37,7 @@ def configure_logging(level: str = "INFO") -> None:
             logging.FileHandler(logs_dir / "application.log")
         ]
     )
-    
+
     logger.info("Logging configured successfully")
 
 
@@ -48,7 +49,7 @@ def _run_main() -> None:
     """
     configure_logging()
     logger.info("Main application started.")
-    
+
     # Add main application logic here
     logger.info("Application initialization complete")
 
