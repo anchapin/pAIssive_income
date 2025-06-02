@@ -43,7 +43,7 @@ jobs:
           echo "Installing CI-specific requirements..."
           python -m pip install -r requirements-ci.txt || {
             echo "Warning: Failed to install CI requirements, falling back to minimal dependencies"
-            python -m pip install pytest pytest-cov pytest-asyncio fastapi uvicorn pydantic
+            python -m pip install pytest pytest-cov pytest-asyncio fastapi uvicorn pydantic python-multipart "pydantic[email]" pydantic-core
           }
         else
           echo "CI requirements not found, using standard requirements..."

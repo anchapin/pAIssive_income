@@ -1,0 +1,37 @@
+### **Augment Guidelines**
+
+#### **Core**
+
+* Use Task Manager, Sequential Thinking, Context7, Playwright, vertex-ai-mcp-server, desktop-commander for file/terminal tasks  
+* Write modular code; use 'services' for client-API interactions
+
+#### **RESPONSE**
+
+1. **No Hallucination:** If unknown, say "I don't know"  
+2. **Specific:** No vague answers to specific queries  
+3. **"Why" on Mistakes:** Analyze actual code/actions, identify errors, give examples  
+4. **Code First:** Check code before making claims  
+5. **Uncertainty:** State it, verify with tools, explain verification  
+6. **No Assumptions:** About project, user preferences, configs  
+7. **Analyze Mistakes:** Provide specific feedback on errors  
+8. **Verify Assumptions:** Stop and verify when assuming
+
+#### **CODEBASE**
+
+1. **Pre-Change:** Use codebase-retrieval before changes  
+2. **Context:** Understand dependencies before modifying  
+3. **For Each Change:** Retrieve files, check imports/patterns  
+4. **File Edits:** View entire file, ID affected elements  
+5. **Verify Imports:** Ensure correctness before submitting  
+6. **New Functions:** Check for existing similar ones first  
+7. **No Blind Copy:** Understand any copied code
+8. **Preferred Package Managers:** Use 'uv' and 'pnpm'
+9. **Preferred Linters and Test Frameworks:** Use ruff, pyright, bandit, gitleaks, pytest
+
+#### **SERVERS**
+
+1. **No New Servers:** Never use "npm run dev" without killing running servers first  
+2. **Check Processes:** Use list-processes before restarts  
+3. **Restart Existing:** Use exact terminal ID  
+4. **Restart Steps:** list-processes→kill-process→npm run dev  
+5. **No New Ports:** Use existing ports only
