@@ -45,7 +45,7 @@ class MockMCPClient:
         self.connected = False
         logger.info("Mock MCP client disconnected (sync)")
 
-    async def list_tools(self) -> List[Dict[str, Any]]:
+    async def list_tools(self) -> list[dict[str, Any]]:
         """Mock list_tools method."""
         logger.info("Mock MCP list_tools called")
         return [
@@ -61,7 +61,7 @@ class MockMCPClient:
             }
         ]
 
-    def list_tools_sync(self) -> List[Dict[str, Any]]:
+    def list_tools_sync(self) -> list[dict[str, Any]]:
         """Synchronous list_tools method."""
         logger.info("Mock MCP list_tools called (sync)")
         return [
@@ -72,7 +72,7 @@ class MockMCPClient:
             }
         ]
 
-    async def call_tool(self, name: str, arguments: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def call_tool(self, name: str, arguments: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         """Mock call_tool method."""
         logger.info(f"Mock MCP call_tool: {name} with args: {arguments}")
         return {
@@ -82,7 +82,7 @@ class MockMCPClient:
             "arguments": arguments or {}
         }
 
-    def call_tool_sync(self, name: str, arguments: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def call_tool_sync(self, name: str, arguments: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         """Synchronous call_tool method."""
         logger.info(f"Mock MCP call_tool: {name} with args: {arguments} (sync)")
         return {
@@ -92,7 +92,7 @@ class MockMCPClient:
             "arguments": arguments or {}
         }
 
-    async def send_message(self, message: Union[str, Dict[str, Any]]) -> Dict[str, Any]:
+    async def send_message(self, message: Union[str, dict[str, Any]]) -> dict[str, Any]:
         """Mock send_message method."""
         logger.info(f"Mock MCP send_message: {message}")
         return {
@@ -100,7 +100,7 @@ class MockMCPClient:
             "success": True
         }
 
-    def send_message_sync(self, message: Union[str, Dict[str, Any]]) -> Dict[str, Any]:
+    def send_message_sync(self, message: Union[str, dict[str, Any]]) -> dict[str, Any]:
         """Synchronous send_message method."""
         logger.info(f"Mock MCP send_message: {message} (sync)")
         return {

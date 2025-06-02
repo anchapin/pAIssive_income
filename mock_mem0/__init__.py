@@ -192,10 +192,10 @@ class LLM:
 
 # Export all mock classes
 __all__ = [
+    "LLM",
     "Client",
     "Config",
     "EmbeddingModel",
-    "LLM",
     "Memory",
     "MemoryClient",
     "MockMemory",

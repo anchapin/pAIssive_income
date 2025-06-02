@@ -128,9 +128,9 @@ def run_tests() -> int | None:
                 import xml.etree.ElementTree as ET
                 tree = ET.parse(coverage_file)
                 root = tree.getroot()
-                coverage_elem = root.find('.//coverage')
+                coverage_elem = root.find(".//coverage")
                 if coverage_elem is not None:
-                    line_rate = float(coverage_elem.get('line-rate', 0))
+                    line_rate = float(coverage_elem.get("line-rate", 0))
                     coverage_percent = line_rate * 100
                     logger.info(f"Coverage: {coverage_percent:.2f}%")
                     if coverage_percent >= 15.0:
@@ -156,12 +156,11 @@ def run_tests() -> int | None:
         if result.returncode == 0:
             logger.info("✓ All tests passed!")
             return 0
-        elif result.returncode == 1:
+        if result.returncode == 1:
             logger.warning("Some tests failed, but continuing...")
             return 0  # Don't fail CI
-        else:
-            logger.error(f"Test execution failed with code {result.returncode}")
-            return 0  # Still don't fail CI to allow other jobs to run
+        logger.error(f"Test execution failed with code {result.returncode}")
+        return 0  # Still don't fail CI to allow other jobs to run
 
     except Exception as e:
         logger.exception(f"Test execution failed: {e}")
