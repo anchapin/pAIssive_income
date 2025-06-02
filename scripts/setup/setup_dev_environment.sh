@@ -7,7 +7,7 @@ echo "Setting up development environment..."
 # Check if Python is installed
 if ! command -v python3 &> /dev/null; then
     echo "Error: Python 3 is not installed or not in PATH."
-    echo "Please install Python 3.8 or higher from your package manager or https://www.python.org/downloads/"
+    echo "Please install Python 3.10 or higher from your package manager or https://www.python.org/downloads/"
     exit 1
 fi
 

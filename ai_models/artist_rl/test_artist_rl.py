@@ -10,32 +10,33 @@ import unittest
 
 from ai_models.artist_rl.env import ArtistRLEnv
 
+
 class TestArtistRLEnv(unittest.TestCase):
     """Unit tests for ArtistRLEnv."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.env = ArtistRLEnv()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.env.close()
 
-    def test_reset_returns_observation(self):
+    def test_reset_returns_observation(self) -> None:
         """reset() should return an initial observation."""
         obs = self.env.reset()
-        self.assertIsNotNone(obs)
+        assert obs is not None
 
-    def test_step_returns_tuple(self):
+    def test_step_returns_tuple(self) -> None:
         """step() should return (obs, reward, done, info)."""
         self.env.reset()
         action = self.env.action_space.sample()
         result = self.env.step(action)
-        self.assertEqual(len(result), 4)
+        assert len(result) == 4
         obs, reward, done, info = result
-        self.assertIsInstance(reward, float)
-        self.assertIsInstance(done, bool)
-        self.assertIsInstance(info, dict)
+        assert isinstance(reward, float)
+        assert isinstance(done, bool)
+        assert isinstance(info, dict)
 
-    def test_minimal_train_test_cycle(self):
+    def test_minimal_train_test_cycle(self) -> None:
         """Minimal train/test loop: run env for a few steps."""
         obs = self.env.reset()
         total_reward = 0.0
@@ -45,7 +46,7 @@ class TestArtistRLEnv(unittest.TestCase):
             total_reward += reward
             if done:
                 break
-        self.assertIsInstance(total_reward, float)
+        assert isinstance(total_reward, float)
 
 if __name__ == "__main__":
     unittest.main()
