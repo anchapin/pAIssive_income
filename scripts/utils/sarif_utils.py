@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""
-SARIF utilities for security scanning workflows.
-
-This module provides utilities for creating and manipulating SARIF files
-without any external dependencies. It's designed to be used in CI/CD workflows
-where installing additional packages might be problematic.
-"""
-
 from __future__ import annotations
 
 import json
@@ -15,8 +7,32 @@ import sys
 from pathlib import Path
 from typing import Any, Optional
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
 logger = logging.getLogger(__name__)
+
+"""
+SARIF utilities for security scanning workflows.
+
+This module provides utilities for creating and manipulating SARIF files
+without any external dependencies. It's designed to be used in CI/CD workflows
+where installing additional packages might be problematic.
+"""
+
 
 
 def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
@@ -319,6 +335,7 @@ def convert_file(
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     # Simple command-line interface
     MIN_ARGS = 4  # input_file, output_file, tool_name are required
     if len(sys.argv) < MIN_ARGS:

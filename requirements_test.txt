@@ -5,3 +5,5 @@ pytz>=2024.1
 pytest
 pytest-cov
 pytest-xdist
+# coverage>=6.3 required for Python 3.11 compatibility, prevents segfaults in CI
+coverage>=6.3

@@ -11,7 +11,7 @@ authors = [
   { name = "pAIssive Income Team", email = "support@paissiveincome.example.com" }
 ]
 license = { text = "MIT" }
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 dependencies = []
 
 [project.urls]
