@@ -120,7 +120,7 @@ def test_integration_with_memory_enhanced_team():
         class DummyAgent:
             role = "Tester"
         team.agents = [DummyAgent()]
-        memories = team._retrieve_relevant_memories(query="test query")  # noqa: SLF001
+        memories = team._retrieve_relevant_memories(query="test query")
         assert len(memories["results"]) == 2
         assert any("Unified answer 1" in m["text"] for m in memories["results"])
         assert any(m["source"] in ["mem0", "chroma"] for m in memories["results"])

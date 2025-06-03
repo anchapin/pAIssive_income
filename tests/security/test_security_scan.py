@@ -37,7 +37,7 @@ def run_command(command: str, cwd: Optional[str] = None) -> tuple[str, str, int]
         args = shlex.split(command)
 
         # Use subprocess.run instead of Popen for simpler code
-        result = subprocess.run(  # noqa: S603 - Using shlex.split for safe command execution
+        result = subprocess.run(
             args,
             shell=False,  # Avoid shell=True for security
             capture_output=True,  # Use capture_output instead of stdout/stderr=PIPE

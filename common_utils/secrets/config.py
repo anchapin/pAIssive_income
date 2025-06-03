@@ -25,7 +25,7 @@ class SecretConfig:
     """Configuration manager that can handle secret references."""
 
     # Constants
-    SECRET_PREFIX = "secret:"  # noqa: S105
+    SECRET_PREFIX = "secret:"
 
     # Sentinel value to distinguish between None and not provided
     _UNSET = object()

@@ -35,7 +35,7 @@ class MockUser:
 @pytest.fixture
 def user_service():
     """Create a UserService instance for testing."""
-    return UserService(token_secret="test_secret")  # noqa: S106 - Test data only
+    return UserService(token_secret="test_secret")
 
 
 @pytest.fixture
@@ -45,7 +45,7 @@ def mock_user():
         id=1,
         username="testuser",
         email="test@example.com",
-        password_hash="hashed_password",  # noqa: S106 - Test data only
+        password_hash="hashed_password",
         created_at=datetime.now(tz=timezone.utc),
         updated_at=datetime.now(tz=timezone.utc),
     )
@@ -187,7 +187,7 @@ class TestUserService:
         mock_db_session.session = mock_session
 
         # Create service and call method
-        service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
+        service = UserService(token_secret="test_secret")
         result = service.create_user(
             username="testuser",
             email="test@example.com",
@@ -297,7 +297,7 @@ class TestUserService:
         mock_user_model.query = mock_query
 
         # Create service and call method
-        service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
+        service = UserService(token_secret="test_secret")
         success, result = service.authenticate_user(
             username_or_email="nonexistent",
             auth_credential="test_credential"
@@ -340,7 +340,7 @@ class TestUserService:
         mock_user_model.query = mock_query
 
         # Create service and call method
-        service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
+        service = UserService(token_secret="test_secret")
         success, result = service.authenticate_user(
             username_or_email="testuser",
             auth_credential="wrong_credential"
@@ -403,7 +403,7 @@ class TestUserService:
         mock_user_model.query = mock_query
 
         # Create service and call method
-        service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
+        service = UserService(token_secret="test_secret")
         success, result = service.authenticate_user(
             username_or_email="testuser",
             auth_credential="test_credential"
@@ -490,7 +490,7 @@ class TestUserService:
 
     def test_user_service_initialization_with_token_secret(self):
         """Test that UserService initializes correctly with token secret."""
-        test_secret = "test_secret"  # noqa: S105 - Test data only
+        test_secret = "test_secret"
         service = UserService(token_secret=test_secret)
         assert service.token_secret == test_secret
         assert service.token_expiry == 3600  # Default value

@@ -34,7 +34,7 @@ def example_secure_logger() -> None:
 
     # Log messages with sensitive information
     # Using placeholder values for demonstration only
-    demo_access_token = "DEMO_TOKEN_PLACEHOLDER"  # noqa: S105
+    demo_access_token = "DEMO_TOKEN_PLACEHOLDER"
     demo_auth_material = "DEMO_AUTH_PLACEHOLDER"
 
     # These will be automatically masked
@@ -61,7 +61,7 @@ def example_mask_sensitive_data() -> None:
     logger = logging.getLogger("standard_logger")  # Use the logger expected by the test
 
     # Sensitive data - using placeholder for demonstration
-    demo_access_token = "DEMO_TOKEN_PLACEHOLDER"  # noqa: S105
+    demo_access_token = "DEMO_TOKEN_PLACEHOLDER"
 
     # Manually mask sensitive data
     masked_message = mask_sensitive_data(f"Using access token: {demo_access_token}")

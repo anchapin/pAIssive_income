@@ -113,7 +113,7 @@ def calculator(expression: str) -> object:
             # should be lowercase) for these methods
             class SafeExpressionEvaluator(ast.NodeVisitor):
                 # Method names must match AST node types exactly
-                def visit_BinOp(self, node: ast.BinOp) -> object:  # noqa: N802
+                def visit_BinOp(self, node: ast.BinOp) -> object:
                     """Process binary operations."""
                     left = self.visit(node.left)
                     right = self.visit(node.right)
@@ -134,7 +134,7 @@ def calculator(expression: str) -> object:
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
-                def visit_UnaryOp(  # noqa: N802
+                def visit_UnaryOp(
                     self, node: ast.UnaryOp
                 ) -> object:
                     """Process unary operations."""
@@ -147,12 +147,12 @@ def calculator(expression: str) -> object:
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
-                def visit_Num(self, node: ast.Num) -> object:  # noqa: N802
+                def visit_Num(self, node: ast.Num) -> object:
                     """Process numeric nodes."""
                     return node.n
 
                 # Method names must match AST node types exactly
-                def visit_Constant(  # noqa: N802
+                def visit_Constant(
                     self, node: ast.Constant
                 ) -> object:
                     """Process constant nodes."""

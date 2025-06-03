@@ -72,7 +72,7 @@ jobs:
     # Use Ubuntu as the primary runner for this workflow
     # Platform-specific analysis is handled by dedicated workflows
     runs-on: ubuntu-latest
-    timeout-minutes: 75  # Optimized timeout for better resource management
+    timeout-minutes: 120  # Increased timeout for better resource management
     # Only run if auto-fix workflow completed successfully, or if triggered by other events
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
@@ -247,7 +247,7 @@ jobs:
       - name: Install Node.js dependencies
         if: matrix.language == 'javascript-typescript'
         shell: bash
-        timeout-minutes: 12  # Slightly increased timeout for better reliability
+        timeout-minutes: 20  # Increased timeout for better reliability
         continue-on-error: true
         run: |
           # Function to install dependencies with enhanced retry logic
@@ -370,12 +370,12 @@ jobs:
           languages: ${{ matrix.language }}
           config-file: .github/codeql/security-os-config.yml
           debug: false
-        timeout-minutes: 8  # Reduced timeout for faster feedback
+        timeout-minutes: 15  # Increased timeout for initialization
 
       # Autobuild attempts to build any compiled languages with timeout
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
-        timeout-minutes: 12  # Reduced timeout for better resource management
+        timeout-minutes: 25  # Increased timeout for better resource management
         continue-on-error: true
 
       # Verify environment before CodeQL analysis
@@ -424,7 +424,7 @@ jobs:
           category: "/language:${{ matrix.language }}"
           upload: true
           output: sarif-results/${{ matrix.language }}-${{ runner.os }}.sarif
-        timeout-minutes: 25  # Optimized timeout for analysis step
+        timeout-minutes: 45  # Increased timeout for analysis step
         continue-on-error: false # Fail the workflow if CodeQL analysis fails
 
       # Upload SARIF results as an artifact

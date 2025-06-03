@@ -123,7 +123,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
             # Wrap DB-specific error in our custom exception
             raise DatabaseError from e
 
-    def do_GET(self) -> None:  # noqa: N802
+    def do_GET(self) -> None:
         """Handle GET requests."""
         try:
             parsed_path = urlparse(self.path)
@@ -170,7 +170,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
             logger.exception("Error handling request")
             self._send_response(500, {"error": "Internal server error"})
 
-    def do_POST(self) -> None:  # noqa: N802
+    def do_POST(self) -> None:
         """Handle POST requests."""
         try:
             parsed_path = urlparse(self.path)
@@ -258,7 +258,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
             logger.exception("Error handling POST request")
             self._send_response(500, {"error": "Internal server error"})
 
-    def do_OPTIONS(self) -> None:  # noqa: N802
+    def do_OPTIONS(self) -> None:
         """Handle OPTIONS requests for CORS preflight."""
         self.send_response(200)
 

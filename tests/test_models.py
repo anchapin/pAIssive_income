@@ -45,7 +45,7 @@ def test_user_model(app: Flask) -> None:
         user = User(
             username="testuser",
             email="test@example.com",
-            password_hash="hashed_password",  # noqa: S106 - Test data only
+            password_hash="hashed_password",
         )
         db.session.add(user)
         db.session.commit()
@@ -55,7 +55,7 @@ def test_user_model(app: Flask) -> None:
         assert queried_user is not None
         assert queried_user.username == "testuser"
         assert queried_user.email == "test@example.com"
-        assert queried_user.password_hash == "hashed_password"  # noqa: S105 - Test data only
+        assert queried_user.password_hash == "hashed_password"
 
         # Test to_dict method
         user_dict = user.to_dict()

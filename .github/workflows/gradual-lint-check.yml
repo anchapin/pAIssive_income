@@ -6,10 +6,7 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
-    types:
-      - completed
+  # Removed workflow_run dependency to reduce complexity
 
 permissions:
   contents: write
@@ -17,7 +14,7 @@ permissions:
 
 jobs:
   gradual-lint:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    # Simplified condition - run for all supported events
     runs-on: ubuntu-latest
 
     steps:
