@@ -60,7 +60,7 @@ def run(cmd: str, desc: str) -> None:
 
     # Use a list of validated commands for security
     # Command has been validated against allowed_commands list
-    res = subprocess.run(  # noqa: S603
+    res = subprocess.run(
         cmd_list, shell=False, check=False, capture_output=True, text=True
     )
     if res.returncode != 0:

@@ -43,7 +43,7 @@ def verify_imports() -> bool:
         logger.info("Testing import order 1: agent -> task -> crew")
         import mock_crewai.agent
         import mock_crewai.crew
-        import mock_crewai.task  # noqa: F401
+        import mock_crewai.task
 
         # Force reload to ensure we're testing the imports fresh
         logger.info("Testing import order 2: task -> agent -> crew")

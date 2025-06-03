@@ -74,7 +74,7 @@ def run_pytest_tests() -> bool:
     try:
         # Run basic tests
         print("Running basic tests...")  # noqa: T201
-        result_basic = subprocess.run(  # noqa: S603
+        result_basic = subprocess.run(
             [
                 sys.executable,
                 "-m",
@@ -97,7 +97,7 @@ def run_pytest_tests() -> bool:
 
         # Run model tests
         print("\nRunning model tests...")  # noqa: T201
-        result_models = subprocess.run(  # noqa: S603
+        result_models = subprocess.run(
             [
                 sys.executable,
                 "-m",

@@ -249,7 +249,7 @@ class MemoryRAGCoordinator:
         merged.sort(key=lambda x: (-x.get("relevance", 0.0), -parse_timestamp(x.get("timestamp"))))
         return merged
 
-    def _estimate_cost(self, results: list[dict]) -> float:  # noqa: ARG002
+    def _estimate_cost(self, results: list[dict]) -> float:
         """
         Estimate the 'cost' of a query to a subsystem (stub implementation).
 

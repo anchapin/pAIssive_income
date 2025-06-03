@@ -58,7 +58,7 @@ def list_tools() -> dict[str, Callable[..., Any]]:
 MAX_EXPONENT_VALUE = 100  # Maximum allowed value for exponentiation
 
 
-def calculator(expression: str) -> object:  # noqa: C901
+def calculator(expression: str) -> object:
     """
     Evaluate a mathematical expression safely.
 

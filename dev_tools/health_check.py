@@ -80,7 +80,7 @@ def run(cmd: str, desc: str) -> None:
             sys.exit(1)
 
         # Run the command with the full path to the executable
-        res = subprocess.run([executable] + cmd_parts[1:], check=False)  # noqa: S603 - Using full path to executable
+        res = subprocess.run([executable] + cmd_parts[1:], check=False)
 
         if res.returncode != 0:
             message = f"FAILED: {desc}"

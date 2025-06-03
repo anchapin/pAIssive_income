@@ -183,7 +183,7 @@ def _create_windows_junction(target_dir: Path, link_name: str) -> bool:
 
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         # nosec S603 - This is a safe subprocess call with no user input
-        subprocess.run(  # nosec B603 # noqa: S603
+        subprocess.run(  # nosec B603
             [
                 cmd_path,
                 "/c",

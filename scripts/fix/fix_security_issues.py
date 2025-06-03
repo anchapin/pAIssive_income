@@ -56,7 +56,7 @@ except ImportError:
     # Define a fallback function to avoid unbound variable errors
     def scan_directory(
         directory: str,  # Match the signature of the imported function
-        exclude_dirs: set[str]  # noqa: ARG001
+        exclude_dirs: set[str]
         | None = None,  # Match the signature of the imported function
     ) -> dict[str, list[tuple[str, int, int]]]:
         """

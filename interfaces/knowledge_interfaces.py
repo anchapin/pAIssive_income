@@ -111,7 +111,7 @@ class KnowledgeSource(ABC):
 class Mem0KnowledgeSource(KnowledgeSource):
     """Concrete implementation of KnowledgeSource for mem0 (Memory API)."""
 
-    def __init__(self, mem0_client: Any) -> None:  # noqa: ANN401
+    def __init__(self, mem0_client: Any) -> None:
         """
         Initialize the mem0 knowledge source.
 
@@ -121,11 +121,11 @@ class Mem0KnowledgeSource(KnowledgeSource):
         """
         self.mem0_client = mem0_client
 
-    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:  # noqa: ARG002
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
         """Search mem0 for relevant memories."""
         return [{"source": "mem0", "content": f"Stub memory for '{query}'"}]
 
-    def add(self, content: str, user_id: str, **kwargs: Any) -> dict[str, Any]:  # noqa: ARG002
+    def add(self, content: str, user_id: str, **kwargs: Any) -> dict[str, Any]:
         """Add new content to mem0."""
         return {"source": "mem0", "status": "added", "content": content}
 
@@ -133,7 +133,7 @@ class Mem0KnowledgeSource(KnowledgeSource):
 class VectorRAGKnowledgeSource(KnowledgeSource):
     """Concrete implementation of KnowledgeSource for vector database RAG (e.g., ChromaDB)."""
 
-    def __init__(self, vector_client: Any) -> None:  # noqa: ANN401
+    def __init__(self, vector_client: Any) -> None:
         """
         Initialize the vector RAG knowledge source.
 
@@ -143,11 +143,11 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
         """
         self.vector_client = vector_client
 
-    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:  # noqa: ARG002
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
         """Search vector DB for relevant documents."""
         return [{"source": "vector_rag", "content": f"Stub vector match for '{query}'"}]
 
-    def add(self, content: str, user_id: str, **kwargs: Any) -> dict[str, Any]:  # noqa: ARG002
+    def add(self, content: str, user_id: str, **kwargs: Any) -> dict[str, Any]:
         """Add new content to vector DB."""
         return {"source": "vector_rag", "status": "added", "content": content}
 

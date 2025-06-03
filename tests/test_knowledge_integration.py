@@ -20,28 +20,28 @@ from interfaces.knowledge_interfaces import (
 class AlwaysReturnsSource(KnowledgeSource):
     """Mock source that always returns a result."""
 
-    def search(self, query: str, user_id: str, **kwargs) -> list[dict[str, Any]]:  # noqa: ARG002
+    def search(self, query: str, user_id: str, **kwargs) -> list[dict[str, Any]]:
         return [{"source": "mem0", "content": f"mem0 hit for {query}"}]
 
-    def add(self, content: str, user_id: str, **kwargs) -> Any:  # noqa: ARG002
+    def add(self, content: str, user_id: str, **kwargs) -> Any:
         return {"source": "mem0", "status": "added"}
 
 class NeverReturnsSource(KnowledgeSource):
     """Mock source that never returns a result."""
 
-    def search(self, query: str, user_id: str, **kwargs) -> list[dict[str, Any]]:  # noqa: ARG002
+    def search(self, query: str, user_id: str, **kwargs) -> list[dict[str, Any]]:
         return []
 
-    def add(self, content: str, user_id: str, **kwargs) -> Any:  # noqa: ARG002
+    def add(self, content: str, user_id: str, **kwargs) -> Any:
         return {"source": "never", "status": "added"}
 
 class OnlyOnFallbackSource(KnowledgeSource):
     """Mock source that only returns on fallback (second in chain)."""
 
-    def search(self, query: str, user_id: str, **kwargs) -> list[dict[str, Any]]:  # noqa: ARG002
+    def search(self, query: str, user_id: str, **kwargs) -> list[dict[str, Any]]:
         return [{"source": "vector_rag", "content": f"vector_rag fallback for {query}"}]
 
-    def add(self, content: str, user_id: str, **kwargs) -> Any:  # noqa: ARG002
+    def add(self, content: str, user_id: str, **kwargs) -> Any:
         return {"source": "vector_rag", "status": "added"}
 
 

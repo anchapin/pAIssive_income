@@ -178,7 +178,7 @@ def main() -> int:
     try:
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         # nosec S603 - This is a safe subprocess call with no user input
-        subprocess.run(  # nosec B603 # noqa: S603
+        subprocess.run(  # nosec B603
             [bandit_path, "--version"],
             check=False,
             capture_output=True,
@@ -190,7 +190,7 @@ def main() -> int:
         try:
             # nosec B603 - subprocess call is used with shell=False and validated arguments
             # nosec S603 - This is a safe subprocess call with no user input
-            subprocess.run(  # nosec B603 # noqa: S603
+            subprocess.run(  # nosec B603
                 [sys.executable, "-m", "pip", "install", "bandit"],
                 check=False,
                 shell=False,
@@ -210,7 +210,7 @@ def main() -> int:
             try:
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
                 # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
+                subprocess.run(  # nosec B603
                     [
                         bandit_path,
                         "-r",
@@ -239,7 +239,7 @@ def main() -> int:
             try:
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
                 # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
+                subprocess.run(  # nosec B603
                     [
                         bandit_path,
                         "-r",
@@ -269,7 +269,7 @@ def main() -> int:
             try:
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
                 # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
+                subprocess.run(  # nosec B603
                     [sys.executable, "convert_bandit_to_sarif.py"],
                     check=False,
                     shell=False,

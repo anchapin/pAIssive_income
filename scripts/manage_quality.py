@@ -125,7 +125,7 @@ def get_changed_files(staged_only: bool = True) -> set[Path]:
         if processed_files:
             return python_files
         logger.info("No Python files found in changes")
-        return set()  # noqa: TRY300
+        return set()
 
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         logger.exception("Git operation failed")

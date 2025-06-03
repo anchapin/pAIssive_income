@@ -184,7 +184,7 @@ def run_pytest_strategy(test_args: list[str]) -> int:
         if "PYTHONNOUSERSITE" in env:
             del env["PYTHONNOUSERSITE"]
 
-        result = subprocess.run(cmd, check=False, capture_output=False, env=env)  # noqa: S603
+        result = subprocess.run(cmd, check=False, capture_output=False, env=env)
 
         if result.returncode == 0:
             logger.info("Tests completed successfully with pytest")
@@ -210,7 +210,7 @@ def run_script_strategy(test_args: list[str]) -> int:
     try:
         logger.info("Attempting to run tests with run_tests.py...")
         cmd = [sys.executable, "run_tests.py", *test_args]
-        result = subprocess.run(cmd, check=False, capture_output=False)  # noqa: S603
+        result = subprocess.run(cmd, check=False, capture_output=False)
         if result.returncode == 0:
             logger.info("Tests completed successfully with run_tests.py")
             return result.returncode
@@ -229,7 +229,7 @@ def run_discovery_strategy(test_args: list[str]) -> int:
     try:
         logger.info("Attempting minimal test discovery...")
         cmd = [sys.executable, "-m", "pytest", "--collect-only", "-q"]
-        result = subprocess.run(cmd, check=False, capture_output=True, text=True)  # noqa: S603
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
         if result.returncode == 0:
             logger.info("Test discovery successful, running with basic options...")
 
@@ -242,7 +242,7 @@ def run_discovery_strategy(test_args: list[str]) -> int:
             )]
 
             cmd = [sys.executable, "-m", "pytest", "-v", "--tb=short", *filtered_args]
-            result = subprocess.run(cmd, check=False, capture_output=False)  # noqa: S603
+            result = subprocess.run(cmd, check=False, capture_output=False)
             return 0 if result.returncode in [0, 1] else result.returncode
         return 1
     except subprocess.SubprocessError:
@@ -277,7 +277,7 @@ def run_individual_files_strategy(test_args: list[str]) -> int:
     for test_file in test_files:
         try:
             cmd = [sys.executable, "-m", "pytest", test_file, "-v", "--tb=short"]
-            result = subprocess.run(cmd, check=False, capture_output=False)  # noqa: S603
+            result = subprocess.run(cmd, check=False, capture_output=False)
             if result.returncode not in [0, 1]:  # 0 = success, 1 = test failures (acceptable)
                 overall_result = result.returncode
                 logger.warning("Test file %s failed with code %d", test_file, result.returncode)

@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 
-def get_platform_info() -> Dict[str, str]:
+def get_platform_info() -> dict[str, str]:
     """Get platform information for debugging."""
     return {
         "system": platform.system(),
@@ -33,7 +33,7 @@ def normalize_path(path: Union[str, Path]) -> str:
     return str(path_obj.resolve())
 
 
-def get_timeout_for_platform(base_timeout: int, platform_multipliers: Optional[Dict[str, float]] = None) -> int:
+def get_timeout_for_platform(base_timeout: int, platform_multipliers: Optional[dict[str, float]] = None) -> int:
     """
     Get platform-specific timeout values.
     
@@ -43,6 +43,7 @@ def get_timeout_for_platform(base_timeout: int, platform_multipliers: Optional[D
     
     Returns:
         Adjusted timeout in minutes
+
     """
     if platform_multipliers is None:
         platform_multipliers = {
@@ -50,17 +51,17 @@ def get_timeout_for_platform(base_timeout: int, platform_multipliers: Optional[D
             "darwin": 1.2,   # macOS sometimes needs 20% more time
             "linux": 1.0,    # Linux is the baseline
         }
-    
+
     system = platform.system().lower()
     multiplier = platform_multipliers.get(system, 1.0)
     return int(base_timeout * multiplier)
 
 
 def run_command_with_timeout(
-    command: List[str],
+    command: list[str],
     timeout_seconds: int = 300,
     cwd: Optional[str] = None,
-    env: Optional[Dict[str, str]] = None,
+    env: Optional[dict[str, str]] = None,
     capture_output: bool = True,
 ) -> subprocess.CompletedProcess:
     """
@@ -75,6 +76,7 @@ def run_command_with_timeout(
     
     Returns:
         CompletedProcess instance
+
     """
     # Adjust timeout for platform
     platform_info = get_platform_info()
@@ -82,7 +84,7 @@ def run_command_with_timeout(
         timeout_seconds = int(timeout_seconds * 1.5)
     elif platform_info["is_macos"]:
         timeout_seconds = int(timeout_seconds * 1.2)
-    
+
     try:
         result = subprocess.run(
             command,
@@ -99,14 +101,13 @@ def run_command_with_timeout(
         raise e
 
 
-def get_shell_command(script_content: str) -> List[str]:
+def get_shell_command(script_content: str) -> list[str]:
     """Get appropriate shell command for current platform."""
     platform_info = get_platform_info()
-    
+
     if platform_info["is_windows"]:
         return ["powershell", "-Command", script_content]
-    else:
-        return ["bash", "-c", script_content]
+    return ["bash", "-c", script_content]
 
 
 def create_cross_platform_script(
@@ -124,25 +125,26 @@ def create_cross_platform_script(
     
     Returns:
         Path to the main script
+
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-    
+
     # Write bash script
     bash_file = output_path / "script.sh"
     with open(bash_file, "w", encoding="utf-8") as f:
         f.write("#!/bin/bash\n")
         f.write(bash_script)
     bash_file.chmod(0o755)
-    
+
     # Write PowerShell script
     ps_file = output_path / "script.ps1"
     with open(ps_file, "w", encoding="utf-8") as f:
         f.write(powershell_script)
-    
+
     # Write main script
     main_script = output_path / "run_script.py"
-    main_content = f'''#!/usr/bin/env python3
+    main_content = '''#!/usr/bin/env python3
 """Auto-generated cross-platform script runner."""
 
 import platform
@@ -164,21 +166,21 @@ def main():
         result = subprocess.run(cmd, check=False)
         sys.exit(result.returncode)
     except Exception as e:
-        print(f"Error running script: {{e}}")
+        print(f"Error running script: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
     main()
 '''
-    
+
     with open(main_script, "w", encoding="utf-8") as f:
         f.write(main_content)
     main_script.chmod(0o755)
-    
+
     return str(main_script)
 
 
-def get_recommended_timeouts() -> Dict[str, Dict[str, int]]:
+def get_recommended_timeouts() -> dict[str, dict[str, int]]:
     """Get recommended timeout values for different workflow steps."""
     base_timeouts = {
         "node_install": 20,
@@ -189,9 +191,9 @@ def get_recommended_timeouts() -> Dict[str, Dict[str, int]]:
         "tests": 30,
         "docker_build": 30,
     }
-    
+
     platform_info = get_platform_info()
-    
+
     timeouts = {}
     for step, base_timeout in base_timeouts.items():
         timeouts[step] = {
@@ -199,7 +201,7 @@ def get_recommended_timeouts() -> Dict[str, Dict[str, int]]:
             "macos": int(base_timeout * 1.2),
             "windows": int(base_timeout * 1.5),
         }
-    
+
     return timeouts
 
 
@@ -209,7 +211,7 @@ def print_platform_debug_info():
     print("=== Platform Debug Information ===")
     for key, value in info.items():
         print(f"{key}: {value}")
-    
+
     print("\n=== Recommended Timeouts ===")
     timeouts = get_recommended_timeouts()
     for step, step_timeouts in timeouts.items():

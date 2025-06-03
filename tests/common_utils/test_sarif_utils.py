@@ -19,7 +19,7 @@ _PROJECT_ROOT = Path(__file__).parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from scripts.utils import sarif_utils  # noqa: E402
+from scripts.utils import sarif_utils
 
 
 @pytest.fixture
