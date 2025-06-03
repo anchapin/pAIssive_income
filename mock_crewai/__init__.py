@@ -23,9 +23,6 @@ class Process:
     """Mock Process class."""
 
 
-<<<<<<< HEAD
-# Export all the classes and types
-=======
 class MockAgent:
     """Mock implementation of CrewAI Agent."""
 
@@ -197,7 +194,6 @@ CrewType = MockCrewType
 TaskType = MockTaskType
 
 # Module-level attributes for compatibility
->>>>>>> b36cd36ce22c7f6f5b640c325729079e36e4e609
 __all__ = [
     "Agent",
     "AgentType",

@@ -1,15 +1,4 @@
 # Mock mock_mem0 module for CI
-__version__ = "0.1.0"
-
-<<<<<<< HEAD
-class Memory: pass
-class MemoryClient: pass
-class EmbeddingModel: pass
-def add(*args, **kwargs) -> None: pass
-def search(*args, **kwargs) -> None: pass
-def get(*args, **kwargs) -> None: pass
-def delete(*args, **kwargs) -> None: pass
-=======
 __version__ = "0.1.100"
 
 import logging
@@ -211,4 +200,3 @@ __all__ = [
 ]
 
 logger.info("Mock mem0ai module loaded successfully")
->>>>>>> b36cd36ce22c7f6f5b640c325729079e36e4e609

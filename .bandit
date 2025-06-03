@@ -3,7 +3,7 @@
 # Fallback INI format configuration (YAML is preferred)
 
 # Exclude directories from security scans
-exclude_dirs = tests,venv,.venv,env,.env,__pycache__,custom_stubs,node_modules,build,dist,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates,mock_mcp,mock_crewai,mock_mem0,.github/scripts,ui/react_frontend/node_modules
+exclude_dirs = tests,venv,.venv,env,.env,__pycache__,custom_stubs,node_modules,build,dist,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates,mock_mcp,mock_crewai,mock_mem0,.github/scripts,ui/react_frontend/node_modules,.git
 
 # Skip specific test IDs that are false positives or acceptable risks
 # B101: Use of assert detected (common in tests)
@@ -16,12 +16,6 @@ exclude_dirs = tests,venv,.venv,env,.env,__pycache__,custom_stubs,node_modules,b
 # B608: possible SQL injection (handled by ORM)
 # B609: use of wildcard in file permissions (deployment specific)
 skips = B101,B102,B103,B311,B404,B603,B607,B608,B609
-
-# Set the output format for GitHub Advanced Security
-output_format = sarif
-
-# Set the output file for GitHub Advanced Security
-output_file = security-reports/bandit-results.sarif
 
 # Set the severity level for GitHub Advanced Security
 # Options: LOW, MEDIUM, HIGH

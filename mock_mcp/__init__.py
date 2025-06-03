@@ -1,13 +1,4 @@
 # Mock mock_mcp module for CI
-__version__ = "0.1.0"
-
-<<<<<<< HEAD
-class MockMCPClient: pass
-class Client: pass
-class Server: pass
-def connect(*args, **kwargs) -> None: pass
-def disconnect(*args, **kwargs) -> None: pass
-=======
 __version__ = "1.0.0"
 
 import logging
@@ -179,4 +170,3 @@ __all__ = [
 ]
 
 logger.info("Mock MCP module loaded successfully")
->>>>>>> b36cd36ce22c7f6f5b640c325729079e36e4e609

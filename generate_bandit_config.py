@@ -1,18 +1,9 @@
 #!/usr/bin/env python3
-
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
 """
 Generate Bandit configuration files for GitHub Actions workflows.
 
 This script generates Bandit configuration files for different platforms and run IDs.
 It ensures that the necessary directories and files exist and are properly configured.
-
-This script generates Bandit configuration files for all platforms and run IDs.
-It is used by the GitHub Actions workflow to create the necessary configuration
-files for Bandit security scanning.
 
 Usage:
     python generate_bandit_config.py [run_id]
@@ -20,28 +11,10 @@ Usage:
 
 import logging
 import sys
-
-try:
-    # Path is used throughout the script, so we keep this import
-    from pathlib import Path
+from pathlib import Path
 
 # Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-
-# Configure logging
-except ImportError:
-
-    sys.exit(1)
+logger = logging.getLogger(__name__)
 
 
 # Constants

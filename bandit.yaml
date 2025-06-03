@@ -25,12 +25,15 @@ exclude_dirs:
   - mock_mem0
   - .github/scripts
   - ui/react_frontend/node_modules
+  - .git
 
 # Exclude specific files that cause issues
 exclude:
-  - test_mem0_integration.py
+  - "test_mem0_integration.py"
   - "**/test_*.py"
   - "**/mock_*.py"
+  - "**/conftest.py"
+  - "**/__pycache__/**"
 
 # Skip specific test IDs that are false positives or acceptable risks
 skips:
@@ -47,7 +50,3 @@ skips:
 # Security levels
 severity: MEDIUM
 confidence: MEDIUM
-
-# Output configuration
-output_format: sarif
-output_file: security-reports/bandit-results.sarif

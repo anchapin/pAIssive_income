@@ -72,7 +72,7 @@ jobs:
     # Use Ubuntu as the primary runner for this workflow
     # Platform-specific analysis is handled by dedicated workflows
     runs-on: ubuntu-latest
-    timeout-minutes: 90  # Increased timeout for larger codebases
+    timeout-minutes: 75  # Optimized timeout for better resource management
     # Only run if auto-fix workflow completed successfully, or if triggered by other events
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
@@ -247,12 +247,15 @@ jobs:
       - name: Install Node.js dependencies
         if: matrix.language == 'javascript-typescript'
         shell: bash
-        timeout-minutes: 10  # Add timeout for dependency installation
+        timeout-minutes: 12  # Slightly increased timeout for better reliability
+        continue-on-error: true
         run: |
-          # Function to install dependencies with fallback
+          # Function to install dependencies with enhanced retry logic
           install_deps() {
             local dir=$1
             local original_dir=$(pwd)
+            local max_attempts=2
+            local base_delay=5
 
             if [ -n "$dir" ]; then
               cd "$dir" || return 1
@@ -260,56 +263,62 @@ jobs:
 
             echo "Installing dependencies in $(pwd)..."
 
-            # Try with pnpm first (preferred)
-            if command -v pnpm &>/dev/null; then
-              echo "Using pnpm to install dependencies..."
-              timeout 8m pnpm install || {
-                echo "pnpm install failed or timed out, trying with npm..."
-                timeout 8m npm install || {
-                  echo "Both pnpm and npm installation failed in $(pwd)"
-                  if [ -n "$dir" ]; then
-                    cd "$original_dir"
-                  fi
-                  return 1
-                }
-              }
-            else
-              # Fallback to npm if pnpm is not available
-              echo "pnpm not found, using npm..."
-              timeout 8m npm install || {
-                echo "npm install failed in $(pwd)"
-                if [ -n "$dir" ]; then
-                  cd "$original_dir"
+            for attempt in $(seq 1 $max_attempts); do
+              echo "Attempt $attempt/$max_attempts for dependency installation in $(pwd)"
+
+              # Try with pnpm first (preferred)
+              if command -v pnpm &>/dev/null; then
+                echo "Using pnpm to install dependencies..."
+                if timeout 6m pnpm install; then
+                  echo "✓ pnpm install succeeded"
+                  if [ -n "$dir" ]; then cd "$original_dir"; fi
+                  return 0
                 fi
+                echo "⚠ pnpm install failed, trying npm..."
+              fi
+
+              # Fallback to npm
+              echo "Using npm to install dependencies..."
+              if timeout 6m npm install; then
+                echo "✓ npm install succeeded"
+                if [ -n "$dir" ]; then cd "$original_dir"; fi
+                return 0
+              fi
+
+              # If we get here, the attempt failed
+              if [ $attempt -lt $max_attempts ]; then
+                local delay=$((base_delay * attempt))
+                echo "⚠ Installation failed, retrying in ${delay}s..."
+                sleep $delay
+
+                # Clear caches on retry
+                npm cache clean --force 2>/dev/null || true
+                pnpm store prune 2>/dev/null || true
+              else
+                echo "✗ Installation failed after $max_attempts attempts in $(pwd)"
+                if [ -n "$dir" ]; then cd "$original_dir"; fi
                 return 1
-              }
-            fi
-
-            if [ -n "$dir" ]; then
-              cd "$original_dir"
-            fi
-
-            return 0
+              fi
+            done
           }
 
           # Install dependencies in root directory if package.json exists
           if [ -f "package.json" ]; then
             echo "Found package.json in root directory"
-            install_deps
+            install_deps || echo "Failed to install root dependencies"
           fi
 
           # Install dependencies in ui/react_frontend if package.json exists
           if [ -f "ui/react_frontend/package.json" ]; then
             echo "Found package.json in ui/react_frontend"
-            install_deps "ui/react_frontend"
+            install_deps "ui/react_frontend" || echo "Failed to install ui/react_frontend dependencies"
           fi
 
           # Install dependencies in sdk/javascript if package.json exists
           if [ -f "sdk/javascript/package.json" ]; then
             echo "Found package.json in sdk/javascript"
-            install_deps "sdk/javascript"
+            install_deps "sdk/javascript" || echo "Failed to install sdk/javascript dependencies"
           fi
-        continue-on-error: true
 
       # Clean up node_modules to save space
       - name: Clean up node_modules
@@ -361,12 +370,12 @@ jobs:
           languages: ${{ matrix.language }}
           config-file: .github/codeql/security-os-config.yml
           debug: false
-        timeout-minutes: 10
+        timeout-minutes: 8  # Reduced timeout for faster feedback
 
       # Autobuild attempts to build any compiled languages with timeout
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
-        timeout-minutes: 15
+        timeout-minutes: 12  # Reduced timeout for better resource management
         continue-on-error: true
 
       # Verify environment before CodeQL analysis
@@ -415,7 +424,7 @@ jobs:
           category: "/language:${{ matrix.language }}"
           upload: true
           output: sarif-results/${{ matrix.language }}-${{ runner.os }}.sarif
-        timeout-minutes: 20  # Add timeout for analysis step
+        timeout-minutes: 25  # Optimized timeout for analysis step
         continue-on-error: false # Fail the workflow if CodeQL analysis fails
 
       # Upload SARIF results as an artifact

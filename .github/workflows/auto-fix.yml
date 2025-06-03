@@ -36,6 +36,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install uv and dependencies
+        timeout-minutes: 10  # Add timeout for dependency installation
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
@@ -45,6 +46,7 @@ jobs:
           uv pip install -e ".[dev]" || pip install -e ".[dev]"
 
       - name: Run fix_linting_issues.py if present, else fallback to Ruff
+        timeout-minutes: 8  # Add timeout for linting fixes
         run: |
           source .venv/bin/activate
           if [ -f "fix_linting_issues.py" ]; then
@@ -100,15 +102,18 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
+        timeout-minutes: 5  # Add timeout for dependency installation
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest
 
       - name: Remove virtual environment directories and node_modules
+        timeout-minutes: 3  # Add timeout for cleanup
         run: |
           find . -type d \( -name ".venv" -o -name "venv" -o -name "env" -o -name ".env" -o -name "virtualenv" -o -name "node_modules" \) -exec echo "Removing {} ..." \; -exec rm -rf {} \; 2>/dev/null || true
 
       - name: Create .codeqlignore
+        timeout-minutes: 2  # Add timeout for file creation
         run: |
           cat > .codeqlignore << 'EOL'
           # (snip) - same content as previous script
