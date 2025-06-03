@@ -18,9 +18,9 @@ exclude_dirs = tests,venv,.venv,env,.env,__pycache__,custom_stubs,node_modules,b
 skips = B101,B102,B103,B311,B404,B603,B607,B608,B609
 
 # Set the severity level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-severity = MEDIUM
+# Options: 1=LOW, 2=MEDIUM, 3=HIGH
+severity = 2
 
 # Set the confidence level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-confidence = MEDIUM
+# Options: 1=LOW, 2=MEDIUM, 3=HIGH
+confidence = 2

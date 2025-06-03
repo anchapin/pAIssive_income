@@ -47,6 +47,6 @@ skips:
   - B608  # possible SQL injection (handled by ORM)
   - B609  # use of wildcard in file permissions (deployment specific)
 
-# Security levels
-severity: MEDIUM
-confidence: MEDIUM
+# Security levels (1=LOW, 2=MEDIUM, 3=HIGH)
+severity: 2
+confidence: 2
