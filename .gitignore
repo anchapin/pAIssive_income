@@ -313,3 +313,4 @@ coverage*.txt
 
 # Generated workflow testing reports
 docs/workflow-testing-results-*.md
+.github/workflows/security_scan.yml
