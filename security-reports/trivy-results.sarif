@@ -6,7 +6,8 @@
       "tool": {
         "driver": {
           "name": "Trivy",
-          "informationUri": "https://github.com/aquasecurity/trivy",
+          "informationUri": "https://github.com/PyCQA/trivy",
+          "version": "0.50.0",
           "rules": []
         }
       },

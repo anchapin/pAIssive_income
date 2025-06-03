@@ -6,14 +6,47 @@
 # Distribution / packaging
 # Django stuff:
 # Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+.python-version
+pyvenv.cfg
+pip-selfcheck.json
 # Flask stuff:
 # IDE specific files
 # IPython
 # Installer logs
 # Jupyter Notebook
 # Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+*.tmp
+*.bak
+*.swp
+*~
+temp/
+tmp/
 # Node.js
 # OS specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+._*
+.Spotlight-V100
+.Trashes
 # Playwright reports
 # Project specific
 # PyBuilder
@@ -32,6 +65,8 @@
 # mypy
 # pyenv
 *$py.class
+pytest.ini.temp
+pytest_temp.ini
 **/.env/
 **/.venv/
 **/dist-packages/
@@ -52,6 +87,8 @@
 *.sarif
 !security-reports/*.sarif
 *.sarif.json
+*coverage_helper.coveragerc
+
 # Explicit ignore for security/test artifacts
 bandit-output.json
 bandit-results.json
@@ -63,19 +100,94 @@ bandit-results-*.txt
 test-bandit-*.json
 test_bandit_sample.py
 run_tests_bandit.json
+security-reports/current-bandit-results.json
 security-reports/bandit-results-*.sarif
 !security-reports/bandit-results.sarif
 !security-reports/bandit-results-ini.sarif
+bandit-results.json.tmp
+*.json.tmp
 coverage-*.xml
 junit/test-results-*.xml
 *-results-*.json
 *-results-*.xml
 secrets.sarif.json
+empty-sarif.json
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
 create_bandit_files.sh
+
+# Test coverage reports
+coverage/
+coverage*/
+.coverage
+coverage.xml
+coverage-*.xml
+htmlcov/
+
+# Test reports
+test-output/
+playwright-report/
+**/playwright-report/
+test-results/
+**/test-results/
+
+# Editor and IDE files
+.vscode/
+.idea/
+.cursor/
+*.code-workspace
+.cursor.json
+.cursor/*.json
+mcp.json
+
+# Build artifacts and temporary files
+*.new
+*.old
+*.temp
+*.tmp
+*.staged
+**
+*.cover
+*.manifest
+*.sage.py
+*.sarif.json
+*-results-*.json
+*-results-*.xml
+secrets.sarif.json
+empty-sarif.json
+github_actions_fixes_summary.md
+FINAL_*.md
+PR_*.md
+LOGGER_FIXES_SUMMARY.md
+NEXT_STEPS.md
+COMMIT_*.md
+sues.py
+
+# Specific files to ignore
+how*
+ersanchaDocumentsAIpAIssive_income4pAIssive_income && git diff --name-only --diff-filter=U
+enhanced_setup_dev_environment.py.staged
 
 # Editor/tool-specific configs
 .cursor/
 cline_mcp_settings.json
+pyrefly.toml
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sublime-workspace
+*.sublime-project
 *.so
 *.spec
 *.swo
@@ -177,6 +289,12 @@ mypy_stubs/psycopg2/
 package-lock.json
 sdk/javascript/package-lock.json
 
+# CI/CD artifacts and temporary files
+ci-mode-active.txt
+ci-reports/
+**/ci-mode-active.txt
+**/ci-reports/
+
 # ARTIST experiment outputs – exclude from version control
 artist_experiments/data/
 artist_experiments/models/
@@ -185,3 +303,13 @@ artist_experiments/logs/
 # Environment reports that may contain sensitive information
 **/environment-report.json
 **/ci-reports/**/environment-report.json
+
+# Coverage reports
+coverage*.txt
+*_cov.txt
+
+# Automatically generated/ignored directories and files
+=3.9.0
+
+# Generated workflow testing reports
+docs/workflow-testing-results-*.md

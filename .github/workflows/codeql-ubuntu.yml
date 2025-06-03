@@ -43,6 +43,10 @@ on:
   schedule:
     - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Gradual Lint Check"]
+    types:
+      - completed
 
 # Limit concurrent runs to conserve resources
 concurrency:
@@ -61,6 +65,8 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
     timeout-minutes: 90  # Increased timeout for larger codebases
+    # Only run if auto-fix workflow completed successfully, or if triggered by other events
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
 
     strategy:
       fail-fast: false
@@ -76,7 +82,7 @@ jobs:
       # Set up pnpm first for JavaScript/TypeScript analysis
       - name: Setup pnpm
         if: matrix.language == 'javascript-typescript'
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v4
         with:
           version: '8.15.4'
           run_install: false
@@ -124,6 +130,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+        continue-on-error: true
 
       # Display disk space before analysis
       - name: Check disk space
@@ -261,28 +268,24 @@ jobs:
             # Ensure directory exists
             mkdir -p .github/codeql
 
-            # Create minimal Ubuntu configuration using a single heredoc
-            cat > .github/codeql/security-os-ubuntu.yml << 'EOF'
-name: "CodeQL Configuration for Ubuntu"
-os: ubuntu-latest
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
+            # Create minimal Ubuntu configuration
+            echo 'name: "CodeQL Configuration for Ubuntu"' > .github/codeql/security-os-ubuntu.yml
+            echo 'os: ubuntu-latest' >> .github/codeql/security-os-ubuntu.yml
+            echo 'queries:' >> .github/codeql/security-os-ubuntu.yml
+            echo '  - uses: security-and-quality' >> .github/codeql/security-os-ubuntu.yml
+            echo '  - uses: security-extended' >> .github/codeql/security-os-ubuntu.yml
+            echo '  - uses: security' >> .github/codeql/security-os-ubuntu.yml
+            echo 'disable-default-queries: false' >> .github/codeql/security-os-ubuntu.yml
+            echo 'trap-for-errors: true' >> .github/codeql/security-os-ubuntu.yml
 
-            # Create minimal unified configuration using a single heredoc
-            cat > .github/codeql/security-os-config.yml << 'EOF'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
+            # Create minimal unified configuration
+            echo 'name: "Unified CodeQL Configuration"' > .github/codeql/security-os-config.yml
+            echo 'queries:' >> .github/codeql/security-os-config.yml
+            echo '  - uses: security-and-quality' >> .github/codeql/security-os-config.yml
+            echo '  - uses: security-extended' >> .github/codeql/security-os-config.yml
+            echo '  - uses: security' >> .github/codeql/security-os-config.yml
+            echo 'disable-default-queries: false' >> .github/codeql/security-os-config.yml
+            echo 'trap-for-errors: true' >> .github/codeql/security-os-config.yml
           fi
 
       # Initialize CodeQL
@@ -346,6 +349,7 @@ EOF
           upload: true
           output: sarif-results/${{ matrix.language }}-ubuntu.sarif
         continue-on-error: false # Fail the workflow if CodeQL analysis fails
+        timeout-minutes: 30
 
       # Upload SARIF results as an artifact
       - name: Upload SARIF results

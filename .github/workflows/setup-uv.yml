@@ -1,28 +1,17 @@
 name: Setup uv (Reusable)
 
 on:
-  workflow_call:
-    inputs:
-      python-version:
-        required: false
-        type: string
-        default: '3.10'
-      working-directory:
-        required: false
-        type: string
-        default: '.'
-      install-dependencies:
-        required: false
-        type: boolean
-        default: true
-      requirements-file:
-        required: false
-        type: string
-        default: 'requirements.txt'
-      dev-requirements-file:
-        required: false
-        type: string
-        default: 'requirements-dev.txt'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Gradual Lint Check"]
+    types:
+      - completed
+    branches:
+      - main
 
 jobs:
   setup-uv:

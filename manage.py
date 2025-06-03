@@ -1,4 +1,15 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import logging
+import subprocess
+import sys
+from typing import Optional
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Unified project management script for developers.
 
@@ -14,17 +25,28 @@ Usage:
     python manage.py help
 """
 
-from __future__ import annotations
+# Configure logging
 
-import argparse
-import logging
-import subprocess
-import sys
-from pathlib import Path
-from typing import Optional
+try:
+    from pathlib import Path
 
-# Create a dedicated logger for this module
-logger = logging.getLogger(__name__)
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+
+# Configure logging
+except ImportError:
+
+    sys.exit(1)
 
 # Map commands to their corresponding scripts
 COMMAND_MAP = {
@@ -217,4 +239,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # Configure basic logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     main()

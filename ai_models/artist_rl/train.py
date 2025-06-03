@@ -6,7 +6,8 @@ This script sets up argument parsing, environment creation, and the main RL trai
 
 import argparse
 
-def main():
+
+def main() -> None:
     """
     Main entry point for RL training.
     Parses arguments, initializes environment, and runs the training loop.
@@ -23,18 +24,17 @@ def main():
 
     env = ArtistRLEnv()
 
-    for episode in range(args.episodes):
+    for _episode in range(args.episodes):
         obs = env.reset()
         done = False
         total_reward = 0.0
-        for step in range(args.max_steps):
+        for _step in range(args.max_steps):
             # Placeholder: random action
             action = env.action_space.sample()
             obs, reward, done, info = env.step(action)
             total_reward += reward
             if done:
                 break
-        print(f"Episode {episode+1}: Total Reward = {total_reward}")
 
     env.close()
 

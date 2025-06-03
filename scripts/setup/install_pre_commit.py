@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 """
 Install pre-commit hooks for the project.
 
@@ -16,9 +20,6 @@ import sys
 from pathlib import Path
 
 # Create a dedicated logger for this module
-logger = logging.getLogger(__name__)
-# Configure the logger
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
 def run_command(command: list[str], check: bool = True) -> int:
@@ -71,6 +72,21 @@ def check_pre_commit_installed() -> bool:
     try:
         # Use a safer approach with full path if possible
         import shutil
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
 
         pre_commit_path = shutil.which("pre-commit")
         if pre_commit_path:
@@ -126,6 +142,8 @@ def main() -> int:
         Exit code.
 
     """
+    # Configure the logger
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     # Get the root directory of the project
     root_dir = Path(__file__).parent
 

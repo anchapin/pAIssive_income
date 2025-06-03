@@ -6,15 +6,18 @@ This script is a wrapper around scripts/run/run_mcp_tests.py to maintain backwar
 with existing workflows that expect run_mcp_tests.py to be in the root directory.
 """
 
+
 from __future__ import annotations
 
 import logging
 import os
 import sys
-from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+try:
+    from pathlib import Path
+except ImportError:
+    sys.exit(1)
+
 logger = logging.getLogger("run_mcp_tests")
 
 
@@ -202,4 +205,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     sys.exit(main())
