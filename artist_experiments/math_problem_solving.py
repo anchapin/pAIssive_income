@@ -24,11 +24,11 @@ except ImportError:
     # Create mock objects for CI compatibility
     class MockSympy:
         @staticmethod
-        def Symbol(name):
+        def Symbol(name) -> str:
             return f"Symbol({name})"
 
         @staticmethod
-        def Eq(left, right):
+        def Eq(left, right) -> str:
             return f"Eq({left}, {right})"
 
         @staticmethod
@@ -36,14 +36,14 @@ except ImportError:
             return ["mock_solution"]
 
         @staticmethod
-        def factor(expr):
+        def factor(expr) -> str:
             return f"factor({expr})"
 
         @staticmethod
-        def expand(expr):
+        def expand(expr) -> str:
             return f"expand({expr})"
 
-    def parse_expr(expr_str):
+    def parse_expr(expr_str) -> str:
         return f"parsed({expr_str})"
 
     sp = MockSympy()
@@ -61,7 +61,7 @@ except ImportError:
 
     # Create mock classes for CI compatibility
     class MockArtistAgent:
-        def __init__(self):
+        def __init__(self) -> None:
             self.tools = {}
 
         def run(self, prompt: str) -> str:
@@ -69,7 +69,7 @@ except ImportError:
 
     class MockTooling:
         @staticmethod
-        def register_tool(name: str, func):
+        def register_tool(name: str, func) -> None:
             pass
 
         @staticmethod

@@ -111,7 +111,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
         """
         if not HAS_PSYCOPG2:
-            raise DatabaseError("psycopg2 is not available")
+            msg = "psycopg2 is not available"
+            raise DatabaseError(msg)
 
         db_url = os.environ.get("DATABASE_URL")
         if not db_url:

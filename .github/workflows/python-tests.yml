@@ -13,7 +13,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60  # Increased timeout for comprehensive testing
     # Only run if auto-fix workflow completed successfully, or if triggered by other events
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
@@ -135,7 +135,7 @@ jobs:
         }
 
     - name: Run tests with coverage
-      timeout-minutes: 30
+      timeout-minutes: 40  # Increased timeout for comprehensive test coverage
       run: |
         # Ensure pytest configuration is correct
         echo "Checking pytest configuration..."

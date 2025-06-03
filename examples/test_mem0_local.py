@@ -119,12 +119,10 @@ def main() -> None:
     """Main function to run all tests."""
     # Check if mem0 is available
     if not MEM0_AVAILABLE:
-        print("mem0ai not available, skipping tests")
         return
 
     # Check if OpenAI API key is set
     if "OPENAI_API_KEY" not in os.environ:
-        print("OPENAI_API_KEY not set, skipping tests")
         return
 
     # Run tests

@@ -211,7 +211,7 @@ class MCPAdapter:
         global mcp
         if mcp is None:
             logger.error("MCP module is not available")
-            raise ModelContextProtocolError()
+            raise ModelContextProtocolError
 
         try:
             logger.info(f"Creating MCP client with endpoint: {endpoint}")
@@ -244,7 +244,7 @@ class MCPAdapter:
         global mcp
         if mcp is None:
             logger.error("MCP module is not available")
-            raise ModelContextProtocolError()
+            raise ModelContextProtocolError
 
         # Connect if not already connected
         if not self.client:

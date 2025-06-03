@@ -52,7 +52,8 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
 
         """
         if aiohttp is None:
-            raise ImportError("aiohttp library is required for OpenAICompatibleAdapter. Please install it using 'pip install aiohttp'")
+            msg = "aiohttp library is required for OpenAICompatibleAdapter. Please install it using 'pip install aiohttp'"
+            raise ImportError(msg)
 
         self.base_url = base_url
         self.api_key = api_key

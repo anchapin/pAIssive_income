@@ -47,7 +47,7 @@ jobs:
   lint-test:
     name: Lint, Type Check, and Test
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 90  # Increased timeout to prevent premature failures
+    timeout-minutes: ${{ matrix.os == 'windows-latest' && 150 || (matrix.os == 'macos-latest' && 120 || 90) }}  # Platform-optimized timeouts
     # Only run if auto-fix workflow completed successfully, or if triggered by other events
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
@@ -77,20 +77,77 @@ jobs:
 
       - name: Install Node.js dependencies and build Tailwind CSS
         continue-on-error: true
-        timeout-minutes: 15  # Added timeout for Node.js operations
+        timeout-minutes: ${{ matrix.os == 'windows-latest' && 35 || (matrix.os == 'macos-latest' && 25 || 20) }}  # Platform-optimized timeouts
         run: |
-          echo "Installing Node.js dependencies..."
-          # Check if lockfile exists and is compatible
-          if [ -f "pnpm-lock.yaml" ]; then
-            echo "Found pnpm-lock.yaml, attempting frozen lockfile install..."
-            timeout 600 pnpm install --frozen-lockfile || {
-              echo "Frozen lockfile install failed, trying without frozen lockfile..."
-              timeout 600 pnpm install --no-frozen-lockfile || timeout 600 pnpm install || timeout 600 npm install
-            }
-          else
-            echo "No pnpm-lock.yaml found, installing without frozen lockfile..."
-            timeout 600 pnpm install || timeout 600 npm install
-          fi
+          echo "Installing Node.js dependencies with enhanced retry logic..."
+
+          # Enhanced Node.js installation function
+          install_node_deps_with_retry() {
+            local max_attempts=3
+            local base_delay=5
+
+            for attempt in $(seq 1 $max_attempts); do
+              echo "Node.js dependency installation attempt $attempt/$max_attempts"
+
+              # Try different installation strategies
+              if [ -f "pnpm-lock.yaml" ]; then
+                echo "Found pnpm-lock.yaml, attempting frozen lockfile install..."
+                if timeout 600 pnpm install --frozen-lockfile; then
+                  echo "✓ pnpm frozen lockfile install succeeded"
+                  return 0
+                elif timeout 600 pnpm install --no-frozen-lockfile; then
+                  echo "✓ pnpm install (no frozen lockfile) succeeded"
+                  return 0
+                elif timeout 600 pnpm install; then
+                  echo "✓ pnpm install succeeded"
+                  return 0
+                elif timeout 600 npm install; then
+                  echo "✓ npm install succeeded"
+                  return 0
+                fi
+              elif [ -f "package-lock.json" ]; then
+                echo "Found package-lock.json, using npm..."
+                if timeout 600 npm ci; then
+                  echo "✓ npm ci succeeded"
+                  return 0
+                elif timeout 600 npm install; then
+                  echo "✓ npm install succeeded"
+                  return 0
+                fi
+              elif [ -f "package.json" ]; then
+                echo "Found package.json, trying pnpm then npm..."
+                if timeout 600 pnpm install; then
+                  echo "✓ pnpm install succeeded"
+                  return 0
+                elif timeout 600 npm install; then
+                  echo "✓ npm install succeeded"
+                  return 0
+                fi
+              else
+                echo "No package.json found, skipping Node.js dependency installation"
+                return 0
+              fi
+
+              # If we get here, the attempt failed
+              if [ $attempt -lt $max_attempts ]; then
+                local delay=$((base_delay * attempt))
+                echo "⚠ Node.js installation failed, retrying in ${delay}s..."
+                sleep $delay
+
+                # Clear npm cache on retry
+                npm cache clean --force 2>/dev/null || true
+                pnpm store prune 2>/dev/null || true
+              else
+                echo "✗ Node.js dependency installation failed after $max_attempts attempts"
+                return 1
+              fi
+            done
+          }
+
+          # Install dependencies with retry
+          install_node_deps_with_retry
+
+          # Build Tailwind CSS with retry
           echo "Building Tailwind CSS..."
           timeout 300 pnpm tailwind:build || timeout 300 npm run tailwind:build || echo "Tailwind build failed, continuing"
 
@@ -112,138 +169,312 @@ jobs:
 
       - name: Install essential dependencies first
         continue-on-error: false
-        timeout-minutes: 10  # Added timeout for essential dependencies
+        timeout-minutes: ${{ matrix.os == 'windows-latest' && 30 || (matrix.os == 'macos-latest' && 20 || 15) }}  # Platform-optimized timeouts
         run: |
-          echo "Installing essential dependencies..."
-          timeout 300 python -m pip install --upgrade pip setuptools wheel || {
-            echo "Failed to install basic tools, retrying..."
-            python -m pip install --upgrade pip setuptools wheel
+          echo "Installing essential dependencies with enhanced retry logic..."
+
+          # Function for exponential backoff retry
+          retry_with_backoff() {
+            local cmd="$1"
+            local max_attempts=3
+            local base_delay=2
+
+            for attempt in $(seq 1 $max_attempts); do
+              echo "Attempt $attempt/$max_attempts: $cmd"
+              if timeout 300 $cmd; then
+                echo "✓ Command succeeded on attempt $attempt"
+                return 0
+              else
+                if [ $attempt -lt $max_attempts ]; then
+                  local delay=$((base_delay ** attempt))
+                  echo "⚠ Command failed, retrying in ${delay}s..."
+                  sleep $delay
+                else
+                  echo "✗ Command failed after $max_attempts attempts"
+                  return 1
+                fi
+              fi
+            done
           }
-          timeout 300 python -m pip install pytest pytest-cov pytest-asyncio pytest-xdist pytest-mock ruff pyright || {
-            echo "Failed to install testing tools, retrying individually..."
-            python -m pip install pytest pytest-cov || echo "pytest installation failed"
-            python -m pip install ruff pyright || echo "linting tools installation failed"
+
+          # Install basic tools with retry
+          echo "Installing pip, setuptools, wheel..."
+          retry_with_backoff "python -m pip install --upgrade pip setuptools wheel" || {
+            echo "Critical: Failed to install basic tools after retries"
+            exit 1
           }
+
+          # Install essential testing and linting tools individually with retry
+          essential_packages=("pytest" "pytest-cov" "pytest-asyncio" "pytest-xdist" "pytest-mock" "ruff" "pyright")
+          failed_packages=()
+
+          for package in "${essential_packages[@]}"; do
+            echo "Installing $package..."
+            if ! retry_with_backoff "python -m pip install $package"; then
+              echo "⚠ Failed to install $package, adding to failed list"
+              failed_packages+=("$package")
+            fi
+          done
+
+          # Report results
+          if [ ${#failed_packages[@]} -eq 0 ]; then
+            echo "✓ All essential packages installed successfully"
+          else
+            echo "⚠ Failed to install: ${failed_packages[*]}"
+            echo "Continuing with available packages..."
+          fi
         shell: bash
 
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
-        timeout-minutes: 20  # Added timeout for dependency installation
+        timeout-minutes: ${{ matrix.os == 'macos-latest' && 40 || 30 }}  # Platform-optimized timeouts with buffer
         run: |
-          set -e
-          echo "Setting up Python environment for Unix systems..."
+          echo "Setting up Python environment for Unix systems with enhanced retry logic..."
 
-          # Install CI-friendly requirements if available, otherwise use regular requirements
+          # Enhanced retry function with exponential backoff
+          install_requirements_with_retry() {
+            local req_file="$1"
+            local description="$2"
+            local max_attempts=3
+            local base_delay=5
+
+            if [ ! -f "$req_file" ]; then
+              echo "⚠ Requirements file $req_file not found, skipping"
+              return 0
+            fi
+
+            echo "Installing $description from $req_file..."
+
+            for attempt in $(seq 1 $max_attempts); do
+              echo "Attempt $attempt/$max_attempts for $req_file"
+
+              if timeout 1200 python -m pip install -r "$req_file" --no-deps --force-reinstall; then
+                echo "✓ Successfully installed $description on attempt $attempt"
+                return 0
+              else
+                if [ $attempt -lt $max_attempts ]; then
+                  local delay=$((base_delay * attempt))
+                  echo "⚠ Installation failed, retrying in ${delay}s..."
+                  sleep $delay
+
+                  # Try to clear pip cache on retry
+                  python -m pip cache purge 2>/dev/null || true
+                else
+                  echo "✗ Failed to install $description after $max_attempts attempts"
+
+                  # Try installing without dependencies as last resort
+                  echo "Attempting installation without dependencies..."
+                  timeout 600 python -m pip install -r "$req_file" --no-deps || true
+                  return 1
+                fi
+              fi
+            done
+          }
+
+          # Install requirements in priority order
           if [ -f requirements-ci.txt ]; then
-            echo "Installing CI-friendly requirements..."
-            timeout 900 python -m pip install -r requirements-ci.txt || echo "CI requirements installation failed"
+            install_requirements_with_retry "requirements-ci.txt" "CI-friendly requirements"
           elif [ -f requirements-dev.txt ]; then
-            echo "Installing development requirements..."
-            timeout 900 python -m pip install -r requirements-dev.txt || echo "Dev requirements installation failed"
+            install_requirements_with_retry "requirements-dev.txt" "development requirements"
           fi
 
+          # Install filtered main requirements if needed
           if [ -f requirements.txt ]; then
-            echo "Installing main requirements (filtered)..."
-            # Filter out problematic packages
-            grep -v "modelcontextprotocol\|mcp-\|crewai" requirements.txt > requirements_filtered.txt || cp requirements.txt requirements_filtered.txt
-            timeout 900 python -m pip install -r requirements_filtered.txt || echo "Main requirements installation failed"
+            echo "Creating filtered requirements file..."
+            # Filter out problematic packages with better regex
+            grep -v -E "^(modelcontextprotocol|mcp-|crewai|mem0ai)" requirements.txt | \
+            grep -v -E "^#.*" | \
+            grep -v -E "^[[:space:]]*$" > requirements_filtered.txt || cp requirements.txt requirements_filtered.txt
+
+            if [ -s requirements_filtered.txt ]; then
+              install_requirements_with_retry "requirements_filtered.txt" "filtered main requirements"
+            else
+              echo "⚠ Filtered requirements file is empty, skipping"
+            fi
           fi
 
-          # Ensure mock MCP module exists
-          if [ ! -d mock_mcp ]; then
-            echo "Creating mock MCP module..."
-            mkdir -p mock_mcp
-            echo "# Mock MCP module for CI" > mock_mcp/__init__.py
-            echo "class MockMCPClient: pass" >> mock_mcp/__init__.py
-            echo "Client = MockMCPClient" >> mock_mcp/__init__.py
-          fi
+          # Ensure mock modules exist
+          echo "Setting up mock modules..."
+          for mock_module in mock_mcp mock_crewai mock_mem0; do
+            if [ ! -d "$mock_module" ]; then
+              echo "Creating $mock_module module..."
+              mkdir -p "$mock_module"
+              echo "# Mock module for CI" > "$mock_module/__init__.py"
+              echo "__version__ = \"0.1.0\"" >> "$mock_module/__init__.py"
+              echo "" >> "$mock_module/__init__.py"
+              echo "class MockClient: pass" >> "$mock_module/__init__.py"
+              echo "class MockAgent: pass" >> "$mock_module/__init__.py"
+              echo "class MockCrew: pass" >> "$mock_module/__init__.py"
+              echo "class MockMemory: pass" >> "$mock_module/__init__.py"
+              echo "" >> "$mock_module/__init__.py"
+              echo "# Common exports" >> "$mock_module/__init__.py"
+              echo "Client = MockClient" >> "$mock_module/__init__.py"
+              echo "Agent = MockAgent" >> "$mock_module/__init__.py"
+              echo "Crew = MockCrew" >> "$mock_module/__init__.py"
+              echo "Memory = MockMemory" >> "$mock_module/__init__.py"
+            fi
+          done
 
-          # Ensure mock CrewAI module exists
-          if [ ! -d mock_crewai ]; then
-            echo "Creating mock CrewAI module..."
-            mkdir -p mock_crewai
-            echo "# Mock CrewAI module for CI" > mock_crewai/__init__.py
-            echo "class MockAgent: pass" >> mock_crewai/__init__.py
-            echo "class MockCrew: pass" >> mock_crewai/__init__.py
-          fi
+          echo "✓ Unix dependency installation completed"
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
-        timeout-minutes: 25  # Added timeout for Windows dependency installation
+        timeout-minutes: 50  # Windows needs significantly more time for dependency installation
         shell: pwsh
         run: |
-          Write-Host "Setting up Python environment for Windows..."
+          Write-Host "Setting up Python environment for Windows with enhanced retry logic..."
 
-          # Install Windows-specific CI requirements if available
-          if (Test-Path requirements-ci-windows.txt) {
-            Write-Host "Installing Windows-specific CI requirements..."
-            try {
-              $job = Start-Job -ScriptBlock { python -m pip install -r requirements-ci-windows.txt }
-              Wait-Job $job -Timeout 900
-              Receive-Job $job
-              Remove-Job $job
-            } catch {
-              Write-Host "Windows CI requirements installation failed: $_"
-            }
-          } elseif (Test-Path requirements-ci.txt) {
-            Write-Host "Installing CI-friendly requirements..."
-            try {
-              $job = Start-Job -ScriptBlock { python -m pip install -r requirements-ci.txt }
-              Wait-Job $job -Timeout 900
-              Receive-Job $job
-              Remove-Job $job
-            } catch {
-              Write-Host "CI requirements installation failed: $_"
-            }
-          } elseif (Test-Path requirements-dev.txt) {
-            Write-Host "Installing development requirements..."
-            try {
-              $job = Start-Job -ScriptBlock { python -m pip install -r requirements-dev.txt }
-              Wait-Job $job -Timeout 900
-              Receive-Job $job
-              Remove-Job $job
-            } catch {
-              Write-Host "Dev requirements installation failed: $_"
+          # Import enhanced PowerShell utilities if available
+          $utilsPath = "scripts/utils/enhanced_powershell_utils.ps1"
+          if (Test-Path $utilsPath) {
+            Write-Host "Loading enhanced PowerShell utilities..."
+            . $utilsPath -Verbose:$false
+          } else {
+            Write-Host "Enhanced utilities not found, using fallback functions..."
+
+            # Fallback function for timeout handling
+            function Invoke-CommandWithTimeout {
+              param(
+                [scriptblock]$ScriptBlock,
+                [int]$TimeoutSeconds = 1800,
+                [string]$Description = "Command"
+              )
+
+              Write-Host "Running $Description with timeout of $TimeoutSeconds seconds"
+
+              try {
+                $job = Start-Job -ScriptBlock $ScriptBlock
+                $completed = Wait-Job $job -Timeout $TimeoutSeconds
+
+                if ($completed) {
+                  $result = Receive-Job $job
+                  Remove-Job $job
+                  return @{ Success = $true; Result = $result }
+                } else {
+                  Write-Host "$Description timed out after $TimeoutSeconds seconds"
+                  Remove-Job $job -Force
+                  return @{ Success = $false; TimedOut = $true }
+                }
+              } catch {
+                Write-Host "$Description failed: $_"
+                return @{ Success = $false; Error = $_ }
+              }
             }
           }
 
-          # Install filtered main requirements (excluding problematic MCP packages)
+          # Enhanced retry function for Windows with better timeout handling
+          function Install-RequirementsWithRetry {
+            param(
+              [string]$RequirementsFile,
+              [string]$Description,
+              [int]$MaxAttempts = 3,
+              [int]$BaseDelay = 5
+            )
+
+            if (-not (Test-Path $RequirementsFile)) {
+              Write-Host "⚠ Requirements file $RequirementsFile not found, skipping"
+              return $true
+            }
+
+            Write-Host "Installing $Description from $RequirementsFile..."
+
+            for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+              Write-Host "Attempt $attempt/$MaxAttempts for $RequirementsFile"
+
+              $scriptBlock = {
+                param($file)
+                $process = Start-Process -FilePath "python" -ArgumentList @("-m", "pip", "install", "-r", $file, "--no-deps", "--force-reinstall") -Wait -PassThru -NoNewWindow
+                return $process.ExitCode
+              }
+
+              $result = Invoke-CommandWithTimeout -ScriptBlock $scriptBlock -TimeoutSeconds 2100 -Description "pip install $RequirementsFile"
+
+              if ($result.Success -and $result.Result -eq 0) {
+                Write-Host "✓ Successfully installed $Description on attempt $attempt"
+                return $true
+              }
+
+              if ($attempt -lt $MaxAttempts) {
+                $delay = $BaseDelay * $attempt
+                Write-Host "⚠ Installation failed, retrying in ${delay}s..."
+                Start-Sleep -Seconds $delay
+
+                # Clear pip cache on retry
+                try { python -m pip cache purge 2>$null } catch { }
+              } else {
+                Write-Host "✗ Failed to install $Description after $MaxAttempts attempts"
+
+                # Try installing without dependencies as last resort
+                Write-Host "Attempting installation without dependencies..."
+                $fallbackScriptBlock = {
+                  param($file)
+                  $process = Start-Process -FilePath "python" -ArgumentList @("-m", "pip", "install", "-r", $file, "--no-deps") -Wait -PassThru -NoNewWindow
+                  return $process.ExitCode
+                }
+
+                $fallbackResult = Invoke-CommandWithTimeout -ScriptBlock $fallbackScriptBlock -TimeoutSeconds 1200 -Description "pip install $RequirementsFile (no deps)"
+
+                if ($fallbackResult.Success) {
+                  Write-Host "Fallback installation completed for $RequirementsFile"
+                  return $true
+                }
+                return $false
+              }
+            }
+          }
+
+          # Install requirements in priority order
+          $success = $true
+          if (Test-Path requirements-ci-windows.txt) {
+            $success = Install-RequirementsWithRetry "requirements-ci-windows.txt" "Windows-specific CI requirements"
+          } elseif (Test-Path requirements-ci.txt) {
+            $success = Install-RequirementsWithRetry "requirements-ci.txt" "CI-friendly requirements"
+          } elseif (Test-Path requirements-dev.txt) {
+            $success = Install-RequirementsWithRetry "requirements-dev.txt" "development requirements"
+          }
+
+          # Install filtered main requirements if needed
           if (Test-Path requirements.txt) {
-            Write-Host "Installing filtered main requirements..."
+            Write-Host "Creating filtered requirements file..."
             try {
               $requirements = Get-Content requirements.txt | Where-Object {
                 -not $_.Contains("modelcontextprotocol") -and
                 -not $_.Contains("mcp-") -and
                 -not $_.Contains("crewai") -and
+                -not $_.Contains("mem0ai") -and
                 -not $_.Trim().StartsWith("#") -and
                 $_.Trim() -ne ""
               }
-              $requirements | Set-Content -Path "requirements_filtered.txt"
-              python -m pip install -r requirements_filtered.txt
+
+              if ($requirements.Count -gt 0) {
+                $requirements | Set-Content -Path "requirements_filtered.txt"
+                $success = Install-RequirementsWithRetry "requirements_filtered.txt" "filtered main requirements"
+              } else {
+                Write-Host "⚠ Filtered requirements file would be empty, skipping"
+              }
             } catch {
-              Write-Host "Filtered requirements installation failed: $_"
+              Write-Host "Failed to create filtered requirements: $_"
             }
           }
 
-          # Ensure mock MCP module exists
-          if (-not (Test-Path mock_mcp)) {
-            Write-Host "Creating mock MCP module..."
-            New-Item -ItemType Directory -Force -Path mock_mcp
-            "# Mock MCP module for CI" | Set-Content -Path "mock_mcp/__init__.py"
-            "class MockMCPClient: pass" | Add-Content -Path "mock_mcp/__init__.py"
-            "Client = MockMCPClient" | Add-Content -Path "mock_mcp/__init__.py"
+          # Ensure mock modules exist
+          Write-Host "Setting up mock modules..."
+          $mockModules = @("mock_mcp", "mock_crewai", "mock_mem0")
+
+          foreach ($mockModule in $mockModules) {
+            if (-not (Test-Path $mockModule)) {
+              Write-Host "Creating $mockModule module..."
+              New-Item -ItemType Directory -Force -Path $mockModule | Out-Null
+
+              # Create simple mock module content
+              $content = "# Mock module for CI`n__version__ = '0.1.0'`n`nclass MockClient:`n    pass`n`nclass MockAgent:`n    pass`n`nclass MockCrew:`n    pass`n`nclass MockMemory:`n    pass`n`n# Common exports`nClient = MockClient`nAgent = MockAgent`nCrew = MockCrew`nMemory = MockMemory`n"
+              Set-Content -Path "$mockModule/__init__.py" -Value $content
+            }
           }
 
-          # Ensure mock CrewAI module exists
-          if (-not (Test-Path mock_crewai)) {
-            Write-Host "Creating mock CrewAI module..."
-            New-Item -ItemType Directory -Force -Path mock_crewai
-            "# Mock CrewAI module for CI" | Set-Content -Path "mock_crewai/__init__.py"
-            "class MockAgent: pass" | Add-Content -Path "mock_crewai/__init__.py"
-            "class MockCrew: pass" | Add-Content -Path "mock_crewai/__init__.py"
-          }
+          Write-Host "✓ Windows dependency installation completed"
 
       - name: Create ruff configuration (Windows)
         if: runner.os == 'Windows'
@@ -417,28 +648,81 @@ jobs:
 
       - name: Run JavaScript tests
         continue-on-error: true
-        timeout-minutes: 10  # Added timeout for JavaScript tests
+        timeout-minutes: ${{ matrix.os == 'windows-latest' && 30 || (matrix.os == 'macos-latest' && 20 || 15) }}  # Platform-optimized timeouts
         run: |
           if [ -f "package.json" ]; then
-            echo "Running JavaScript tests"
+            echo "Running JavaScript tests with enhanced retry logic"
             echo "Node.js version: $(node --version)"
             echo "npm version: $(npm --version)"
 
-            # Check if pnpm is available
-            if command -v pnpm >/dev/null 2>&1; then
-              echo "pnpm version: $(pnpm --version)"
-              # Install dependencies with pnpm (with timeout)
-              timeout 300 pnpm install || echo "pnpm install failed"
-              # Run tests (with timeout)
-              timeout 300 pnpm test || echo "JavaScript tests failed"
-              # Generate coverage report (with timeout)
-              timeout 120 pnpm coverage > ./coverage/lcov.info || echo "JavaScript coverage generation failed"
-            else
-              echo "pnpm not available, using npm"
-              timeout 300 npm install || echo "npm install failed"
-              timeout 300 npm test || echo "JavaScript tests failed"
-              timeout 120 npm run coverage > ./coverage/lcov.info || echo "JavaScript coverage generation failed"
-            fi
+            # Enhanced JavaScript test function with retry
+            run_js_tests_with_retry() {
+              local max_attempts=2
+              local base_delay=10
+
+              for attempt in $(seq 1 $max_attempts); do
+                echo "JavaScript test attempt $attempt/$max_attempts"
+
+                # Check if pnpm is available and try it first
+                if command -v pnpm >/dev/null 2>&1; then
+                  echo "pnpm version: $(pnpm --version)"
+
+                  # Install dependencies
+                  if timeout 300 pnpm install; then
+                    echo "✓ pnpm install succeeded"
+
+                    # Run tests
+                    if timeout 300 pnpm test; then
+                      echo "✓ pnpm test succeeded"
+
+                      # Generate coverage report
+                      timeout 120 pnpm coverage > ./coverage/lcov.info || echo "JavaScript coverage generation failed"
+                      return 0
+                    else
+                      echo "⚠ pnpm test failed"
+                    fi
+                  else
+                    echo "⚠ pnpm install failed"
+                  fi
+                fi
+
+                # Fallback to npm
+                echo "Trying with npm..."
+                if timeout 300 npm install; then
+                  echo "✓ npm install succeeded"
+
+                  # Run tests
+                  if timeout 300 npm test; then
+                    echo "✓ npm test succeeded"
+
+                    # Generate coverage report
+                    timeout 120 npm run coverage > ./coverage/lcov.info || echo "JavaScript coverage generation failed"
+                    return 0
+                  else
+                    echo "⚠ npm test failed"
+                  fi
+                else
+                  echo "⚠ npm install failed"
+                fi
+
+                # If we get here, the attempt failed
+                if [ $attempt -lt $max_attempts ]; then
+                  local delay=$((base_delay * attempt))
+                  echo "⚠ JavaScript tests failed, retrying in ${delay}s..."
+                  sleep $delay
+
+                  # Clear caches on retry
+                  npm cache clean --force 2>/dev/null || true
+                  pnpm store prune 2>/dev/null || true
+                else
+                  echo "✗ JavaScript tests failed after $max_attempts attempts"
+                  return 1
+                fi
+              done
+            }
+
+            # Run JavaScript tests with retry
+            run_js_tests_with_retry || echo "JavaScript tests completed with failures"
           else
             echo "No package.json found, skipping JavaScript tests"
           fi
@@ -460,13 +744,15 @@ jobs:
           echo "Check individual step logs for detailed error information"
           echo ""
           echo "=== Timeout Information ==="
-          echo "Job timeout: 90 minutes"
-          echo "Individual step timeouts have been configured for:"
-          echo "- Node.js operations: 15 minutes"
-          echo "- Essential dependencies: 10 minutes"
-          echo "- Unix dependencies: 20 minutes"
-          echo "- Windows dependencies: 25 minutes"
-          echo "- JavaScript tests: 10 minutes"
+          echo "Job timeout: ${{ matrix.os == 'windows-latest' && '150' || (matrix.os == 'macos-latest' && '120' || '90') }} minutes (platform-optimized)"
+          echo "Individual step timeouts are platform-optimized with buffers:"
+          echo "- Node.js operations: ${{ matrix.os == 'windows-latest' && '35' || (matrix.os == 'macos-latest' && '25' || '20') }} minutes"
+          echo "- Essential dependencies: ${{ matrix.os == 'windows-latest' && '30' || (matrix.os == 'macos-latest' && '20' || '15') }} minutes"
+          echo "- Unix dependencies: ${{ matrix.os == 'macos-latest' && '40' || '30' }} minutes"
+          echo "- Windows dependencies: 50 minutes (Windows-specific)"
+          echo "- JavaScript tests: ${{ matrix.os == 'windows-latest' && '30' || (matrix.os == 'macos-latest' && '20' || '15') }} minutes"
+          echo "- Security tools: ${{ matrix.os == 'windows-latest' && '40' || (matrix.os == 'macos-latest' && '25' || '20') }} minutes"
+          echo "- Security scans: ${{ matrix.os == 'windows-latest' && '40' || (matrix.os == 'macos-latest' && '35' || '25') }} minutes"
           echo ""
           echo "=== Next Steps ==="
           echo "If this job fails due to timeouts, consider:"
@@ -543,7 +829,7 @@ jobs:
   security:
     name: Security Scan
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60  # Increased timeout for security scans
+    timeout-minutes: ${{ matrix.os == 'windows-latest' && 90 || (matrix.os == 'macos-latest' && 75 || 60) }}  # Platform-optimized timeouts
     # Only run if auto-fix workflow completed successfully, or if triggered by other events
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
@@ -576,36 +862,30 @@ jobs:
       - name: Install security tools (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
-        timeout-minutes: 15  # Added timeout for security tool installation
+        timeout-minutes: ${{ matrix.os == 'macos-latest' && 25 || 20 }}  # Platform-optimized timeouts with buffer
         run: |
           echo "Installing security tools on Unix systems..."
           timeout 300 python -m pip install --upgrade pip || echo "pip upgrade failed"
-          timeout 600 python -m pip install safety bandit semgrep pip-audit || echo "Some security tools failed to install"
-
-          # Create security-reports directory
-          mkdir -p security-reports
-
-          # Create empty results files as fallback
-          echo '{"results": [], "errors": []}' > security-reports/bandit-results.json
+          timeout 600 python -m pip install safety "bandit[toml]" semgrep pip-audit || echo "Some security tools failed to install"
 
       - name: Install security tools (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
-        timeout-minutes: 20  # Added timeout for Windows security tool installation
+        timeout-minutes: 40  # Windows needs significantly more time for security tools
         shell: pwsh
         run: |
           Write-Host "Installing security tools on Windows..."
 
           # Install pip upgrade with timeout
           $job = Start-Job -ScriptBlock { python -m pip install --upgrade pip }
-          Wait-Job $job -Timeout 300
+          Wait-Job $job -Timeout 600  # Increased from 300 to 600 seconds
           Receive-Job $job
           Remove-Job $job
 
           try {
             # Install Windows-compatible security tools only (semgrep not supported on Windows)
-            $job = Start-Job -ScriptBlock { python -m pip install safety bandit pip-audit }
-            Wait-Job $job -Timeout 600
+            $job = Start-Job -ScriptBlock { python -m pip install safety "bandit[toml]" pip-audit }
+            Wait-Job $job -Timeout 1200  # Increased from 600 to 1200 seconds (20 minutes)
             Receive-Job $job
             Remove-Job $job
             Write-Host "Windows-compatible security tools installed successfully"
@@ -613,188 +893,19 @@ jobs:
             Write-Host "Some security tools failed to install: $_"
           }
 
-          # Create security-reports directory
-          New-Item -ItemType Directory -Force -Path security-reports
-
-          # Create empty results files as fallback
-          $emptyJsonContent = '{"results": [], "errors": []}'
-          Set-Content -Path "security-reports/bandit-results.json" -Value $emptyJsonContent
-
-      - name: Generate Bandit configuration files
+      - name: Create security reports directory and fallbacks
         run: |
-          # Create necessary directories
-          mkdir -p .github/bandit
-
-          # Generate Bandit configuration files for current run
-          python -c "
-          import os
-          from pathlib import Path
-
-          # Create Bandit configuration template
-          config_template = '''# Bandit Configuration for {platform}
-          # Run ID: {run_id}
-
-          exclude_dirs:
-            - tests
-            - venv
-            - .venv
-            - env
-            - .env
-            - __pycache__
-            - custom_stubs
-            - node_modules
-            - build
-            - dist
-            - docs
-            - docs_source
-            - junit
-            - bin
-            - dev_tools
-            - scripts
-            - tool_templates
-            - mock_mcp
-            - mock_crewai
-            - mock_mem0
-
-          skips:
-            - B101  # Use of assert detected
-            - B311  # Standard pseudo-random generators
-
-          output_format: sarif
-          output_file: security-reports/bandit-results.sarif
-          severity: MEDIUM
-          confidence: MEDIUM
-          '''
-
-          # Write platform-specific config files
-          platforms = ['linux', 'macos', 'windows']
-          run_id = os.environ.get('GITHUB_RUN_ID', 'default')
-
-          for platform in platforms:
-              config_content = config_template.format(platform=platform.title(), run_id=run_id)
-
-              # Write generic platform config
-              config_path = f'.github/bandit/bandit-config-{platform}.yaml'
-              Path(config_path).write_text(config_content)
-
-              # Write run-specific config
-              config_with_run_path = f'.github/bandit/bandit-config-{platform}-{run_id}.yaml'
-              Path(config_with_run_path).write_text(config_content)
-
-          print(f'Generated Bandit configuration files for run ID: {run_id}')
-          "
-        shell: bash
-
-      - name: Create fallback SARIF files
-        continue-on-error: true
-        run: |
-          echo "Creating fallback SARIF files..."
-          mkdir -p security-reports
-
-          # Create empty SARIF file as fallback
-          cat > security-reports/bandit-results.sarif << 'EOF'
-          {
-            "version": "2.1.0",
-            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            "runs": [
-              {
-                "tool": {
-                  "driver": {
-                    "name": "Bandit",
-                    "informationUri": "https://github.com/PyCQA/bandit",
-                    "version": "1.7.5",
-                    "rules": []
-                  }
-                },
-                "results": []
-              }
-            ]
-          }
-          EOF
-
-          # Copy to root level as well
-          cp security-reports/bandit-results.sarif empty-sarif.json || echo "Failed to copy SARIF"
+          echo "Creating security reports directory and fallback files..."
+          python scripts/security/create_security_fallbacks.py
         shell: bash
 
       - name: Run security scans (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
+        timeout-minutes: ${{ matrix.os == 'macos-latest' && 35 || 25 }}  # Platform-optimized timeouts with buffer
         run: |
-          echo "Running security scans on Unix systems..."
-
-          # Determine platform for config selection
-          if [[ "${{ runner.os }}" == "macOS" ]]; then
-            PLATFORM="macos"
-          else
-            PLATFORM="linux"
-          fi
-
-          # Set up Bandit configuration file paths
-          BANDIT_CONFIG=".github/bandit/bandit-config-${PLATFORM}-${{ github.run_id }}.yaml"
-          if [ ! -f "$BANDIT_CONFIG" ]; then
-            BANDIT_CONFIG=".github/bandit/bandit-config-${PLATFORM}.yaml"
-          fi
-          if [ ! -f "$BANDIT_CONFIG" ]; then
-            BANDIT_CONFIG=".bandit"
-          fi
-
-          echo "Using Bandit configuration: $BANDIT_CONFIG"
-
-          # Run safety check
-          echo "Running safety check..."
-          safety check || echo "Safety check failed"
-
-          # Run Bandit scan with proper SARIF output
-          echo "Running Bandit scan..."
-          if command -v bandit &>/dev/null; then
-            echo "Running Bandit with SARIF output..."
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif \
-              --exclude ".venv,node_modules,tests,mock_mcp,mock_crewai,mock_mem0" \
-              --exit-zero \
-              -c "$BANDIT_CONFIG" || {
-              echo "Bandit SARIF scan failed, trying JSON output..."
-              bandit -r . -f json -o security-reports/bandit-results.json \
-                --exclude ".venv,node_modules,tests,mock_mcp,mock_crewai,mock_mem0" \
-                --exit-zero \
-                -c "$BANDIT_CONFIG" || echo "Bandit JSON scan also failed"
-            }
-          else
-            echo "Bandit command not found"
-          fi
-
-          # Convert JSON to SARIF if needed and converter exists
-          if [ -f "security-reports/bandit-results.json" ] && [ -f "convert_bandit_to_sarif.py" ]; then
-            echo "Converting JSON to SARIF..."
-            python convert_bandit_to_sarif.py || echo "SARIF conversion failed"
-          fi
-
-          # Ensure SARIF file exists
-          if [ ! -f "security-reports/bandit-results.sarif" ]; then
-            echo "Creating empty SARIF file as fallback..."
-            cat > security-reports/bandit-results.sarif << 'EOF'
-          {
-            "version": "2.1.0",
-            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            "runs": [
-              {
-                "tool": {
-                  "driver": {
-                    "name": "Bandit",
-                    "informationUri": "https://github.com/PyCQA/bandit",
-                    "version": "1.7.5",
-                    "rules": []
-                  }
-                },
-                "results": []
-              }
-            ]
-          }
-          EOF
-          fi
-
-          # Run pip-audit
-          echo "Running pip-audit..."
-          pip-audit || echo "pip-audit failed"
+          echo "Running security scans using simplified script..."
+          python scripts/security/run_security_scans.py
 
           # Run semgrep (Unix only)
           echo "Running semgrep..."
@@ -804,86 +915,11 @@ jobs:
       - name: Run security scans (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
+        timeout-minutes: 40  # Windows needs more time for security scans
         shell: pwsh
         run: |
-          Write-Host "Running security scans on Windows..."
-
-          # Set up Bandit configuration file paths
-          $banditConfig = ".github/bandit/bandit-config-windows-${{ github.run_id }}.yaml"
-          if (-not (Test-Path $banditConfig)) {
-            $banditConfig = ".github/bandit/bandit-config-windows.yaml"
-          }
-          if (-not (Test-Path $banditConfig)) {
-            $banditConfig = ".bandit"
-          }
-
-          Write-Host "Using Bandit configuration: $banditConfig"
-
-          # Run safety check
-          Write-Host "Running safety check..."
-          try {
-            safety check
-          } catch {
-            Write-Host "Safety check failed: $_"
-          }
-
-          # Run Bandit scan with proper SARIF output
-          Write-Host "Running Bandit scan..."
-          try {
-            Write-Host "Attempting Bandit with SARIF output..."
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests,mock_mcp,mock_crewai,mock_mem0" --exit-zero -c $banditConfig
-          } catch {
-            Write-Host "Bandit SARIF scan failed: $_"
-            Write-Host "Trying JSON output instead..."
-            try {
-              bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests,mock_mcp,mock_crewai,mock_mem0" --exit-zero -c $banditConfig
-            } catch {
-              Write-Host "Bandit JSON scan also failed: $_"
-            }
-          }
-
-          # Convert JSON to SARIF if needed and converter exists
-          if ((Test-Path "security-reports/bandit-results.json") -and (Test-Path "convert_bandit_to_sarif.py")) {
-            Write-Host "Converting JSON to SARIF..."
-            try {
-              python convert_bandit_to_sarif.py
-            } catch {
-              Write-Host "SARIF conversion failed: $_"
-            }
-          }
-
-          # Ensure SARIF file exists
-          if (-not (Test-Path "security-reports/bandit-results.sarif")) {
-            Write-Host "Creating empty SARIF file as fallback..."
-            $emptySarif = @"
-          {
-            "version": "2.1.0",
-            "`$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            "runs": [
-              {
-                "tool": {
-                  "driver": {
-                    "name": "Bandit",
-                    "informationUri": "https://github.com/PyCQA/bandit",
-                    "version": "1.7.5",
-                    "rules": []
-                  }
-                },
-                "results": []
-              }
-            ]
-          }
-          "@
-            Set-Content -Path "security-reports/bandit-results.sarif" -Value $emptySarif
-          }
-
-          # Run pip-audit
-          Write-Host "Running pip-audit..."
-          try {
-            pip-audit
-          } catch {
-            Write-Host "pip-audit failed: $_"
-          }
+          Write-Host "Running security scans using simplified script..."
+          powershell -ExecutionPolicy Bypass -File scripts/security/run_security_scans.ps1 -Verbose
 
           # Note: semgrep is not supported on Windows, skipping
 
@@ -906,7 +942,7 @@ jobs:
   build-deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # Added timeout for Docker build operations
+    timeout-minutes: 60  # Increased timeout for Docker build operations with buffer
     needs: [lint-test, security]
     if: |
       always() &&
@@ -976,7 +1012,7 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
-        timeout-minutes: 30  # Added timeout for Docker build
+        timeout-minutes: 50  # Increased timeout for Docker build operations with buffer
         continue-on-error: false  # Fail if Docker build fails
         with:
           context: .

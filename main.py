@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def configure_logging(level: str = "INFO") -> None:
     """
     Configure logging for the application.
-    
+
     Args:
         level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 
@@ -44,7 +44,7 @@ def configure_logging(level: str = "INFO") -> None:
 def _run_main() -> None:
     """
     Internal function to run the main application logic.
-    
+
     This function is called when the module is executed as a script.
     """
     configure_logging()
@@ -57,7 +57,7 @@ def _run_main() -> None:
 def main() -> None:
     """
     Main entry point for the application.
-    
+
     This function serves as the primary entry point and can be called
     from other modules or scripts.
     """

@@ -12,10 +12,10 @@ logger = logging.getLogger(__name__)
 def check_syntax_errors(file_path: str) -> bool:
     """
     Check if a Python file has syntax errors.
-    
+
     Args:
         file_path: Path to the Python file
-        
+
     Returns:
         True if no syntax errors, False otherwise
 
@@ -28,14 +28,14 @@ def check_syntax_errors(file_path: str) -> bool:
         compile(content, file_path, "exec")
         return True
     except SyntaxError as e:
-        logger.error(f"Syntax error in {file_path}: {e}")
+        logger.exception(f"Syntax error in {file_path}: {e}")
         return False
     except Exception as e:
-        logger.error(f"Error checking {file_path}: {e}")
+        logger.exception(f"Error checking {file_path}: {e}")
         return False
 
 
-def main():
+def main() -> int:
     """Main function to test syntax fixes."""
     logging.basicConfig(level=logging.INFO)
 

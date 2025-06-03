@@ -13,7 +13,7 @@ import shutil
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -555,7 +555,8 @@ def main() -> None:
                 with Path(sarif_file).open() as f:
                     sarif_data = json.load(f)
                     if not sarif_data.get("version") or not sarif_data.get("runs"):
-                        raise ValueError("Invalid SARIF structure")
+                        msg = "Invalid SARIF structure"
+                        raise ValueError(msg)
                 logger.info("SARIF file validation successful")
             except (json.JSONDecodeError, ValueError):
                 logger.warning("Created SARIF file is invalid, creating fallback")

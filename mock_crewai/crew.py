@@ -61,8 +61,8 @@ class Crew:
     # Alias for backward compatibility (same method object)
     run = kickoff
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Crew(agents={len(self.agents)}, tasks={len(self.tasks)})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Crew(agents={self.agents}, tasks={self.tasks})"

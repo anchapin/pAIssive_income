@@ -310,3 +310,6 @@ coverage*.txt
 
 # Automatically generated/ignored directories and files
 =3.9.0
+
+# Generated workflow testing reports
+docs/workflow-testing-results-*.md

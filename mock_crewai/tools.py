@@ -4,7 +4,7 @@
 class BaseTool:
     """Base class for all tools."""
 
-    def __init__(self, name="", description=""):
+    def __init__(self, name="", description="") -> None:
         """
         Initialize a tool.
 
@@ -16,7 +16,7 @@ class BaseTool:
         self.name = name
         self.description = description
 
-    def execute(self, input_text):
+    def execute(self, input_text) -> str:
         """
         Execute the tool with the given input.
 

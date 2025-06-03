@@ -18,7 +18,7 @@ except ImportError:
     MEM0_AVAILABLE = False
     # Create a mock Memory class for CI compatibility
     class Memory:
-        def __init__(self):
+        def __init__(self) -> None:
             pass
 
         def add(self, *args, **kwargs):

@@ -5,9 +5,9 @@
     {
       "tool": {
         "driver": {
-          "name": "Bandit",
-          "informationUri": "https://github.com/PyCQA/bandit",
-          "version": "1.7.5",
+          "name": "Security-Scan",
+          "informationUri": "https://github.com/PyCQA/security-scan",
+          "version": "1.0.0",
           "rules": []
         }
       },

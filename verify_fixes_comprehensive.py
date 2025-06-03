@@ -121,7 +121,7 @@ def check_configuration_files() -> tuple[bool, str]:
     return True, "Configuration files are valid"
 
 
-def main():
+def main() -> int:
     """Main verification function."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
