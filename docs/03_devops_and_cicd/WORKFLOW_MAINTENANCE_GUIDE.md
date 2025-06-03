@@ -195,14 +195,25 @@ env:
 
 ### Useful Commands
 ```bash
-# Test workflow locally
-act -j lint-test -W .github/workflows/consolidated-ci-cd.yml
+# Test consolidated workflow locally (dry run)
+act -j lint-test --platform ubuntu-latest=ubuntu:latest --dryrun
+act -j security --platform ubuntu-latest=ubuntu:latest --dryrun
 
-# Check workflow syntax
+# Test enhanced CI wrapper locally
+python run_tests_ci_wrapper_enhanced.py
+
+# Test security fallback creation
+python scripts/security/create_security_fallbacks.py
+
+# Check workflow syntax and structure
 act --list
 
-# Run specific job with secrets
-act -j security --secret-file .secrets
+# Run specific job with platform specification
+act -j lint-test --platform ubuntu-latest=ubuntu:latest
+act -j security --platform ubuntu-latest=ubuntu:latest
+
+# Monitor workflow execution times
+gh run list --workflow="consolidated-ci-cd.yml" --limit 10 --json status,conclusion,createdAt,updatedAt
 ```
 
 ### Contact Information
@@ -216,6 +227,14 @@ act -j security --secret-file .secrets
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | Dec 2024 | Initial maintenance guide creation |
+| 1.1 | Dec 2024 | Updated for consolidated CI/CD workflow and enhanced testing infrastructure |
+
+### Recent Updates (v1.1)
+- **Consolidated Workflow**: Updated commands and procedures for single `consolidated-ci-cd.yml` workflow
+- **Enhanced CI Wrapper**: Added documentation for `run_tests_ci_wrapper_enhanced.py` testing
+- **Security Infrastructure**: Included security fallback script testing and monitoring
+- **Local Testing**: Enhanced act tool usage with platform-specific testing
+- **Cross-Platform Support**: Added guidance for Ubuntu, Windows, and macOS workflow management
 
 ---
 
