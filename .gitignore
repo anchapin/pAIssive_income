@@ -92,7 +92,6 @@ pytest_temp.ini
 # Explicit ignore for security/test artifacts
 bandit-output.json
 bandit-results.json
-!security-reports/bandit-results.json
 bandit-results-ini.json
 !security-reports/bandit-results-ini.json
 bandit-results-*.json
