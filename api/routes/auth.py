@@ -93,14 +93,15 @@ def sanitize_log_data(data):
         # Truncate
         sanitized = sanitized[:MAX_LOG_LENGTH]
 
-        # Escape HTML entities as a final defense
-        return html.escape(sanitized)
+        # Removed html.escape from the return
+        return sanitized
     else:
         # For non-strings, convert to string, then apply basic sanitization (length and newlines)
         s_data = str(data).replace('\n', ' ').replace('\r', ' ')
         # Also apply the strict character filter to the string representation of non-string data
         s_data = ALLOWED_CHARS_PATTERN.sub('_', s_data)
-        return html.escape(s_data[:MAX_LOG_LENGTH])
+        # Removed html.escape from the return
+        return s_data[:MAX_LOG_LENGTH]
 
 @auth_bp.route('/forgot-password', methods=['POST'])
 @limiter.limit("5 per minute")
