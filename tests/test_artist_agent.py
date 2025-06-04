@@ -7,9 +7,7 @@ Tests:
 - Placeholder for multi-step reasoning/tool chaining.
 """
 
-import sys
-import types
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
@@ -25,6 +23,7 @@ def mock_calculator_tool():
     tool.run = Mock(return_value="14")
     return tool
 
+
 @pytest.fixture
 def artist_agent_with_tools(mock_calculator_tool):
     """Fixture providing ArtistAgent initialized with a calculator tool."""
@@ -32,7 +31,9 @@ def artist_agent_with_tools(mock_calculator_tool):
     if hasattr(main_artist_agent, "ArtistAgent"):
         try:
             # If ArtistAgent supports tools injection, inject as dict
-            return main_artist_agent.ArtistAgent(tools={mock_calculator_tool.name: mock_calculator_tool.run})
+            return main_artist_agent.ArtistAgent(
+                tools={mock_calculator_tool.name: mock_calculator_tool.run}
+            )
         except TypeError:
             # Fallback: patch the attribute on the instance after creation
             agent = main_artist_agent.ArtistAgent()
@@ -41,7 +42,10 @@ def artist_agent_with_tools(mock_calculator_tool):
     else:
         pytest.skip("ArtistAgent not found in main_artist_agent.py")
 
-def test_artist_agent_uses_calculator_for_arithmetic(artist_agent_with_tools, mock_calculator_tool):
+
+def test_artist_agent_uses_calculator_for_arithmetic(
+    artist_agent_with_tools, mock_calculator_tool
+):
     """Test that ArtistAgent selects and uses the 'calculator' tool for an arithmetic prompt."""
     prompt = "What is 2 + 3 * 4?"
     # Depending on implementation, this may be a .run(), .respond(), etc.
@@ -56,7 +60,8 @@ def test_artist_agent_uses_calculator_for_arithmetic(artist_agent_with_tools, mo
     assert mock_calculator_tool.run.called, "Calculator tool was not called"
     assert "14" in str(response), "Agent did not return calculator result"
 
-def test_artist_agent_no_matching_tool(monkeypatch):
+
+def test_artist_agent_no_matching_tool():
     """Test that ArtistAgent returns an appropriate message if no tool matches the prompt."""
     dummy_tool = Mock()
     dummy_tool.name = "not_calculator"
@@ -66,10 +71,12 @@ def test_artist_agent_no_matching_tool(monkeypatch):
     # Patch ArtistAgent to only have an irrelevant tool
     if hasattr(main_artist_agent, "ArtistAgent"):
         try:
-            agent = main_artist_agent.ArtistAgent(tools={dummy_tool.name: dummy_tool.run})
+            agent = main_artist_agent.ArtistAgent(
+                tools={dummy_tool.name: dummy_tool.run}
+            )
         except TypeError:
             agent = main_artist_agent.ArtistAgent()
-            agent.tools = {dummy_tool.name: dummy_tool.run} # Ensure tools is a dict
+            agent.tools = {dummy_tool.name: dummy_tool.run}  # Ensure tools is a dict
     else:
         pytest.skip("ArtistAgent not found in main_artist_agent.py")
 
@@ -82,15 +89,17 @@ def test_artist_agent_no_matching_tool(monkeypatch):
         pytest.skip("ArtistAgent missing 'process' or 'run' method.")
 
     # The dummy tool should not trigger a valid answer
-    assert ("no tool" in str(response).lower() or
-            "no suitable tool" in str(response).lower() or
-            "can't help" in str(response).lower() or
-            "not available" in str(response).lower()), \
-        "Agent did not respond appropriately to missing tool"
+    assert (
+        "no tool" in str(response).lower()
+        or "no suitable tool" in str(response).lower()
+        or "can't help" in str(response).lower()
+        or "not available" in str(response).lower()
+    ), "Agent did not respond appropriately to missing tool"
+
 
 def test_artist_agent_multistep_reasoning_placeholder():
     """
     Placeholder test for multi-step reasoning/tool chaining.
+
     Expand this test when multi-step tool use is implemented in ArtistAgent.
     """
-    # TODO: Implement when ArtistAgent supports multi-step/tool chaining.

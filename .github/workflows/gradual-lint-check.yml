@@ -9,6 +9,10 @@ on:
       - '.ruff.toml'
       - 'pyproject.toml'
       - '.github/workflows/gradual-lint-check.yml'
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 permissions:
   contents: write

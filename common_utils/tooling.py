@@ -179,8 +179,29 @@ def text_analyzer(text: str) -> str:
     """
     try:
         # Basic sentiment analysis using simple keyword matching
-        positive_words = ["good", "great", "excellent", "fantastic", "amazing", "wonderful", "love", "like", "happy", "positive"]
-        negative_words = ["bad", "terrible", "awful", "hate", "dislike", "sad", "negative", "horrible", "worst"]
+        positive_words = [
+            "good",
+            "great",
+            "excellent",
+            "fantastic",
+            "amazing",
+            "wonderful",
+            "love",
+            "like",
+            "happy",
+            "positive",
+        ]
+        negative_words = [
+            "bad",
+            "terrible",
+            "awful",
+            "hate",
+            "dislike",
+            "sad",
+            "negative",
+            "horrible",
+            "worst",
+        ]
 
         text_lower = text.lower()
         positive_count = sum(1 for word in positive_words if word in text_lower)
@@ -198,10 +219,11 @@ def text_analyzer(text: str) -> str:
         word_count = len(text.split())
         char_count = len(text)
 
-        return f"Sentiment: {sentiment} | Words: {word_count} | Characters: {char_count} | Positive indicators: {positive_count} | Negative indicators: {negative_count}"
-
-    except Exception as e:
+        result = f"Sentiment: {sentiment} | Words: {word_count} | Characters: {char_count} | Positive indicators: {positive_count} | Negative indicators: {negative_count}"
+    except ValueError as e:  # Replace with the most likely specific exception
         return f"Error analyzing text: {e}"
+    else:
+        return result
 
 
 # Register the text analyzer tool

@@ -1,25 +1,32 @@
-import logging
+# type: ignore[import, assignment]
 import unittest
-from typing import Any, Dict, List, Optional  # Assuming these are used in the file
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 # Check for required dependencies with better error handling
+crewai_available = False
+mem0_available = False
+imports_successful = False
 try:
     from agent_team.mem0_enhanced_agents import (
-        CREWAI_AVAILABLE,
-        MEM0_AVAILABLE,
         MemoryEnhancedCrewAIAgentTeam,
     )
-    IMPORTS_SUCCESSFUL = True
+    from agent_team.mem0_enhanced_agents import (
+        crewai_available as _crewai_available,
+    )
+    from agent_team.mem0_enhanced_agents import (
+        mem0_available as _mem0_available,
+    )
+
+    crewai_available = _crewai_available
+    mem0_available = _mem0_available
+    imports_successful = True
 except ImportError:
-    IMPORTS_SUCCESSFUL = False
-    CREWAI_AVAILABLE = False
-    MEM0_AVAILABLE = False
     # Create mock class for when dependencies are missing
     class MemoryEnhancedCrewAIAgentTeam:
         pass
+
 
 """
 Tests for mem0-enhanced agents.
@@ -31,7 +38,7 @@ They use mocking to avoid actual API calls to mem0 or CrewAI.
 
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(
-    not IMPORTS_SUCCESSFUL or not CREWAI_AVAILABLE or not MEM0_AVAILABLE,
+    not imports_successful or not crewai_available or not mem0_available,
     reason="CrewAI, mem0, or other required dependencies not installed",
 )
 
@@ -40,22 +47,27 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
     """Tests for the MemoryEnhancedCrewAIAgentTeam class."""
 
     def setUp(self):
-        """Set up test fixtures."""
+        """Set up test fixtures for each test."""
         # Mock the Memory class to avoid actual mem0 calls
         self.memory_mock = MagicMock()
-        self.memory_patcher = patch("agent_team.mem0_enhanced_agents.Memory", return_value=self.memory_mock)
+        self.memory_patcher = patch(
+            "agent_team.mem0_enhanced_agents.Memory", return_value=self.memory_mock
+        )
         self.memory_patcher.start()
 
         # Mock the MemoryRAGCoordinator to avoid dependency issues
         self.coordinator_mock = MagicMock()
-        self.coordinator_patcher = patch("agent_team.mem0_enhanced_agents.MemoryRAGCoordinator", return_value=self.coordinator_mock)
+        self.coordinator_patcher = patch(
+            "agent_team.mem0_enhanced_agents.MemoryRAGCoordinator",
+            return_value=self.coordinator_mock,
+        )
         self.coordinator_patcher.start()
 
         # Create test instance
         self.team = MemoryEnhancedCrewAIAgentTeam(user_id="test_user")
 
     def tearDown(self):
-        """Clean up test fixtures."""
+        """Clean up test fixtures after each test."""
         self.memory_patcher.stop()
         self.coordinator_patcher.stop()
 
@@ -67,7 +79,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
     def test_memory_storage(self):
         """Test memory storage functionality."""
         test_content = "Test memory content"
-        self.team._store_memory(test_content)
+        self.team.store_memory(test_content)
 
         # Verify that memory.add was called
         self.memory_mock.add.assert_called_once()
@@ -80,12 +92,15 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
                 {"text": "Test memory", "source": "mem0"},
                 {"text": "Test RAG result", "source": "chroma"},
             ],
-            "subsystem_metrics": {"mem0": {"time_sec": 0.1}, "chroma": {"time_sec": 0.2}},
+            "subsystem_metrics": {
+                "mem0": {"time_sec": 0.1},
+                "chroma": {"time_sec": 0.2},
+            },
         }
         self.coordinator_mock.query.return_value = mock_response
 
         # Test retrieval
-        memories = self.team._retrieve_relevant_memories("test query")
+        memories = self.team.retrieve_relevant_memories("test query")
 
         # Verify results
         assert len(memories) == 2
@@ -102,14 +117,13 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
 
             # Add agent
             agent = self.team.add_agent(
-                role="Test Agent",
-                goal="Test goal",
-                backstory="Test backstory"
+                role="Test Agent", goal="Test goal", backstory="Test backstory"
             )
 
             # Verify agent was added
             assert agent is not None
             assert mock_agent in self.team.agents
+
 
 if __name__ == "__main__":
     unittest.main()

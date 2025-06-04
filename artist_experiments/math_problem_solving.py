@@ -22,6 +22,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+TWO_PARTS = 2
+
 
 class MathTool:
     """Mathematical tool for ARTIST experiments."""
@@ -51,7 +53,7 @@ class MathTool:
             # Handle equations with equals sign
             if "=" in equation_str:
                 parts = equation_str.split("=")
-                if len(parts) == 2:
+                if len(parts) == TWO_PARTS:
                     left = parse_expr(parts[0])
                     right = parse_expr(parts[1])
                     equation = sp.Eq(left, right)
@@ -69,7 +71,7 @@ class MathTool:
             expr = parse_expr(equation_str)
             return str(expr.evalf())
         except Exception as e:
-            logger.exception(f"Error solving equation: {e}")
+            logger.exception("Error solving equation")
             return f"Error: {e!s}"
 
     @staticmethod
@@ -89,7 +91,7 @@ class MathTool:
             factored = sp.factor(expr)
             return str(factored)
         except Exception as e:
-            logger.exception(f"Error factoring expression: {e}")
+            logger.exception("Error factoring expression")
             return f"Error: {e!s}"
 
     @staticmethod
@@ -109,7 +111,7 @@ class MathTool:
             expanded = sp.expand(expr)
             return str(expanded)
         except Exception as e:
-            logger.exception(f"Error expanding expression: {e}")
+            logger.exception("Error expanding expression")
             return f"Error: {e!s}"
 
 

@@ -5,10 +5,11 @@ Logger initialization checker script.
 Validates Python files for proper logger setup patterns.
 """
 
+from __future__ import annotations
+
 import ast
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 
 class LoggerChecker(ast.NodeVisitor):
@@ -17,7 +18,7 @@ class LoggerChecker(ast.NodeVisitor):
     def __init__(self, filename: str) -> None:
         """Initialize the logger checker."""
         self.filename = filename
-        self.issues: List[Tuple[str, int, str]] = []
+        self.issues: list[tuple[str, int, str]] = []
         self.has_logging_import = False
         self.has_logger_init = False
         self.has_exception_handling = False
@@ -28,7 +29,7 @@ class LoggerChecker(ast.NodeVisitor):
         self.first_import_line: int | None = None
         self.last_import_line: int | None = None
 
-    def visit_Import(self, node: ast.Import) -> None:
+    def visit_import(self, node: ast.Import) -> None:
         """Visit import statements."""
         if self.first_import_line is None:
             self.first_import_line = node.lineno
@@ -57,7 +58,7 @@ class LoggerChecker(ast.NodeVisitor):
                     self.has_third_party_imports = True
         self.generic_visit(node)
 
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+    def visit_importfrom(self, node: ast.ImportFrom) -> None:
         """Visit from-import statements."""
         if self.first_import_line is None:
             self.first_import_line = node.lineno
@@ -91,22 +92,26 @@ class LoggerChecker(ast.NodeVisitor):
                 self.has_third_party_imports = True
         self.generic_visit(node)
 
-    def visit_Assign(self, node: ast.Assign) -> None:
+    def visit_assign(self, node: ast.Assign) -> None:
         """Visit assignment statements to check for logger initialization."""
         # Check for logger initialization patterns
-        if isinstance(node.value, ast.Call):
-            # Pattern: logger = logging.getLogger(__name__)
-            if (
+        if isinstance(node.value, ast.Call) and (
+            (
                 isinstance(node.value.func, ast.Attribute)
                 and isinstance(node.value.func.value, ast.Name)
                 and node.value.func.value.id == "logging"
                 and node.value.func.attr == "getLogger"
-            ) or (isinstance(node.value.func, ast.Name) and node.value.func.id == "getLogger"):
-                self.has_logger_init = True
-                self.logger_init_line = node.lineno
+            )
+            or (
+                isinstance(node.value.func, ast.Name)
+                and node.value.func.id == "getLogger"
+            )
+        ):
+            self.has_logger_init = True
+            self.logger_init_line = node.lineno
         self.generic_visit(node)
 
-    def visit_Try(self, node: ast.Try) -> None:
+    def visit_try(self, node: ast.Try) -> None:
         """Visit try-except blocks."""
         self.has_exception_handling = True
 
@@ -133,25 +138,25 @@ class LoggerChecker(ast.NodeVisitor):
     def check_issues(self) -> None:
         """Check for logger initialization issues."""
         # Only check for critical issues - logger imported but not initialized
-        if self.has_logging_import and not self.has_logger_init:
-            # Skip test files and __init__.py files
-            if not (
+        if (
+            self.has_logging_import
+            and not self.has_logger_init
+            and not (
                 "test_" in self.filename
                 or "__init__.py" in self.filename
                 or "/tests/" in self.filename
-            ):
-                self.issues.append(
-                    (
-                        "MISSING_LOGGER",
-                        1,
-                        "Logging module imported but no logger initialized",
-                    )
+            )
+        ):
+            self.issues.append(
+                (
+                    "NO_LOGGER_INIT",
+                    1,
+                    "Logger imported but not initialized",
                 )
+            )
 
-        # Skip other checks as they are too strict for this codebase
 
-
-def check_file(filepath: Path) -> List[Tuple[str, int, str]]:
+def check_file(filepath: Path) -> list[tuple[str, int, str]]:
     """Check a single Python file for logger initialization issues."""
     try:
         with filepath.open(encoding="utf-8") as f:
@@ -164,10 +169,12 @@ def check_file(filepath: Path) -> List[Tuple[str, int, str]]:
         return checker.issues
     except (SyntaxError, UnicodeDecodeError) as e:
         return [("PARSE_ERROR", 1, f"Failed to parse file: {e}")]
+    else:
+        return checker.issues
 
 
 def main() -> None:
-    """Main function to check all Python files in the repository."""
+    """Check all Python files in the repository for logger initialization issues."""
     root_dir = Path()
     python_files = list(root_dir.rglob("*.py"))
 

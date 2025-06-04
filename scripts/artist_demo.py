@@ -12,21 +12,24 @@ import argparse
 import sys
 from pathlib import Path
 
+from ai_models.artist_agent import ArtistAgent
+
 # Add the parent directory to the path to ensure we can import modules
 project_root = Path(__file__).parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from ai_models.artist_agent import ArtistAgent
-
 
 def main() -> None:
+    """Entry point for the ArtistAgent demo script."""
     parser = argparse.ArgumentParser(
         description="Demo for ArtistAgent: agentic tool use (calculator, text analyzer, fallback)."
     )
     parser.add_argument(
-        "-i", "--interactive", action="store_true",
-        help="Run in interactive mode (enter prompts manually)."
+        "-i",
+        "--interactive",
+        action="store_true",
+        help="Run in interactive mode (enter prompts manually).",
     )
     args = parser.parse_args()
 
@@ -39,7 +42,9 @@ def main() -> None:
         print(f"  - {tool_name}")
 
     if args.interactive:
-        print("\nInteractive mode. Type your prompt and press Enter. Type 'exit' to quit.")
+        print(
+            "\nInteractive mode. Type your prompt and press Enter. Type 'exit' to quit."
+        )
         while True:
             prompt = input("\nPrompt: ")
             if prompt.strip().lower() in {"exit", "quit"}:
@@ -52,7 +57,7 @@ def main() -> None:
         prompts = [
             "What is 12 * 8?",  # Should trigger calculator tool
             "Analyze the sentiment of this phrase: 'This is a fantastic development!'",  # For text analyzer
-            "Translate hello to French"  # Should NOT be handled
+            "Translate hello to French",  # Should NOT be handled
         ]
 
         for prompt in prompts:
@@ -60,6 +65,7 @@ def main() -> None:
             print(f"Prompt: {prompt}")
             response = agent.run(prompt)
             print(f"Agent output: {response}")
+
 
 if __name__ == "__main__":
     main()

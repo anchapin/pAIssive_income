@@ -6,18 +6,18 @@ import time
 import traceback
 import uuid
 from logging import ERROR, INFO, Logger, getLogger
-
-logger = getLogger(__name__)
 from typing import TYPE_CHECKING, Any, Union, cast
+
+from flask.globals import current_app, g, request
+
+from app_flask.utils.logging_utils import sanitize_log_data, structured_log
 
 if TYPE_CHECKING:
     from flask.app import Flask
     from flask.wrappers import Response
     from werkzeug.wrappers import Response as WerkzeugResponse
 
-from flask.globals import current_app, g, request
-
-from app_flask.utils.logging_utils import sanitize_log_data, structured_log
+logger = getLogger(__name__)
 
 # Type hint for Flask app logger
 FlaskLogger = Logger

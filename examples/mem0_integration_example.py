@@ -12,21 +12,28 @@ Note: This is a demonstration script and not intended for production use.
 from __future__ import annotations
 
 import os
+from typing import Optional
 
 # Import mem0 - this requires the package to be installed
 try:
     from mem0 import Memory
 except ImportError:
-    Memory = None  # type: ignore
+    # The type: ignore is required for conditional import patterns and dynamic assignment.
+    # This is safe because the variable is always set to a valid implementation or None.
+    Memory = None  # type: ignore[assignment]
+
 
 # Mock our existing agent class for demonstration purposes
 class MockAgent:
     """Mock agent class to simulate our existing agent implementation."""
 
     def __init__(self, name: str) -> None:
+        """Initialize the mock agent."""
         self.name = name
 
-    def process_message(self, message: str, additional_context: Optional[str] = None) -> str:
+    def process_message(
+        self, message: str, additional_context: Optional[str] = None
+    ) -> str:
         """Process a message and return a response."""
         if additional_context:
             return f"Agent {self.name} responding to '{message}' with context: {additional_context}"
@@ -79,9 +86,7 @@ class MemoryEnhancedAgent(MockAgent):
 
         # Retrieve relevant memories
         relevant_memories = self.memory.search(
-            query=message,
-            user_id=self.user_id,
-            limit=5
+            query=message, user_id=self.user_id, limit=5
         )
 
         # Enhance the context with memories
@@ -94,14 +99,14 @@ class MemoryEnhancedAgent(MockAgent):
         self.memory.add(
             [
                 {"role": "user", "content": message},
-                {"role": "assistant", "content": response}
+                {"role": "assistant", "content": response},
             ],
-            user_id=self.user_id
+            user_id=self.user_id,
         )
 
         return response
 
-    def _build_context_from_memories(self, memories: Optional[Dict]) -> str:
+    def _build_context_from_memories(self, memories: Optional[dict]) -> str:
         """
         Convert memories to a format usable by the agent.
 
@@ -122,7 +127,7 @@ class MemoryEnhancedAgent(MockAgent):
 
 
 def main() -> None:
-    """Main function to demonstrate mem0 integration."""
+    """Demonstrate mem0 integration."""
     # Check if OpenAI API key is available (required by mem0)
     if "OPENAI_API_KEY" not in os.environ:
         pass

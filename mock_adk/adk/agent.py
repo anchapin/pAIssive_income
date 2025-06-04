@@ -1,4 +1,5 @@
 """Mock Agent class for ADK."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -22,6 +23,6 @@ class Agent:
     def start(self) -> None:
         """Start the agent. Override in subclasses."""
 
-    def handle_message(self, message: Message) -> Message | None:
+    def handle_message(self, message: Message) -> Message | None:  # noqa: ARG002
         """Handle a received message. Override in subclasses."""
         return None

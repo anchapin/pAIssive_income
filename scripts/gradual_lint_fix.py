@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 """
-Gradual Lint Fix Strategy Script
+Gradual Lint Fix Strategy Script.
 
 This script implements a gradual approach to fixing linting issues:
 1. For PRs: Only lint changed files
 2. For main branch: Track progress and gradually expand coverage
 3. Provides tools to systematically fix existing issues
-4. Supports critical-only mode for large PRs
+4. Supports critical-only mode for large PRs.
 """
+
+from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List
 
 # Critical error codes that could break functionality
 CRITICAL_ERROR_CODES = [
@@ -30,127 +32,124 @@ CRITICAL_ERROR_CODES = [
 ]
 
 
-def get_changed_files(base_branch: str = "main") -> List[str]:
+def _find_executable(name: str) -> str:
+    """Return the full path to an executable, or the name if not found."""
+    path = shutil.which(name)
+    return path if path else name
+
+
+def get_changed_files(base_branch: str = "main") -> list[str]:
     """Get list of Python files changed compared to base branch."""
     try:
-        # Get changed files from git
+        git_path = _find_executable("git")
         result = subprocess.run(
-            ["git", "diff", "--name-only", f"origin/{base_branch}...HEAD"],
+            [git_path, "diff", "--name-only", f"origin/{base_branch}...HEAD"],
             capture_output=True,
             text=True,
             encoding="utf-8",
+            # errors="ignore" is used to avoid UnicodeDecodeError when reading subprocess output, safe in this context.
             errors="ignore",
             check=True,
         )
-
-        # Filter for Python files
         changed_files = [
             line.strip()
             for line in result.stdout.strip().split("\n")
             if line.strip().endswith(".py") and Path(line.strip()).exists()
         ]
-
-        return changed_files
     except subprocess.CalledProcessError:
         print("Warning: Could not get changed files from git. Checking all files.")
-        return []
+    else:
+        return changed_files
+    return []
 
 
 def run_ruff_on_files(
-    files: List[str], fix: bool = False, critical_only: bool = False
-) -> Dict[str, int]:
+    files: list[str], fix: bool = False, critical_only: bool = False
+) -> dict[str, int]:
     """Run ruff on specific files and return error counts."""
     if not files:
         return {}
-
     results = {}
-
+    ruff_path = _find_executable("ruff")
     for file in files:
+        cmd = [ruff_path, "check", file]
+        if fix:
+            cmd.append("--fix")
+        if critical_only:
+            select_codes = ",".join(CRITICAL_ERROR_CODES)
+            cmd.extend(["--select", select_codes])
         try:
-            cmd = ["ruff", "check", file]
-            if fix:
-                cmd.append("--fix")
-
-            if critical_only:
-                # Only check for critical errors
-                select_codes = ",".join(CRITICAL_ERROR_CODES)
-                cmd.extend(["--select", select_codes])
-
             result = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
+                # errors="ignore" is used to avoid UnicodeDecodeError when reading subprocess output, safe in this context.
                 errors="ignore",
                 check=False,
             )
-
-            # Count errors (each line is typically one error)
-            if result.stdout:
-                error_count = len(
-                    [line for line in result.stdout.strip().split("\n") if line.strip()]
-                )
-            else:
-                error_count = 0
-
-            results[file] = error_count
-
-            if error_count > 0:
-                print(f"📁 {file}: {error_count} issues")
-                if not fix and result.stdout:  # Only show details if not fixing
-                    print(result.stdout)
-            else:
-                print(f"✅ {file}: Clean")
-
         except subprocess.CalledProcessError as e:
-            print(f"❌ Error checking {file}: {e}")
+            print(f"\u274c Error checking {file}: {e}")
             results[file] = -1
-
+            continue
+        if result.stdout:
+            error_count = len(
+                [line for line in result.stdout.strip().split("\n") if line.strip()]
+            )
+        else:
+            error_count = 0
+        results[file] = error_count
+        if error_count > 0:
+            print(f"\U0001f4c1 {file}: {error_count} issues")
+            if not fix and result.stdout:
+                print(result.stdout)
+        else:
+            print(f"\u2705 {file}: Clean")
     return results
 
 
-def get_baseline_errors() -> Dict[str, int]:
+def get_baseline_errors() -> dict[str, int]:
     """Get current error count for all files to establish baseline."""
     try:
+        ruff_path = _find_executable("ruff")
         result = subprocess.run(
-            ["ruff", "check", ".", "--output-format=concise"],
+            [ruff_path, "check", ".", "--output-format=concise"],
             capture_output=True,
             text=True,
             encoding="utf-8",
+            # errors="ignore" is used to avoid UnicodeDecodeError when reading subprocess output, safe in this context.
             errors="ignore",
             check=False,
         )
-
         if result.stdout and result.stdout.strip():
-            # Parse concise format: filename:line:col: code message
             file_counts = {}
-
             for line in result.stdout.strip().split("\n"):
                 if line.strip() and ":" in line:
-                    # Extract filename (everything before first colon)
                     filename = line.split(":")[0]
                     if filename in file_counts:
                         file_counts[filename] += 1
                     else:
                         file_counts[filename] = 1
-
             return file_counts
         return {}
-
     except subprocess.CalledProcessError:
         print("Warning: Could not get baseline error counts")
         return {}
+    else:
+        return file_counts
 
 
-def save_baseline(baseline: Dict[str, int], filename: str = "lint_baseline.json"):
+def save_baseline(
+    baseline: dict[str, int], filename: str = "lint_baseline.json"
+) -> None:
     """Save baseline error counts to file."""
     baseline_file = Path(filename)
     with baseline_file.open("w", encoding="utf-8") as f:
         json.dump(baseline, f, indent=2)
-    print(f"💾 Baseline saved to {baseline_file}")
+    print(f"\U0001f4be Baseline saved to {baseline_file}")
 
 
-def load_baseline(filename: str = "lint_baseline.json") -> Dict[str, int]:
+def load_baseline(filename: str = "lint_baseline.json") -> dict[str, int]:
     """Load baseline error counts from file."""
     baseline_file = Path(filename)
     if baseline_file.exists():
@@ -159,71 +158,56 @@ def load_baseline(filename: str = "lint_baseline.json") -> Dict[str, int]:
     return {}
 
 
-def check_pr_mode(
-    base_branch: str = "main",
-    fix: bool = False,
-    critical_only: bool = False,
-    auto_commit: bool = False,
-) -> int:
-    """Check only changed files in PR mode."""
-    mode_desc = "critical errors only" if critical_only else "all linting issues"
-    print(f"🔍 Running in PR mode - checking {mode_desc} in changed files...")
-
-    changed_files = get_changed_files(base_branch)
-
-    if not changed_files:
-        print("✅ No Python files changed or could not detect changes.")
-        return 0
-
-    print(f"📝 Found {len(changed_files)} changed Python files:")
-    for file in changed_files:
-        print(f"  - {file}")
-
-    results = run_ruff_on_files(changed_files, fix=fix, critical_only=critical_only)
-
-    # Check if any changed files have new errors
-    total_errors = sum(count for count in results.values() if count > 0)
-
-    if total_errors == 0:
-        success_msg = "critical checks" if critical_only else "linting checks"
-        print(f"✅ All changed files pass {success_msg}!")
-        return 0
-
-    error_type = "critical issues" if critical_only else "linting issues"
-    print(f"❌ Found {total_errors} {error_type} in changed files.")
-
-    if not fix:
-        print("💡 Run with --fix to automatically fix issues, or fix manually.")
-
-    # In critical-only mode, only fail for critical errors
-    if critical_only:
-        return 1
-
-    return 1
+def _print_progress_report(
+    improved_files: list[str],
+    regressed_files: list[str],
+    new_files: list[str],
+    fixed_files: list[str],
+    baseline: dict,
+    current_errors: dict,
+) -> None:
+    print("\U0001f4c8 Progress Report:")
+    print(f"  \u2705 Files completely fixed: {len(fixed_files)}")
+    print(f"  \U0001f4c8 Files improved: {len(improved_files)}")
+    print(f"  \U0001f53a Files regressed: {len(regressed_files)}")
+    print(f"  \U0001f195 New files with issues: {len(new_files)}")
+    if improved_files:
+        print("\n\U0001f389 Improved files:")
+        for filename, improvement in improved_files:
+            print(f"  - {filename}: -{improvement} errors")
+    if regressed_files:
+        print("\n\u26a0\ufe0f  Regressed files:")
+        for filename, regression in regressed_files:
+            print(f"  - {filename}: +{regression} errors")
+    total_baseline = sum(baseline.values())
+    total_current = sum(current_errors.values())
+    if total_current <= total_baseline:
+        print(
+            f"\n\U0001f4ca Overall progress: {total_baseline} -> {total_current} errors ({total_baseline - total_current:+d})"
+        )
+    else:
+        print(
+            f"\n\U0001f4ca Overall regression: {total_baseline} -> {total_current} errors ({total_current - total_baseline:+d})"
+        )
 
 
 def check_progress_mode() -> int:
     """Check progress against baseline."""
-    print("📊 Running in progress mode - checking against baseline...")
-
+    print("\U0001f4ca Running in progress mode - checking against baseline...")
     baseline = load_baseline()
     if not baseline:
-        print("📋 No baseline found. Creating new baseline...")
+        print("\U0001f4cb No baseline found. Creating new baseline...")
         current_errors = get_baseline_errors()
         save_baseline(current_errors)
         total_errors = sum(current_errors.values())
         print(
-            f"📊 Baseline established: {total_errors} total errors across {len(current_errors)} files"
+            f"\U0001f4ca Baseline established: {total_errors} total errors across {len(current_errors)} files"
         )
         return 0
-
     current_errors = get_baseline_errors()
-
-    # Compare with baseline
     improved_files = []
     regressed_files = []
     new_files = []
-
     for filename, current_count in current_errors.items():
         baseline_count = baseline.get(filename, 0)
         if current_count < baseline_count:
@@ -232,71 +216,73 @@ def check_progress_mode() -> int:
             regressed_files.append((filename, current_count - baseline_count))
         elif filename not in baseline:
             new_files.append((filename, current_count))
-
-    # Files that were completely fixed
-    fixed_files = [f for f in baseline.keys() if f not in current_errors]
-
-    # Report progress
-    print("📈 Progress Report:")
-    print(f"  ✅ Files completely fixed: {len(fixed_files)}")
-    print(f"  📈 Files improved: {len(improved_files)}")
-    print(f"  📉 Files regressed: {len(regressed_files)}")
-    print(f"  🆕 New files with issues: {len(new_files)}")
-
-    if improved_files:
-        print("\n🎉 Improved files:")
-        for filename, improvement in improved_files:
-            print(f"  - {filename}: -{improvement} errors")
-
-    if regressed_files:
-        print("\n⚠️  Regressed files:")
-        for filename, regression in regressed_files:
-            print(f"  - {filename}: +{regression} errors")
-
-    # Update baseline if there's overall improvement
+    fixed_files = [f for f in baseline if f not in current_errors]
+    _print_progress_report(
+        improved_files,
+        regressed_files,
+        new_files,
+        fixed_files,
+        baseline,
+        current_errors,
+    )
     total_baseline = sum(baseline.values())
     total_current = sum(current_errors.values())
-
     if total_current <= total_baseline:
         save_baseline(current_errors)
-        print(
-            f"\n📊 Overall progress: {total_baseline} → {total_current} errors ({total_baseline - total_current:+d})"
-        )
         return 0
-    print(
-        f"\n📊 Overall regression: {total_baseline} → {total_current} errors ({total_current - total_baseline:+d})"
-    )
+    return 1
+
+
+def check_pr_mode(
+    base_branch: str = "main",
+    fix: bool = False,
+    critical_only: bool = False,
+) -> int:
+    """Check only changed files in PR mode."""
+    mode_desc = "critical errors only" if critical_only else "all linting issues"
+    print(f"\U0001f50d Running in PR mode - checking {mode_desc} in changed files...")
+    changed_files = get_changed_files(base_branch)
+    if not changed_files:
+        print("\u2705 No Python files changed or could not detect changes.")
+        return 0
+    print(f"\U0001f4dd Found {len(changed_files)} changed Python files:")
+    for file in changed_files:
+        print(f"  - {file}")
+    results = run_ruff_on_files(changed_files, fix=fix, critical_only=critical_only)
+    total_errors = sum(count for count in results.values() if count > 0)
+    if total_errors == 0:
+        success_msg = "critical checks" if critical_only else "linting checks"
+        print(f"\u2705 All changed files pass {success_msg}!")
+        return 0
+    error_type = "critical issues" if critical_only else "linting issues"
+    print(f"\u274c Found {total_errors} {error_type} in changed files.")
+    if not fix:
+        print("\U0001f4a1 Run with --fix to automatically fix issues, or fix manually.")
+    if critical_only:
+        return 1
     return 1
 
 
 def fix_top_files(count: int = 5) -> int:
     """Fix the files with the most errors."""
-    print(f"🔧 Fixing top {count} files with most errors...")
-
+    print(f"\U0001f527 Fixing top {count} files with most errors...")
     current_errors = get_baseline_errors()
     if not current_errors:
-        print("✅ No errors found!")
+        print("\u2705 No errors found!")
         return 0
-
-    # Sort files by error count
     sorted_files = sorted(current_errors.items(), key=lambda x: x[1], reverse=True)
     top_files = [filename for filename, _ in sorted_files[:count]]
-
-    print("🎯 Targeting files:")
+    print("\U0001f3af Targeting files:")
     for i, (filename, error_count) in enumerate(sorted_files[:count], 1):
         print(f"  {i}. {filename}: {error_count} errors")
-
-    # Fix the files
     results = run_ruff_on_files(top_files, fix=True)
-
-    # Check results
     fixed_count = sum(1 for count in results.values() if count == 0)
-    print(f"\n✅ Successfully fixed {fixed_count}/{len(top_files)} files")
-
+    print(f"\n\u2705 Successfully fixed {fixed_count}/{len(top_files)} files")
     return 0
 
 
-def main():
+def main() -> int:
+    """Run gradual lint fix strategy."""
     parser = argparse.ArgumentParser(description="Gradual lint fix strategy")
     parser.add_argument(
         "--mode",
@@ -316,28 +302,18 @@ def main():
         help="Only check for critical errors that could break functionality",
     )
     parser.add_argument(
-        "--auto-commit",
-        action="store_true",
-        help="Automatically commit fixes (used in CI)",
-    )
-    parser.add_argument(
         "--count",
         type=int,
         default=5,
         help="Number of files to fix in fix mode (default: 5)",
     )
-
     args = parser.parse_args()
-
     if args.mode == "pr":
-        return check_pr_mode(
-            args.base_branch, args.fix, args.critical_only, args.auto_commit
-        )
+        return check_pr_mode(args.base_branch, args.fix, args.critical_only)
     if args.mode == "progress":
         return check_progress_mode()
     if args.mode == "fix":
         return fix_top_files(args.count)
-
     return 0
 
 

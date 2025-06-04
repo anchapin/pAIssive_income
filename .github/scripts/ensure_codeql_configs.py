@@ -16,14 +16,16 @@ def ensure_directory(directory: str) -> None:
     Path(directory).mkdir(parents=True, exist_ok=True)
 
 
-def create_codeql_config(filename: str, config_name: str, os_name: str | None = None) -> None:
+def create_codeql_config(
+    filename: str, config_name: str, os_name: str | None = None
+) -> None:
     """Create a CodeQL configuration file with the given parameters."""
     config = {
         "name": config_name,
         "queries": [
             {"uses": "security-and-quality"},
             {"uses": "security-extended"},
-            {"uses": "security"}
+            {"uses": "security"},
         ],
         "disable-default-queries": False,
         "paths-ignore": [
@@ -33,8 +35,8 @@ def create_codeql_config(filename: str, config_name: str, os_name: str | None = 
             "**/*.test.py",
             "**/*.spec.py",
             "tests/**",
-            "test_mem0_integration.py"
-        ]
+            "test_mem0_integration.py",
+        ],
     }
 
     if os_name:
@@ -51,11 +53,15 @@ def main() -> None:
 
     # Create the Ubuntu configuration
     ubuntu_config = codeql_dir / "security-os-ubuntu.yml"
-    create_codeql_config(str(ubuntu_config), "CodeQL Configuration for Ubuntu", "ubuntu-latest")
+    create_codeql_config(
+        str(ubuntu_config), "CodeQL Configuration for Ubuntu", "ubuntu-latest"
+    )
 
     # Create the macOS configuration
     macos_config = codeql_dir / "security-os-macos.yml"
-    create_codeql_config(str(macos_config), "CodeQL Configuration for macOS", "macos-latest")
+    create_codeql_config(
+        str(macos_config), "CodeQL Configuration for macOS", "macos-latest"
+    )
 
     # Create the unified configuration
     unified_config = codeql_dir / "security-os-config.yml"

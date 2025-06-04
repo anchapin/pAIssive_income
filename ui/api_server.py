@@ -111,6 +111,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
             # Wrap DB-specific error in our custom exception
             raise DatabaseError from e
 
+    # The following method names are required by BaseHTTPRequestHandler and must use camel case.
+
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests."""
         try:

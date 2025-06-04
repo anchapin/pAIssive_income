@@ -6,12 +6,12 @@ import functools
 import re
 import time
 from logging import INFO, Logger, getLogger
-
-logger = getLogger(__name__)
 from typing import Any, Callable, TypeVar, cast
 
 from flask.globals import current_app, g
 from werkzeug.local import LocalProxy
+
+logger = getLogger(__name__)
 
 # Type variables for generic function decorators
 F = TypeVar("F", bound=Callable[..., Any])

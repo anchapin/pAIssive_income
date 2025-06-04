@@ -67,9 +67,12 @@ jobs:
 
       - name: Commit linting fixes
         if: steps.lint-git-check.outputs.changes == 'true'
+        env:
+          GIT_AUTH_TOKEN: ${{ secrets.ACTIONS_BOT_PAT }} # gitleaks:allow
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          git remote set-url origin https://x-access-token:${GIT_AUTH_TOKEN}@github.com/${{ github.repository }}
           git add .
           git commit -m "Auto-fix linting issues"
           git push
@@ -168,9 +171,12 @@ jobs:
 
       - name: Commit CodeQL fixes
         if: steps.codeql-git-check.outputs.changes == 'true'
+        env:
+          GIT_AUTH_TOKEN: ${{ secrets.ACTIONS_BOT_PAT }} # gitleaks:allow
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          git remote set-url origin https://x-access-token:${GIT_AUTH_TOKEN}@github.com/${{ github.repository }}
           git add .
           git commit -m "Auto-fix CodeQL issues"
           git push

@@ -9,12 +9,17 @@ import argparse
 
 def main() -> None:
     """
-    Main entry point for RL training.
+    Run RL training for ArtistRLEnv.
+
     Parses arguments, initializes environment, and runs the training loop.
     """
     parser = argparse.ArgumentParser(description="Train an RL agent on ArtistRLEnv.")
-    parser.add_argument("--episodes", type=int, default=10, help="Number of training episodes.")
-    parser.add_argument("--max-steps", type=int, default=50, help="Max steps per episode.")
+    parser.add_argument(
+        "--episodes", type=int, default=10, help="Number of training episodes."
+    )
+    parser.add_argument(
+        "--max-steps", type=int, default=50, help="Max steps per episode."
+    )
     # Add more arguments as needed (e.g., learning rate, agent type)
 
     args = parser.parse_args()
@@ -38,6 +43,6 @@ def main() -> None:
 
     env.close()
 
+
 if __name__ == "__main__":
     main()
-

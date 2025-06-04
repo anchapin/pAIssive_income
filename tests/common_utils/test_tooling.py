@@ -17,6 +17,7 @@ class TestToolRegistry(unittest.TestCase):
 
     def test_register_and_get_tool(self) -> None:
         """Test registering and retrieving a tool."""
+
         def dummy_tool(x: str) -> str:
             return f"processed: {x}"
 

@@ -9,6 +9,7 @@ when the Bandit scan fails or produces no results.
 import json
 import os
 import sys
+from pathlib import Path
 
 # Skip virtual environment check by setting environment variables
 os.environ["PYTHONNOUSERSITE"] = "1"
@@ -18,7 +19,7 @@ os.environ["SKIP_VENV_CHECK"] = "1"
 def main() -> None:
     """Create empty SARIF files."""
     # Create security-reports directory if it doesn't exist
-    os.makedirs("security-reports", exist_ok=True)
+    Path("security-reports").mkdir(parents=True, exist_ok=True)
 
     # Create empty SARIF template
     empty_sarif = {
@@ -41,11 +42,11 @@ def main() -> None:
 
     # Write empty SARIF files
     try:
-        with open("security-reports/bandit-results.sarif", "w") as f:
+        with Path("security-reports/bandit-results.sarif").open("w") as f:
             json.dump(empty_sarif, f, indent=2)
-        with open("security-reports/bandit-results-ini.sarif", "w") as f:
+        with Path("security-reports/bandit-results-ini.sarif").open("w") as f:
             json.dump(empty_sarif, f, indent=2)
-    except Exception:
+    except OSError:
         sys.exit(1)
 
 

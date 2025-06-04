@@ -43,6 +43,10 @@ on:
   schedule:
     - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 # Limit concurrent runs to conserve resources
 concurrency:
@@ -300,11 +304,7 @@ jobs:
             bash .github/scripts/ensure-codeql-configs.sh
           else
             echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
-
-            # Ensure directory exists
             mkdir -p .github/codeql
-
-            # Create minimal macOS configuration using a single heredoc
             cat > .github/codeql/security-os-macos.yml << 'EOF'
 name: "CodeQL Configuration for macOS"
 os: macos-latest
@@ -315,8 +315,6 @@ queries:
 disable-default-queries: false
 trap-for-errors: true
 EOF
-
-            # Create minimal unified configuration using a single heredoc
             cat > .github/codeql/security-os-config.yml << 'EOF'
 name: "Unified CodeQL Configuration"
 queries:

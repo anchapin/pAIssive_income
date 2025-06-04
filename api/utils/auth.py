@@ -18,8 +18,10 @@ from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from pydantic import BaseModel
 
 from common_utils.logging import get_logger
+from users.password_reset import UserRepositoryProtocol
 
 if TYPE_CHECKING:
+    from users.password_reset import UserRepositoryProtocol
     from users.services import UserService
 
 # Initialize logger
@@ -91,7 +93,8 @@ async def get_current_user(
             detail="Internal server error",
         )
 
-    user = user_service.user_repository.find_by_id(user_id)
+    user_repo: UserRepositoryProtocol = user_service.user_repository  # type: ignore[assignment]
+    user = user_repo.find_by_id(user_id)
     if not user:
         logger.warning("User not found: %s", user_id)
         raise credentials_exception
@@ -165,7 +168,8 @@ async def verify_api_key(
         )
 
     # Find the API key
-    api_key_data = user_service.user_repository.find_api_key(api_key)
+    user_repo: UserRepositoryProtocol = user_service.user_repository  # type: ignore[assignment]
+    api_key_data = user_repo.find_api_key(api_key)
     if not api_key_data:
         logger.warning("Invalid API key")
         raise HTTPException(

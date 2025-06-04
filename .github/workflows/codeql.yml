@@ -44,6 +44,10 @@ on:
   schedule:
     - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 # Limit concurrent runs to conserve resources
 concurrency:

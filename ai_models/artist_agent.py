@@ -7,7 +7,6 @@ This is a scaffold for further expansion.
 
 from __future__ import annotations
 
-import re
 from typing import Any, Callable
 
 from common_utils import tooling
@@ -68,63 +67,23 @@ class ArtistAgent:
         return ""
 
     def extract_relevant_expression(self, prompt: str, tool_name: str) -> str:
-        """
-        Extract the relevant expression from the prompt based on the tool.
-
-        This is a naive implementation for the calculator tool.
-
-        Args:
-            prompt (str): The user's input or problem description.
-            tool_name (str): The name of the selected tool.
-
-        Returns:
-            str: The extracted relevant expression.
-
-        """
+        """Extract the relevant expression from the prompt based on the tool."""
+        min_expression_length = 3
+        # Refactored to reduce return statements and complexity
+        if not prompt or not tool_name:
+            return ""
+        expression = ""
         if tool_name == "calculator":
-            # For calculator, try to extract the mathematical expression
-            # Try to find the mathematical part of the prompt
-            # Look for patterns like "What is 12 * 8?" -> extract "12 * 8"
-            calc_match = re.search(r"(?:what\s+is\s+|calculate\s+|compute\s+)?([0-9\+\-\*/\(\)\.\s%]+)", prompt, re.IGNORECASE)
-            if calc_match:
-                expression = calc_match.group(1).strip()
-                # Validate that it contains at least one operator
-                if any(op in expression for op in ["+", "-", "*", "/", "%"]):
-                    return expression
-
-            # Fallback: extract any sequence of numbers and operators
-            math_parts = re.findall(r"[0-9\+\-\*/\(\)\.\s%]+", prompt)
-            if math_parts:
-                # Take the longest match that contains operators
-                for part in sorted(math_parts, key=len, reverse=True):
-                    part = part.strip()
-                    if any(op in part for op in ["+", "-", "*", "/", "%"]) and len(part) > 1:
-                        return part
-
-            # Final fallback to the entire prompt
-            return prompt
-        if tool_name == "text_analyzer":
-            # For text analysis, try to extract the text to analyze
-            # Look for patterns like "analyze this: 'text'" or "sentiment of 'text'"
-
-            # Try to find quoted text first
-            quoted_match = re.search(r"['\"]([^'\"]+)['\"]", prompt)
-            if quoted_match:
-                return quoted_match.group(1)
-
-            # Try to find text after "analyze" or "sentiment of"
-            analyze_match = re.search(r"analyze(?:\s+the)?\s+(?:sentiment\s+of\s+)?(?:this\s+)?(?:phrase:?\s*)?(.+)", prompt, re.IGNORECASE)
-            if analyze_match:
-                return analyze_match.group(1).strip()
-
-            sentiment_match = re.search(r"sentiment\s+of\s+(?:this\s+)?(?:phrase:?\s*)?(.+)", prompt, re.IGNORECASE)
-            if sentiment_match:
-                return sentiment_match.group(1).strip()
-
-            # Fallback to the entire prompt
-            return prompt
-
-        return prompt  # Default to returning the whole prompt if extraction logic is not defined
+            expression = self._extract_calculator_expression(prompt)
+        elif tool_name == "text_analyzer":
+            expression = self._extract_text_analyzer_expression(prompt)
+        elif tool_name == "code_executor":
+            expression = self._extract_code_executor_expression(prompt)
+        else:
+            expression = self._extract_generic_expression(prompt)
+        if len(expression) < min_expression_length:
+            return ""
+        return expression
 
     def run(self, prompt: str) -> str:
         """

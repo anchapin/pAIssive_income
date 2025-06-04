@@ -30,6 +30,10 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Weekly, for regular security scans
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 # Limit concurrent runs to conserve resources
 concurrency:

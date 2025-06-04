@@ -7,7 +7,7 @@ enabling reinforcement learning experiments on complex, multi-step tool-use scen
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar, Optional
 
 import gymnasium as gym
 from gymnasium import spaces
@@ -15,8 +15,6 @@ from gymnasium import spaces
 if TYPE_CHECKING:
     import numpy as np
 
-# Placeholder: import or define ArtistAgent elsewhere in your codebase
-# from .artist_agent import ArtistAgent
 
 class ArtistRLEnv(gym.Env):
     """
@@ -27,9 +25,9 @@ class ArtistRLEnv(gym.Env):
     Reward: Sparse or shaped reward from task success.
     """
 
-    metadata = {"render.modes": ["human"]}
+    metadata: ClassVar[dict[str, list[str]]] = {"render.modes": ["human"]}
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, config: Optional[dict[str, Any]] = None) -> None:
         """
         Initialize the RL environment.
 
@@ -42,7 +40,6 @@ class ArtistRLEnv(gym.Env):
         # Placeholder: observation and action space (should be defined according to ArtistAgent API)
         self.observation_space = spaces.Box(low=0, high=1, shape=(10,), dtype=float)
         self.action_space = spaces.Discrete(5)
-        # self.agent = ArtistAgent(self.config)
         self.state = None
 
     def reset(self) -> np.ndarray:
@@ -53,11 +50,10 @@ class ArtistRLEnv(gym.Env):
             observation (np.ndarray): Initial observation after reset.
 
         """
-        # self.state = self.agent.reset()
         self.state = self.observation_space.sample()  # Placeholder
         return self.state
 
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, Dict[str, Any]]:
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, dict[str, Any]]:  # noqa: ARG002
         """
         Take an action in the environment.
 
@@ -71,14 +67,13 @@ class ArtistRLEnv(gym.Env):
             info (Dict[str, Any]): Additional info.
 
         """
-        # obs, reward, done, info = self.agent.step(action)
         obs = self.observation_space.sample()  # Placeholder
         reward = 0.0
         done = False
         info = {}
         return obs, reward, done, info
 
-    def render(self, mode="human") -> None:
+    def render(self, mode: str = "human") -> None:
         """Render the environment (optional)."""
 
     def close(self) -> None:

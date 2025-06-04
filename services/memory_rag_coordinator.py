@@ -21,8 +21,9 @@ logger = logging.getLogger(__name__)
 
 class MemoryRAGCoordinator:
     """
-    MemoryRAGCoordinator coordinates queries to both mem0 and ChromaDB retrieval systems,
-    aggregates and deduplicates their results, and returns a unified, provenance-rich response.
+    Coordinates queries to both mem0 and ChromaDB retrieval systems.
+
+    Aggregates and deduplicates their results, and returns a unified, provenance-rich response.
 
     Parameters
     ----------
@@ -41,10 +42,13 @@ class MemoryRAGCoordinator:
         chroma_n_results: int = 5,
         chroma_persist_dir: str | None = None,
     ) -> None:
+        """Initialize the MemoryRAGCoordinator."""
         # Setup ChromaDB client, collection, and embedder (can fail gracefully if not installed)
         self.chroma_collection_name = chroma_collection_name
         self.chroma_n_results = chroma_n_results
-        self.chroma_persist_dir = chroma_persist_dir or os.environ.get("CHROMADB_PERSIST_DIR", ".chromadb_demo")
+        self.chroma_persist_dir = chroma_persist_dir or os.environ.get(
+            "CHROMADB_PERSIST_DIR", ".chromadb_demo"
+        )
         self._chroma_client = None
         self._chroma_collection = None
         self._embedder = None
@@ -53,6 +57,7 @@ class MemoryRAGCoordinator:
             import chromadb
             from chromadb.config import Settings
             from sentence_transformers import SentenceTransformer
+
             # Initialize client and collection
             self._chroma_client = chromadb.Client(
                 Settings(
@@ -60,7 +65,9 @@ class MemoryRAGCoordinator:
                     chroma_db_impl="duckdb+parquet",
                 )
             )
-            self._chroma_collection = self._chroma_client.get_or_create_collection(self.chroma_collection_name)
+            self._chroma_collection = self._chroma_client.get_or_create_collection(
+                self.chroma_collection_name
+            )
             self._embedder = SentenceTransformer("all-MiniLM-L6-v2")
         except ImportError:
             logger.warning(
@@ -73,8 +80,7 @@ class MemoryRAGCoordinator:
 
     def query(self, query: str, user_id: str) -> dict[str, Any]:
         """
-        Query both mem0 and ChromaDB, aggregate and deduplicate their responses,
-        and return a unified response.
+        Query both mem0 and ChromaDB, aggregate and deduplicate their responses, and return a unified response.
 
         Parameters
         ----------
@@ -94,60 +100,76 @@ class MemoryRAGCoordinator:
 
         """
         metrics = {}
-        # Query mem0
-        start = time.time()
-        mem0_results = self.mem0_query(query, user_id)
-        mem0_time = time.time() - start
-        metrics["mem0"] = {"time_sec": mem0_time, "cost": self._estimate_cost(mem0_results)}
+        try:
+            # Query mem0
+            start = time.time()
+            mem0_results = self.mem0_query(query, user_id)
+            mem0_time = time.time() - start
+            metrics["mem0"] = {
+                "time_sec": mem0_time,
+                "cost": self._estimate_cost(mem0_results),
+            }
 
-        # Query ChromaDB
-        start = time.time()
-        chroma_results = self.chroma_query(query)
-        chroma_time = time.time() - start
-        metrics["chroma"] = {"time_sec": chroma_time, "cost": self._estimate_cost(chroma_results)}
+            # Query ChromaDB
+            start = time.time()
+            chroma_results = self.chroma_query(query)
+            chroma_time = time.time() - start
+            metrics["chroma"] = {
+                "time_sec": chroma_time,
+                "cost": self._estimate_cost(chroma_results),
+            }
 
-        # Aggregate and deduplicate
-        merged_results = self._merge_results(mem0_results, chroma_results)
-
-        return {
-            "merged_results": merged_results,
-            "subsystem_metrics": metrics,
-            "raw_mem0_results": mem0_results,
-            "raw_chroma_results": chroma_results,
-        }
+            # Aggregate and deduplicate
+            merged_results = self._merge_results(mem0_results, chroma_results)
+        except Exception:
+            logger.exception("Exception during query")
+        else:
+            return {
+                "merged_results": merged_results,
+                "subsystem_metrics": metrics,
+                "raw_mem0_results": mem0_results,
+                "raw_chroma_results": chroma_results,
+            }
+        return {}
 
     def mem0_query(self, query: str, user_id: str) -> list[dict]:
         """
         Query the mem0 memory system for relevant memories given a query and user ID.
+
         Instantiates a mem0 Memory object and calls its `search` method.
 
-        Returns a list of dictionaries representing relevant memories.
+        Returns
+        -------
+        list[dict]
+            A list of dictionaries representing relevant memories.
+
         """
         try:
             from mem0 import Memory
-        except ImportError:
-            logger.warning("mem0ai package is not installed. Install with: uv pip install mem0ai")
-            return []
 
-        try:
             memory = Memory()
             results = memory.search(query=query, user_id=user_id)
             if not isinstance(results, list):
                 logger.error("mem0 Memory.search did not return a list.")
                 return []
-            return results
         except Exception:
             logger.exception("Exception during mem0_query")
             return []
+        else:
+            return results
 
     def chroma_query(self, query: str) -> list[dict]:
         """
         Query the ChromaDB RAG system for relevant documents given a query.
 
-        Returns a list of dictionaries representing relevant documents, with keys including:
-            - 'text' or 'content': The matched document text.
-            - 'score': Vector distance (smaller is more similar).
-            - ... (other metadata as available)
+        Returns
+        -------
+        list[dict]
+            A list of dictionaries representing relevant documents, with keys including:
+                - 'text' or 'content': The matched document text.
+                - 'score': Vector distance (smaller is more similar).
+                - ... (other metadata as available)
+
         """
         if self._chroma_collection is None or self._embedder is None:
             return []
@@ -155,13 +177,16 @@ class MemoryRAGCoordinator:
         try:
             query_embedding = self._embedder.encode(query).tolist()
             results = self._chroma_collection.query(
-                query_embeddings=[query_embedding],
-                n_results=self.chroma_n_results
+                query_embeddings=[query_embedding], n_results=self.chroma_n_results
             )
             docs = results.get("documents", [[]])[0]
             dists = results.get("distances", [[]])[0]
             ids = results.get("ids", [[]])[0]
-            metadatas = results.get("metadatas", [[]])[0] if results.get("metadatas") else [{} for _ in docs]
+            metadatas = (
+                results.get("metadatas", [[]])[0]
+                if results.get("metadatas")
+                else [{} for _ in docs]
+            )
 
             formatted = []
             for doc, dist, doc_id, meta in zip(docs, dists, ids, metadatas):
@@ -173,18 +198,22 @@ class MemoryRAGCoordinator:
                 if isinstance(meta, dict):
                     entry.update(meta)
                 formatted.append(entry)
-            return formatted
         except Exception:
             logger.exception("Exception during chroma_query")
             return []
+        else:
+            return formatted
 
-    def _merge_results(self, mem0_results: list[dict], chroma_results: list[dict]) -> list[dict]:
+    def _merge_results(
+        self, mem0_results: list[dict], chroma_results: list[dict]
+    ) -> list[dict]:
         """
         Merge, deduplicate, and resolve conflicts between mem0 and ChromaDB results.
 
         Preference is given to more recent or more relevant information when duplicates/conflicts arise.
         Normalizes scores so that higher is always better, regardless of source.
         """
+
         def norm_result(r: dict, source: str) -> dict:
             text_content = r.get("text") or r.get("content") or ""
             timestamp = r.get("timestamp")
@@ -194,18 +223,28 @@ class MemoryRAGCoordinator:
             current_relevance_value = 0.0
             if source == "chroma":
                 # If score is None, treat as worst
-                chroma_score = original_score if original_score is not None else float("inf")
+                chroma_score = (
+                    original_score if original_score is not None else float("inf")
+                )
                 # If distance is 0..2 (L2) or 0..1 (cosine), this will always map higher similarity to higher value
                 current_relevance_value = 1.0 / (1.0 + chroma_score)
             elif source == "mem0":
                 # If score not present, fall back to relevance, then 0.0
-                current_relevance_value = original_score if original_score is not None else (original_relevance if original_relevance is not None else 0.0)
+                current_relevance_value = (
+                    original_score
+                    if original_score is not None
+                    else (original_relevance if original_relevance is not None else 0.0)
+                )
             return {
                 "text": text_content,
                 "source": source,
                 "timestamp": timestamp,
                 "relevance": current_relevance_value,
-                **{k: v for k, v in r.items() if k not in ("text", "content", "timestamp", "score", "relevance")}
+                **{
+                    k: v
+                    for k, v in r.items()
+                    if k not in ("text", "content", "timestamp", "score", "relevance")
+                },
             }
 
         canonical_mem0 = [norm_result(r, "mem0") for r in mem0_results]
@@ -233,13 +272,19 @@ class MemoryRAGCoordinator:
 
         # Sort by descending relevance, then most recent timestamp
         merged = list(deduped.values())
-        merged.sort(key=lambda x: (-x.get("relevance", 0.0), -(x.get("timestamp") or 0)))
+        merged.sort(
+            key=lambda x: (-x.get("relevance", 0.0), -(x.get("timestamp") or 0))
+        )
         return merged
 
     def _estimate_cost(self, results: list[dict]) -> float:  # noqa: ARG002
         """
         Estimate the 'cost' of a query to a subsystem (stub implementation).
 
-        Returns a float (currently always 0.0).
+        Returns
+        -------
+        float
+            The estimated cost (currently always 0.0).
+
         """
         return 0.0

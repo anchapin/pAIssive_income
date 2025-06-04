@@ -212,7 +212,11 @@ regexes = [
     "updateu@example.com",
     "delu@example.com",
     "unique@example.com",
-    "weakpw@example.com"
+    "weakpw@example.com",
+
+    # Allow GIT_AUTH_TOKEN env for GitHub Actions
+    'GIT_AUTH_TOKEN: \${{ secrets\.[A-Z0-9_]+ }}',
+    'secrets\.ACTIONS_BOT_PAT',
 ]
 
 [[rules]]
@@ -345,3 +349,7 @@ exclude = [
     "(?i)secrets\\.DOCKERHUB_USERNAME",
     "(?i)secrets\\.DOCKERHUB_TOKEN"
 ]
+
+[[allowlist.patterns]]
+pattern = '\${{\ *secrets\.[A-Z0-9_]+\ *}}'
+description = "Allow GitHub Actions secrets syntax in workflow files"

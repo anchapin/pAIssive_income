@@ -51,7 +51,7 @@ class Task:
     """Mock implementation of CrewAI Task class."""
 
     def __init__(
-        self, description: str = "", agent: Agent = None, **kwargs: dict
+        self, description: str = "", agent: Optional[Agent] = None, **kwargs: dict
     ) -> None:
         """
         Initialize a mock Task.

@@ -5,13 +5,14 @@ This module contains tests for the ARTIST experiments.
 """
 
 import json
-import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from artist_experiments import math_problem_solving, multi_api_orchestration
 
+TWO_RESULTS = 2
 
-class TestMathProblemSolving(unittest.TestCase):
+
+class TestMathProblemSolving:
     """Tests for the mathematical problem-solving experiment."""
 
     def test_solve_equation(self) -> None:
@@ -33,7 +34,7 @@ class TestMathProblemSolving(unittest.TestCase):
         assert result == "x**2 - x - 6"
 
     @patch("ai_models.artist_agent.ArtistAgent.run")
-    def test_run_experiment(self, mock_run) -> None:
+    def test_run_experiment(self, mock_run: MagicMock) -> None:
         """Test running the experiment."""
         mock_run.return_value = "5"
         result = math_problem_solving.run_experiment("Solve 2 + 3")
@@ -41,7 +42,7 @@ class TestMathProblemSolving(unittest.TestCase):
         mock_run.assert_called_once_with("Solve 2 + 3")
 
 
-class TestMultiAPIOrchestration(unittest.TestCase):
+class TestMultiAPIOrchestration:
     """Tests for the multi-API orchestration experiment."""
 
     def test_search_products(self) -> None:
@@ -49,7 +50,7 @@ class TestMultiAPIOrchestration(unittest.TestCase):
         api_tool = multi_api_orchestration.APITool()
         result = api_tool.search_products("test", 2)
         result_dict = json.loads(result)
-        assert len(result_dict["results"]) == 2
+        assert len(result_dict["results"]) == TWO_RESULTS
         assert result_dict["results"][0]["name"] == "test Product 1"
 
     def test_get_market_trends(self) -> None:
@@ -69,14 +70,10 @@ class TestMultiAPIOrchestration(unittest.TestCase):
         assert "direct_competitors" in result_dict
 
     @patch("ai_models.artist_agent.ArtistAgent.run")
-    def test_run_experiment(self, mock_run) -> None:
+    def test_run_experiment(self, mock_run: MagicMock) -> None:
         """Test running the experiment."""
         mock_result = json.dumps({"results": [{"name": "test Product 1"}]})
         mock_run.return_value = mock_result
         result = multi_api_orchestration.run_experiment("Search for test products")
         assert result == mock_result
         mock_run.assert_called_once_with("Search for test products")
-
-
-if __name__ == "__main__":
-    unittest.main()

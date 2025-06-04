@@ -15,12 +15,32 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
+def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)
+
+
 def run_command(command: list[str]) -> tuple[int, str, str]:
     """Run a command and return the exit code, stdout, and stderr."""
     try:
         # Always use shell=False for security
         # nosec comment below tells security scanners this is safe as we control the input
-        result = subprocess.run(  # nosec B603 S603
+        result = _safe_subprocess_run(  # nosec S603
             command,
             capture_output=True,
             text=True,

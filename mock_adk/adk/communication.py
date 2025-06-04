@@ -1,4 +1,5 @@
 """Mock message and communication classes for ADK."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,6 +13,7 @@ class Message:
     type: str
     payload: dict[str, Any]
     sender: str
+
 
 class AgentCommunicator:
     """Mock communicator for agent message passing."""

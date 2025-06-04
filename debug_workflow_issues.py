@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
-"""
-Debug script to identify potential workflow issues.
+"""Debug script to identify potential workflow issues."""
 
-This script checks for common issues that might cause GitHub Actions workflows to fail.
-"""
+from __future__ import annotations
 
 import json
+import logging
 import os
 import sys
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 
 def check_file_exists(file_path: str, description: str) -> bool:
     """Check if a file exists and report the result."""
     exists = Path(file_path).exists()
     status = "✅" if exists else "❌"
-    print(f"{status} {description}: {file_path}")
+    logger.info("%s %s: %s", status, description, file_path)
     return exists
 
 
@@ -23,46 +25,41 @@ def check_directory_exists(dir_path: str, description: str) -> bool:
     """Check if a directory exists and report the result."""
     exists = Path(dir_path).exists() and Path(dir_path).is_dir()
     status = "✅" if exists else "❌"
-    print(f"{status} {description}: {dir_path}")
+    logger.info("%s %s: %s", status, description, dir_path)
     return exists
 
 
-def check_python_imports() -> None:
-    """Check if critical Python modules can be imported."""
-    print("\n🐍 Python Import Checks:")
-
-    modules_to_check = [
-        ("pytest", "pytest testing framework"),
-        ("ruff", "ruff linter"),
-        ("safety", "safety security scanner"),
-        ("bandit", "bandit security scanner"),
-    ]
-
-    for module, description in modules_to_check:
+def check_modules(modules: list[str], description: str) -> None:
+    """Check if modules can be imported and log the result."""
+    failed = []
+    for module in modules:
+        # PERF203: try-except within a loop is acceptable here for import checks
         try:
             __import__(module)
-            print(f"✅ {description}: {module}")
-        except ImportError:
-            print(f"❌ {description}: {module} (not installed)")
+            logger.info("\u2705 %s: %s", description, module)
+        except ImportError:  # noqa: PERF203
+            failed.append(module)  # PERF203: acceptable here for import checks
+    for module in failed:
+        logger.info("\u274c %s: %s (not installed)", description, module)
 
 
 def check_package_json() -> None:
     """Check package.json configuration."""
-    print("\n📦 Package.json Checks:")
+    logger.info("\n📦 Package.json Checks:")
 
     if not check_file_exists("package.json", "package.json file"):
         return
 
     try:
-        with open("package.json") as f:
+        with Path("package.json").open() as f:
             package_data = json.load(f)
 
         # Check test scripts
         scripts = package_data.get("scripts", {})
         if "test" in scripts:
-            print(f"✅ Test script defined: {scripts['test']}")
+            logger.info("\u2705 Test script defined: %s", scripts["test"])
         else:
-            print("❌ No test script defined in package.json")
+            logger.info("\u274c No test script defined in package.json")
 
         # Check if test files exist
         test_patterns = ["src/**/*.test.js", "ui/**/*.test.js"]
@@ -71,25 +68,29 @@ def check_package_json() -> None:
             if "src" in pattern and Path("src").exists():
                 test_files = list(Path("src").glob("*.test.js"))
                 if test_files:
-                    print(f"✅ Found test files in src/: {len(test_files)} files")
+                    logger.info(
+                        "\u2705 Found test files in src/: %d files", len(test_files)
+                    )
                 else:
-                    print("❌ No test files found in src/")
+                    logger.info("\u274c No test files found in src/")
             elif "ui" in pattern and Path("ui").exists():
                 test_files = list(Path("ui").rglob("*.test.js"))
                 if test_files:
-                    print(f"✅ Found test files in ui/: {len(test_files)} files")
+                    logger.info(
+                        "\u2705 Found test files in ui/: %d files", len(test_files)
+                    )
                 else:
-                    print("❌ No test files found in ui/")
+                    logger.info("\u274c No test files found in ui/")
 
     except json.JSONDecodeError as e:
-        print(f"❌ Invalid JSON in package.json: {e}")
-    except Exception as e:
-        print(f"❌ Error reading package.json: {e}")
+        logger.info("\u274c Invalid JSON in package.json: %s", e)
+    except OSError as e:
+        logger.info("\u274c Error reading package.json: %s", e)
 
 
 def check_workflow_files() -> None:
     """Check GitHub Actions workflow files."""
-    print("\n🔧 Workflow File Checks:")
+    logger.info("\n🔧 Workflow File Checks:")
 
     workflow_dir = Path(".github/workflows")
     if not check_directory_exists(str(workflow_dir), "Workflows directory"):
@@ -98,15 +99,15 @@ def check_workflow_files() -> None:
     workflow_files = list(workflow_dir.glob("*.yml")) + list(
         workflow_dir.glob("*.yaml")
     )
-    print(f"✅ Found {len(workflow_files)} workflow files")
+    logger.info("\u2705 Found %d workflow files", len(workflow_files))
 
     for workflow_file in workflow_files:
-        print(f"  - {workflow_file.name}")
+        logger.info("  - %s", workflow_file.name)
 
 
 def check_test_files() -> None:
     """Check for test files and directories."""
-    print("\n🧪 Test File Checks:")
+    logger.info("\n🧪 Test File Checks:")
 
     test_directories = ["tests", "test"]
     for test_dir in test_directories:
@@ -114,7 +115,7 @@ def check_test_files() -> None:
             test_files = list(Path(test_dir).rglob("test_*.py")) + list(
                 Path(test_dir).rglob("*_test.py")
             )
-            print(f"  Found {len(test_files)} Python test files")
+            logger.info("  Found %d Python test files", len(test_files))
 
             # Check for specific test files mentioned in workflow
             specific_tests = [
@@ -132,7 +133,7 @@ def check_test_files() -> None:
 
 def check_scripts() -> None:
     """Check for required scripts."""
-    print("\n📜 Script Checks:")
+    logger.info("\n📜 Script Checks:")
 
     required_scripts = [
         "scripts/check_logger_initialization.py",
@@ -147,7 +148,7 @@ def check_scripts() -> None:
 
 def check_configuration_files() -> None:
     """Check for configuration files."""
-    print("\n⚙️  Configuration File Checks:")
+    logger.info("\n⚙️  Configuration File Checks:")
 
     config_files = [
         ("pyproject.toml", "Python project configuration"),
@@ -163,26 +164,26 @@ def check_configuration_files() -> None:
 
 def check_environment() -> None:
     """Check environment variables and settings."""
-    print("\n🌍 Environment Checks:")
+    logger.info("\n🌍 Environment Checks:")
 
     # Check if we're in a CI environment
     ci_vars = ["CI", "GITHUB_ACTIONS", "GITHUB_WORKFLOW"]
     for var in ci_vars:
         value = os.environ.get(var)
         if value:
-            print(f"✅ {var}: {value}")
+            logger.info("\u2705 %s: %s", var, value)
         else:
-            print(f"❌ {var}: not set")
+            logger.info("\u274c %s: not set", var)
 
     # Check Python version
-    print(f"✅ Python version: {sys.version}")
-    print(f"✅ Python executable: {sys.executable}")
+    logger.info("\u2705 Python version: %s", sys.version)
+    logger.info("\u2705 Python executable: %s", sys.executable)
 
 
 def main() -> None:
     """Run all checks."""
-    print("🔍 Workflow Issue Debug Report")
-    print("=" * 50)
+    logger.info("🔍 Workflow Issue Debug Report")
+    logger.info("%s", "=" * 50)
 
     check_environment()
     check_configuration_files()
@@ -190,12 +191,14 @@ def main() -> None:
     check_test_files()
     check_workflow_files()
     check_package_json()
-    check_python_imports()
+    check_modules(["pytest", "ruff", "safety", "bandit"], "Python modules")
 
-    print("\n" + "=" * 50)
-    print("🏁 Debug report complete!")
-    print("\nIf you see ❌ marks above, those might be causing workflow failures.")
-    print("Check the GitHub Actions logs for more specific error messages.")
+    logger.info("%s", "\n" + "=" * 50)
+    logger.info("🏁 Debug report complete!")
+    logger.info(
+        "\nIf you see ❌ marks above, those might be causing workflow failures."
+    )
+    logger.info("Check the GitHub Actions logs for more specific error messages.")
 
 
 if __name__ == "__main__":

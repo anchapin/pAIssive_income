@@ -14,6 +14,7 @@ try:
 except ImportError:
     sys.exit(1)
 
+
 def test_mem0_basic_operations() -> bool | None:
     """Test basic mem0 operations."""
     try:
@@ -31,8 +32,10 @@ def test_mem0_basic_operations() -> bool | None:
 
         return bool(search_results)
 
-    except Exception:
+    except (AttributeError, TypeError, ValueError, RuntimeError):
+        # Catch common mem0 errors, but not all exceptions blindly
         return False
+
 
 if __name__ == "__main__":
     # Check if OpenAI API key is set (required by mem0)

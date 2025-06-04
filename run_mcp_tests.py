@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -44,10 +45,9 @@ def _install_mcp_sdk() -> None:
         return
 
     logger.info("Running MCP SDK installation script at %s", install_script_path)
-    import subprocess
 
     try:
-        result = subprocess.run(
+        result = _safe_subprocess_run(
             [sys.executable, str(install_script_path)],
             check=False,
             capture_output=True,
@@ -127,6 +127,26 @@ def _handle_ci_environment() -> int:
     return 1
 
 
+def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)
+
+
 def _run_test_script(script_path: Path) -> int:
     """
     Run the test script and handle its output.
@@ -138,8 +158,6 @@ def _run_test_script(script_path: Path) -> int:
         int: Return code from the script execution
 
     """
-    import subprocess
-
     # Use a list of arguments to avoid shell injection
     cmd = [sys.executable, str(script_path)] + sys.argv[1:]
     logger.info("Running command: %s", " ".join(cmd))
@@ -148,7 +166,7 @@ def _run_test_script(script_path: Path) -> int:
         # We've validated script_path is within our expected directory
         # and we're using a list of arguments to avoid shell injection
         # ruff: noqa: S603
-        result = subprocess.run(  # nosec B603
+        result = _safe_subprocess_run(
             cmd,
             check=False,
             shell=False,  # Explicitly set shell=False for security

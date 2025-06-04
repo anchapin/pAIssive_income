@@ -27,6 +27,7 @@ def is_git_tracked(path) -> bool:
         # Use git ls-files to check if the file is tracked (not ignored)
         # --error-unmatch causes non-tracked files to raise an error
         git_exe = shutil.which("git") or "git"
+        # The following subprocess call is static and used for git file tracking in test collection.
         subprocess.check_output(  # noqa: S603 - Using git with proper arguments
             [git_exe, "ls-files", "--error-unmatch", os.path.relpath(path)],
             stderr=subprocess.DEVNULL,
@@ -82,9 +83,9 @@ def app():
             db.session.execute(text("SELECT 1"))
             db.session.commit()
             logger.info("Database connection verified!")
-        except Exception as e:
-            logger.exception("Database setup failed: %s", e)
-            pytest.fail(f"Could not set up database: {e}")
+        except Exception:
+            logger.exception("Database setup failed")
+            pytest.fail("Could not set up database")
 
         yield app
 
@@ -92,14 +93,14 @@ def app():
         try:
             db.session.remove()
             db.drop_all()
-        except Exception as e:
-            logger.warning("Error during database cleanup: %s", e)
+        except Exception:  # noqa: BLE001
+            logger.warning("Error during database cleanup")
         finally:
             # Clean up temporary directory
             try:
                 shutil.rmtree(temp_dir)
-            except Exception as e:
-                logger.warning("Error cleaning up temp directory: %s", e)
+            except Exception:  # noqa: BLE001
+                logger.warning("Error cleaning up temp directory")
 
 
 @pytest.fixture
@@ -123,9 +124,7 @@ def db_session(app):
         transaction = connection.begin()
 
         # Configure session to use the transaction
-        session = db.create_scoped_session(
-            options={"bind": connection, "binds": {}}
-        )
+        session = db.create_scoped_session(options={"bind": connection, "binds": {}})
 
         # Make session available to the app
         db.session = session

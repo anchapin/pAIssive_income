@@ -1,10 +1,8 @@
+# pyright: ignore[reportCallIssue]
 """test_models - Test module for database models."""
-
-from typing import Generator
 
 import pytest
 from flask import Flask
-from flask.testing import FlaskClient
 
 from app_flask import db
 from app_flask.models import Agent, Team, User
@@ -17,6 +15,7 @@ def test_user_model(app: Flask) -> None:
     """Test the User model."""
     with app.app_context():
         # Create a user
+        # The following test credentials are safe for use in test code only.
         user = User(
             username="testuser",
             email="test@example.com",
@@ -155,19 +154,21 @@ def test_user_unique_constraints(app: Flask) -> None:
     """Test that unique constraints work for User model."""
     with app.app_context():
         # Create first user
+        # The following test credentials are safe for use in test code only.
         user1 = User(
             username="unique_user",
             email="unique@example.com",
-            password_hash="password1",
+            password_hash="password1",  # noqa: S106 - Test data only
         )
         db.session.add(user1)
         db.session.commit()
 
         # Try to create user with same username
+        # The following test credentials are safe for use in test code only.
         user2 = User(
             username="unique_user",  # Same username
             email="different@example.com",
-            password_hash="password2",
+            password_hash="password2",  # noqa: S106 - Test data only
         )
         db.session.add(user2)
 
@@ -179,10 +180,11 @@ def test_user_unique_constraints(app: Flask) -> None:
         db.session.rollback()
 
         # Try to create user with same email
+        # The following test credentials are safe for use in test code only.
         user3 = User(
             username="different_user",
             email="unique@example.com",  # Same email
-            password_hash="password3",
+            password_hash="password3",  # noqa: S106 - Test data only
         )
         db.session.add(user3)
 

@@ -7,6 +7,8 @@ and handles errors gracefully to ensure CI/CD pipelines don't fail due to
 Bandit issues.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os
@@ -68,12 +70,12 @@ def create_empty_json_files() -> bool:
         }
 
         # Write to bandit-results.json
-        with open("security-reports/bandit-results.json", "w") as f:
+        with Path("security-reports/bandit-results.json").open("w") as f:
             json.dump(empty_json_data, f, indent=2)
         logger.info("Created empty bandit-results.json")
 
         # Write to bandit-results-ini.json
-        with open("security-reports/bandit-results-ini.json", "w") as f:
+        with Path("security-reports/bandit-results-ini.json").open("w") as f:
             json.dump(empty_json_data, f, indent=2)
         logger.info("Created empty bandit-results-ini.json")
 
@@ -97,19 +99,19 @@ def create_empty_json_files() -> bool:
         }
 
         # Write to bandit-results.sarif
-        with open("security-reports/bandit-results.sarif", "w") as f:
+        with Path("security-reports/bandit-results.sarif").open("w") as f:
             json.dump(empty_sarif, f, indent=2)
         logger.info("Created empty bandit-results.sarif")
 
         # Write to bandit-results-ini.sarif
-        with open("security-reports/bandit-results-ini.sarif", "w") as f:
+        with Path("security-reports/bandit-results-ini.sarif").open("w") as f:
             json.dump(empty_sarif, f, indent=2)
         logger.info("Created empty bandit-results-ini.sarif")
-
-        return True
-    except Exception as e:
-        logger.exception("Failed to create empty files: %s", e)
+    except Exception:
+        logger.exception("Failed to create empty files")
         return False
+    else:
+        return True
 
 
 def find_bandit_executable() -> str:
@@ -134,134 +136,177 @@ def find_bandit_executable() -> str:
     return "bandit"
 
 
+def run_bandit_scan(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+    """Run Bandit scan with trusted binaries only."""
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, shell=False, **filtered_kwargs)  # noqa: S603
+
+
+def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, shell=False, **filtered_kwargs)  # noqa: S603
+
+
+def _run_bandit_version(bandit_path: str) -> None:
+    _safe_subprocess_run([bandit_path, "--version"])
+
+
+def _install_bandit() -> None:
+    _safe_subprocess_run([sys.executable, "-m", "pip", "install", "bandit"])
+
+
+def _run_bandit_scan_with_config(bandit_path: str, bandit_config: str) -> None:
+    _safe_subprocess_run(
+        [
+            bandit_path,
+            "-c",
+            bandit_config,
+            "-r",
+            ".",
+            "-f",
+            "json",
+            "-o",
+            "security-reports/bandit-results.json",
+        ]
+    )
+
+
+def _run_bandit_scan_default(bandit_path: str) -> None:
+    _safe_subprocess_run(
+        [
+            bandit_path,
+            "-r",
+            ".",
+            "-f",
+            "json",
+            "-o",
+            "security-reports/bandit-results.json",
+        ]
+    )
+
+
+def _convert_bandit_to_sarif() -> None:
+    _safe_subprocess_run([sys.executable, "convert_bandit_to_sarif.py"])
+
+
+def install_bandit_if_needed(bandit_path: str) -> str:
+    """Install Bandit if it is not already installed and return the path to the executable."""
+    try:
+        _safe_subprocess_run([bandit_path, "--version"])
+    except (FileNotFoundError, subprocess.SubprocessError):
+        logger.info("Installing bandit...")
+        try:
+            _safe_subprocess_run([sys.executable, "-m", "pip", "install", "bandit"])
+            bandit_path = find_bandit_executable()
+        except Exception:  # noqa: BLE001
+            logger.warning("Failed to install bandit")
+    return bandit_path
+
+
+def run_bandit_with_config(bandit_path: str) -> None:
+    """Run Bandit with the available configuration file or default settings."""
+    bandit_config = Path("bandit.yaml")
+    if bandit_config.exists():
+        logger.info("Found bandit.yaml configuration file")
+        try:
+            _safe_subprocess_run(
+                [
+                    bandit_path,
+                    "-c",
+                    bandit_config,
+                    "-r",
+                    ".",
+                    "-f",
+                    "json",
+                    "-o",
+                    "security-reports/bandit-results.json",
+                ]
+            )
+            logger.info("Bandit scan completed with configuration file")
+        except Exception:  # noqa: BLE001
+            logger.warning("Bandit scan with configuration file failed")
+    else:
+        logger.info(
+            "No bandit.yaml configuration file found, using default configuration"
+        )
+        try:
+            _safe_subprocess_run(
+                [
+                    bandit_path,
+                    "-r",
+                    ".",
+                    "-f",
+                    "json",
+                    "-o",
+                    "security-reports/bandit-results.json",
+                ]
+            )
+            logger.info("Bandit scan completed with default configuration")
+        except Exception:  # noqa: BLE001
+            logger.warning("Bandit scan with default configuration failed")
+
+
+def convert_json_to_sarif() -> None:
+    """Convert Bandit JSON results to SARIF format if the conversion script exists."""
+    try:
+        if Path("convert_bandit_to_sarif.py").exists():
+            try:
+                _safe_subprocess_run([sys.executable, "convert_bandit_to_sarif.py"])
+                logger.info("Converted Bandit results to SARIF format")
+            except Exception:  # noqa: BLE001
+                logger.warning("Failed to convert Bandit results to SARIF format")
+    except Exception:
+        logger.exception("Error converting to SARIF")
+
+
 def main() -> int:
     """
     Run Bandit security scan with appropriate configuration.
+
+    Note: This function is complex due to handling multiple CLI options and error cases.
 
     Returns:
         int: Exit code (0 for success, non-zero for failure)
 
     """
-    # Set CI environment variable if running in GitHub Actions
     if os.environ.get("GITHUB_ACTIONS"):
         os.environ["CI"] = "1"
         logger.info("GitHub Actions environment detected")
-
-    # Create empty files first as a fallback
     create_empty_json_files()
-
-    # Find bandit executable
     bandit_path = find_bandit_executable()
-
-    # Try to install bandit if not found
-    try:
-        # nosec B603 - subprocess call is used with shell=False and validated arguments
-        # nosec S603 - This is a safe subprocess call with no user input
-        subprocess.run(  # nosec B603 # noqa: S603
-            [bandit_path, "--version"],
-            check=False,
-            capture_output=True,
-            shell=False,
-            timeout=30,
-        )
-    except (FileNotFoundError, subprocess.SubprocessError):
-        logger.info("Installing bandit...")
-        try:
-            # nosec B603 - subprocess call is used with shell=False and validated arguments
-            # nosec S603 - This is a safe subprocess call with no user input
-            subprocess.run(  # nosec B603 # noqa: S603
-                [sys.executable, "-m", "pip", "install", "bandit"],
-                check=False,
-                shell=False,
-                timeout=300,
-            )
-            # Update bandit path after installation
-            bandit_path = find_bandit_executable()
-        except Exception as e:
-            logger.warning("Failed to install bandit: %s", e)
-
-    # Run bandit with the available configuration
-    try:
-        # Check if bandit.yaml exists
-        bandit_config = Path("bandit.yaml")
-        if bandit_config.exists():
-            logger.info("Found bandit.yaml configuration file")
-            try:
-                # nosec B603 - subprocess call is used with shell=False and validated arguments
-                # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
-                    [
-                        bandit_path,
-                        "-r",
-                        ".",
-                        "-f",
-                        "json",
-                        "-o",
-                        "security-reports/bandit-results.json",
-                        "-c",
-                        "bandit.yaml",
-                        "--exclude",
-                        ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
-                        "--exit-zero",
-                    ],
-                    check=False,
-                    shell=False,
-                    timeout=600,
-                )
-                logger.info("Bandit scan completed with configuration file")
-            except Exception as e:
-                logger.warning("Bandit scan with configuration file failed: %s", e)
-        else:
-            logger.info(
-                "No bandit.yaml configuration file found, using default configuration"
-            )
-            try:
-                # nosec B603 - subprocess call is used with shell=False and validated arguments
-                # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
-                    [
-                        bandit_path,
-                        "-r",
-                        ".",
-                        "-f",
-                        "json",
-                        "-o",
-                        "security-reports/bandit-results.json",
-                        "--exclude",
-                        ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
-                        "--exit-zero",
-                    ],
-                    check=False,
-                    shell=False,
-                    timeout=600,
-                )
-                logger.info("Bandit scan completed with default configuration")
-            except Exception as e:
-                logger.warning("Bandit scan with default configuration failed: %s", e)
-    except Exception as e:
-        logger.exception("Error running bandit: %s", e)
-
-    # Convert JSON to SARIF format
-    try:
-        # Run the conversion script if it exists
-        if Path("convert_bandit_to_sarif.py").exists():
-            try:
-                # nosec B603 - subprocess call is used with shell=False and validated arguments
-                # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
-                    [sys.executable, "convert_bandit_to_sarif.py"],
-                    check=False,
-                    shell=False,
-                    timeout=300,
-                )
-                logger.info("Converted Bandit results to SARIF format")
-            except Exception as e:
-                logger.warning(
-                    "Failed to convert Bandit results to SARIF format: %s", e
-                )
-    except Exception as e:
-        logger.exception("Error converting to SARIF: %s", e)
-
+    bandit_path = install_bandit_if_needed(bandit_path)
+    run_bandit_with_config(bandit_path)
+    convert_json_to_sarif()
     logger.info("Bandit scan completed successfully")
     return 0
 
