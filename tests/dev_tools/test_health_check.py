@@ -24,13 +24,15 @@ from dev_tools.health_check import (
 class TestHealthCheck(unittest.TestCase):
     """Test suite for health_check module."""
 
+    @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.subprocess.run")
-    @patch("dev_tools.health_check.logging.info")
-    @patch("dev_tools.health_check.logging.error")
+    @patch("dev_tools.health_check.logger.info")
+    @patch("dev_tools.health_check.logger.error")
     @patch("dev_tools.health_check.sys.exit")
-    def test_run_success(self, mock_exit, mock_error, mock_info, mock_subprocess_run):
+    def test_run_success(self, mock_exit, mock_error, mock_info, mock_subprocess_run, mock_which):
         """Test run function with successful command."""
         # Arrange
+        mock_which.return_value = "/usr/bin/echo"
         mock_subprocess_run.return_value.returncode = 0
         cmd = "echo 'test'"
         desc = "Test command"
@@ -39,7 +41,8 @@ class TestHealthCheck(unittest.TestCase):
         run(cmd, desc)
 
         # Assert
-        mock_subprocess_run.assert_called_once_with(cmd.split(), shell=False, check=False)
+        mock_which.assert_called_once_with("echo")
+        mock_subprocess_run.assert_called_once_with(["/usr/bin/echo", "'test'"], check=False)
         mock_info.assert_has_calls([
             call(f"\n==> {desc}"),
             call(f"PASSED: {desc}")
@@ -47,25 +50,30 @@ class TestHealthCheck(unittest.TestCase):
         mock_error.assert_not_called()
         mock_exit.assert_not_called()
 
+    @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.subprocess.run")
-    @patch("dev_tools.health_check.logging.info")
-    @patch("dev_tools.health_check.logging.error")
+    @patch("dev_tools.health_check.logger.info")
+    @patch("dev_tools.health_check.logger.error")
     @patch("dev_tools.health_check.sys.exit")
-    def test_run_failure(self, mock_exit, mock_error, mock_info, mock_subprocess_run):
-        """Test run function with failed command."""
+    def test_run_failure(self, mock_exit, mock_error, mock_info, mock_subprocess_run, mock_which):
+        """Test run function with subprocess failure."""
         # Arrange
-        mock_subprocess_run.return_value.returncode = 1
-        cmd = "invalid_command"
-        desc = "Invalid command"
+        mock_which.return_value = "/usr/bin/false"  # Command found but will fail
+        mock_subprocess_run.return_value.returncode = 1  # Command fails
+        cmd = "false"
+        desc = "Failing command"
 
         # Act
         run(cmd, desc)
 
         # Assert
-        mock_subprocess_run.assert_called_once_with(cmd.split(), shell=False, check=False)
+        mock_which.assert_called_once_with("false")
+        mock_subprocess_run.assert_called_once_with(["/usr/bin/false"], check=False)
         mock_info.assert_called_once_with(f"\n==> {desc}")
         mock_error.assert_called_once_with(f"FAILED: {desc}")
         mock_exit.assert_called_once_with(1)
+
+
 
     def test_check_gitignore(self):
         """Test check_gitignore function."""
@@ -96,7 +104,7 @@ class TestHealthCheck(unittest.TestCase):
 
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")
-    @patch("dev_tools.health_check.logging.warning")
+    @patch("dev_tools.health_check.logger.warning")
     def test_lint_without_ruff(self, mock_warning, mock_run, mock_which):
         """Test lint function without ruff available."""
         # Arrange
@@ -112,7 +120,7 @@ class TestHealthCheck(unittest.TestCase):
 
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")
-    @patch("dev_tools.health_check.logging.warning")
+    @patch("dev_tools.health_check.logger.warning")
     def test_type_check_with_mypy(self, mock_warning, mock_run, mock_which):
         """Test type_check function with mypy available."""
         # Arrange
@@ -128,7 +136,7 @@ class TestHealthCheck(unittest.TestCase):
 
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")
-    @patch("dev_tools.health_check.logging.warning")
+    @patch("dev_tools.health_check.logger.warning")
     def test_type_check_without_mypy(self, mock_warning, mock_run, mock_which):
         """Test type_check function without mypy available."""
         # Arrange
@@ -144,7 +152,7 @@ class TestHealthCheck(unittest.TestCase):
 
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")
-    @patch("dev_tools.health_check.logging.warning")
+    @patch("dev_tools.health_check.logger.warning")
     def test_security_with_bandit(self, mock_warning, mock_run, mock_which):
         """Test security function with bandit available."""
         # Arrange
@@ -160,7 +168,7 @@ class TestHealthCheck(unittest.TestCase):
 
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")
-    @patch("dev_tools.health_check.logging.warning")
+    @patch("dev_tools.health_check.logger.warning")
     def test_security_without_bandit(self, mock_warning, mock_run, mock_which):
         """Test security function without bandit available."""
         # Arrange
@@ -176,7 +184,7 @@ class TestHealthCheck(unittest.TestCase):
 
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")
-    @patch("dev_tools.health_check.logging.warning")
+    @patch("dev_tools.health_check.logger.warning")
     def test_deps_with_uv(self, mock_warning, mock_run, mock_which):
         """Test deps function with uv available."""
         # Arrange
@@ -192,7 +200,7 @@ class TestHealthCheck(unittest.TestCase):
 
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")
-    @patch("dev_tools.health_check.logging.warning")
+    @patch("dev_tools.health_check.logger.warning")
     def test_deps_without_uv(self, mock_warning, mock_run, mock_which):
         """Test deps function without uv available."""
         # Arrange
@@ -206,21 +214,22 @@ class TestHealthCheck(unittest.TestCase):
         mock_run.assert_not_called()
         mock_warning.assert_called_once_with("uv not found, skipping dependency audit.")
 
-    @patch("dev_tools.health_check.os.path.isdir")
+    @patch("dev_tools.health_check.Path")
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")
-    @patch("dev_tools.health_check.logging.warning")
-    def test_docs_with_sphinx(self, mock_warning, mock_run, mock_which, mock_isdir):
+    @patch("dev_tools.health_check.logger.warning")
+    def test_docs_with_sphinx(self, mock_warning, mock_run, mock_which, mock_path):
         """Test docs function with sphinx available."""
         # Arrange
-        mock_isdir.return_value = True
+        mock_path.return_value.is_dir.return_value = True
         mock_which.return_value = "/path/to/sphinx-build"
 
         # Act
         docs()
 
         # Assert
-        mock_isdir.assert_called_once_with("docs_source")
+        mock_path.assert_called_once_with("docs_source")
+        mock_path.return_value.is_dir.assert_called_once()
         mock_which.assert_called_once_with("sphinx-build")
         mock_run.assert_called_once_with(
             "sphinx-build docs_source docs/_build",
@@ -228,40 +237,42 @@ class TestHealthCheck(unittest.TestCase):
         )
         mock_warning.assert_not_called()
 
-    @patch("dev_tools.health_check.os.path.isdir")
+    @patch("dev_tools.health_check.Path")
     @patch("dev_tools.health_check.shutil.which")
     @patch("dev_tools.health_check.run")
-    @patch("dev_tools.health_check.logging.warning")
-    def test_docs_without_sphinx(self, mock_warning, mock_run, mock_which, mock_isdir):
+    @patch("dev_tools.health_check.logger.warning")
+    def test_docs_without_sphinx(self, mock_warning, mock_run, mock_which, mock_path):
         """Test docs function without sphinx available."""
         # Arrange
-        mock_isdir.return_value = True
+        mock_path.return_value.is_dir.return_value = True
         mock_which.return_value = None
 
         # Act
         docs()
 
         # Assert
-        mock_isdir.assert_called_once_with("docs_source")
+        mock_path.assert_called_once_with("docs_source")
+        mock_path.return_value.is_dir.assert_called_once()
         mock_which.assert_called_once_with("sphinx-build")
         mock_run.assert_not_called()
         mock_warning.assert_called_once_with("Sphinx not configured or not found, skipping docs build.")
 
-    @patch("dev_tools.health_check.os.path.isdir")
-    @patch("dev_tools.health_check.logging.warning")
-    def test_docs_without_docs_source(self, mock_warning, mock_isdir):
+    @patch("dev_tools.health_check.Path")
+    @patch("dev_tools.health_check.logger.warning")
+    def test_docs_without_docs_source(self, mock_warning, mock_path):
         """Test docs function without docs_source directory."""
         # Arrange
-        mock_isdir.return_value = False
+        mock_path.return_value.is_dir.return_value = False
 
         # Act
         docs()
 
         # Assert
-        mock_isdir.assert_called_once_with("docs_source")
+        mock_path.assert_called_once_with("docs_source")
+        mock_path.return_value.is_dir.assert_called_once()
         mock_warning.assert_called_once_with("Sphinx not configured or not found, skipping docs build.")
 
-    @patch("dev_tools.health_check.logging.info")
+    @patch("dev_tools.health_check.logger.info")
     def test_usage(self, mock_info):
         """Test usage function."""
         # Act

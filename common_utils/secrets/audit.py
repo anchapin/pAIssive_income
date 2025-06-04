@@ -621,12 +621,14 @@ def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
         fernet = Fernet(encoded_key)
         return salt, fernet.encrypt(content.encode())
     finally:
-        # Clean up sensitive data
-        del key_material
-        if "derived_key" in locals():
-            del derived_key
-        if "encoded_key" in locals():
-            del encoded_key
+        # Clean up sensitive data - overwrite with zeros instead of deleting
+        # Local variables are automatically cleaned up when function exits
+        if 'key_material' in locals():
+            key_material = b'\x00' * len(key_material)
+        if 'derived_key' in locals():
+            derived_key = b'\x00' * len(derived_key)
+        if 'encoded_key' in locals():
+            encoded_key = b'\x00' * len(encoded_key)
 
 
 def save_encrypted_report(path: str, salt: bytes, encrypted_content: bytes) -> None:

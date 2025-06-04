@@ -292,8 +292,8 @@ class TestLogAggregator:
             self.aggregator.aggregate_log_entry(log_entry)
 
             # Verify that an error was logged
-            mock_logger.error.assert_called_once()
-            assert "Error handling log entry" in mock_logger.error.call_args[0][0]
+            mock_logger.exception.assert_called_once()
+            assert "Error handling log entry" in mock_logger.exception.call_args[0][0]
 
     @patch("common_utils.logging.log_aggregation.parse_log_file")
     def test_aggregate_log_file(self, mock_parse_log_file):
@@ -426,8 +426,8 @@ class TestElasticsearchHandler:
             self.handler.handle(log_entry)
 
             # Verify that an error was logged
-            mock_logger.error.assert_called_once()
-            assert "Error indexing log entry in Elasticsearch" in mock_logger.error.call_args[0][0]
+            mock_logger.exception.assert_called_once()
+            assert "Error indexing log entry in Elasticsearch" in mock_logger.exception.call_args[0][0]
 
 
 class TestLogstashHandler:
@@ -522,8 +522,8 @@ class TestLogstashHandler:
             self.handler.handle(log_entry)
 
             # Verify that an error was logged
-            mock_logger.error.assert_called_once()
-            assert "Error sending log entry to Logstash" in mock_logger.error.call_args[0][0]
+            mock_logger.exception.assert_called_once()
+            assert "Error sending log entry to Logstash" in mock_logger.exception.call_args[0][0]
 
 
 class TestFileRotatingHandler:
@@ -599,8 +599,8 @@ class TestFileRotatingHandler:
                 self.handler.handle(log_entry)
 
                 # Verify that an error was logged
-                mock_logger.error.assert_called_once()
-                assert "Error writing log entry to file" in mock_logger.error.call_args[0][0]
+                mock_logger.exception.assert_called_once()
+                assert "Error writing log entry to file" in mock_logger.exception.call_args[0][0]
 
 
 class TestAggregateLogs:
@@ -790,8 +790,8 @@ class TestAggregateLogs:
             )
 
             # Verify that an error was logged
-            mock_logger.error.assert_called_once()
-            assert "Elasticsearch module not found" in mock_logger.error.call_args[0][0]
+            mock_logger.exception.assert_called_once()
+            assert "Elasticsearch module not found" in mock_logger.exception.call_args[0][0]
 
             # Verify that the ElasticsearchHandler was not created
             mock_es_handler.assert_not_called()
@@ -860,7 +860,7 @@ class TestConfigureLogAggregation:
         thread.join(timeout=5)
 
         # Verify that an error was logged
-        mock_logger.error.assert_called()
-        # Check that any error call contains the expected text
-        error_calls = [call_args[0][0] for call_args in mock_logger.error.call_args_list]
-        assert any("Error aggregating logs" in call for call in error_calls)
+        mock_logger.exception.assert_called()
+        # Check that any exception call contains the expected text
+        exception_calls = [call_args[0][0] for call_args in mock_logger.exception.call_args_list]
+        assert any("Error aggregating logs" in call for call in exception_calls)

@@ -37,6 +37,7 @@ dependencies = [
     "backoff>=1.10.0,<2.0.0",
     # Add other dependencies as needed
     "bandit[toml]>=1.7.5",
+    "freezegun>=1.5.2",
 ]
 
 [project.optional-dependencies]

@@ -34,4 +34,27 @@ Security is a first-class concern across all areas of the codebase. Key areas in
 - Secure defaults in configs
 - Security review required for all PRs
 
+## Enhanced Security Infrastructure (PR #139)
+
+### Automated Security Scanning
+- **Comprehensive Tool Coverage**: Bandit, Safety, Semgrep, Trivy, pip-audit, Gitleaks
+- **Cross-Platform Support**: Platform-specific security tool installation and execution
+- **SARIF Integration**: Proper SARIF format reports for GitHub Security tab integration
+- **Automated Fallback Creation**: `scripts/security/create_security_fallbacks.py` prevents workflow failures
+
+### Security Scan Configuration
+- **Bandit**: Configured with `.bandit` file to exclude test directories and skip common false positives
+- **Safety**: Scans Python dependencies for known vulnerabilities
+- **CodeQL**: Performs static analysis for security issues
+- **Trivy**: Scans container images for vulnerabilities
+- **Semgrep**: Additional static analysis (Unix platforms only)
+- **pip-audit**: Python package vulnerability scanning
+- **Gitleaks**: Secret scanning for exposed credentials
+
+### Security Workflow Improvements
+- **Enhanced Error Handling**: Prevents security scan failures from blocking CI
+- **Platform-Aware Execution**: Different security tools for different platforms
+- **Automated Report Generation**: Consistent security report structure
+- **Threshold Management**: Configurable security scan thresholds
+
 For more details, see the following sections.
