@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Any
+from typing import Any, Optional
 
 try:
     from mem0 import Memory

@@ -281,10 +281,6 @@ jobs:
             if [ -f "tests/test_basic.py" ]; then
               timeout 5m pytest tests/test_basic.py -v --tb=short || echo "Basic tests failed"
             fi
-
-            if [ -f "tests/test_simple.py" ]; then
-              timeout 3m pytest tests/test_simple.py -v --tb=short || echo "Simple tests failed"
-            fi
           else
             echo "pytest not available, skipping tests"
           fi

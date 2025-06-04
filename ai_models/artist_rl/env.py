@@ -7,7 +7,7 @@ enabling reinforcement learning experiments on complex, multi-step tool-use scen
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
 import gymnasium as gym
 from gymnasium import spaces

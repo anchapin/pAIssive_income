@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from typing import Optional
 
 # Import standard CrewAI components
 from crewai import Agent, Crew, Task
