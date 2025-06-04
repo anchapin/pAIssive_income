@@ -387,9 +387,9 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
+          category: "/security/os:ubuntu-latest"
           upload: true
-          output: sarif-results/${{ matrix.language }}-ubuntu.sarif
+          output: sarif-results/codeql-ubuntu-${{ matrix.language }}.sarif
         continue-on-error: false # Fail the workflow if CodeQL analysis fails
 
       # Upload SARIF results as an artifact
@@ -397,7 +397,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always() # Always attempt to upload artifacts even if previous steps fail
         with:
-          name: ${{ matrix.language }}-ubuntu-sarif
-          path: sarif-results/${{ matrix.language }}-ubuntu.sarif
+          name: codeql-ubuntu-${{ matrix.language }}-sarif
+          path: sarif-results/codeql-ubuntu-${{ matrix.language }}.sarif
           retention-days: 7
           if-no-files-found: warn # Warn but don't fail if no files are found

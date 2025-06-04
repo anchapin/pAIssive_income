@@ -19,14 +19,14 @@ const mockAgent = {
 
 describe('AgentUI Component', () => {
   it('renders the agent name and description', () => {
-    render(<AgentUI agent={mockAgent} />);
+    render(<AgentUI agent={mockAgent}></AgentUI>);
     expect(screen.getByText('Test Agent')).toBeInTheDocument();
     expect(screen.getByText('This is a test agent')).toBeInTheDocument();
   });
 
   it('renders an action button and triggers callback on click', () => {
     const mockOnAction = jest.fn();
-    render(<AgentUI agent={mockAgent} onAction={mockOnAction} />);
+    render(<AgentUI agent={mockAgent} onAction={mockOnAction}></AgentUI>);
     // Assume the button is labeled "Run Action"
     const button = screen.getByRole('button', { name: /run action/i });
     expect(button).toBeInTheDocument();

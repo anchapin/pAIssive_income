@@ -49,7 +49,6 @@
 *.pot
 *.py[cod]
 *.sage.py
-*.tmp
 # Exclude SARIF files except in security-reports directory
 *.sarif
 !security-reports/*.sarif
@@ -82,7 +81,6 @@ cline_mcp_settings.json
 *.spec
 *.swo
 *.swp
-*.tmp
 *env*/
 *venv*/
 .DS_Store
@@ -188,6 +186,16 @@ ui/react_frontend/ci-mode-active.txt
 ui/react_frontend/ci-path-to-regexp-status.txt
 ui/react_frontend/ci-compat-success.txt
 ui/react_frontend/github-actions-success.txt
+ui/react_frontend/ci-reports/
+test-results/
+ci-reports/
+enhanced-mock-path-to-regexp-marker.txt
+enhanced-mock-path-to-regexp-success.txt
+require-patched-marker.txt
+ci-mode-active.txt
+ci-path-to-regexp-status.txt
+ci-compat-success.txt
+github-actions-success.txt
 path-to-regexp-patched.txt
 path-to-regexp-patch-error.txt
 path-to-regexp-fallback-created.txt
@@ -247,16 +255,3 @@ mypy_stubs/psycopg2/
 .nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json
-
-# Ignore staged files
-*.staged
-how*
-
-# ARTIST experiment outputs – exclude from version control
-artist_experiments/data/
-artist_experiments/models/
-artist_experiments/logs/
-
-# Environment reports that may contain sensitive information
-**/environment-report.json
-**/ci-reports/**/environment-report.json

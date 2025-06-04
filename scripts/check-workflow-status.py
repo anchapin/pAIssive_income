@@ -9,10 +9,7 @@ and provide troubleshooting recommendations.
 import os
 import yaml
 import glob
-import json
-import re
-from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any
 
 class WorkflowAnalyzer:
     def __init__(self, workflows_dir: str = ".github/workflows"):
