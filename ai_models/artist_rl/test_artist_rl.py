@@ -24,7 +24,7 @@ class TestArtistRLEnv(unittest.TestCase):
 
     def test_reset_returns_observation(self) -> None:
         """Test that reset() returns an initial observation."""
-        obs = self.env.reset()
+        obs, _info = self.env.reset()  # Unpack obs and info
         assert obs is not None  # noqa: S101
 
     def test_step_returns_tuple(self) -> None:
@@ -32,22 +32,25 @@ class TestArtistRLEnv(unittest.TestCase):
         self.env.reset()
         action = self.env.action_space.sample()
         result = self.env.step(action)
-        tuple_len = 4
+        tuple_len = 5  # Changed to 5
         assert len(result) == tuple_len  # noqa: S101
-        obs, reward, done, info = result
+        _obs, reward, terminated, truncated, info = result  # Unpack 5 values
         assert isinstance(reward, float)  # noqa: S101
-        assert isinstance(done, bool)  # noqa: S101
+        assert isinstance(terminated, bool)  # noqa: S101
+        assert isinstance(truncated, bool)  # noqa: S101
         assert isinstance(info, dict)  # noqa: S101
 
     def test_minimal_train_test_cycle(self) -> None:
         """Test a minimal train/test cycle for the environment."""
-        obs = self.env.reset()
+        _obs = self.env.reset()
         total_reward = 0.0
         for _ in range(5):
             action = self.env.action_space.sample()
-            obs, reward, done, info = self.env.step(action)
+            _obs, reward, terminated, _truncated, _info = self.env.step(
+                action
+            )  # Unpack 5 values
             total_reward += reward
-            if done:
+            if terminated:  # Check terminated instead of done
                 break
         assert isinstance(total_reward, float)  # noqa: S101
 

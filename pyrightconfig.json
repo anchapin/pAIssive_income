@@ -27,7 +27,8 @@
     "tests/test_mcp_import.py",
     "tests/test_mcp_top_level_import.py",
     "mock_crewai/**",
-    "mock_adk/**"
+    "mock_adk/**",
+    "mem0ai/**"
   ],
   "defineConstant": {
     "DEBUG": true
@@ -67,4 +68,4 @@
       ]
     }
   ]
-} 
+}
