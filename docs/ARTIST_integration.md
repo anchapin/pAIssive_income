@@ -65,18 +65,19 @@ To work with ARTIST in this repository, familiarize yourself with these key loca
      source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 
      # Install ARTIST dependencies using uv
-     uv pip install -r requirements-artist.txt (ensure this file is populated with necessary dependencies)
+     uv pip install -r requirements-artist.txt (ensure this file is populated with necessary dependencies, as it's currently a placeholder)
      ```
+     This command installs dependencies listed in `requirements-artist.txt`, which are intended to be specific to ARTIST experiments.
 
    - **For full project development (including ARTIST integration):**  
-     Use the general project setup script, which installs all main and dev dependencies (but note this may introduce version differences with the ARTIST experiments).
+     Use the general project setup script. This script installs general project dependencies from `requirements.txt` and `requirements-dev.txt` but does **not** automatically install ARTIST-specific dependencies from `requirements-artist.txt`.
      ```bash
      ./setup_with_uv.sh  # or setup_with_uv.ps1 on Windows
      ```
-     > **Note:** The general setup script does **not** install ARTIST-specific dependencies from `requirements-artist.txt` (once populated) by default. If you plan to work on both the core project and ARTIST experiments, you may need to run both, but be aware this could result in package version conflicts. In such cases, consider using separate virtual environments for ARTIST and the main project.
+     > **Note:** If you are working on ARTIST experiments within the broader project, you will likely need to run the command `uv pip install -r requirements-artist.txt` (after ensuring it's populated) **in addition to** `./setup_with_uv.sh`. Be mindful of potential package version conflicts if dependencies overlap between the main project and ARTIST. Using separate, isolated virtual environments for ARTIST development versus main project development is a good practice to avoid such conflicts.
 
 **Tip:**  
-If you are focusing solely on ARTIST experiments, you can safely skip running `./setup_with_uv.sh`. Conversely, if developing for the whole project, run both steps but keep dependency overlap in mind. Future improvements may include an option/flag in `setup_with_uv.sh` for ARTIST-specific installs.
+If you are focusing *only* on ARTIST experiments, setting up a dedicated virtual environment and installing dependencies *only* from `requirements-artist.txt` (once populated) is the cleanest approach. If you are working on the broader project and also need to run ARTIST experiments, ensure all necessary dependency sets are installed, ideally in a way that avoids version conflicts (e.g., separate environments or careful management of a shared environment).
 
 ### B. Using Docker
 
@@ -109,19 +110,31 @@ python ai_models/artist_agent.py
 ### B. Running and Extending Experiments
 
 Example: **Math Problem Solving**
+The `artist_experiments/math_problem_solving.py` module contains logic for this experiment. To run it, you can use a command like the following, assuming the `run_experiment` function exists within the module:
 ```bash
 python -c "from artist_experiments import math_problem_solving; print(math_problem_solving.run_experiment('Solve 2 + 3 * 4'))"
 ```
+Alternatively, if the module is structured to be executable (e.g., with an `if __name__ == '__main__':` block), you might run it directly:
+```bash
+python artist_experiments/math_problem_solving.py --problem "Solve 2 + 3 * 4"
+```
+(Note: The exact command-line arguments for direct execution would depend on the implementation within `math_problem_solving.py`.)
 
 Example: **Multi-API Orchestration**
+Similarly, the `artist_experiments/multi_api_orchestration.py` module handles this experiment. You can run it using:
 ```bash
 python -c "from artist_experiments import multi_api_orchestration; print(multi_api_orchestration.run_experiment('Find products related to smart home automation'))"
 ```
+Or, if executable directly:
+```bash
+python artist_experiments/multi_api_orchestration.py --task "Find products related to smart home automation"
+```
+(Note: The exact command-line arguments depend on the module's implementation.)
 
-- Each experiment module provides a callable function (e.g., `run_experiment`) you can invoke from the command line or Python shell.
+- Inspect each experiment module (e.g., `artist_experiments/math_problem_solving.py`) to understand its specific functions (like `run_experiment`) and whether it supports direct execution with command-line arguments.
 - To extend, add new tools to the registry or modify the agent logic, then update the experiment module and tests.
 
-**Tip:** For frequent direct execution, consider adding an `if __name__ == '__main__':` block to the experiment modules or create a simple wrapper script.
+**Tip:** For more convenient execution, especially for frequently run experiments, consider creating simple wrapper scripts (e.g., a `run_math_exp.sh` or `run_api_exp.py`) or adding an `if __name__ == '__main__':` block to the experiment modules if not already present. This can simplify the command needed to start an experiment.
 
 **Tips:**
 - Follow the codebase convention: keep new experiments, tools, and outputs organized and .gitignore-aware.

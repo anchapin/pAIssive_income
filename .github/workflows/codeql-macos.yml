@@ -134,21 +134,17 @@ jobs:
           if [ -z "$LOCK_FILES" ]; then
             echo "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
 
-            # Create a more robust minimal valid package-lock.json with echo
             echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
 
             echo "Created minimal package-lock.json in the root directory."
 
-            # Verify the file was created and has valid content
             if [ -f "package-lock.json" ]; then
               echo "Verification: package-lock.json exists and contains:"
               cat package-lock.json
 
-              # Verify JSON is valid
               if command -v node &>/dev/null; then
                 echo "Validating JSON with Node.js..."
                 node -e "try { const data = require('./package-lock.json'); console.log('JSON is valid'); } catch(e) { console.error('Invalid JSON:', e.message); process.exit(1); }" || {
-                  echo "Warning: package-lock.json contains invalid JSON. Creating a new one with simpler content..."
                   echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' > package-lock.json
                   echo "Created simplified package-lock.json."
                 }
@@ -156,7 +152,6 @@ jobs:
                 echo "Node.js not available for JSON validation, skipping validation step."
               fi
 
-              # Add to .gitignore if it exists
               if [ -f ".gitignore" ]; then
                 if ! grep -q "package-lock.json" .gitignore; then
                   echo "Adding package-lock.json to .gitignore..."
@@ -165,14 +160,12 @@ jobs:
               fi
             else
               echo "CRITICAL ERROR: Failed to create package-lock.json, trying alternative method..."
-              # Try an alternative method with printf
               printf '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}\n' > package-lock.json
 
               if [ -f "package-lock.json" ]; then
                 echo "Successfully created package-lock.json with alternative method."
                 cat package-lock.json
               else
-                echo "All methods to create package-lock.json failed. Creating an empty package.json instead..."
                 echo '{"name":"paissive-income","version":"1.0.0"}' > package.json
                 echo "Created package.json as fallback."
               fi

@@ -338,7 +338,6 @@ EOF
 
           # JavaScript/TypeScript specific checks
           if [ "${{ matrix.language }}" = "javascript-typescript" ]; then
-            # Final check for package-lock.json - create it if it still doesn't exist
             if [ ! -f "package-lock.json" ]; then
               echo "WARNING: package-lock.json still not found! Creating it as a last resort..."
               echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json

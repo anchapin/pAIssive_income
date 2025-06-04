@@ -275,7 +275,6 @@ trap-for-errors: true
         run: |
           Write-Host "Verifying environment before CodeQL analysis..."
 
-          # Create sarif-results directory if it doesn't exist
           if (-not (Test-Path "sarif-results")) {
             Write-Host "Creating sarif-results directory..."
             New-Item -ItemType Directory -Force -Path "sarif-results" | Out-Null

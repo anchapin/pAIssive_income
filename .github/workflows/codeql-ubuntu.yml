@@ -305,7 +305,6 @@ EOF
         run: |
           echo "Verifying environment before CodeQL analysis..."
 
-          # Create sarif-results directory if it doesn't exist
           if [ ! -d "sarif-results" ]; then
             echo "Creating sarif-results directory..."
             mkdir -p sarif-results
