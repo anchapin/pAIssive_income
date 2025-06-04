@@ -49,6 +49,7 @@
 *.pot
 *.py[cod]
 *.sage.py
+*.tmp
 # Exclude SARIF files except in security-reports directory
 *.sarif
 !security-reports/*.sarif
