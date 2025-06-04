@@ -23,7 +23,7 @@ import uuid  # Added for secure report generation
 from pathlib import Path
 from typing import Any, cast
 
-# Set up a dedicated logger for this module
+# Configure logging
 logger = logging.getLogger(__name__)
 
 # Define constants for magic numbers
@@ -38,9 +38,6 @@ CHAR_SUM_REMAINDER_3 = 3
 PATTERN_LENGTH_THRESHOLD = 5
 CHAR_THRESHOLD_1 = 110
 CHAR_THRESHOLD_2 = 115
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 # Import the existing security tools if possible
 try:
@@ -59,7 +56,7 @@ except ImportError:
     # Define a fallback function to avoid unbound variable errors
     def scan_directory(
         directory: str,  # Match the signature of the imported function
-        exclude_dirs: set[str]  # noqa: ARG001
+        exclude_dirs: set[str]
         | None = None,  # Match the signature of the imported function
     ) -> dict[str, list[tuple[str, int, int]]]:
         """
@@ -78,7 +75,6 @@ except ImportError:
             directory,
         )
         return {}
-
 
 # All critical dependencies are imported at the module level
 # json and subprocess are already imported at the module level
@@ -598,6 +594,21 @@ def create_secure_mapping_file(
         from cryptography.hazmat.primitives import hashes
         from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
         # Get entropy sources for key derivation
         entropy_data = get_entropy_data()
 
@@ -784,6 +795,8 @@ def main() -> int:
         int: Exit code
 
     """
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     args = setup_args()
 
     # Convert excluded directories to a set

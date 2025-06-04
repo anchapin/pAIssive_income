@@ -98,3 +98,18 @@ Default permissions are minimal (`contents: read`), with elevated permissions gr
 - Provides detailed logs for debugging
 - Uses fallback mechanisms where appropriate
 - Implements retry logic for transient failures
+
+## Related Documentation
+
+- [PR #139 Final Summary](PR_139_FINAL_SUMMARY.md) - Complete workflow resolution documentation
+- [Workflow Maintenance Guide](WORKFLOW_MAINTENANCE_GUIDE.md) - Ongoing maintenance procedures
+- [Workflow Fixes Summary](pr_139_workflow_fixes_summary.md) - Technical implementation details
+- [CI Workflow Consolidation](ci_workflow_consolidation.md) - Workflow architecture changes
+
+## Troubleshooting
+
+For common issues and solutions, refer to:
+1. **Workflow Maintenance Guide** - Daily monitoring and routine maintenance
+2. **PR #139 Final Summary** - Comprehensive fix documentation
+3. **GitHub Actions Logs** - Real-time debugging information
+4. **Local Testing with Act** - `act -j lint-test --dryrun` for validation

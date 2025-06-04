@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Unified Code Quality and Security Management Script.
 
@@ -22,13 +21,28 @@ import time
 from pathlib import Path
 from typing import Any, Optional, cast
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Maximum time to wait for any single check
 TIMEOUT_SECONDS = 300
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
-
+# logging.basicConfig will be moved to the main() function
 
 class CheckResult:
     """Represents the result of a quality check operation."""
@@ -111,7 +125,7 @@ def get_changed_files(staged_only: bool = True) -> set[Path]:
         if processed_files:
             return python_files
         logger.info("No Python files found in changes")
-        return set()  # noqa: TRY300
+        return set()
 
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         logger.exception("Git operation failed")
@@ -302,6 +316,8 @@ async def main_async() -> int:
 
 def main() -> None:
     """Handle signals properly and run the main entry point."""
+    # Configure logging at the start of the main execution
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     try:
         if not is_windows():
             # Set up signal handlers for graceful shutdown on Unix

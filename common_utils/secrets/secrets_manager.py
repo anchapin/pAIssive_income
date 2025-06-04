@@ -84,21 +84,21 @@ class SecretsBackend(enum.Enum):
 class SecretBackendProtocol(Protocol):
     """Protocol for secret backend implementations."""
 
-    def get_secret(self) -> str | None:
+    def get_secret(self, key: str) -> str | None:
         """Get a secret from the backend."""
-        ...
+        raise NotImplementedError("Subclasses must implement get_secret method")
 
-    def set_secret(self) -> bool:
+    def set_secret(self, key: str, value: str) -> bool:
         """Set a secret in the backend."""
-        ...
+        raise NotImplementedError("Subclasses must implement set_secret method")
 
-    def delete_secret(self) -> bool:
+    def delete_secret(self, key: str) -> bool:
         """Delete a secret from the backend."""
-        ...
+        raise NotImplementedError("Subclasses must implement delete_secret method")
 
     def list_secrets(self) -> dict[str, Any]:
         """List secrets in the backend."""
-        ...
+        raise NotImplementedError("Subclasses must implement list_secrets method")
 
 
 class SecretsManager:
@@ -140,6 +140,36 @@ class SecretsManager:
         # Now self.default_backend is guaranteed to be a SecretsBackend instance
         # Don't log the actual backend value as it might contain sensitive information
         logger.info("Secrets manager initialized with default backend")
+
+    def _get_backend_instance(self, backend_type: SecretsBackend) -> Any:
+        """
+        Get a backend instance for the specified backend type.
+
+        Args:
+            backend_type: The backend type to get an instance for
+
+        Returns:
+            The backend instance, or None if the backend type is unknown or an error occurs
+
+        """
+        try:
+            if backend_type == SecretsBackend.ENV:
+                # For ENV backend, return the manager itself as it handles env operations
+                return self
+            if backend_type == SecretsBackend.FILE:
+                from .file_backend import FileBackend
+                return FileBackend()
+            if backend_type == SecretsBackend.MEMORY:
+                from .memory_backend import MemoryBackend
+                return MemoryBackend()
+            if backend_type == SecretsBackend.VAULT:
+                from .vault_backend import VaultBackend
+                return VaultBackend()
+            logger.error("Unknown backend type specified")
+            return None
+        except Exception:
+            logger.exception("Error creating backend instance")
+            return None
 
     def _get_env_secret(self, key: str) -> str | None:
         """
@@ -610,7 +640,11 @@ class SecretsManager:
                 # Don't log the actual backend type as it might contain sensitive information
                 logger.error("Unsupported backend type")
                 return {}
-            return self._sanitize_secrets_dict(secrets)
+
+            # Ensure we sanitize the secrets before returning them
+            sanitized_secrets = self._sanitize_secrets_dict(secrets)
+            logger.debug("Sanitized secrets from backend")
+            return sanitized_secrets
 
         except NotImplementedError:
             # Don't log the actual backend type value as it might contain sensitive information
@@ -688,7 +722,10 @@ class SecretsManager:
         if not secrets:
             return {}
 
-        # Import secure logging utility        # Create a sanitized copy
+        # Import secure logging utility
+        from common_utils.logging.secure_logging import mask_sensitive_data
+
+        # Create a sanitized copy
         safe_secrets: dict[str, str | dict[str, Any]] = {}
 
         for key, value in secrets.items():
@@ -702,7 +739,8 @@ class SecretsManager:
                 # For non-string, non-dict values, convert to string and mask
                 safe_secrets[key] = "********"
 
-        return safe_secrets
+        # Apply additional masking for sensitive keys
+        return mask_sensitive_data(safe_secrets)
 
 
 # Create a singleton instance of the secrets manager

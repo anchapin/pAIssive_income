@@ -49,7 +49,7 @@ def get_git_executable() -> str:
     return "git"
 
 
-def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
+def get_changed_files() -> list[str]:
     """
     Return a list of files changed in the current PR or commit range.
 
@@ -75,7 +75,7 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
     # Make sure we have a good git environment
     try:
         # Ensure we have the latest changes
-        subprocess.run(  # noqa: S603
+        subprocess.run(
             [git_exe, "config", "--global", "advice.detachedHead", "false"], check=True
         )
 
@@ -88,16 +88,16 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
             )
 
             # Fetch both branches to ensure they're available locally
-            subprocess.run(  # noqa: S603
+            subprocess.run(
                 [git_exe, "fetch", "origin", github_base_ref, "--depth=1"], check=True
             )
-            subprocess.run(  # noqa: S603
+            subprocess.run(
                 [git_exe, "fetch", "origin", github_head_ref, "--depth=1"], check=True
             )
 
             # Use merge-base to find the common ancestor
             try:
-                result = subprocess.run(  # noqa: S603
+                result = subprocess.run(
                     [git_exe, "merge-base", f"origin/{github_base_ref}", "HEAD"],
                     capture_output=True,
                     text=True,
@@ -119,7 +119,7 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
                 logger.info("Using commit SHA: %s", github_sha)
                 # Try to get the parent of the current commit
                 try:
-                    result = subprocess.run(  # noqa: S603
+                    result = subprocess.run(
                         [git_exe, "rev-parse", "HEAD^"],
                         capture_output=True,
                         text=True,
@@ -135,7 +135,7 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
                 diff_range = "HEAD~1...HEAD"
 
         logger.info("Using diff range: %s", diff_range)
-        result = subprocess.run(  # noqa: S603
+        result = subprocess.run(
             [git_exe, "diff", "--name-only", diff_range],
             capture_output=True,
             text=True,

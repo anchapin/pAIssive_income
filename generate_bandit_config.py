@@ -9,20 +9,13 @@ Usage:
     python generate_bandit_config.py [run_id]
 """
 
-from __future__ import annotations
-
 import logging
-import os
 import sys
-
-# Path is used throughout the script, so we keep this import
 from pathlib import Path
 
-# Configure logging with timestamp
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+# Configure logging
 logger = logging.getLogger(__name__)
+
 
 # Constants
 BANDIT_DIR = ".github/bandit"
@@ -92,8 +85,8 @@ def setup_directories() -> tuple[Path, Path, bool]:
     """
     try:
         # Handle Windows path separators
-        bandit_dir_str = BANDIT_DIR.replace("/", os.sep)
-        security_reports_dir_str = SECURITY_REPORTS_DIR.replace("/", os.sep)
+        bandit_dir_str = BANDIT_DIR.replace("/", Path().joinpath("").sep)
+        security_reports_dir_str = SECURITY_REPORTS_DIR.replace("/", Path().joinpath("").sep)
 
         # Create Bandit directory
         bandit_dir = Path(bandit_dir_str)
@@ -216,4 +209,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Configure logging with timestamp
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     sys.exit(main())

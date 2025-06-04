@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Run linters on all Python files except those in node_modules.
 
@@ -6,22 +13,11 @@ This script runs ruff (format and lint) on all Python files in the project,
 excluding files in node_modules and other directories specified in
 .gitignore.
 """
-
-from __future__ import annotations
-
-import logging
 import os
 import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
 
 # Directories to exclude
 EXCLUDE_DIRS = {
@@ -164,7 +160,27 @@ def main() -> int:
         0 on success, 1 on failure
 
     """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
     import argparse
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
 
     parser = argparse.ArgumentParser(
         description="Run ruff on all Python files except those in node_modules"

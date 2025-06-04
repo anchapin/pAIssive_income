@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
+import logging
+import shutil
+import subprocess
+import sys
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 health_check.py.
 
@@ -18,17 +28,14 @@ Requires tools: ruff, mypy, bandit, uv (with pip audit functionality),
 sphinx-build (optional).
 """
 
-from __future__ import annotations
+try:
+    from pathlib import Path
+except ImportError as e:
+    logger.exception("Failed to import pathlib", exc_info=e)
+    sys.exit(1)
 
-import logging
-import shutil
-import subprocess
-import sys
-from pathlib import Path
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+# Third-party imports would go here if needed
+# Currently no third-party imports are required for health check
 
 
 def run(cmd: str, desc: str) -> None:
@@ -53,7 +60,7 @@ def run(cmd: str, desc: str) -> None:
 
     # Use a list of validated commands for security
     # Command has been validated against allowed_commands list
-    res = subprocess.run(  # noqa: S603
+    res = subprocess.run(
         cmd_list, shell=False, check=False, capture_output=True, text=True
     )
     if res.returncode != 0:
@@ -130,27 +137,32 @@ def usage() -> None:
 
 def main() -> None:
     """Entry point for orchestrated health checks."""
-    args = set(sys.argv[1:])
-    if not args or "--all" in args:
-        lint()
-        type_check()
-        security()
-        deps()
-        docs()
-    else:
-        if "--lint" in args:
+    try:
+        args = set(sys.argv[1:])
+        if not args or "--all" in args:
             lint()
-        if "--type" in args:
             type_check()
-        if "--security" in args:
             security()
-        if "--deps" in args:
             deps()
-        if "--docs" in args:
             docs()
-        if "--help" in args or "-h" in args:
-            usage()
+        else:
+            if "--lint" in args:
+                lint()
+            if "--type" in args:
+                type_check()
+            if "--security" in args:
+                security()
+            if "--deps" in args:
+                deps()
+            if "--docs" in args:
+                docs()
+            if "--help" in args or "-h" in args:
+                usage()
+    except Exception as e:
+        logger.exception("An error occurred in main_health_check", exc_info=e)
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     main()

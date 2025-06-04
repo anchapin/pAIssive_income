@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
-    from .types import TaskType
+    from .types import TaskVar
 
 
 class Agent:
@@ -16,7 +16,8 @@ class Agent:
         role: str = "",
         goal: str = "",
         backstory: str = "",
-        **kwargs: dict[str, object],
+        agent_type: Optional[Any] = None,
+        **kwargs,
     ) -> None:
         """
         Initialize a mock Agent.
@@ -25,24 +26,44 @@ class Agent:
             role: The role of the agent
             goal: The goal of the agent
             backstory: The backstory of the agent
+            agent_type: The type of agent (from AgentType enum)
             kwargs: Additional keyword arguments
 
         """
         self.role = role
         self.goal = goal
         self.backstory = backstory
+        self.name = kwargs.get("name", role)  # Add name attribute
+        self.agent_type = agent_type
         self.kwargs = kwargs
 
-    def execute_task(self, task: TaskType) -> str:
+    def execute_task(self, task: TaskVar, context=None) -> str:
         """
         Execute a task and return a result.
 
         Args:
             task: The task to execute
+            context: Optional context for the task execution
 
         Returns:
             A string representing the task execution result
 
         """
-        # Access task.description dynamically to avoid circular import issues
-        return f"Executed task: {getattr(task, 'description', 'Unknown task')}"
+        # Handle case when task doesn't have a description attribute
+        task_description = getattr(task, "description", "Unknown task")
+
+        if context:
+            return f"Executed task: {task_description} with context: {context}"
+        return f"Executed task: {task_description}"
+
+    def execute(self, task: TaskVar, context=None) -> str:
+        """Alias for execute_task for compatibility."""
+        return self.execute_task(task, context)
+
+    def __str__(self) -> str:
+        """Return a string representation of the agent."""
+        return f"Agent(role='{self.role}')"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the agent for debugging."""
+        return f"Agent(role='{self.role}', goal='{self.goal}', backstory='{self.backstory}')"

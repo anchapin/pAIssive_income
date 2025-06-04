@@ -5,15 +5,19 @@ import logging
 import os
 import sys
 
-import psycopg2
-from psycopg2.extras import RealDictCursor
-
-# Set up logger with more detailed formatting
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+# Configure logging
 logger = logging.getLogger(__name__)
+
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    HAS_PSYCOPG2 = True
+except ImportError:
+    logger.warning("psycopg2 is not available. Database initialization will be skipped.")
+    psycopg2 = None
+    RealDictCursor = None
+    HAS_PSYCOPG2 = False
+
 
 
 def init_agent_db() -> bool:
@@ -24,6 +28,10 @@ def init_agent_db() -> bool:
         bool: True if initialization was successful, False otherwise
 
     """
+    if not HAS_PSYCOPG2:
+        logger.warning("psycopg2 not available. Skipping database initialization.")
+        return False
+
     # Get database URL from environment variable
     db_url = os.environ.get("DATABASE_URL")
     if not db_url:
@@ -109,6 +117,11 @@ def init_agent_db() -> bool:
 
 
 if __name__ == "__main__":
+    # Set up logger with more detailed formatting
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     success = init_agent_db()
     if not success:
         sys.exit(1)

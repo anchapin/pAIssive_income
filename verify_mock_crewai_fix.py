@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-"""
-Verify that the mock_crewai package works correctly without circular import issues.
-
-This script imports and uses the mock_crewai package to verify that the
-circular import issues have been resolved.
-"""
-
 from __future__ import annotations
 
 import importlib
@@ -13,9 +6,18 @@ import logging
 import sys
 from pathlib import Path
 
+from logging_config import configure_logging
+
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
+
+"""
+Verify that the mock_crewai package works correctly without circular import issues.
+
+This script imports and uses the mock_crewai package to verify that the
+circular import issues have been resolved.
+"""
+
 
 # Add the parent directory to sys.path to ensure mock_crewai can be imported
 current_dir = Path(__file__).resolve().parent
@@ -41,7 +43,7 @@ def verify_imports() -> bool:
         logger.info("Testing import order 1: agent -> task -> crew")
         import mock_crewai.agent
         import mock_crewai.crew
-        import mock_crewai.task  # noqa: F401
+        import mock_crewai.task
 
         # Force reload to ensure we're testing the imports fresh
         logger.info("Testing import order 2: task -> agent -> crew")
@@ -72,6 +74,21 @@ def verify_usage() -> bool:
     """
     try:
         from mock_crewai import Agent, Crew, Task
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
 
         # Create instances and test interactions
         agent = Agent(role="Test Agent", goal="Test Goal", backstory="Test Backstory")
@@ -122,4 +139,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    configure_logging()
     sys.exit(main())

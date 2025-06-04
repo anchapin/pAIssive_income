@@ -1,13 +1,16 @@
 """
 Tool registry for agentic reasoning and integration.
 
-This module allows registration and retrieval of callable tools (functions, APIs, etc.)
-for use by agent wrappers.
+This module allows registration and retrieval of callable tools (functions,
+APIs, etc.) for use by agent wrappers.
 """
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # Global tool registry
 _TOOL_REGISTRY: dict[str, Callable[..., Any]] = {}
@@ -55,7 +58,7 @@ def list_tools() -> dict[str, Callable[..., Any]]:
 MAX_EXPONENT_VALUE = 100  # Maximum allowed value for exponentiation
 
 
-def calculator(expression: str) -> object:  # noqa: C901
+def calculator(expression: str) -> object:
     """
     Evaluate a mathematical expression safely.
 
@@ -83,7 +86,7 @@ def calculator(expression: str) -> object:  # noqa: C901
 
     try:
         # Validate input - only allow numbers, operators, and whitespace
-        if not re.match(r"^[\d\s\+\-\*\/\(\)\.\%]+$", expression):
+        if not re.match(r"^[\d\s\+\-\*\/\(\)\.\%\*]+$", expression):
             return "Error: Invalid characters in expression"
 
         # Disallow potentially dangerous patterns
@@ -99,16 +102,18 @@ def calculator(expression: str) -> object:  # noqa: C901
         try:
             return ast.literal_eval(expression)
         except (ValueError, SyntaxError):
-            # For expressions with operators, implement a safer alternative to eval
-            # Parse the expression and evaluate it using the operators dictionary
+            # For expressions with operators, implement a safer alternative
+            # to eval. Parse the expression and evaluate it using the
+            # operators dictionary
             import ast
 
             # Create a custom evaluator that uses our restricted operators
-            # Note: Method names must match AST node types exactly for NodeVisitor to work
-            # We need to disable N802 (function name should be lowercase) for these methods
+            # Note: Method names must match AST node types exactly for
+            # NodeVisitor to work. We need to disable N802 (function name
+            # should be lowercase) for these methods
             class SafeExpressionEvaluator(ast.NodeVisitor):
                 # Method names must match AST node types exactly
-                def visit_BinOp(self, node: ast.BinOp) -> object:  # noqa: N802
+                def visit_BinOp(self, node: ast.BinOp) -> object:
                     """Process binary operations."""
                     left = self.visit(node.left)
                     right = self.visit(node.right)
@@ -129,7 +134,9 @@ def calculator(expression: str) -> object:  # noqa: C901
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
-                def visit_UnaryOp(self, node: ast.UnaryOp) -> object:  # noqa: N802
+                def visit_UnaryOp(
+                    self, node: ast.UnaryOp
+                ) -> object:
                     """Process unary operations."""
                     operand = self.visit(node.operand)
                     if isinstance(node.op, ast.USub):
@@ -140,12 +147,14 @@ def calculator(expression: str) -> object:  # noqa: C901
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
-                def visit_Num(self, node: ast.Num) -> object:  # noqa: N802
+                def visit_Num(self, node: ast.Num) -> object:
                     """Process numeric nodes."""
                     return node.n
 
                 # Method names must match AST node types exactly
-                def visit_Constant(self, node: ast.Constant) -> object:  # noqa: N802
+                def visit_Constant(
+                    self, node: ast.Constant
+                ) -> object:
                     """Process constant nodes."""
                     return node.value
 
@@ -158,7 +167,13 @@ def calculator(expression: str) -> object:  # noqa: C901
             parsed_expr = ast.parse(expression, mode="eval")
             evaluator = SafeExpressionEvaluator()
             return evaluator.visit(parsed_expr.body)
-    except (ValueError, SyntaxError, TypeError, ZeroDivisionError, OverflowError) as e:
+    except (
+        ValueError,
+        SyntaxError,
+        TypeError,
+        ZeroDivisionError,
+        OverflowError,
+    ) as e:
         return f"Error: {e}"
 
 
@@ -175,11 +190,33 @@ def text_analyzer(text: str) -> str:
 
     Returns:
         str: Analysis results including sentiment and basic metrics.
+
     """
     try:
         # Basic sentiment analysis using simple keyword matching
-        positive_words = ['good', 'great', 'excellent', 'fantastic', 'amazing', 'wonderful', 'love', 'like', 'happy', 'positive']
-        negative_words = ['bad', 'terrible', 'awful', 'hate', 'dislike', 'sad', 'negative', 'horrible', 'worst']
+        positive_words = [
+            "good",
+            "great",
+            "excellent",
+            "fantastic",
+            "amazing",
+            "wonderful",
+            "love",
+            "like",
+            "happy",
+            "positive",
+        ]
+        negative_words = [
+            "bad",
+            "terrible",
+            "awful",
+            "hate",
+            "dislike",
+            "sad",
+            "negative",
+            "horrible",
+            "worst",
+        ]
 
         text_lower = text.lower()
         positive_count = sum(1 for word in positive_words if word in text_lower)

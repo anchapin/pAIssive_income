@@ -621,12 +621,14 @@ def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
         fernet = Fernet(encoded_key)
         return salt, fernet.encrypt(content.encode())
     finally:
-        # Clean up sensitive data
-        del key_material
-        if "derived_key" in locals():
-            del derived_key
-        if "encoded_key" in locals():
-            del encoded_key
+        # Clean up sensitive data - overwrite with zeros instead of deleting
+        # Local variables are automatically cleaned up when function exits
+        if 'key_material' in locals():
+            key_material = b'\x00' * len(key_material)
+        if 'derived_key' in locals():
+            derived_key = b'\x00' * len(derived_key)
+        if 'encoded_key' in locals():
+            encoded_key = b'\x00' * len(encoded_key)
 
 
 def save_encrypted_report(path: str, salt: bytes, encrypted_content: bytes) -> None:
@@ -771,7 +773,8 @@ class SecretsAuditor:
         self,
         directory: str,
         output_file: Optional[str] = None,
-        json_format: bool = False,
+        format: str = "text",
+        json_format: bool | None = None,  # For backward compatibility
     ) -> dict[str, list[tuple[str, int, str, str]]]:
         """
         Audit a directory for potential secrets and generate a report.
@@ -779,7 +782,8 @@ class SecretsAuditor:
         Args:
             directory: Directory to scan
             output_file: Path to the output file
-            json_format: Whether to output in JSON format
+            format: Output format ("json" or "text")
+            json_format: Deprecated - Whether to output in JSON format
 
         Returns:
             Dictionary mapping file paths to lists of (pattern_name,
@@ -789,5 +793,13 @@ class SecretsAuditor:
 
         """
         results = self.scan(directory)
-        self.generate_report(results, output_file, json_format)
+
+        # Handle backward compatibility with json_format parameter
+        use_json = False
+        if json_format is not None:
+            use_json = json_format
+        elif format.lower() == "json":
+            use_json = True
+
+        self.generate_report(results, output_file, use_json)
         return results
