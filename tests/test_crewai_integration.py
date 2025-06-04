@@ -13,13 +13,14 @@ logging.basicConfig(
 )
 
 # Check if crewai is installed
+crewai_available = False
+
 try:
     import crewai
 
-    CREWAI_AVAILABLE = True
+    crewai_available = True
     logging.info(f"CrewAI is available (version: {crewai.__version__})")
 except ImportError as e:
-    CREWAI_AVAILABLE = False
     logging.warning(f"CrewAI is not available: {e}")
 
     # Try to add the mock_crewai directory to sys.path
@@ -34,10 +35,10 @@ except ImportError as e:
     sys.path.insert(0, os.getcwd())
 
 
-@pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
+@pytest.mark.skipif(not crewai_available, reason="CrewAI is not available")
 def test_crewai_agent_team_integration():
     """Test the integration between CrewAI and the agent_team module."""
-    if not CREWAI_AVAILABLE:
+    if not crewai_available:
         pytest.skip("CrewAI is not installed - skipping test")
 
     try:
@@ -75,10 +76,10 @@ def test_crewai_agent_team_integration():
         pytest.skip("CrewAI agent team integration test failed")
 
 
-@pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
+@pytest.mark.skipif(not crewai_available, reason="CrewAI is not available")
 def test_crewai_agent_team_with_custom_agents():
     """Test the CrewAIAgentTeam with custom agents."""
-    if not CREWAI_AVAILABLE:
+    if not crewai_available:
         pytest.skip("CrewAI is not installed - skipping test")
 
     try:

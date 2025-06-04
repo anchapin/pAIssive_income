@@ -1,5 +1,7 @@
 """config.py - Configuration for Flask app and SQLAlchemy."""
 
+from __future__ import annotations
+
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -22,7 +24,7 @@ class Config:
     LOG_FILE = LOG_DIR / "flask.log"
     LOG_ERROR_FILE = LOG_DIR / "error.log"  # Separate error log
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
-    LOG_FORMAT_JSON = True  # Use JSON formatting for file logs
+    LOG_FORMAT_JSON: bool = True  # Use JSON formatting for file logs
     LOG_MAX_BYTES = 10 * 1024 * 1024  # 10 MB
     LOG_BACKUP_COUNT = 10
     LOG_ROTATION_INTERVAL = timedelta(days=1)  # Rotate logs daily
@@ -33,7 +35,7 @@ class Config:
     LOG_CORRELATION_ID_HEADER = "X-Correlation-ID"  # For distributed tracing
 
     # Performance logging thresholds (in milliseconds)
-    LOG_SLOW_REQUEST_THRESHOLD = 1000  # Log requests taking more than 1 second
+    LOG_SLOW_REQUEST_THRESHOLD: int = 1000  # Log requests taking more than 1 second
     LOG_VERY_SLOW_REQUEST_THRESHOLD = (
         3000  # Log detailed info for requests over 3 seconds
     )
@@ -42,13 +44,25 @@ class Config:
     LOG_AUDIT_EVENTS = True  # Enable audit logging
     LOG_AUDIT_FILE = LOG_DIR / "audit.log"  # Separate file for audit logs
 
-    # Set more detailed logging in development
-    if os.environ.get("FLASK_ENV") == "development":
-        LOG_LEVEL = "DEBUG"
-        LOG_FORMAT_JSON = False  # Human readable logs in development
-        LOG_SLOW_REQUEST_THRESHOLD = 500  # More aggressive in development
-
     # Error reporting settings
     LOG_INCLUDE_TRACE = True  # Include stack traces in error logs
     LOG_MAX_TRACEBACK_DEPTH = 20  # Maximum depth of stack traces
     LOG_SANITIZE_ERRORS = True  # Remove sensitive data from error logs
+
+    SECRET_KEY: str | None = None
+
+
+# Apply development overrides after class definition
+if os.environ.get("FLASK_ENV") == "development":
+    Config.LOG_LEVEL = "DEBUG"
+    Config.LOG_FORMAT_JSON = False  # Human readable logs in development
+    Config.LOG_SLOW_REQUEST_THRESHOLD = 500  # More aggressive in development
+
+# Environment-based overrides (use local variables, do not reassign constants in class)
+if os.environ.get("ENV") == "development":
+    _dev_db_url = os.environ.get("DEV_DATABASE_URL")
+    if _dev_db_url:
+        Config.SQLALCHEMY_DATABASE_URI = _dev_db_url
+    _dev_secret = os.environ.get("DEV_SECRET_KEY")
+    if _dev_secret:
+        Config.SECRET_KEY = _dev_secret

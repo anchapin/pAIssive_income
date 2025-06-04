@@ -18,7 +18,11 @@ OpenAICompatibleAdapter: Any = None
 LMStudioAdapter: Any = None
 TensorRTAdapter: Any = None
 MCPAdapter: Any = None
+# The type: ignore is required for conditional import patterns and dynamic assignment of exception types.
+# This is safe because the variable is always set to a valid Exception type or None.
 AdapterError: type[Exception] = None  # type: ignore[assignment]
+# The type: ignore is required for conditional import patterns and dynamic assignment of exception types.
+# This is safe because the variable is always set to a valid Exception type or None.
 ModelContextProtocolError: type[Exception] = None  # type: ignore[assignment]
 
 # Use contextlib.suppress instead of try-except-pass

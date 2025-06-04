@@ -571,7 +571,7 @@ def configure_vscode() -> bool:
             "python.formatting.provider": "black",
             "python.linting.enabled": True,
             "python.linting.flake8Enabled": True,
-            "python.linting.mypyEnabled": True,
+            "python.linting.pyrightEnabled": True,
         }
 
         settings_file = vscode_dir / "settings.json"

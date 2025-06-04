@@ -1,9 +1,8 @@
-"""
-Minimal ARTIST-style agent wrapper for agentic tool use.
+"""Minimal ARTIST-style agent wrapper for agentic tool use."""
 
-This agent can reason over a prompt, decide which tool to use, and invoke it.
-This is a scaffold for further expansion.
-"""
+from __future__ import annotations
+
+import logging
 
 from common_utils import tooling
 
@@ -16,10 +15,12 @@ class ArtistAgent:
     extract relevant parts of the prompt to pass to the selected tool.
     """
 
-    def __init__(self) -> None:
-        """Initialize the ArtistAgent with available tools."""
-        # Discover available tools at initialization
-        self.tools = tooling.list_tools()
+    def __init__(self, tools: dict | None = None) -> None:
+        """Initialize the ArtistAgent with available tools or injected tools for testing."""
+        if tools is not None:
+            self.tools = tools
+        else:
+            self.tools = tooling.list_tools()
 
     def decide_tool(self, prompt: str) -> str:
         """
@@ -93,8 +94,6 @@ class ArtistAgent:
 
 
 if __name__ == "__main__":
-    import logging
-
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logger = logging.getLogger(__name__)
 

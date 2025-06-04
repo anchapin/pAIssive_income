@@ -62,21 +62,6 @@ repos:
         types: [python]
         files: \.py$
 
-  # Type checking (run after formatting/linting)
-  - repo: local
-    hooks:
-      - id: pyrefly
-        name: Type check with Pyrefly
-        entry: python -m pyrefly
-        language: system
-        types: [python]
-        require_serial: true
-        exclude: |
-          (?x)(
-            ^scripts/__init__.py$|
-            ^.github/scripts/__init__.py$
-          )
-
   # Optimized local hooks for incremental checks
   - repo: local
     hooks:

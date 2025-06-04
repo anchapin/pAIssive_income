@@ -6,18 +6,21 @@ Measures performance of baseline and trained agents on multi-step tool-use tasks
 
 import argparse
 
-def evaluate_agent(env, agent, episodes: int, max_steps: int):
+from .env import ArtistRLEnv
+
+
+def evaluate_agent(env: ArtistRLEnv, episodes: int, max_steps: int) -> dict:
     """
     Evaluate the agent on the environment.
 
     Args:
         env: RL environment instance.
-        agent: RL agent instance.
         episodes (int): Number of evaluation episodes.
         max_steps (int): Max steps per episode.
 
     Returns:
         dict: Evaluation metrics.
+
     """
     rewards = []
     for _ in range(episodes):
@@ -35,24 +38,23 @@ def evaluate_agent(env, agent, episodes: int, max_steps: int):
     avg_reward = sum(rewards) / len(rewards) if rewards else 0.0
     return {"avg_reward": avg_reward, "all_rewards": rewards}
 
-def main():
-    """
-    Main entry point for evaluation.
-    """
+
+def main() -> None:
+    """Run evaluation of RL agent."""
     parser = argparse.ArgumentParser(description="Evaluate RL agent on ArtistRLEnv.")
-    parser.add_argument("--episodes", type=int, default=5, help="Number of evaluation episodes.")
-    parser.add_argument("--max-steps", type=int, default=50, help="Max steps per episode.")
-    # parser.add_argument("--agent-path", type=str, help="Path to trained agent (if any).")
+    parser.add_argument(
+        "--episodes", type=int, default=5, help="Number of evaluation episodes."
+    )
+    parser.add_argument(
+        "--max-steps", type=int, default=50, help="Max steps per episode."
+    )
     args = parser.parse_args()
 
-    from .env import ArtistRLEnv
     env = ArtistRLEnv()
-    agent = None  # Placeholder: load agent here
-
-    metrics = evaluate_agent(env, agent, args.episodes, args.max_steps)
-    print("Evaluation Results:", metrics)
+    evaluate_agent(env, args.episodes, args.max_steps)
 
     env.close()
+
 
 if __name__ == "__main__":
     main()

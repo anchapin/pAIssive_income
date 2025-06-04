@@ -43,36 +43,37 @@ CHAR_THRESHOLD_2 = 115
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 # Import the existing security tools if possible
+imported_secret_scanner = False
 try:
     from fix_potential_secrets import scan_directory
 
-    IMPORTED_SECRET_SCANNER = True
+    imported_secret_scanner = True
 except ImportError:
-    # Store error information in a log message instead of a global variable
-    # This is not a password, just an error message
     module_name = "fix_potential_secrets"
     logger.warning(
         "Could not import %s module. Will use subprocess fallback.", module_name
     )
-    IMPORTED_SECRET_SCANNER = False
+    imported_secret_scanner = False
 
     # Define a fallback function to avoid unbound variable errors
+    from typing import Pattern
+
     def scan_directory(
-        directory: str,  # Match the signature of the imported function
-        exclude_dirs: set[str]  # noqa: ARG001
-        | None = None,  # Match the signature of the imported function
-    ) -> dict[str, list[tuple[str, int, int]]]:
+        directory: str,
+        patterns: dict[str, Pattern[str]],
+    ) -> dict[str, list[tuple[str, int, str]]]:
         """
         Fallback function when fix_potential_secrets cannot be imported.
 
         Args:
             directory: Directory to scan (unused in fallback)
-            exclude_dirs: Directories to exclude from scanning (unused in fallback)
+            patterns: Patterns to scan for (unused in fallback)
 
         Returns:
-            dict[str, list[tuple[str, int, int]]]: Empty result dictionary
+            dict[str, list[tuple[str, int, str]]]: Empty result dictionary
 
         """
+        _ = patterns
         logger.warning(
             "scan_directory is not available for %s. Using subprocess fallback.",
             directory,
@@ -258,28 +259,27 @@ def sanitize_finding_message(pattern_name: str) -> str:
 
 
 def _run_scan_with_imported_function(
-    directory: str, exclude_dirs: set[str]
-) -> dict[str, list[tuple[str, int, int]]] | None:
+    directory: str,
+) -> dict[str, list[tuple[str, int, str]]] | None:
     """
     Run the security scan using the imported function.
 
     Args:
         directory: Directory to scan
-        exclude_dirs: Directories to exclude
 
     Returns:
-        dict[str, list[tuple[str, int, int]]] | None: Results of the scan or None if failed
+        dict[str, list[tuple[str, int, str]]] | None: Results of the scan or None if failed
 
     """
-    if not (IMPORTED_SECRET_SCANNER and "scan_directory" in globals()):
+    if not (imported_secret_scanner and "scan_directory" in globals()):
         return None
 
     # Import the SECRET_PATTERNS from fix_potential_secrets to match the function signature
     try:
         from fix_potential_secrets import SECRET_PATTERNS
 
-        results: dict[str, list[tuple[str, int, int]]] = scan_directory(
-            directory, SECRET_PATTERNS, exclude_dirs
+        results: dict[str, list[tuple[str, int, str]]] = scan_directory(
+            directory, SECRET_PATTERNS
         )
     except ImportError:
         logger.warning("Could not import SECRET_PATTERNS from fix_potential_secrets")
@@ -395,7 +395,7 @@ def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
     logger.info("Excluding directories: %s", ", ".join(exclude_dirs))
 
     # Try to use imported function first
-    results = _run_scan_with_imported_function(directory, exclude_dirs)
+    results = _run_scan_with_imported_function(directory)
     if results is not None:
         return results
 

@@ -41,7 +41,7 @@ def _run_linting_tool(
     logger.info("Running %s...", tool_name)
     try:
         # nosec comment below tells security scanners this is safe as we control the input
-        subprocess.run([executable, *args], check=True)  # nosec B603 S603
+        subprocess.run([executable, *args], check=True)  # nosec S603
         logger.info("%s checks passed", tool_name)
     except subprocess.CalledProcessError:
         logger.exception("%s checks failed", tool_name)
@@ -86,7 +86,7 @@ def _install_pytest_with_plugins() -> Optional[str]:
     logger.info("Installing pytest and related packages...")
     try:
         # nosec comment below tells security scanners this is safe as we control the input
-        subprocess.run(  # nosec B603 S603
+        subprocess.run(  # nosec S603
             [
                 sys.executable,
                 "-m",
@@ -131,7 +131,7 @@ def run_tests(test_path: Optional[str] = None) -> bool:
 
     try:
         # nosec comment below tells security scanners this is safe as we control the input
-        subprocess.run(cmd, check=True)  # nosec B603 S603
+        subprocess.run(cmd, check=True)  # nosec S603
     except subprocess.CalledProcessError:
         logger.exception("Tests failed")
         return False
@@ -160,7 +160,7 @@ def _ensure_tool_installed(tool_name: str) -> Optional[str]:
 
     try:
         # nosec comment below tells security scanners this is safe as we control the input
-        subprocess.run([sys.executable, "-m", "pip", "install", tool_name], check=True)  # nosec B603 S603
+        subprocess.run([sys.executable, "-m", "pip", "install", tool_name], check=True)  # nosec S603
 
         executable = shutil.which(tool_name)
         if not executable:
@@ -193,7 +193,7 @@ def _run_safety_check(safety_executable: str, output_dir: Optional[str] = None) 
             cmd.extend(["--output", "json", "--output-file", str(output_file)])
 
         # nosec comment below tells security scanners this is safe as we control the input
-        subprocess.run(cmd, check=False)  # nosec B603 S603
+        subprocess.run(cmd, check=False)  # nosec S603
         logger.info("Safety check completed")
     except subprocess.CalledProcessError:
         logger.exception("Safety check failed")
@@ -222,7 +222,7 @@ def _run_bandit_scan(bandit_executable: str, output_dir: Optional[str] = None) -
             cmd.extend(["-f", "json", "-o", str(output_file)])
 
         # nosec comment below tells security scanners this is safe as we control the input
-        subprocess.run(cmd, check=False)  # nosec B603 S603
+        subprocess.run(cmd, check=False)  # nosec S603
         logger.info("Bandit scan completed")
     except subprocess.CalledProcessError:
         logger.exception("Bandit scan failed")
@@ -268,7 +268,7 @@ def run_lint_file(file_path: str) -> int:
     # Run file-specific linting
     try:
         # nosec comment below tells security scanners this is safe as we control the input
-        subprocess.run([ruff_executable, "check", file_path], check=True)  # nosec B603 S603
+        subprocess.run([ruff_executable, "check", file_path], check=True)  # nosec S603
     except subprocess.CalledProcessError:
         logger.exception("Linting failed for %s", file_path)
         return 1
