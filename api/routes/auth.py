@@ -1,6 +1,7 @@
 import html
 import logging
 import os
+import re
 import secrets
 import smtplib
 from datetime import datetime, timedelta
@@ -14,6 +15,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from flask import Blueprint, jsonify, request
+
+# Pattern for allowed characters in logs. Anything not matching this will be replaced.
+# Allows: a-z, A-Z, 0-9, space, period, underscore, @, :, /, =, -
+ALLOWED_CHARS_PATTERN = re.compile(r"[^a-zA-Z0-9\s\._@:/=-]")
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -73,25 +78,29 @@ def send_email(to_addr, subject, body):
         logging.error(f"[Password Reset] Failed to send email: {str(e)}")
 
 def sanitize_log_data(data):
-    """Sanitize data for logging to prevent log injection."""
     if data is None:
         return '<none>'
 
-    # Max length for sanitized data
     MAX_LOG_LENGTH = 256
 
     if isinstance(data, str):
-        # Replace newlines
+        # Replace newlines first
         sanitized = data.replace('\n', ' ').replace('\r', ' ')
-        # Remove non-printable characters
-        sanitized = ''.join(ch for ch in sanitized if ch.isprintable())
+
+        # Replace any characters not in the allowed set with an underscore
+        sanitized = ALLOWED_CHARS_PATTERN.sub('_', sanitized)
+
         # Truncate
         sanitized = sanitized[:MAX_LOG_LENGTH]
-        # Sanitize HTML
+
+        # Escape HTML entities as a final defense
         return html.escape(sanitized)
     else:
-        # Convert to string and truncate
-        return str(data)[:MAX_LOG_LENGTH]
+        # For non-strings, convert to string, then apply basic sanitization (length and newlines)
+        s_data = str(data).replace('\n', ' ').replace('\r', ' ')
+        # Also apply the strict character filter to the string representation of non-string data
+        s_data = ALLOWED_CHARS_PATTERN.sub('_', s_data)
+        return html.escape(s_data[:MAX_LOG_LENGTH])
 
 @auth_bp.route('/forgot-password', methods=['POST'])
 @limiter.limit("5 per minute")
