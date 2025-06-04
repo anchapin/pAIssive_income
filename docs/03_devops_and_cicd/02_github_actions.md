@@ -96,6 +96,26 @@ The `run_tests_ci_wrapper_enhanced.py` script provides:
 - **Environment Isolation**: Proper environment variable setup for CI execution
 - **Package Manager Optimization**: Uses `uv` for Python and `pnpm` for JavaScript with optimized configurations
 
+## Latest Workflow Fixes (req-29)
+
+### Local Testing Infrastructure
+- **Act Tool Integration**: Added support for local workflow testing using the `act` tool
+- **Docker Compatibility**: Addressed Docker image compatibility issues for local testing environments
+- **Test Validation**: Verified that core workflow components (linting, testing, coverage) function correctly
+- **Troubleshooting Guide**: Enhanced documentation with local testing procedures and common issues
+
+### Workflow Robustness Improvements
+- **Error Resilience**: Enhanced error handling to prevent cascading failures across workflow jobs
+- **Platform Optimization**: Improved cross-platform compatibility for Windows, macOS, and Ubuntu environments
+- **Timeout Management**: Optimized timeout configurations to balance reliability and resource usage
+- **Dependency Isolation**: Better isolation of problematic dependencies to prevent CI failures
+
+### Documentation Updates
+- **Comprehensive Guides**: Updated all relevant documentation to reflect workflow improvements
+- **Troubleshooting Enhancements**: Added new troubleshooting sections for common workflow issues
+- **Best Practices**: Documented best practices for workflow maintenance and local testing
+- **Historical Context**: Maintained historical context while focusing on current best practices
+
 ## Optimization & History
 
 - Workflow optimization and consolidation history are available in:

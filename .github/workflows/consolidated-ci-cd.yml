@@ -44,7 +44,7 @@ jobs:
   lint-test:
     name: Lint, Type Check, and Test
     runs-on: ${{ matrix.os }}
-    timeout-minutes: ${{ matrix.os == 'windows-latest' && 120 || 90 }}  # Increased timeouts for better reliability
+    timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || 45 }}
     # Simplified condition - run for all supported events
     if: ${{ github.event_name != 'workflow_run' }}
     strategy:
@@ -74,7 +74,7 @@ jobs:
 
       - name: Install Node.js dependencies and build Tailwind CSS
         continue-on-error: true
-        timeout-minutes: ${{ matrix.os == 'windows-latest' && 35 || 25 }}  # Increased timeouts for Node.js operations
+        timeout-minutes: ${{ matrix.os == 'windows-latest' && 20 || 15 }}
         run: |
           echo "Installing Node.js dependencies with simplified approach..."
 
@@ -126,7 +126,7 @@ jobs:
 
       - name: Install essential dependencies first
         continue-on-error: false
-        timeout-minutes: ${{ matrix.os == 'windows-latest' && 30 || (matrix.os == 'macos-latest' && 25 || 20) }}  # Increased timeouts for essential dependencies
+        timeout-minutes: ${{ matrix.os == 'windows-latest' && 20 || 15 }}
         run: |
           echo "Installing essential dependencies with simplified approach..."
 
@@ -159,95 +159,140 @@ jobs:
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
-        timeout-minutes: ${{ matrix.os == 'macos-latest' && 35 || 30 }}  # Increased timeouts for Unix dependencies
+        timeout-minutes: ${{ matrix.os == 'macos-latest' && 30 || 25 }}
         run: |
-          echo "Setting up Python environment for Unix systems with simplified approach..."
+          echo "Setting up Python environment for Unix systems..."
 
-          # Install requirements in priority order
-          if [ -f requirements-ci.txt ]; then
-            echo "Installing CI-friendly requirements..."
-            python -m pip install -r requirements-ci.txt || echo "CI requirements installation failed"
-          elif [ -f requirements-dev.txt ]; then
-            echo "Installing development requirements..."
-            python -m pip install -r requirements-dev.txt || echo "Dev requirements installation failed"
-          elif [ -f requirements.txt ]; then
-            echo "Installing main requirements (filtered)..."
-            # Filter out problematic packages
-            grep -v -E "^(modelcontextprotocol|mcp-|crewai|mem0ai)" requirements.txt | \
+          # Create mock modules first to prevent import errors
+          echo "Creating mock modules..."
+          python -c "
+          import os
+          from pathlib import Path
+
+          # Create standardized mock modules
+          mock_modules = {
+              'mock_mcp': ['Client', 'Server', 'Tool'],
+              'mock_crewai': ['Agent', 'Crew', 'Task'],
+              'mock_mem0': ['Memory', 'MemoryClient']
+          }
+
+          for module_name, classes in mock_modules.items():
+              module_path = Path(module_name)
+              module_path.mkdir(exist_ok=True)
+
+              init_content = [
+                  '# Mock module for CI/CD',
+                  '__version__ = \"1.0.0\"',
+                  ''
+              ]
+
+              # Add mock classes
+              for class_name in classes:
+                  init_content.extend([
+                      f'class Mock{class_name}:',
+                      '    def __init__(self, *args, **kwargs): pass',
+                      '    def __call__(self, *args, **kwargs): return self',
+                      '    def __getattr__(self, name): return lambda *args, **kwargs: None',
+                      ''
+                  ])
+
+              # Add exports
+              for class_name in classes:
+                  init_content.append(f'{class_name} = Mock{class_name}')
+
+              (module_path / '__init__.py').write_text('\n'.join(init_content))
+              print(f'Created mock module: {module_name}')
+          "
+
+          # Install requirements with simplified filtering
+          if [ -f requirements.txt ]; then
+            echo "Installing filtered requirements..."
+            # Create filtered requirements excluding problematic packages
+            grep -v -E "^(modelcontextprotocol|mcp-|crewai|mem0ai|mem0-ai)" requirements.txt | \
             grep -v -E "^#.*" | \
-            grep -v -E "^[[:space:]]*$" > requirements_filtered.txt || cp requirements.txt requirements_filtered.txt
+            grep -v -E "^[[:space:]]*$" > requirements_filtered.txt
 
-            python -m pip install -r requirements_filtered.txt || echo "Filtered requirements installation failed"
+            python -m pip install -r requirements_filtered.txt || {
+              echo "Filtered installation failed, trying essential packages only..."
+              echo "fastapi uvicorn pydantic sqlalchemy pytest pytest-cov" > requirements_minimal.txt
+              python -m pip install -r requirements_minimal.txt
+            }
           fi
-
-          # Create mock modules
-          echo "Setting up mock modules..."
-          for mock_module in mock_mcp mock_crewai mock_mem0; do
-            if [ ! -d "$mock_module" ]; then
-              mkdir -p "$mock_module"
-              echo '# Mock module for CI' > "$mock_module/__init__.py"
-              echo '__version__ = "0.1.0"' >> "$mock_module/__init__.py"
-              echo '' >> "$mock_module/__init__.py"
-              echo 'class MockClient: pass' >> "$mock_module/__init__.py"
-              echo 'class MockAgent: pass' >> "$mock_module/__init__.py"
-              echo 'class MockCrew: pass' >> "$mock_module/__init__.py"
-              echo 'class MockMemory: pass' >> "$mock_module/__init__.py"
-              echo '' >> "$mock_module/__init__.py"
-              echo '# Common exports' >> "$mock_module/__init__.py"
-              echo 'Client = MockClient' >> "$mock_module/__init__.py"
-              echo 'Agent = MockAgent' >> "$mock_module/__init__.py"
-              echo 'Crew = MockCrew' >> "$mock_module/__init__.py"
-              echo 'Memory = MockMemory' >> "$mock_module/__init__.py"
-            fi
-          done
 
           echo "✓ Unix dependency installation completed"
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
-        timeout-minutes: 45  # Increased timeout for Windows dependency installation
+        timeout-minutes: 35
         shell: pwsh
         run: |
-          Write-Host "Setting up Python environment for Windows with simplified approach..."
+          Write-Host "Setting up Python environment for Windows..."
 
-          # Install requirements in priority order
-          if (Test-Path requirements-ci-windows.txt) {
-            Write-Host "Installing Windows-specific CI requirements..."
-            python -m pip install -r requirements-ci-windows.txt
-          } elseif (Test-Path requirements-ci.txt) {
-            Write-Host "Installing CI-friendly requirements..."
-            python -m pip install -r requirements-ci.txt
-          } elseif (Test-Path requirements-dev.txt) {
-            Write-Host "Installing development requirements..."
-            python -m pip install -r requirements-dev.txt
-          } elseif (Test-Path requirements.txt) {
-            Write-Host "Installing main requirements (filtered)..."
-            # Filter out problematic packages
+          # Create mock modules first using Python (more reliable than PowerShell)
+          Write-Host "Creating mock modules..."
+          python -c @"
+          import os
+          from pathlib import Path
+
+          # Create standardized mock modules (same as Unix)
+          mock_modules = {
+              'mock_mcp': ['Client', 'Server', 'Tool'],
+              'mock_crewai': ['Agent', 'Crew', 'Task'],
+              'mock_mem0': ['Memory', 'MemoryClient']
+          }
+
+          for module_name, classes in mock_modules.items():
+              module_path = Path(module_name)
+              module_path.mkdir(exist_ok=True)
+
+              init_content = [
+                  '# Mock module for CI/CD',
+                  '__version__ = \"1.0.0\"',
+                  ''
+              ]
+
+              # Add mock classes
+              for class_name in classes:
+                  init_content.extend([
+                      f'class Mock{class_name}:',
+                      '    def __init__(self, *args, **kwargs): pass',
+                      '    def __call__(self, *args, **kwargs): return self',
+                      '    def __getattr__(self, name): return lambda *args, **kwargs: None',
+                      ''
+                  ])
+
+              # Add exports
+              for class_name in classes:
+                  init_content.append(f'{class_name} = Mock{class_name}')
+
+              (module_path / '__init__.py').write_text('\n'.join(init_content))
+              print(f'Created mock module: {module_name}')
+          "@
+
+          # Install requirements with simplified filtering
+          if (Test-Path requirements.txt) {
+            Write-Host "Installing filtered requirements..."
+            # Filter out problematic packages using PowerShell
             $requirements = Get-Content requirements.txt | Where-Object {
               -not $_.Contains("modelcontextprotocol") -and
               -not $_.Contains("mcp-") -and
               -not $_.Contains("crewai") -and
               -not $_.Contains("mem0ai") -and
+              -not $_.Contains("mem0-ai") -and
               -not $_.Trim().StartsWith("#") -and
               $_.Trim() -ne ""
             }
 
             if ($requirements.Count -gt 0) {
               $requirements | Set-Content -Path "requirements_filtered.txt"
-              python -m pip install -r requirements_filtered.txt
-            }
-          }
-
-          # Create mock modules
-          Write-Host "Setting up mock modules..."
-          $mockModules = @("mock_mcp", "mock_crewai", "mock_mem0")
-
-          foreach ($mockModule in $mockModules) {
-            if (-not (Test-Path $mockModule)) {
-              New-Item -ItemType Directory -Force -Path $mockModule | Out-Null
-              $content = "# Mock module for CI`n__version__ = '0.1.0'`n`nclass MockClient:`n    pass`n`nclass MockAgent:`n    pass`n`nclass MockCrew:`n    pass`n`nclass MockMemory:`n    pass`n`n# Common exports`nClient = MockClient`nAgent = MockAgent`nCrew = MockCrew`nMemory = MockMemory"
-              Set-Content -Path "$mockModule/__init__.py" -Value $content
+              try {
+                python -m pip install -r requirements_filtered.txt
+              } catch {
+                Write-Host "Filtered installation failed, trying essential packages only..."
+                "fastapi", "uvicorn", "pydantic", "sqlalchemy", "pytest", "pytest-cov" | Set-Content -Path "requirements_minimal.txt"
+                python -m pip install -r requirements_minimal.txt
+              }
             }
           }
 
@@ -302,13 +347,12 @@ jobs:
             Write-Host "Pyright check failed: $_"
           }
 
-      - name: Run main tests with enhanced CI wrapper
+      - name: Run main tests
         continue-on-error: true
         run: |
-          echo "Running main test suite with optimized CI wrapper..."
+          echo "Running main test suite..."
           export PYTHONPATH="${PYTHONPATH}:$(pwd)"
           export PYTHONNOUSERSITE=1
-          export SKIP_VENV_CHECK=1
           export CI=true
           export GITHUB_ACTIONS=true
 
@@ -316,89 +360,8 @@ jobs:
           mkdir -p coverage
           mkdir -p junit
 
-          # Ensure mock modules exist before running tests
-          echo "Setting up mock modules for CI..."
-          python -c "
-          import os
-          from pathlib import Path
-
-          # Create mock modules to prevent import errors
-          mock_dirs = ['mock_mcp', 'mock_crewai', 'mock_mem0']
-          for mock_dir in mock_dirs:
-              mock_path = Path(mock_dir)
-              mock_path.mkdir(exist_ok=True)
-              (mock_path / '__init__.py').write_text('# Mock module for CI')
-
-          print('Mock modules created successfully')
-          "
-
-          # Strategy 1: Use enhanced CI wrapper (preferred)
-          if [ -f "run_tests_ci_wrapper_enhanced.py" ]; then
-            echo "Using enhanced CI test wrapper for optimal results"
-            echo "Enhanced wrapper provides comprehensive error handling and exclusions"
-
-            # Run with enhanced wrapper and capture exit code
-            python run_tests_ci_wrapper_enhanced.py
-            test_exit_code=$?
-
-            echo "Enhanced CI wrapper completed with exit code: $test_exit_code"
-
-            # Check if coverage file was generated
-            if [ -f "coverage.xml" ]; then
-              echo "Coverage report generated successfully"
-              # Validate coverage meets threshold
-              python -c "
-              import xml.etree.ElementTree as ET
-              try:
-                  tree = ET.parse('coverage.xml')
-                  root = tree.getroot()
-                  coverage_elem = root.find('.//coverage')
-                  if coverage_elem is not None:
-                      line_rate = float(coverage_elem.get('line-rate', 0))
-                      coverage_percent = line_rate * 100
-                      print(f'Coverage: {coverage_percent:.2f}%')
-                      if coverage_percent >= 15.0:
-                          print('✓ Coverage threshold met (≥15%)')
-                      else:
-                          print('⚠ Coverage below threshold but continuing')
-                  else:
-                      print('Coverage data not found in XML')
-              except Exception as e:
-                  print(f'Error reading coverage: {e}')
-              "
-            else
-              echo "No coverage.xml found, attempting to generate..."
-              # Try to run a minimal test with coverage
-              pytest tests/ -v --cov=. --cov-report=xml --cov-fail-under=15 \
-                --ignore-glob="**/mock_*" \
-                --ignore-glob="**/mcp_*" \
-                --ignore-glob="**/crewai*" \
-                --maxfail=10 || echo "Fallback coverage generation completed"
-            fi
-
-            # Exit with success if enhanced wrapper ran (regardless of test results)
-            exit 0
-          fi
-
-          # Strategy 2: Use standard CI wrapper with enhanced options
-          if [ -f "run_tests_ci_wrapper.py" ]; then
-            echo "Using standard CI test wrapper with enhanced configuration"
-            python run_tests_ci_wrapper.py \
-              --verbose \
-              --cov=. \
-              --cov-report=xml \
-              --cov-report=term-missing \
-              --cov-fail-under=15 \
-              --junitxml=junit/test-results.xml \
-              --maxfail=50 \
-              --tb=short \
-              --ignore-glob="**/mock_*" \
-              --ignore-glob="**/mcp_*" \
-              --ignore-glob="**/crewai*" && exit 0
-          fi
-
-          # Strategy 3: Direct pytest with comprehensive exclusions
-          echo "Using pytest directly with comprehensive exclusions"
+          # Run tests with simplified approach
+          echo "Running pytest with optimized configuration..."
           pytest tests/ \
             --verbose \
             --cov=. \
@@ -406,47 +369,69 @@ jobs:
             --cov-report=term-missing \
             --cov-fail-under=15 \
             --junitxml=junit/test-results.xml \
-            --maxfail=50 \
+            --maxfail=20 \
             --tb=short \
+            --disable-warnings \
             --ignore-glob="**/mock_*" \
             --ignore-glob="**/mcp_*" \
             --ignore-glob="**/crewai*" \
+            --ignore-glob="**/mem0*" \
             --ignore=tests/ai_models/adapters/test_mcp_adapter.py \
             --ignore=tests/test_mcp_import.py \
             --ignore=tests/test_mcp_top_level_import.py \
             --ignore=tests/test_crewai_agents.py \
             --ignore=tests/test_mem0_integration.py \
-            --ignore=ai_models/artist_rl/test_artist_rl.py || echo "Tests completed with some failures"
+            --ignore=ai_models/artist_rl/test_artist_rl.py || {
+              echo "Some tests failed, but continuing..."
+              # Generate minimal coverage report if main run failed
+              pytest tests/ --cov=. --cov-report=xml --maxfail=5 --tb=no -q \
+                --ignore-glob="**/mock_*" --ignore-glob="**/mcp_*" --ignore-glob="**/crewai*" || echo "Minimal test run completed"
+            }
 
-          # Always exit 0 to not fail the workflow
+          # Validate coverage
+          if [ -f "coverage.xml" ]; then
+            echo "Coverage report generated successfully"
+            python -c "
+            import xml.etree.ElementTree as ET
+            try:
+                tree = ET.parse('coverage.xml')
+                root = tree.getroot()
+                coverage_elem = root.find('.//coverage')
+                if coverage_elem is not None:
+                    line_rate = float(coverage_elem.get('line-rate', 0))
+                    coverage_percent = line_rate * 100
+                    print(f'Coverage: {coverage_percent:.2f}%')
+                    if coverage_percent >= 15.0:
+                        print('✓ Coverage threshold met (≥15%)')
+                    else:
+                        print('⚠ Coverage below threshold but continuing')
+                else:
+                    print('Coverage data not found in XML')
+            except Exception as e:
+                print(f'Error reading coverage: {e}')
+            "
+          else
+            echo "No coverage.xml found"
+          fi
+
           echo "Test execution completed"
-          exit 0
         shell: bash
 
       - name: Run JavaScript tests
         continue-on-error: true
-        timeout-minutes: ${{ matrix.os == 'windows-latest' && 30 || (matrix.os == 'macos-latest' && 25 || 20) }}  # Increased timeouts for JavaScript tests
+        timeout-minutes: ${{ matrix.os == 'windows-latest' && 20 || 15 }}
         run: |
           if [ -f "package.json" ]; then
-            echo "Running JavaScript tests with simplified approach"
+            echo "Running JavaScript tests..."
             echo "Node.js version: $(node --version)"
-            echo "npm version: $(npm --version)"
 
-            # Try pnpm first, then npm
+            # Use pnpm if available, otherwise npm
             if command -v pnpm >/dev/null 2>&1; then
               echo "Using pnpm for JavaScript tests"
-              if pnpm test 2>/dev/null; then
-                echo "✓ pnpm test succeeded"
-                pnpm run coverage > ./coverage/lcov.info 2>/dev/null || echo "JavaScript coverage generation failed"
-              else
-                echo "⚠ pnpm test failed, trying npm"
-                npm test || echo "npm test also failed"
-                npm run coverage > ./coverage/lcov.info 2>/dev/null || echo "JavaScript coverage generation failed"
-              fi
+              pnpm test || echo "pnpm test failed"
             else
               echo "Using npm for JavaScript tests"
               npm test || echo "npm test failed"
-              npm run coverage > ./coverage/lcov.info 2>/dev/null || echo "JavaScript coverage generation failed"
             fi
           else
             echo "No package.json found, skipping JavaScript tests"

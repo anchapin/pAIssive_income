@@ -122,17 +122,8 @@ Module-specific deep dives are in [docs/02_developer_guide/06_module_deep_dives/
 
 ## 🔒 Security
 
-**Security Status**: ✅ **SECURE** - All CodeQL security alerts resolved (June 2025)
-
 Security policy, reporting, and compliance:
 [docs/04_security_and_compliance/01_security_overview.md](docs/04_security_and_compliance/01_security_overview.md)
-
-**Recent Security Improvements (June 2025)**:
-- ✅ **Zero Security Alerts**: All 9 CodeQL security vulnerabilities resolved
-- ✅ **Hardcoded Secrets Removed**: Eliminated hardcoded credentials from audit modules
-- ✅ **Secure Logging**: Enhanced logging to prevent sensitive data exposure
-- ✅ **Comprehensive Scanning**: Automated security scanning with Bandit, Safety, CodeQL, and more
-
 Historical fixes and audit notes: [docs/09_archive_and_notes/security_fixes_summaries.md](docs/09_archive_and_notes/security_fixes_summaries.md)
 
 ---
@@ -396,8 +387,6 @@ See [Security Policy](SECURITY.md) and [Security Overview](docs/04_security_and_
 
 ## Vulnerability Scanning
 
-**Current Status**: ✅ **ALL SCANS PASSING** (as of June 2025)
-
 - Comprehensive security scanning runs automatically on pushes and pull requests via the consolidated CI/CD workflow:
   - **Python Dependencies**: `pip-audit`, `safety` for known vulnerability detection
   - **Node.js Dependencies**: `npm audit` for JavaScript package vulnerabilities
@@ -408,12 +397,15 @@ See [Security Policy](SECURITY.md) and [Security Overview](docs/04_security_and_
 - **Enhanced Security Infrastructure**: Automated fallback file creation prevents workflow failures
 - **SARIF Integration**: Security reports are uploaded to GitHub Security tab for centralized monitoring
 - **Cross-Platform Support**: Security scanning optimized for Ubuntu, Windows, and macOS environments
+- **Local Testing Support**: Use the `act` tool for local workflow testing and validation
 
-**Recent Security Achievements**:
-- ✅ **CodeQL**: 0 security alerts (previously 9 high/medium alerts)
-- ✅ **Bandit**: 0 security issues in Python code
-- ✅ **Safety**: 0 known vulnerabilities in Python dependencies
-- ✅ **Comprehensive Coverage**: All security tools integrated and passing
+## Workflow Testing and Local Development
+
+- **Local Testing**: Use the `act` tool to test GitHub Actions workflows locally before pushing changes
+- **Direct Command Testing**: Run linting, testing, and security scans directly for comprehensive validation
+- **Enhanced CI Wrapper**: Optimized test execution with intelligent exclusions and fallback strategies
+- **Mock Module Management**: Automatic creation of mock modules for problematic dependencies
+- **Comprehensive Documentation**: Detailed guides for workflow testing and troubleshooting
 
 ## GitHub Actions Secrets
 

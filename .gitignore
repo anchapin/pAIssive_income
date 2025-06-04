@@ -119,6 +119,16 @@ coverage.xml
 htmlcov/
 create_bandit_files.sh
 
+# Temporary and Generated Files
+commit_message.txt
+logger_issues_report.txt
+mypy_errors_summary.txt
+mypy_typing_report.txt
+test_output.txt
+tatus
+sues.py
+verification_results.md
+
 # Test coverage reports
 coverage/
 coverage*/
