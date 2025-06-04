@@ -140,7 +140,7 @@ export const AgentUI = ({ agent, theme, onAction }) => {
         <button
           style={styles.expandButton}
           onClick={() => setExpanded(!expanded)}
-          aria-label={expanded ? 'Collapse' : 'Expand'}
+          aria-label={expanded ? "Collapse" : "Expand"}
         >
           {expanded ? '▲' : '▼'}
         </button>
@@ -218,4 +218,4 @@ export const AgentUI = ({ agent, theme, onAction }) => {
   );
 };
 
-export default { AgentUI };
+export default AgentUI;

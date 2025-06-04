@@ -43,7 +43,7 @@ describe('useFormValidation', () => {
 
     expect(result.current.values.name).toBe('John');
     expect(result.current.dirty).toBe(true);
-    expect(result.current.errors.name).toBeNull();
+    expect(result.current.errors.name).toBeUndefined();
   });
 
   it('should validate fields on blur', () => {

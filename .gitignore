@@ -129,6 +129,15 @@ tatus
 sues.py
 verification_results.md
 
+# New patterns identified
+bandit_results.txt
+bandit-report.json
+lint_baseline.json
+ruff_typing_report.json
+requirements_logs/
+uv.lock
+pnpm-lock.yaml
+
 # Test coverage reports
 coverage/
 coverage*/

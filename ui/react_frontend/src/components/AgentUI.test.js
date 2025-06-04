@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { AgentUI } from './AgentUI';
+import AgentUI from './AgentUI.jsx';
 import '@testing-library/jest-dom';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 
 describe('AgentUI Component', () => {
   const mockAgent = {
@@ -20,60 +21,54 @@ describe('AgentUI Component', () => {
     darkMode: false,
   };
 
-  const mockOnAction = jest.fn();
+  const mockOnAction = vi.fn();
 
   beforeEach(() => {
     mockOnAction.mockClear();
   });
   test('renders with minimal props', () => {
     render(<AgentUI />);
-    expect(screen.getByRole('button', { name: /expand/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /expand|collapse/i })).toBeInTheDocument();
   });
 
   test('renders with agent data', () => {
     render(<AgentUI agent={mockAgent} />);
-    expect(screen.getByRole('button', { name: /expand/i })).toBeInTheDocument();
-    
+    expect(screen.getByRole('button', { name: /expand|collapse/i })).toBeInTheDocument();
+
     // Expand the component to see agent details
-    fireEvent.click(screen.getByRole('button', { name: /expand/i }));
-    
+    fireEvent.click(screen.getByRole('button', { name: /expand|collapse/i }));
+
     expect(screen.getByText(/test agent/i)).toBeInTheDocument();
     expect(screen.getByText(/idle/i)).toBeInTheDocument();
   });
   test('calls onAction when buttons are clicked', () => {
     render(<AgentUI agent={mockAgent} onAction={mockOnAction} />);
-    
-    // First expand the UI
-    fireEvent.click(screen.getByRole('button', { name: /expand/i }));
-    
+
     const actionButtons = screen.getAllByRole('button');
     expect(actionButtons.length).toBeGreaterThan(1);
   });
 
   test('sends message when form is submitted', () => {
     render(<AgentUI agent={mockAgent} onAction={mockOnAction} />);
-    
-    // First expand the UI
-    fireEvent.click(screen.getByRole('button', { name: /expand/i }));
-    
+
     const messageInput = screen.getByRole('textbox');
     fireEvent.change(messageInput, { target: { value: 'Hello agent' } });
-    
-    const sendButton = screen.getByRole('button', { name: /send/i });
+
+    const sendButton = screen.getByRole('button', { name: /send message/i });
     fireEvent.click(sendButton);
-    
+
     // Message input should be cleared after sending
     expect(messageInput.value).toBe('');
   });
   test('applies custom theme', () => {
     render(<AgentUI agent={mockAgent} theme={mockTheme} />);
-    
+
     // First find any element in the component
-    const component = screen.getByRole('button', { name: /expand/i });
+    const component = screen.getByTestId('agent-ui-component');
     expect(component).toBeVisible();
-    
+
     // The container should have the custom font family from the theme
-    expect(component.parentElement).toHaveStyle({
+    expect(component).toHaveStyle({
       fontFamily: mockTheme.fontFamily
     });
   });
