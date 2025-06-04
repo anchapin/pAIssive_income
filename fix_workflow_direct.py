@@ -1,4 +1,13 @@
-name: Test Setup Script (Simplified)
+#!/usr/bin/env python3
+
+import os
+
+# Define the paths
+source_path = "c:/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/test-setup-script-fixed.yml"
+target_path = "c:/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/.github/workflows/archive/test-setup-script-simplified.yml"
+
+# Define the fixed YAML content
+content = """name: Test Setup Script (Simplified)
 on:
   workflow_call:
   push:
@@ -25,11 +34,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ''3.12''
+        python-version: '3.12'
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ''20''
+        node-version: '20'
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
@@ -46,13 +55,13 @@ jobs:
         pnpm install --no-optional || npm install --no-optional || echo "Install completed with issues"
     - name: Run basic tests
       run: |
-        echo "✅ Python setup completed"
+        echo "\\u2705 Python setup completed"
         python --version
-        echo "✅ Node.js setup completed"
+        echo "\\u2705 Node.js setup completed"
         node --version
-        echo "✅ pnpm setup completed"
+        echo "\\u2705 pnpm setup completed"
         pnpm --version
-        echo "✅ Basic test setup completed successfully"
+        echo "\\u2705 Basic test setup completed successfully"
   test-windows:
     name: Test on Windows
     runs-on: windows-latest
@@ -63,11 +72,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ''3.12''
+        python-version: '3.12'
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ''20''
+        node-version: '20'
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
@@ -90,13 +99,13 @@ jobs:
     - name: Run basic tests
       shell: pwsh
       run: |
-        Write-Host "✅ Python setup completed"
+        Write-Host "\\u2705 Python setup completed"
         python --version
-        Write-Host "✅ Node.js setup completed"
+        Write-Host "\\u2705 Node.js setup completed"
         node --version
-        Write-Host "✅ pnpm setup completed"
+        Write-Host "\\u2705 pnpm setup completed"
         pnpm --version
-        Write-Host "✅ Basic test setup completed successfully"
+        Write-Host "\\u2705 Basic test setup completed successfully"
   test-macos:
     name: Test on macOS
     runs-on: macos-latest
@@ -107,11 +116,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ''3.12''
+        python-version: '3.12'
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ''20''
+        node-version: '20'
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
@@ -128,10 +137,25 @@ jobs:
         pnpm install --no-optional || npm install --no-optional || echo "Install completed with issues"
     - name: Run basic tests
       run: |
-        echo "✅ Python setup completed"
+        echo "\\u2705 Python setup completed"
         python --version
-        echo "✅ Node.js setup completed"
+        echo "\\u2705 Node.js setup completed"
         node --version
-        echo "✅ pnpm setup completed"
+        echo "\\u2705 pnpm setup completed"
         pnpm --version
-        echo "✅ Basic test setup completed successfully"
+        echo "\\u2705 Basic test setup completed successfully"
+"""
+
+# Write the fixed content to the target file
+try:
+    # Create directory structure if needed
+    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+    
+    # Write the fixed content
+    with open(target_path, 'w') as f:
+        f.write(content)
+    
+    print(f"Successfully fixed and wrote to {target_path}")
+    
+except Exception as e:
+    print(f"Error: {e}")
