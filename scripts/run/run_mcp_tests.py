@@ -123,10 +123,9 @@ def _ensure_mcp_module_exists() -> None:
             if "modelcontextprotocol.__spec__ is None" in str(e):
                 logger.info("Mock module already exists but has None __spec__, continuing...")
                 return
-            else:
-                logger.warning("ValueError checking for modelcontextprotocol module: %s", e)
-                create_mock_mcp_module()
-                return
+            logger.warning("ValueError checking for modelcontextprotocol module: %s", e)
+            create_mock_mcp_module()
+            return
 
         # Verify the module was created successfully by trying to import it
         try:
