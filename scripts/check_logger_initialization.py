@@ -4,16 +4,17 @@ Logger initialization checker script.
 Validates Python files for proper logger setup patterns.
 """
 
+from __future__ import annotations
+
 import ast
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 
 class LoggerChecker(ast.NodeVisitor):
-    def __init__(self, filename: str):
+    def __init__(self, filename: str) -> None:
         self.filename = filename
-        self.issues: List[Tuple[str, int, str]] = []
+        self.issues: list[tuple[str, int, str]] = []
         self.has_logging_import = False
         self.has_logger_init = False
         self.has_exception_handling = False
@@ -24,7 +25,7 @@ class LoggerChecker(ast.NodeVisitor):
         self.first_import_line = None
         self.last_import_line = None
 
-    def visit_Import(self, node):
+    def visit_Import(self, node: ast.Import) -> None:
         if self.first_import_line is None:
             self.first_import_line = node.lineno
         self.last_import_line = node.lineno
@@ -51,46 +52,37 @@ class LoggerChecker(ast.NodeVisitor):
                     self.has_third_party_imports = True
         self.generic_visit(node)
 
-    def visit_ImportFrom(self, node):
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        """Visit ImportFrom nodes to check for logging and third-party imports."""
         if self.first_import_line is None:
             self.first_import_line = node.lineno
         self.last_import_line = node.lineno
 
         if node.module == "logging":
             self.has_logging_import = True
-        elif node.module and not node.module.startswith("."):
+        elif (node.module and not node.module.startswith(".") and
+              node.module.split(".")[0] not in [
+                  "os", "sys", "json", "time", "datetime", "re", "math",
+                  "random", "collections", "itertools", "functools", "typing",
+              ]):
             # Check for third-party imports
-            if node.module.split(".")[0] not in [
-                "os",
-                "sys",
-                "json",
-                "time",
-                "datetime",
-                "re",
-                "math",
-                "random",
-                "collections",
-                "itertools",
-                "functools",
-                "typing",
-            ]:
-                self.has_third_party_imports = True
+            self.has_third_party_imports = True
         self.generic_visit(node)
 
-    def visit_Assign(self, node):
+    def visit_assign(self, node: ast.Assign) -> None:
+        """Check for logger initialization patterns."""
         # Check for logger initialization patterns
-        if isinstance(node.value, ast.Call):
-            if (
-                isinstance(node.value.func, ast.Attribute)
-                and isinstance(node.value.func.value, ast.Name)
-                and node.value.func.value.id == "logging"
-                and node.value.func.attr == "getLogger"
-            ):
-                self.has_logger_init = True
-                self.logger_init_line = node.lineno
+        if (isinstance(node.value, ast.Call) and
+            isinstance(node.value.func, ast.Attribute) and
+            isinstance(node.value.func.value, ast.Name) and
+            node.value.func.value.id == "logging" and
+            node.value.func.attr == "getLogger"):
+            self.has_logger_init = True
+            self.logger_init_line = node.lineno
         self.generic_visit(node)
 
-    def visit_Try(self, node):
+    def visit_try(self, node: ast.Try) -> None:
+        """Check for exception handling patterns."""
         self.has_exception_handling = True
 
         # Check if this is around imports
@@ -113,7 +105,8 @@ class LoggerChecker(ast.NodeVisitor):
                     self.has_logger_exception = True
         self.generic_visit(node)
 
-    def check_issues(self):
+    def check_issues(self) -> None:
+        """Check for logger initialization issues."""
         # Check if logger is initialized too late
         if (
             self.has_logger_init
@@ -164,23 +157,24 @@ class LoggerChecker(ast.NodeVisitor):
             )
 
 
-def check_file(filepath: Path) -> List[Tuple[str, int, str]]:
+def check_file(filepath: Path) -> list[tuple[str, int, str]]:
     """Check a single Python file for logger initialization issues."""
     try:
-        with open(filepath, encoding="utf-8") as f:
+        with filepath.open(encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content, filename=str(filepath))
         checker = LoggerChecker(str(filepath))
         checker.visit(tree)
         checker.check_issues()
-        return checker.issues
     except (SyntaxError, UnicodeDecodeError) as e:
         return [("PARSE_ERROR", 1, f"Failed to parse file: {e}")]
+    else:
+        return checker.issues
 
 
-def main():
-    """Main function to check all Python files in the repository."""
+def main() -> None:
+    """Check all Python files in the repository for logger initialization issues."""
     root_dir = Path()
     python_files = list(root_dir.rglob("*.py"))
 
