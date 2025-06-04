@@ -255,3 +255,7 @@ mypy_stubs/psycopg2/
 .nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json
+
+# Ignore staged files
+*.staged
+how*
