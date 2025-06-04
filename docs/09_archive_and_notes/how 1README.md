@@ -12,22 +12,35 @@
 [32m++<<<<<<< HEAD[m
 [32m +## 1. Install Dev Dependencies (including pytest-xdist)[m
 [32m++=======[m
-[32m+ > **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, contribution information, and UI architecture ([docs/ui-architecture.md](docs/ui-architecture.md)).[m
+[32m+ > **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding,
+development,
+deployment,
+security,
+contribution information,
+and UI architecture ([docs/ui-architecture.md](docs/ui-architecture.md)).[m
 [32m++>>>>>>> origin/main[m
   [m
 [31m ----[m
-[32m +To enable parallel test execution and all developer/testing features, install the dev dependencies using [uv](https://github.com/astral-sh/uv):[m
+[32m +To enable parallel test execution and all developer/testing features,
+install the dev dependencies using [uv](https://github.com/astral-sh/uv):[m
   [m
 [31m -## TL;DR Quickstart[m
 [32m +```sh[m
 [32m +uv pip install -e .[dev][m
 [32m +```[m
-[32m +This will install `pytest`, `pytest-xdist`, and all plugins required for advanced testing.[m
+[32m +This will install `pytest`,
+`pytest-xdist`,
+and all plugins required for advanced testing.[m
   [m
 [31m -> **Tooling Requirement:**[m
 [31m -> - **Python:** Use [`uv`](https://github.com/astral-sh/uv) for all dependency/environment management.[m
 [31m -> - **Node.js:** Use [`pnpm`](https://pnpm.io/) for all JavaScript/TypeScript dependencies and scripts.[m
-[31m -> - Do **NOT** use `pip`, `venv`, `npm`, or `yarn` for development, testing, or CI.[m
+[31m -> - Do **NOT** use `pip`,
+`venv`,
+`npm`,
+or `yarn` for development,
+testing,
+or CI.[m
 [32m +## 2. Run Tests in Parallel (recommended)[m
   [m
 [31m -1. **Clone the repo and enter it:**[m
@@ -40,7 +53,8 @@
 [32m +```sh[m
 [32m +pytest -n auto[m
 [32m +```[m
-[32m +By default, `-n auto` uses all available CPU cores. You can override with e.g. `pytest -n 4` to use 4 workers.[m
+[32m +By default,
+`-n auto` uses all available CPU cores. You can override with e.g. `pytest -n 4` to use 4 workers.[m
   [m
 [31m -2. **Install `uv` (if not already installed):**[m
 [31m -   `uv` is a fast Python package installer and resolver, written in Rust.[m
@@ -61,7 +75,10 @@
 [31m -   Ensure `uv` is in your PATH.[m
 [32m +To run only the slow tests:[m
   [m
-[31m -3. **Set up development environment (Python, dependencies, pre-commit hooks, IDE config):**[m
+[31m -3. **Set up development environment (Python,
+dependencies,
+pre-commit hooks,
+IDE config):**[m
 [31m -   (Requires Python 3.8+ and `uv`)[m
 [32m +```sh[m
 [32m +pytest -m "slow"[m
@@ -111,7 +128,9 @@
 [32m++<<<<<<< HEAD[m
 [32m +Test collection is limited to the `tests/` directory for speed.[m
 [32m++=======[m
-[32m+ 4. **Start PostgreSQL database, application, and frontend with Docker Compose:**[m
+[32m+ 4. **Start PostgreSQL database,
+application,
+and frontend with Docker Compose:**[m
 [32m+    ```bash[m
 [32m+    # Using Docker Compose plugin[m
 [32m+    docker compose up --build[m
@@ -119,9 +138,12 @@
 [32m+    # Or using standalone Docker Compose[m
 [32m+    docker-compose up --build[m
 [32m+    ```[m
-[32m+    This will launch the Flask backend, React frontend with ag-ui integration, and PostgreSQL database.[m
+[32m+    This will launch the Flask backend,
+React frontend with ag-ui integration,
+and PostgreSQL database.[m
 [32m+ [m
-[32m+    For more details on the Docker Compose integration, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).[m
+[32m+    For more details on the Docker Compose integration,
+see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).[m
 [32m++>>>>>>> origin/main[m
   [m
 [31m -5. **Initialize the database (first time only):**[m
@@ -140,7 +162,8 @@
 [31m -   > ```bash[m
 [31m -   > corepack enable[m
 [31m -   > ```[m
-[31m -   > If Corepack is not available, you may bootstrap pnpm with npm (for this step only):[m
+[31m -   > If Corepack is not available,
+you may bootstrap pnpm with npm (for this step only):[m
 [31m -   > ```bash[m
 [31m -   > npm install -g pnpm[m
 [31m -   > ```[m
@@ -151,7 +174,8 @@
 [31m -   pnpm start[m
 [31m -   ```[m
 [31m -[m
-[31m -   If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).[m
+[31m -   If your browser doesn't open,
+visit [http://localhost:3000](http://localhost:3000).[m
 [31m -[m
 [31m -7. **Run all tests (unit, integration, frontend):**[m
 [31m -   See the "Running Tests" section below.[m
@@ -160,7 +184,8 @@
 [31m -[m
 [31m -## Database Setup and Migration[m
 [31m -[m
-[31m -This project now uses PostgreSQL as the main database, managed via Docker Compose.[m
+[31m -This project now uses PostgreSQL as the main database,
+managed via Docker Compose.[m
 [32m +## 6. Mock External Calls for Speed[m
   [m
 [31m -- The backend Flask app is preconfigured to connect to the database using the environment variable `DATABASE_URL`.[m
@@ -189,8 +214,11 @@
 [31m -[m
 [31m -### Example Models and Usage[m
 [31m -[m
-[31m -ORM models are provided for **User**, **Team**, and **Agent** entities in `flask/models.py`. You can now persist and query these entities using SQLAlchemy:[m
-[32m +Mock out network/database/API calls in your tests to keep them fast and reliable. This avoids actual external calls during testing, which can significantly speed up your test suite.[m
+[31m -ORM models are provided for **User**,
+**Team**,
+and **Agent** entities in `flask/models.py`. You can now persist and query these entities using SQLAlchemy:[m
+[32m +Mock out network/database/API calls in your tests to keep them fast and reliable. This avoids actual external calls during testing,
+which can significantly speed up your test suite.[m
   [m
 [32m +Example:[m
   ```python[m
@@ -219,7 +247,9 @@
 [31m -## Overview[m
 [31m -[m
 [31m -- **Dependency Locking (Python):**[m
-[31m -  This project uses a `requirements.lock` file to ensure reproducible environments. After updating dependencies, **install both `requirements.txt` and `requirements-dev.txt`** using `uv`, then regenerate the lockfile:[m
+[31m -  This project uses a `requirements.lock` file to ensure reproducible environments. After updating dependencies,
+**install both `requirements.txt` and `requirements-dev.txt`** using `uv`,
+then regenerate the lockfile:[m
 [31m -  ```sh[m
 [31m -  uv pip install -r requirements.txt[m
 [31m -  uv pip install -r requirements-dev.txt[m
@@ -239,7 +269,11 @@
 [31m -[m
 [31m -## Automated Dependency Updates[m
 [31m -[m
-[31m -- [Dependabot](https://docs.github.com/en/code-security/dependabot) is enabled for Python, Node.js, Docker, and GitHub Actions dependencies. Update PRs are created automatically, including for the Python lockfile (`requirements.lock`).[m
+[31m -- [Dependabot](https://docs.github.com/en/code-security/dependabot) is enabled for Python,
+Node.js,
+Docker,
+and GitHub Actions dependencies. Update PRs are created automatically,
+including for the Python lockfile (`requirements.lock`).[m
 [31m -[m
 [31m -## Vulnerability Scanning[m
 [31m -[m
@@ -267,13 +301,19 @@
 [31m -[m
 [31m -## Keeping Dependencies Healthy[m
 [31m -[m
-[31m -- When adding or removing Python dependencies, update both `requirements.txt`/`requirements-dev.txt` and **regenerate `requirements.lock`** using `uv`.[m
-[31m -- For Node.js, always use `pnpm install` for installation and let Dependabot update `pnpm-lock.yaml`.[m
+[31m -- When adding or removing Python dependencies,
+update both `requirements.txt`/`requirements-dev.txt` and **regenerate `requirements.lock`** using `uv`.[m
+[31m -- For Node.js,
+always use `pnpm install` for installation and let Dependabot update `pnpm-lock.yaml`.[m
 [31m -- Review and merge Dependabot PRs and address security alerts promptly.[m
 [31m -[m
 [31m -## Dependency Upgrade and Removal Workflow[m
 [31m -[m
-[31m -This repository contains a summary of the project and high-level information. The main onboarding guide, including development setup, installation, and usage details, is maintained in the documentation directory for consistency and easier updates.[m
+[31m -This repository contains a summary of the project and high-level information. The main onboarding guide,
+including development setup,
+installation,
+and usage details,
+is maintained in the documentation directory for consistency and easier updates.[m
 [31m -[m
 [31m -If you are new to this project, start here:[m
 [31m -[m
@@ -295,7 +335,10 @@
 [31m -> **Summary:**[m
 [31m -> - Use **`uv`** for all Python dependency and environment management.[m
 [31m -> - Use **`pnpm`** for all Node.js/JavaScript/TypeScript dependencies and scripts.[m
-[31m -> - Do **not** use `pip`, `venv`, `npm`, or `yarn` for any development or CI/CD steps.[m
+[31m -> - Do **not** use `pip`,
+`venv`,
+`npm`,
+or `yarn` for any development or CI/CD steps.[m
 [31m -> - For any questions, see the top of this document or ask a maintainer.[m
 [31m -[m
 [31m ----[m
@@ -316,7 +359,8 @@
 [31m -[m
 [31m -### Frontend End-to-End (E2E) Tests[m
 [31m -[m
-[31m -> **Requires:** Node.js 16.10+ and [pnpm](https://pnpm.io/), and the UI dev server running at `http://localhost:3000`[m
+[31m -> **Requires:** Node.js 16.10+ and [pnpm](https://pnpm.io/),
+and the UI dev server running at `http://localhost:3000`[m
 [31m -[m
 [31m -1. Install Playwright and its browsers (first time only):[m
 [31m -[m
@@ -358,10 +402,12 @@
 [31m -- Python 3.8+[m
 [31m -- [`uv`](https://github.com/astral-sh/uv) (Python package installer and resolver; **required for all Python environments/dependencies**)[m
 [31m -  - Install via: `curl -LsSf https://astral.sh/uv/install.sh | sh`[m
-[31m -  - If `curl` is unavailable, you may use `pip install uv` ONLY for initial installation.[m
+[31m -  - If `curl` is unavailable,
+you may use `pip install uv` ONLY for initial installation.[m
 [31m -- Node.js 16.10+ (**required for modern UI and frontend tests**)[m
 [31m -- [`pnpm`](https://pnpm.io/) (**required for all Node.js/JavaScript/TypeScript dependencies**)[m
-[31m -  - To install pnpm, use [Corepack](https://nodejs.org/api/corepack.html) (recommended; included with Node.js v16.10+):[m
+[31m -  - To install pnpm,
+use [Corepack](https://nodejs.org/api/corepack.html) (recommended; included with Node.js v16.10+):[m
 [31m -    ```bash[m
 [31m -    corepack enable[m
 [31m -    ```[m
@@ -369,7 +415,8 @@
 [31m -    ```bash[m
 [31m -    npm install -g pnpm[m
 [31m -    ```[m
-[31m -    > **Note:** Use npm only for this initial installation of pnpm. For all other package management tasks, use pnpm.[m
+[31m -    > **Note:** Use npm only for this initial installation of pnpm. For all other package management tasks,
+use pnpm.[m
 [31m -    > Refer to the [Corepack documentation](https://nodejs.org/api/corepack.html) for more details on managing package managers in Node.js.[m
 [31m -[m
 [31m -- PostgreSQL 15+ (for database)[m
@@ -383,7 +430,9 @@
 [31m -[m
 [31m -### IDE Setup[m
 [31m -[m
-[31m -We recommend configuring your IDE or editor to use Ruff as the primary formatter for a smooth development experience. Configuration files are provided for VS Code, PyCharm, and other editors.[m
+[31m -We recommend configuring your IDE or editor to use Ruff as the primary formatter for a smooth development experience. Configuration files are provided for VS Code,
+PyCharm,
+and other editors.[m
 [31m -[m
 [31m -See the [IDE Setup Guide](docs/ide_setup.md) for detailed instructions on configuring your development environment.[m
 [31m -[m
@@ -413,7 +462,8 @@
 [31m -[m
 [31m -### Using Pre-commit Hooks[m
 [31m -[m
-[31m -The project uses pre-commit hooks to automatically check and fix common issues. The hooks are installed automatically when setting up the development environment, but you can also install them manually:[m
+[31m -The project uses pre-commit hooks to automatically check and fix common issues. The hooks are installed automatically when setting up the development environment,
+but you can also install them manually:[m
 [31m -[m
 [31m -```bash[m
 [31m -uv pip install pre-commit[m
@@ -456,7 +506,12 @@
 [31m -### Unified Workflow (Recommended)[m
 [32m +The project uses various pytest markers to categorize tests:[m
   [m
-[31m -We now provide a **unified entrypoint** for all code quality, linting, formatting, syntax, docstring, and security tasks.[m
+[31m -We now provide a **unified entrypoint** for all code quality,
+linting,
+formatting,
+syntax,
+docstring,
+and security tasks.[m
 [32m +- `@pytest.mark.unit`: Unit tests for individual components[m
 [32m +- `@pytest.mark.integration`: Tests for interactions between components[m
 [32m +- `@pytest.mark.slow`: Tests that take more than 1 second to run[m

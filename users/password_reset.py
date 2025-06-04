@@ -11,36 +11,48 @@ import hashlib
 import secrets
 import string
 import time
-from datetime import datetime, timedelta
-from typing import TypeAlias
+from datetime import datetime, timedelta, timezone
+from typing import Any, Final, Protocol, TypeAlias, TypedDict, cast
 
 from common_utils.logging import get_logger
 from users.auth import hash_credential
 
 # Type aliases
 ResetResult: TypeAlias = tuple[bool, str | None]
-UserDict: TypeAlias = dict[str, str | None | int]
 
 
-# Define a proper interface for UserRepository
-class UserRepository:
+class UserData(TypedDict):
+    """Type definition for user data dictionary."""
+
+    id: int
+    email: str | None
+    reset_token: str | None
+    reset_expires: float | None
+    password_hash: str | None
+
+
+UserDict: TypeAlias = UserData
+
+
+# Define a proper interface for UserRepository using Protocol
+class UserRepository(Protocol):
     """Interface for user repository operations."""
 
     def find_by_email(self, email: str) -> UserDict | None:
         """Find a user by email."""
-        raise NotImplementedError
+        ...
 
     def find_by_reset_token(self, token: str) -> UserDict | None:
         """Find a user by reset token."""
-        raise NotImplementedError
+        ...
 
-    def update(self, user_id: int, data: dict) -> bool:
+    def update(self, user_id: int, data: dict[str, Any]) -> bool:
         """Update a user."""
-        raise NotImplementedError
+        ...
 
 
 # Initialize logger
-logger = get_logger(__name__)
+logger: Final = get_logger(__name__)
 
 
 def generate_reset_code(length: int = 32) -> str:
@@ -48,11 +60,9 @@ def generate_reset_code(length: int = 32) -> str:
     Generate a secure random code for authentication credential reset.
 
     Args:
-    ----
         length: Length of the code
 
     Returns:
-    -------
         str: The generated code
 
     """
@@ -72,25 +82,22 @@ class PasswordResetService:
         Initialize the credential reset service.
 
         Args:
-        ----
             user_repository: Repository for user data
             code_expiry: Expiry time for reset codes in seconds
 
         """
-        self.user_repository = user_repository
-        self.code_expiry = code_expiry or 3600  # 1 hour default
+        self.user_repository: UserRepository | None = user_repository
+        self.code_expiry: int = code_expiry or 3600  # 1 hour default
 
     def request_reset(self, email: str) -> ResetResult:
         """
         Request an authentication credential reset.
 
         Args:
-        ----
             email: Email of the user
 
         Returns:
-        -------
-            Tuple[bool, Optional[str]]: (success, masked_code)
+            tuple[bool, str | None]: A tuple of (success, masked_code)
 
         """
         if not self.user_repository:
@@ -99,118 +106,121 @@ class PasswordResetService:
 
         # Find the user
         user: UserDict | None = self.user_repository.find_by_email(email)
-        if not user:
-            # Don't reveal whether email exists or not for security
-            logger.info(
-                "Authentication reset requested for unregistered email",
-                extra={"email_hash": hash(email) % 10000},
-            )
-            # Simulate the time it would take to process a valid request
-            # to prevent timing attacks that could reveal if an email exists
-            time.sleep(0.2)  # 200ms delay
-            return False, None
 
-        # Generate a secure reset code with high entropy
-        reset_code = generate_reset_code(48)  # Use longer code for better security
-        expiry = datetime.now(tz=datetime.timezone.utc) + timedelta(
+        if not user:
+            logger.warning("Reset requested for non-existent email: %s", email)
+            # Return success to avoid leaking user existence
+            return True, None
+
+        # Generate reset code
+        reset_code: str = generate_reset_code()
+        reset_token: str = hashlib.sha256(reset_code.encode()).hexdigest()
+        reset_expires: datetime = datetime.now(tz=timezone.utc) + timedelta(
             seconds=self.code_expiry
         )
 
-        # Hash the reset token before storing it
-        # This prevents exposure in case of DB breach
-        hashed_reset_token = hashlib.sha256(reset_code.encode()).hexdigest()
-
-        # Update the user with the hashed reset code
-        # Ensure user ID is an integer
-        user_id = int(user["id"]) if user["id"] is not None else 0
-        self.user_repository.update(
+        # Update user with reset token
+        user_id = cast("int", user["id"])
+        success: bool = self.user_repository.update(
             user_id,
             {
-                "auth_reset_token": hashed_reset_token,
-                "auth_reset_expires": expiry.isoformat(),
+                "reset_token": reset_token,
+                "reset_expires": reset_expires.timestamp(),
             },
         )
 
-        # Log with user ID but not the actual code
-        logger.info(
-            "Authentication reset initiated",
-            extra={
-                "user_id": user["id"],
-                "expiry": expiry.isoformat(),
-            },
-        )
+        if not success:
+            logger.error("Failed to save reset token for user: %s", user_id)
+            return False, None
 
-        # Mask the reset code for security in production
-        # Only return the first 2 characters and last 2 characters
-        # with asterisks in between
-        mask_length = len(reset_code) - 4
-        if reset_code:
-            masked_code = reset_code[:2] + "*" * mask_length + reset_code[-2:]
-        else:
-            masked_code = None
+        # Mask the reset code for logging
+        masked_code: str = reset_code[:4] + "*" * (len(reset_code) - 4)
+        logger.info("Reset code generated for user", extra={"user_id": user_id})
 
-        return True, masked_code  # Return masked code instead of actual code
+        return True, masked_code
 
-    def reset_auth_credential(self, reset_code: str, new_credential: str) -> bool:
+    def validate_reset(self, reset_code: str) -> tuple[bool, UserDict | None]:
         """
-        Reset an authentication credential using a reset code.
+        Validate a reset code.
 
         Args:
-        ----
-            reset_code: The reset code
-            new_credential: The new authentication credential
+            reset_code: The reset code to validate
 
         Returns:
-        -------
-            bool: True if the credential was reset, False otherwise
+            tuple[bool, UserDict | None]: A tuple of (is_valid, user_data)
 
         """
         if not self.user_repository:
             logger.error("User repository not available")
-            return False
+            return False, None
 
-        # Hash the provided reset code the same way we stored it
-        hashed_reset_token = hashlib.sha256(reset_code.encode()).hexdigest()
+        # Hash the provided code
+        reset_token: str = hashlib.sha256(reset_code.encode()).hexdigest()
 
-        # Find the user with the reset code hash
-        user: UserDict | None = self.user_repository.find_by_reset_token(
-            hashed_reset_token
-        )
+        # Find user by reset token
+        user: UserDict | None = self.user_repository.find_by_reset_token(reset_token)
+
         if not user:
-            # Don't reveal whether code exists
-            logger.warning(
-                "Authentication reset attempt with invalid code",
-                extra={"code_hash": hash(reset_code) % 10000},
-            )
-            return False
+            logger.warning("Invalid reset code attempt")
+            return False, None
 
-        # Check if the code is expired
-        if not user.get("auth_reset_expires"):
-            logger.warning("Reset code has no expiry", extra={"user_id": user["id"]})
-            return False
+        # Check if reset code has expired
+        reset_expires = user.get("reset_expires")
+        if reset_expires is None:
+            logger.warning("Reset code has no expiry time")
+            return False, None
 
-        expiry = datetime.fromisoformat(user["auth_reset_expires"])
-        if expiry < datetime.now(tz=datetime.timezone.utc):
-            logger.warning(
-                "Expired authentication reset attempt", extra={"user_id": user["id"]}
-            )
-            return False
+        expires_ts = float(reset_expires)
+        if time.time() > expires_ts:
+            user_id = cast("int", user["id"])
+            logger.warning("Expired reset code attempt for user: %s", user_id)
+            return False, None
+
+        return True, user
+
+    def complete_reset(
+        self, reset_code: str, new_credential: str
+    ) -> tuple[bool, str | None]:
+        """
+        Complete the authentication credential reset process.
+
+        Args:
+            reset_code: The reset code to validate
+            new_credential: The new authentication credential
+
+        Returns:
+            tuple[bool, str | None]: A tuple of (success, error_message)
+
+        """
+        if not self.user_repository:
+            logger.error("User repository not available")
+            return False, "Service unavailable"
+
+        # Validate the reset code first
+        is_valid, user = self.validate_reset(reset_code)
+
+        if not is_valid or not user:
+            return False, "Invalid or expired reset code"
 
         # Hash the new credential
-        hashed_credential = hash_credential(new_credential)
+        new_hash: str = hash_credential(new_credential)
 
-        # Update the user with the new credential
-        # Ensure user ID is an integer
-        user_id = int(user["id"]) if user["id"] is not None else 0
-        self.user_repository.update(
+        # Cast user id to int
+        user_id = cast("int", user["id"])
+
+        # Update the user's credential and clear reset token
+        success: bool = self.user_repository.update(
             user_id,
             {
-                "auth_hash": hashed_credential,
-                "auth_reset_token": None,
-                "auth_reset_expires": None,
-                "updated_at": datetime.now(tz=datetime.timezone.utc).isoformat(),
+                "password_hash": new_hash,
+                "reset_token": None,
+                "reset_expires": None,
             },
         )
 
-        logger.info("Authentication reset successful", extra={"user_id": user["id"]})
-        return True
+        if not success:
+            logger.error("Failed to update credential for user: %s", user_id)
+            return False, "Failed to update authentication credential"
+
+        logger.info("Credential reset successful", extra={"user_id": user_id})
+        return True, None

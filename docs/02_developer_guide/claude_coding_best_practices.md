@@ -1,11 +1,14 @@
 # Claude Agentic Coding Best Practices
 
-This repository aims to follow Anthropic Claude's agentic coding best practices for safe, reliable, and auditable automation.
+This repository aims to follow Anthropic Claude's agentic coding best practices for safe,
+reliable,
+and auditable automation.
 
 ## Core Principles
 
 1. **Explicit State and Input Handling**
-   - All agent state and input/output should be explicit, never hidden in globals or side effects.
+   - All agent state and input/output should be explicit,
+   never hidden in globals or side effects.
 
 2. **Modular Decomposition**
    - Decompose logic into small, focused, testable modules and functions.
@@ -20,7 +23,9 @@ This repository aims to follow Anthropic Claude's agentic coding best practices 
    - Actions should be safe to repeat; design for recovery from failures.
 
 6. **Human Oversight**
-   - Allow for human review/override at key junctures (e.g., dry run, confirmation prompts).
+   - Allow for human review/override at key junctures (e.g.,
+   dry run,
+   confirmation prompts).
 
 7. **Documentation**
    - Clearly document agent behaviors, expected inputs/outputs, and safety mechanisms.
@@ -49,4 +54,5 @@ This repository aims to follow Anthropic Claude's agentic coding best practices 
 - Use the checklist as part of your development workflow.
 - Raise issues or PRs for areas where the repo does not yet meet these standards.
 
-For more detail, see: https://www.anthropic.com/engineering/claude-code-best-practices?s=03
+For more detail,
+see: https://www.anthropic.com/engineering/claude-code-best-practices?s=03

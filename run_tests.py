@@ -26,7 +26,6 @@ logger = logging.getLogger(__name__)
 # Set to DEBUG for more verbose output
 logging.getLogger().setLevel(logging.INFO)
 
-
 # Maximum number of workers
 MAX_WORKERS = 12
 # Threshold: if test count > threshold, use MAX_WORKERS, else use 1
@@ -189,11 +188,11 @@ def count_tests(validated_args: list[str]) -> int:
                     # If parsing fails, continue with our manual count
                     pass
 
-        # If we somehow didn't find any tests but pytest is going to run tests,
-        # default to at least 1 test
+        # If we somehow didn't find any tests but pytest is going to run tests,        # default to at least 1 test
         if test_count == 0 and has_test_files:
             logger.warning(
-                "No tests found in collection output, but test files specified. Using default count."
+                "No tests found in collection output, "
+                "but test files specified. Using default count."
             )
             test_count = default_test_count
 
@@ -511,8 +510,7 @@ def main() -> None:
                 [sys.executable, "-c", "import pytest_xdist"],
                 check=False,
                 capture_output=True,
-                shell=False,  # Explicitly set shell=False for security
-                env=get_sanitized_env(),
+                shell=False,  # Explicitly set shell=False for security                env=get_sanitized_env(),
                 timeout=30,  # Short timeout for import check
             )
             xdist_available = xdist_check.returncode == 0
@@ -520,7 +518,8 @@ def main() -> None:
                 logger.info("pytest-xdist is available, parallel testing is enabled")
             else:
                 logger.warning(
-                    "pytest-xdist import check failed, will run tests without parallelization"
+                    "pytest-xdist import check failed, "
+                    "will run tests without parallelization"
                 )
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
             logger.warning(
@@ -577,13 +576,13 @@ def main() -> None:
             if result.stderr:
                 logger.error("Pytest stderr: %s", result.stderr)
     except subprocess.TimeoutExpired as timeout_error:
-        logger.error("Pytest execution timed out after 1 hour: %s", timeout_error)
+        logger.exception("Pytest execution timed out after 1 hour: %s", timeout_error)
         sys.exit(2)
     except subprocess.SubprocessError as subprocess_error:
-        logger.error("Error running pytest: %s", subprocess_error)
+        logger.exception("Error running pytest: %s", subprocess_error)
         sys.exit(1)
     except Exception as e:
-        logger.error("Unexpected error running pytest: %s", e)
+        logger.exception("Unexpected error running pytest: %s", e)
         sys.exit(1)
 
     # Exit with the same exit code as pytest

@@ -15,6 +15,8 @@ Message Types:
         Sends: 'summary_result' with payload {'summary': str}
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from typing import Optional
@@ -175,7 +177,9 @@ class SummarizerAgent(Agent):
             )
 
 
-def create_agents(use_memory: bool = False, user_id: Optional[str] = None) -> tuple[Agent, Agent]:
+def create_agents(
+    use_memory: bool = False, user_id: Optional[str] = None
+) -> tuple[Agent, Agent]:
     """
     Create and return a pair of agents, optionally using memory enhancement.
 
@@ -185,14 +189,17 @@ def create_agents(use_memory: bool = False, user_id: Optional[str] = None) -> tu
 
     Returns:
         A tuple containing (data_gatherer, summarizer) agents
+
     """
     if use_memory and MEM0_AVAILABLE:
         if not user_id:
             user_id = "default_user"
             logger.warning("No user_id provided, using 'default_user'")
 
-        logger.info(f"Creating memory-enhanced agents with user_id: {user_id}")
-        data_gatherer = MemoryEnhancedDataGathererAgent(name="data_gatherer", user_id=user_id)
+        logger.info("Creating memory-enhanced agents with user_id: %s", user_id)
+        data_gatherer = MemoryEnhancedDataGathererAgent(
+            name="data_gatherer", user_id=user_id
+        )
         summarizer = MemoryEnhancedSummarizerAgent(name="summarizer", user_id=user_id)
     else:
         if use_memory and not MEM0_AVAILABLE:
@@ -209,7 +216,7 @@ if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     # Check if mem0 is available
@@ -232,7 +239,7 @@ if __name__ == "__main__":
             sender="user",
             receiver="data_gatherer",
             type="gather",
-            payload={"query": "AI memory systems"}
+            payload={"query": "AI memory systems"},
         )
     )
 

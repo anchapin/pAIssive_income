@@ -4,7 +4,11 @@ This document explains the implementation of excluding files and directories lis
 
 ## Overview
 
-To maintain code quality and ensure that only relevant files are processed by our tests and scripts, we've implemented a system to exclude any files that are listed in `.gitignore`. This prevents unnecessary processing of files that aren't part of the project's version control, such as virtual environments, cache directories, and other ignored files.
+To maintain code quality and ensure that only relevant files are processed by our tests and scripts,
+we've implemented a system to exclude any files that are listed in `.gitignore`. This prevents unnecessary processing of files that aren't part of the project's version control,
+such as virtual environments,
+cache directories,
+and other ignored files.
 
 ## Implementation Details
 
@@ -28,7 +32,10 @@ Key changes:
 
 ### 3. CI Check: `verify_tracked_files.py`
 
-A new script, `verify_tracked_files.py`, has been added to check for any untracked or ignored Python files. This script will fail the CI process if any such files are found, ensuring that only tracked files are processed.
+A new script,
+`verify_tracked_files.py`,
+has been added to check for any untracked or ignored Python files. This script will fail the CI process if any such files are found,
+ensuring that only tracked files are processed.
 
 Key features:
 - Compares all discovered Python files against git-tracked files
@@ -49,9 +56,11 @@ This implementation provides several benefits:
 When working with this project, keep in mind:
 
 1. All Python files intended for testing, linting, or formatting must be tracked by git
-2. If you want a file to be processed by scripts and tests, make sure it's not in `.gitignore`
+2. If you want a file to be processed by scripts and tests,
+make sure it's not in `.gitignore`
 3. If you want to exclude a file from processing, add it to `.gitignore`
 
 ## Related Changes
 
-These changes were implemented as part of issue #73, which aimed to improve the project's handling of ignored files and directories.
+These changes were implemented as part of issue #73,
+which aimed to improve the project's handling of ignored files and directories.

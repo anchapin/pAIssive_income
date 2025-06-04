@@ -4,10 +4,13 @@ This document provides an overview of the CopilotKit and CrewAI integration adde
 
 ## Overview
 
-CopilotKit + CrewAI integration enables powerful multi-agent AI features in the React frontend, including:
+CopilotKit + CrewAI integration enables powerful multi-agent AI features in the React frontend,
+including:
 
 - **Agentic Chat**: Chat with AI copilots and call frontend tools
-- **Human-in-the-Loop**: Collaborate with the AI, plan tasks, and decide actions interactively
+- **Human-in-the-Loop**: Collaborate with the AI,
+plan tasks,
+and decide actions interactively
 - **Agentic/Generative UI**: Assign long-running tasks to agents and see real-time progress
 - **Collaborative State**: Edit documents or data collaboratively with AI agents
 - **Tool-Based Workflows**: Integrate custom tool actions into agent-driven UIs

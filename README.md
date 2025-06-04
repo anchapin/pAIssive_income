@@ -17,10 +17,17 @@ Framework for generating passive income by utilizing a team of AI agents to gene
 - **CrewAI Integration**: Use CrewAI to create and manage AI agent teams
 - **CopilotKit Integration**: Add AI copilot features to the React frontend
 - **Multi-Chain Protocol (MCP) Support**: Connect to various AI providers through a unified interface
-  - *Note: As of May 2025, the unused `mcp-use` dependency has been removed while maintaining full MCP functionality via the `modelcontextprotocol` package*
+  - *Note: As of May 2025,
+  the unused `mcp-use` dependency has been removed while maintaining full MCP functionality via the `modelcontextprotocol` package*
 - **mem0 Memory Integration**: Enhance agents with persistent memory capabilities
 
-**pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, and automation. It combines advanced AI models, multi-agent orchestration, and robust APIs with a focus on developer experience and security.
+**pAIssive Income** is a modular,
+extensible platform for AI-powered content generation,
+market analysis,
+monetization,
+and automation. It combines advanced AI models,
+multi-agent orchestration,
+and robust APIs with a focus on developer experience and security.
 
 ---
 
@@ -51,7 +58,8 @@ All project documentation is now centralized in [docs/](docs/):
 - [Archive & Historical Notes](docs/09_archive_and_notes/)
 - [Changelog](docs/changelog.md)
 
-For a full directory map, see [docs/00_introduction/03_project_structure.md](docs/00_introduction/03_project_structure.md).
+For a full directory map,
+see [docs/00_introduction/03_project_structure.md](docs/00_introduction/03_project_structure.md).
 
 ---
 
@@ -123,7 +131,6 @@ See [LICENSE](LICENSE).
 
 ---
 
-
 ## JavaScript Testing and Coverage
 
 This project enforces at least **80% code coverage** for JavaScript files using [nyc (Istanbul)](https://github.com/istanbuljs/nyc) and [Mocha](https://mochajs.org/).
@@ -151,7 +158,10 @@ To generate a detailed lcov report:
 pnpm coverage
 ```
 
-**Coverage thresholds for statements, branches, functions, and lines are all set to 80%.**
+**Coverage thresholds for statements,
+branches,
+functions,
+and lines are all set to 80%.**
 
 You can find example JS source and tests in the `src/` directory.
 
@@ -159,7 +169,11 @@ You can find example JS source and tests in the `src/` directory.
 
 ## Writing Advanced JavaScript Tests (React Component Example)
 
-For more complex JavaScript code, such as React components, you can write tests to verify rendering, user interaction, and state updates.
+For more complex JavaScript code,
+such as React components,
+you can write tests to verify rendering,
+user interaction,
+and state updates.
 
 **Example: Testing a React Component with Mocha and Enzyme**
 
@@ -199,7 +213,8 @@ describe('Hello component', () => {
 });
 ```
 
-> **Tip:** For React projects, [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) is very popular and may offer a smoother setup for component and hook testing.
+> **Tip:** For React projects,
+[Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) is very popular and may offer a smoother setup for component and hook testing.
 
 **Best Practices:**
 - Test both rendering and user events/interactions.
@@ -215,13 +230,23 @@ This project uses [Dependabot](https://docs.github.com/en/code-security/dependab
 
 - **JavaScript/Node (pnpm):** Updates to packages in `package.json`
 - **Python:** Updates to packages in `requirements-ci.txt`, `requirements_filtered.txt`
-- **Docker:** Updates to base images in `Dockerfile`, `main_Dockerfile`, and `ui/react_frontend/Dockerfile.dev`
+- **Docker:** Updates to base images in `Dockerfile`,
+`main_Dockerfile`,
+and `ui/react_frontend/Dockerfile.dev`
 - **GitHub Actions:** Updates to workflow actions in `.github/workflows/`
 
 **How it works:**
 - Dependabot will automatically open pull requests for version updates on a weekly schedule.
-- PRs are labeled by ecosystem (e.g., `dependencies`, `javascript`, `python`, `docker`, `github-actions`).
-- Some dependencies (e.g., `react`, `flask`, `pytest`) will not be updated for major releases automatically.
+- PRs are labeled by ecosystem (e.g.,
+`dependencies`,
+`javascript`,
+`python`,
+`docker`,
+`github-actions`).
+- Some dependencies (e.g.,
+`react`,
+`flask`,
+`pytest`) will not be updated for major releases automatically.
 
 **Maintainer action:**
 - Review Dependabot PRs promptly.
@@ -231,18 +256,36 @@ This project uses [Dependabot](https://docs.github.com/en/code-security/dependab
 For more details, see `.github/dependabot.yml`.
 
 > **Tip for maintainers:**
-> Periodically review and adjust the `.github/dependabot.yml` configuration (update schedules, ignored dependencies, PR limits) to ensure it fits the project's evolving needs.
+> Periodically review and adjust the `.github/dependabot.yml` configuration (update schedules,
+ignored dependencies,
+PR limits) to ensure it fits the project's evolving needs.
 
 ---
 
-For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
+For any questions,
+see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
+
+**pAIssive Income** is a modular,
+extensible platform for AI-powered content generation,
+market analysis,
+monetization,
+automation,
+and more. It features advanced agent orchestration,
+robust APIs,
+secure development practices,
+and a developer-friendly workflow. The project is organized for clarity,
+maintainability,
+and rapid onboarding.
+
+---
 
 ## Docker Compose Integration
 
 > **Tip:** To enable advanced build graph features (Compose BuildKit Bake), set `COMPOSE_BAKE=true` in your `.env` file.
 > This requires Docker Compose v2.10+ and will use the BuildKit bake engine for improved build performance and caching.
 
-For more details on the Docker Compose integration and Compose Bake, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
+For more details on the Docker Compose integration and Compose Bake,
+see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
 
 ## CrewAI + CopilotKit Integration
 
@@ -251,7 +294,9 @@ This project includes integration with CrewAI and CopilotKit to enable powerful 
 ### Features
 
 - **Agentic Chat**: Chat with AI copilots and call frontend tools
-- **Human-in-the-Loop**: Collaborate with the AI, plan tasks, and decide actions interactively
+- **Human-in-the-Loop**: Collaborate with the AI,
+plan tasks,
+and decide actions interactively
 - **Agentic/Generative UI**: Assign long-running tasks to agents and see real-time progress
 
 ### Usage
@@ -284,11 +329,14 @@ For more details on the CrewAI + CopilotKit integration, see:
 
 ## mem0 Memory Integration
 
-This project includes integration with [mem0](https://mem0.ai), a memory layer for AI agents that enables persistent memory capabilities across conversations and sessions.
+This project includes integration with [mem0](https://mem0.ai),
+a memory layer for AI agents that enables persistent memory capabilities across conversations and sessions.
 
 ### Features
 
-- **Persistent Memory**: Agents remember user preferences, past interactions, and important information
+- **Persistent Memory**: Agents remember user preferences,
+past interactions,
+and important information
 - **Memory Search**: Retrieve relevant memories based on context and queries
 - **Conversation Storage**: Store entire conversations for future reference
 - **Memory-Enhanced Agents**: Both ADK and CrewAI agents are enhanced with memory capabilities
@@ -336,7 +384,10 @@ For more details on the mem0 integration and best practices for combining mem0 w
 
 ## 🚀 Getting Started
 
-For installation, setup, and usage, see our [Getting Started Guide](docs/00_introduction/02_getting_started.md).
+For installation,
+setup,
+and usage,
+see our [Getting Started Guide](docs/00_introduction/02_getting_started.md).
 
 ---
 
@@ -352,7 +403,8 @@ For installation, setup, and usage, see our [Getting Started Guide](docs/00_intr
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](docs/changelog.md)
 
-For a full breakdown of directory structure and module deep dives, see [docs/00_introduction/03_project_structure.md](docs/00_introduction/03_project_structure.md) and [docs/02_developer_guide/06_module_deep_dives/README.md](docs/02_developer_guide/06_module_deep_dives/README.md).
+For a full breakdown of directory structure and module deep dives,
+see [docs/00_introduction/03_project_structure.md](docs/00_introduction/03_project_structure.md) and [docs/02_developer_guide/06_module_deep_dives/README.md](docs/02_developer_guide/06_module_deep_dives/README.md).
 
 ---
 
@@ -374,14 +426,17 @@ See [Security Policy](SECURITY.md) and [Security Overview](docs/04_security_and_
 
 ## 🧑‍💻 Contributing
 
-All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](https://pnpm.io/) (Node.js). See the [Developer Workflow](docs/02_developer_guide/01_development_workflow.md) for guidelines, linting, and the contribution checklist.
+All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](https://pnpm.io/) (Node.js). See the [Developer Workflow](docs/02_developer_guide/01_development_workflow.md) for guidelines,
+linting,
+and the contribution checklist.
 
 ---
 
 ## 📢 Need Help?
 
 - For common issues, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md).
-- For in-depth troubleshooting, see [docs/07_troubleshooting_and_faq/troubleshooting.md](docs/07_troubleshooting_and_faq/troubleshooting.md).
+- For in-depth troubleshooting,
+see [docs/07_troubleshooting_and_faq/troubleshooting.md](docs/07_troubleshooting_and_faq/troubleshooting.md).
 
 ---
 

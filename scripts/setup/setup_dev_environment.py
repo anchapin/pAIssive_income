@@ -28,10 +28,11 @@ import argparse
 import json
 import platform
 import shutil  # Added for shutil.which
-import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
 from typing import Optional
+
+from common_utils.security import SecurityError, run_command_securely
 
 
 def parse_args() -> argparse.Namespace:
@@ -64,57 +65,24 @@ def run_command(
     cmd: list[str], cwd: Optional[str] = None, env: Optional[dict[str, str]] = None
 ) -> tuple[int, str, str]:
     """
-    Run a command and return the exit code, stdout, and stderr.
+    Run a command securely.
 
     Args:
-        cmd: Command to run as a list of strings
+        cmd: Command to run as list
         cwd: Working directory
         env: Environment variables
 
     Returns:
-        Tuple of (exit_code, stdout, stderr)
+        Tuple of (exit code, stdout, stderr)
 
     """
-    # Validate command to ensure it's a list of strings and doesn't contain shell metacharacters
-    if not isinstance(cmd, list) or not all(isinstance(arg, str) for arg in cmd):
-        print("Invalid command format: command must be a list of strings")
-        return 1, "", "Invalid command format"
-
-    # Check for common command injection patterns in the first argument (the executable)
-    if cmd and (
-        ";" in cmd[0]
-        or "&" in cmd[0]
-        or "|" in cmd[0]
-        or ">" in cmd[0]
-        or "<" in cmd[0]
-        or "$(" in cmd[0]
-        or "`" in cmd[0]
-    ):
-        print(f"Potential command injection detected in: {cmd[0]}")
-        return 1, "", "Potential command injection detected"
-
     try:
-        # Use absolute path for the executable when possible
-        if cmd and shutil.which(cmd[0]):
-            cmd[0] = shutil.which(cmd[0])
-
-        # nosec comment below tells Bandit to ignore this line since we've added proper validation
-        process = subprocess.run(  # nosec B603
-            cmd,
-            cwd=cwd,
-            env=env,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-    except (subprocess.SubprocessError, FileNotFoundError) as e:
+        result = run_command_securely(cmd, cwd=cwd, env=env, timeout=600)
+        return result.returncode, result.stdout, result.stderr
+    except SecurityError as e:
         return 1, "", str(e)
-    except OSError as e:
-        return 1, "", f"OS Error: {e!s}"
-    except ValueError as e:
-        return 1, "", f"Value Error: {e!s}"
-    else:
-        return process.returncode, process.stdout, process.stderr
+    except Exception as e:
+        return 1, "", f"Error executing command: {e!s}"
 
 
 def is_venv_activated() -> bool:
