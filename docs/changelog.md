@@ -2,6 +2,15 @@
 
 Track all major changes, releases, and fixes here.
 
+## [PR #139] - 2025-06-03 - Security Fixes and GitHub Actions Workflow Improvements
+
+### Security Fixes (2025-06-03)
+- **Fixed CodeQL Security Vulnerabilities**: Resolved 8 high and 1 medium security alerts
+  - **Hardcoded Secrets**: Removed hardcoded test credentials from `common_utils/secrets/audit.py`
+  - **Sensitive Data Logging**: Enhanced logging in `common_utils/secrets/secrets_manager.py` to prevent exposure of sensitive information
+  - **MCP Adapter Security**: Improved error handling and dependency management in MCP tests
+  - **Enhanced Documentation**: Updated security compliance documentation and reporting
+
 ## [PR #139] - 2025-06-03 - GitHub Actions Workflow Improvements
 
 ### Added
