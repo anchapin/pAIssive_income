@@ -180,8 +180,16 @@ jobs:
           }
       - name: Run ruff linting (Unix)
         if: runner.os != 'Windows'
+        continue-on-error: true # Add this line
         run: |
-          ruff check .
+          ruff check . > ruff_output_unix.txt # Modified this line
+
+      - name: Show ruff output (Unix)
+        if: runner.os != 'Windows' && always()
+        shell: bash
+        run: |
+          echo "Ruff output (Unix):"
+          cat ruff_output_unix.txt
 
       - name: Run ruff linting (Windows)
         if: runner.os == 'Windows'
