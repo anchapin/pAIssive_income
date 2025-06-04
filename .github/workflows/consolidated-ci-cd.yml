@@ -57,18 +57,20 @@ jobs:
           fetch-depth: 0
 
       # Setup Node.js and pnpm for Tailwind CSS build
-      - name: Set up Node.js
+      - name: Set up Node.js for Tailwind
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+          # The pnpm/action-setup action will handle caching with setup-node
 
-      - name: Install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@8.14.0 --activate
+      - name: Setup pnpm for Tailwind
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.14.0 # Match the version previously specified
+          run_install: false # We run install in the next step
 
-      - name: Install Node.js dependencies and build Tailwind CSS
+      - name: Install Tailwind Node.js dependencies and build Tailwind CSS
+        id: tailwind_build # Added an id for this step
         run: |
           pnpm install
           pnpm tailwind:build
