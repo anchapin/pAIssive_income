@@ -19,7 +19,7 @@ extend-exclude = [
     "*.pyo",
     "*.pyd",
     ".pytest_cache",
-    ".mypy_cache",
+    ".pyright_cache",
     "build",
     "dist",
     "*.egg-info",

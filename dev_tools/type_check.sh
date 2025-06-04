@@ -1,9 +1,9 @@
 #!/bin/bash
-# Run mypy static type checking
+# Run pyright static type checking
 
-if command -v mypy &>/dev/null; then
-  echo "Running mypy..."
-  mypy .
+if command -v pyright &>/dev/null; then
+  echo "Running pyright..."
+  pyright .
 else
-  echo "mypy not found."
+  echo "pyright not found."
 fi
