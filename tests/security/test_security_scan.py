@@ -64,9 +64,7 @@ def ensure_directory(directory: str) -> None:
 
 
 def test_safety_scan() -> None:
-    """
-    Test the Safety scan functionality.
-    """
+    """Test the Safety scan functionality."""
     logger.info("\n=== Testing Safety Scan ===")
     ensure_directory("security-reports")
 
@@ -109,9 +107,7 @@ def test_safety_scan() -> None:
 
 
 def test_bandit_scan() -> None:
-    """
-    Test the Bandit scan functionality.
-    """
+    """Test the Bandit scan functionality."""
     logger.info("\n=== Testing Bandit Scan ===")
     ensure_directory("security-reports")
 
@@ -154,9 +150,7 @@ def test_bandit_scan() -> None:
 
 
 def test_sarif_file_handling() -> None:
-    """
-    Test SARIF file handling functionality.
-    """
+    """Test SARIF file handling functionality."""
     logger.info("\n=== Testing SARIF File Handling ===")
     ensure_directory("security-reports")
     ensure_directory("security-reports/compressed")

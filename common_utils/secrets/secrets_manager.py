@@ -86,19 +86,23 @@ class SecretBackendProtocol(Protocol):
 
     def get_secret(self, key: str) -> str | None:
         """Get a secret from the backend."""
-        raise NotImplementedError("Subclasses must implement get_secret method")
+        msg = "Subclasses must implement get_secret method"
+        raise NotImplementedError(msg)
 
     def set_secret(self, key: str, value: str) -> bool:
         """Set a secret in the backend."""
-        raise NotImplementedError("Subclasses must implement set_secret method")
+        msg = "Subclasses must implement set_secret method"
+        raise NotImplementedError(msg)
 
     def delete_secret(self, key: str) -> bool:
         """Delete a secret from the backend."""
-        raise NotImplementedError("Subclasses must implement delete_secret method")
+        msg = "Subclasses must implement delete_secret method"
+        raise NotImplementedError(msg)
 
     def list_secrets(self) -> dict[str, Any]:
         """List secrets in the backend."""
-        raise NotImplementedError("Subclasses must implement list_secrets method")
+        msg = "Subclasses must implement list_secrets method"
+        raise NotImplementedError(msg)
 
 
 class SecretsManager:

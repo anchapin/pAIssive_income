@@ -36,11 +36,11 @@ def normalize_path(path: Union[str, Path]) -> str:
 def get_timeout_for_platform(base_timeout: int, platform_multipliers: Optional[dict[str, float]] = None) -> int:
     """
     Get platform-specific timeout values.
-    
+
     Args:
         base_timeout: Base timeout in minutes
         platform_multipliers: Optional multipliers for different platforms
-    
+
     Returns:
         Adjusted timeout in minutes
 
@@ -66,14 +66,14 @@ def run_command_with_timeout(
 ) -> subprocess.CompletedProcess:
     """
     Run a command with platform-appropriate timeout handling.
-    
+
     Args:
         command: Command and arguments to run
         timeout_seconds: Timeout in seconds
         cwd: Working directory
         env: Environment variables
         capture_output: Whether to capture stdout/stderr
-    
+
     Returns:
         CompletedProcess instance
 
@@ -86,7 +86,7 @@ def run_command_with_timeout(
         timeout_seconds = int(timeout_seconds * 1.2)
 
     try:
-        result = subprocess.run(
+        return subprocess.run(
             command,
             timeout=timeout_seconds,
             cwd=cwd,
@@ -95,10 +95,9 @@ def run_command_with_timeout(
             text=True,
             check=False,
         )
-        return result
-    except subprocess.TimeoutExpired as e:
+    except subprocess.TimeoutExpired:
         print(f"Command timed out after {timeout_seconds} seconds: {' '.join(command)}")
-        raise e
+        raise
 
 
 def get_shell_command(script_content: str) -> list[str]:
@@ -117,12 +116,12 @@ def create_cross_platform_script(
 ) -> str:
     """
     Create a cross-platform script that runs appropriate version based on OS.
-    
+
     Args:
         bash_script: Bash script content
         powershell_script: PowerShell script content
         output_dir: Directory to save scripts
-    
+
     Returns:
         Path to the main script
 
@@ -154,14 +153,14 @@ from pathlib import Path
 
 def main():
     script_dir = Path(__file__).parent
-    
+
     if platform.system().lower() == "windows":
         script_file = script_dir / "script.ps1"
         cmd = ["powershell", "-ExecutionPolicy", "Bypass", "-File", str(script_file)]
     else:
         script_file = script_dir / "script.sh"
         cmd = ["bash", str(script_file)]
-    
+
     try:
         result = subprocess.run(cmd, check=False)
         sys.exit(result.returncode)
@@ -192,7 +191,7 @@ def get_recommended_timeouts() -> dict[str, dict[str, int]]:
         "docker_build": 30,
     }
 
-    platform_info = get_platform_info()
+    get_platform_info()
 
     timeouts = {}
     for step, base_timeout in base_timeouts.items():

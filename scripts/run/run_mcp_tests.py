@@ -132,7 +132,7 @@ def _ensure_mcp_module_exists() -> None:
             import modelcontextprotocol
             logger.info("Successfully verified mock modelcontextprotocol module")
         except ImportError:
-            logger.error("Failed to create mock modelcontextprotocol module")
+            logger.exception("Failed to create mock modelcontextprotocol module")
             # Try to install the mock module using the setup script
             try:
                 # Get the path to the setup script
@@ -153,11 +153,11 @@ def _ensure_mcp_module_exists() -> None:
                         shell=False,
                     )
                     if result.returncode != 0:
-                        logger.error("Failed to install MCP SDK: %s", result.stderr)
+                        logger.exception("Failed to install MCP SDK: %s", result.stderr)
                     else:
                         logger.info("Successfully installed MCP SDK")
                 else:
-                    logger.error("Setup script not found at %s", setup_script)
+                    logger.exception("Setup script not found at %s", setup_script)
             except Exception:
                 logger.exception("Error installing MCP SDK")
     except ImportError as e:

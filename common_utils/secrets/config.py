@@ -24,8 +24,8 @@ logger = get_logger(__name__)
 class SecretConfig:
     """Configuration manager that can handle secret references."""
 
-    # Constants
-    SECRET_PREFIX = "secret:"
+    # Constants - prefix used to identify secret references in config values
+    SECRET_PREFIX = "secret:"  # nosec B105 - This is a prefix identifier, not a password
 
     # Sentinel value to distinguish between None and not provided
     _UNSET = object()

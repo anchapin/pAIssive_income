@@ -67,7 +67,7 @@ class CrossPlatformTimeoutConfig:
         "macos": 1.2     # macOS sometimes needs more time
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.current_platform = self._detect_platform()
         self.is_ci = self._is_ci_environment()
 
@@ -132,7 +132,7 @@ class CrossPlatformTimeoutConfig:
         # Generate step timeouts
         for step_name, step_config in self.BASE_TIMEOUTS["step_timeouts"].items():
             config["step_timeouts"][step_name] = {}
-            for platform in step_config.keys():
+            for platform in step_config:
                 config["step_timeouts"][step_name][platform] = step_config[platform]
 
         return config
@@ -146,7 +146,7 @@ class CrossPlatformTimeoutConfig:
                 return False
 
             # Check timeout values are reasonable
-            for platform, timeout in config["job_timeouts"].items():
+            for timeout in config["job_timeouts"].values():
                 if not isinstance(timeout, int) or timeout < 30 or timeout > 300:
                     return False
 
@@ -178,7 +178,7 @@ class CrossPlatformTimeoutConfig:
             print(f"  {platform}: {timeout} minutes{marker}")
 
         print("\nStep Timeouts:")
-        for step_name in self.BASE_TIMEOUTS["step_timeouts"].keys():
+        for step_name in self.BASE_TIMEOUTS["step_timeouts"]:
             timeout = self.get_timeout("step", step_name)
             print(f"  {step_name}: {timeout} minutes")
 
