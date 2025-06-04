@@ -55,6 +55,53 @@ For a full directory map, see [docs/00_introduction/03_project_structure.md](doc
 
 ---
 
+## 🛠️ Minimal Agent & Tool Registry Demo
+
+A minimal demonstration script is provided to show how an agent can pick and use tools (such as a calculator or text analyzer) via a simple registry.
+
+**What the demo does:**
+- Instantiates an `ArtistAgent`
+- Lists available tools
+- Supports both example prompts and interactive mode
+- Example mode: runs three prompts—one handled by the calculator, one by the text analyzer, one unhandled
+- Interactive mode: enter your own prompts in a loop
+
+**How to run:**
+```bash
+# Example-based demo (default)
+python scripts/artist_demo.py
+
+# Interactive mode (enter prompts manually)
+python scripts/artist_demo.py -i
+```
+
+**Expected output:**
+- The list of available tools (calculator, text_analyzer, etc.)
+- The prompt that is sent to the agent
+- The agent's output (e.g., calculation result, analysis, or a message indicating no tool can handle the prompt)
+
+Example (output will vary by implementation):
+
+```
+=== ArtistAgent Tool Use Demo ===
+
+Available tools:
+  - calculator
+  - text_analyzer
+-----------------------------
+Prompt: What is 12 * 8?
+Agent output: 96
+-----------------------------
+Prompt: Analyze the sentiment of this phrase: 'This is a fantastic development!'
+Agent output: Sentiment: positive | Words: 6 | Characters: 35 | Positive indicators: 1 | Negative indicators: 0
+-----------------------------
+Prompt: Translate hello to French
+Agent output: No suitable tool found for this prompt.
+```
+
+**Note:**  
+The agent and tool registry are easily extensible—new tools can be added with minimal code changes, allowing the agent to handle more types of tasks.
+
 ## 🤝 Contributing
 
 See [Development Workflow](docs/02_developer_guide/01_development_workflow.md) for contribution guidelines and coding standards.
@@ -280,10 +327,12 @@ To use the mem0 integration:
    team = MemoryEnhancedCrewAIAgentTeam(user_id="user123")
    ```
 
-For more details on the mem0 integration, see:
-- [README_mem0_integration.md](README_mem0_integration.md) - Main integration guide
-- [docs/README_mem0.md](docs/README_mem0.md) - Overview of mem0 investigation
-- [docs/mem0_core_apis.md](docs/mem0_core_apis.md) - Documentation of mem0's core APIs
+For more details on the mem0 integration and best practices for combining mem0 with Retrieval-Augmented Generation (RAG):
+
+- [README_mem0_integration.md](README_mem0_integration.md) – Main integration guide (now includes best practices for mem0 + RAG)
+- [docs/mem0_rag_best_practices.md](docs/mem0_rag_best_practices.md) – Detailed guide on when and how to use mem0 and RAG, with examples
+- [docs/README_mem0.md](docs/README_mem0.md) – Overview of mem0 investigation
+- [docs/mem0_core_apis.md](docs/mem0_core_apis.md) – Documentation of mem0's core APIs
 
 ## 🚀 Getting Started
 
@@ -333,6 +382,20 @@ All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](h
 
 - For common issues, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md).
 - For in-depth troubleshooting, see [docs/07_troubleshooting_and_faq/troubleshooting.md](docs/07_troubleshooting_and_faq/troubleshooting.md).
+
+---
+
+## Agentic Reasoning Tests & Benchmarking
+
+This project now includes advanced tests and benchmarking for agentic reasoning and tool use:
+
+- **Agentic Reasoning Unit Tests:**
+  - See `tests/test_artist_agent.py` for tests validating the ability of agents to select and use tools (such as the calculator) and to handle multi-step reasoning prompts.
+- **Benchmarking:**
+  - See `tests/performance/test_artist_agent_benchmark.py` for automated benchmarking of the ARTIST agent against other agent frameworks.
+  - Benchmark results are output to `tests/performance/artist_agent_benchmark.md` after running the benchmark script.
+
+These additions help ensure robust, measurable progress in agentic reasoning and tool integration in this codebase.
 
 ---
 
