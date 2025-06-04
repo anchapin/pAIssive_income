@@ -4,6 +4,22 @@
 
 This document describes the end-to-end (E2E) testing setup for the React frontend application. E2E tests verify that the application works correctly from a user's perspective by simulating user interactions with the application.
 
+## Recent Improvements (req-28)
+
+The E2E testing framework has been enhanced with recent workflow fixes:
+
+### Fixed Issues
+- **Dependency Installation**: Resolved pnpm setup failures in GitHub Actions
+- **Workflow Configuration**: Fixed frontend-e2e.yml workflow dependencies
+- **Error Handling**: Improved error handling for E2E test execution
+- **Timeout Management**: Enhanced timeout handling for better reliability
+
+### Workflow Enhancements
+- Better dependency resolution process
+- Improved error reporting for debugging
+- Enhanced timeout management
+- More reliable test execution in CI/CD pipeline
+
 ## Testing Framework
 
 The project uses [Playwright](https://playwright.dev/) for E2E testing, which provides:

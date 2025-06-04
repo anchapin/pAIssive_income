@@ -79,6 +79,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       # Install global pnpm if needed (for Windows)
       - name: Install global pnpm (Windows)
@@ -93,7 +94,10 @@ jobs:
           pnpm --version
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          cd ../..
+          pnpm install
+          cd ui/react_frontend
 
       - name: Build Tailwind CSS
         run: pnpm tailwind:build

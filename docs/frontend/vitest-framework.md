@@ -12,6 +12,22 @@ Vitest is a fast and lightweight testing framework for JavaScript and TypeScript
 - Built-in code coverage reporting
 - UI for visualizing test results
 
+## Recent Improvements (req-28)
+
+The Vitest framework has been significantly improved with recent workflow fixes:
+
+### Fixed Issues
+- **Dependency Caching**: Fixed missing pnpm-lock.yaml file causing cache failures
+- **Node.js Setup**: Corrected cache-dependency-path configuration in GitHub Actions
+- **PATH Configuration**: Added proper pnpm PATH setup for reliable test execution
+- **Error Handling**: Enhanced error handling with fallback coverage report generation
+
+### Workflow Enhancements
+- Improved dependency installation process
+- Added fallback mechanisms for test failures
+- Enhanced coverage reporting reliability
+- Better error messages for debugging
+
 ## Setup
 
 The Vitest framework has been integrated into our React frontend with the following components:
