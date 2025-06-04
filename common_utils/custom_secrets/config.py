@@ -1,5 +1,4 @@
-"""
-config - Module for common_utils/secrets.config.
+"""config - Module for common_utils/custom_secrets/config.py.
 
 This module provides a configuration manager that can handle secret references.
 """

@@ -1,5 +1,4 @@
-"""
-cli - Module for common_utils/secrets.cli.
+"""cli - Module for common_utils/custom_secrets/cli.py.
 
 This module provides a command-line interface for managing secrets.
 """

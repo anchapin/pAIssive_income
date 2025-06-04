@@ -9,7 +9,11 @@ from __future__ import annotations
 import ast
 import sys
 from pathlib import Path
-# List and Tuple will be replaced
+import logging # Added logging import
+
+# Initialize logger for this script itself
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(name)s: %(message)s')
 
 
 class LoggerChecker(ast.NodeVisitor):
@@ -218,17 +222,17 @@ def main() -> None:
         if issues:
             files_with_issues += 1
             total_issues += len(issues)
-            print(f"\n{filepath}:")
+            logger.info("\n%s:", filepath)
             for issue_type, line_no, message in issues:
-                print(f"  Line {line_no}: {issue_type} - {message}")
+                logger.info("  Line %s: %s - %s", line_no, issue_type, message)
 
-    print(f"\nSummary: Found {total_issues} issues in {files_with_issues} files")
+    logger.info("\nSummary: Found %s issues in %s files", total_issues, files_with_issues)
 
     # Exit with error code if issues found (for CI/CD)
     if total_issues > 0:
         sys.exit(1)
     else:
-        print("All files passed logger initialization checks!")
+        logger.info("All files passed logger initialization checks!")
         sys.exit(0)
 
 

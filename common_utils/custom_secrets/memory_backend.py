@@ -1,5 +1,4 @@
-"""
-memory_backend - Module for common_utils/secrets.memory_backend.
+"""memory_backend - Module for common_utils/custom_secrets/memory_backend.py.
 
 This module provides an in-memory backend for secrets management, primarily for testing.
 """
@@ -11,7 +10,7 @@ from typing import Any
 
 # Third-party imports
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 
 # Initialize logger
 logger = get_logger(__name__)

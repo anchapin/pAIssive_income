@@ -56,9 +56,12 @@ Note:
 
 from __future__ import annotations # Already present, but good to ensure
 
+import logging # Added logging import
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any
+
+logger = logging.getLogger(__name__) # Added module-level logger
 
 
 class KnowledgeSource(ABC):

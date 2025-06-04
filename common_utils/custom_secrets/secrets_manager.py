@@ -1,5 +1,4 @@
-"""
-secrets_manager - Module for common_utils/secrets.secrets_manager.
+"""secrets_manager - Module for common_utils/custom_secrets/secrets_manager.py.
 
 This module provides a unified interface for managing secrets across different backends.
 """

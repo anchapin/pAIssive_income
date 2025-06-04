@@ -1,5 +1,4 @@
-"""
-audit - Module for common_utils/secrets.audit.
+"""audit - Module for common_utils/custom_secrets/audit.py.
 
 This module provides utilities for auditing code for hardcoded secrets.
 """

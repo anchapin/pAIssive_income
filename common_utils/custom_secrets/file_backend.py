@@ -1,5 +1,4 @@
-"""
-file_backend - Module for common_utils/secrets.file_backend.
+"""file_backend - Module for common_utils/custom_secrets/file_backend.py.
 
 This module provides a file-based backend for secrets management.
 """
