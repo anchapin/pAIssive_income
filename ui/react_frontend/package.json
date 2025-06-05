@@ -21,7 +21,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@ag-ui-protocol/ag-ui": "npm:@ag-ui-protocol/ag-ui-mock@^1.0.0"
+      "@ag-ui-protocol/ag-ui": "npm:@ag-ui-protocol/ag-ui-mock@^1.0.0",
+      "webpack-dev-server": "^5.2.1"
     }
   },
   "devDependencies": {
@@ -63,7 +64,10 @@
     },
     "css-loader": {
       "postcss": "^8.4.32"
-    }
+    },
+    "webpack-dev-server": "^5.2.1",
+    "prismjs": "^1.30.0",
+    "esbuild": "^0.25.0"
   },
   "scripts": {
     "start": "pnpm tailwind:build && react-app-rewired start",
