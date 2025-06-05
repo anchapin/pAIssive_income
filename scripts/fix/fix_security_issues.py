@@ -275,7 +275,7 @@ def _run_scan_with_imported_function(
         from fix_potential_secrets import SECRET_PATTERNS
 
         results: dict[str, list[tuple[str, int, int]]] = scan_directory(
-            directory, SECRET_PATTERNS, exclude_dirs
+            directory, SECRET_PATTERNS
         )
     except ImportError:
         logger.warning("Could not import SECRET_PATTERNS from fix_potential_secrets")

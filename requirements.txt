@@ -1,7 +1,7 @@
 # Core dependencies
 fastapi>=0.109.0
 uvicorn>=0.27.0
-pydantic>=2.6.0
+pydantic>=2.6.0,<2.10.0
 redis>=5.0.0
 python-multipart>=0.0.9
 httpx>=0.26.0
@@ -75,3 +75,5 @@ aio_pika>=9.0.0
 pydantic[email]>=2.0.0  # Required for email validation
 # coverage>=6.3 required for Python 3.11 compatibility, prevents segfaults in CI
 coverage>=6.3
+
+click>=8.0.2,<8.2.0  # Version constraint for safety compatibility

@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-# Configure logging
-logger = logging.getLogger(__name__)
-
-
 """
 Script to detect and report potential secrets in the codebase.
 
@@ -24,18 +20,7 @@ from re import Pattern
 from typing import Any
 
 # Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
-
-
-# Configure logging
+logger = logging.getLogger(__name__)
 
 
 # Define patterns for potential secrets

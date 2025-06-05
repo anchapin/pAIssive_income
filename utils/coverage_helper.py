@@ -45,4 +45,4 @@ def format_string(template, **kwargs):
         return template.format(**kwargs)
     except KeyError as e:
         msg = f"Missing required key: {e}"
-        raise ValueError(msg)
+        raise ValueError(msg) from e

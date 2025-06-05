@@ -79,6 +79,7 @@ try:
     import polars as pl
     from dash import dash_table, dcc, html
     from dash.dependencies import ALL, MATCH, Input, Output, State
+    from flask import session
     from plotly.subplots import make_subplots
     from scipy import stats
 
@@ -1912,8 +1913,11 @@ def create_dashboard(
         log_entries = parse_log_file(log_file)
 
         # Get file info
-        file_size = os.path.getsize(log_file) / 1024  # KB
-        file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(log_file))
+        log_file_path = Path(log_file)
+        file_size = log_file_path.stat().st_size / 1024  # KB
+        file_modified = datetime.datetime.fromtimestamp(
+            log_file_path.stat().st_mtime, tz=datetime.timezone.utc
+        )
 
         file_info = [
             html.Div(f"Entries: {len(log_entries)}"),
@@ -2393,7 +2397,7 @@ def create_dashboard(
         n_clicks, n_intervals, name, description, severity, condition, notifiers,
         pattern, min_matches, metric, threshold, operator, sensitivity,
         frequency_threshold, level, absence_pattern, window
-    ):
+    ) -> list[Any]:
         """
         Update alert rules list and add new rules when button is clicked.
 
@@ -2411,8 +2415,10 @@ def create_dashboard(
             if hasattr(app, "auth"):
                 # Get username from session
                 username = None
-                if "auth" in flask.session:
-                    session_data = flask.session["auth"]
+                # Import flask at the top level if needed
+                from flask import session as flask_session
+                if "auth" in flask_session:
+                    session_data = flask_session["auth"]
                     username = session_data.get("username")
 
                 if username:
@@ -2524,7 +2530,7 @@ def create_dashboard(
         Output("active-alerts-list", "children"),
         [Input("alert-refresh-interval", "n_intervals")],
     )
-    def update_active_alerts(n_intervals):
+    def update_active_alerts(n_intervals) -> list[Any]:
         """
         Update active alerts list.
 
@@ -2617,7 +2623,7 @@ def create_dashboard(
         [State({"type": "mark-read-button", "index": ALL}, "id"),
          State({"type": "dismiss-alert-button", "index": ALL}, "id")],
     )
-    def handle_alert_actions(mark_read_clicks, dismiss_clicks, mark_read_ids, dismiss_ids):
+    def handle_alert_actions(mark_read_clicks, dismiss_clicks, mark_read_ids, dismiss_ids) -> str:
         """
         Handle alert actions (mark as read, dismiss).
 
@@ -2656,7 +2662,7 @@ def create_dashboard(
         [State({"type": "remove-rule-button", "index": ALL}, "id")],
         prevent_initial_call=True,
     )
-    def handle_remove_rule(n_clicks, button_ids):
+    def handle_remove_rule(n_clicks, button_ids) -> list[Any]:
         """
         Handle remove rule button clicks.
 
@@ -2744,7 +2750,7 @@ def create_dashboard(
         [State("log-entries-store", "data")],
     )
     @require_permission("run_ml_analysis")
-    def run_ml_analysis(n_clicks, log_entries):
+    def run_ml_analysis(n_clicks, log_entries) -> dict[str, Any]:
         """
         Run machine learning analysis on log entries.
 
@@ -2778,7 +2784,7 @@ def create_dashboard(
                 "anomalies": results["anomalies"],
                 "patterns": results["patterns"],
                 "clusters": results["clusters"],
-                "last_analyzed": datetime.datetime.now().isoformat(),
+                "last_analyzed": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             }
 
             # Update status
@@ -2806,7 +2812,7 @@ def create_dashboard(
         Output("anomaly-detection-results", "children"),
         [Input("ml-analysis-store", "data")],
     )
-    def update_anomaly_detection_results(analysis_results):
+    def update_anomaly_detection_results(analysis_results) -> list[Any]:
         """
         Update anomaly detection results.
 
@@ -2895,7 +2901,7 @@ def create_dashboard(
         Output("pattern-recognition-results", "children"),
         [Input("ml-analysis-store", "data")],
     )
-    def update_pattern_recognition_results(analysis_results):
+    def update_pattern_recognition_results(analysis_results) -> list[Any]:
         """
         Update pattern recognition results.
 
@@ -2970,7 +2976,7 @@ def create_dashboard(
         Output("log-clustering-results", "children"),
         [Input("ml-analysis-store", "data")],
     )
-    def update_log_clustering_results(analysis_results):
+    def update_log_clustering_results(analysis_results) -> list[Any]:
         """
         Update log clustering results.
 
@@ -3042,7 +3048,7 @@ def create_dashboard(
         [Input("user-management-store", "data")],
     )
     @require_permission("manage_users")
-    def update_role_options(data):
+    def update_role_options(data) -> list[dict[str, str]]:
         """
         Update role options for new user form.
 
@@ -3061,7 +3067,7 @@ def create_dashboard(
         [Input("user-management-store", "data")],
     )
     @require_permission("manage_roles")
-    def update_permission_options(data):
+    def update_permission_options(data) -> list[dict[str, str]]:
         """
         Update permission options for new role form.
 
@@ -3092,7 +3098,7 @@ def create_dashboard(
         ],
     )
     @require_permission("manage_users")
-    def manage_users(add_clicks, refresh_clicks, username, password, roles, data):
+    def manage_users(add_clicks, refresh_clicks, username, password, roles, data) -> tuple[Any, str]:
         """
         Manage users.
 
@@ -3113,7 +3119,7 @@ def create_dashboard(
 
         # Initialize data if None
         if data is None:
-            data = {"last_updated": datetime.datetime.now().isoformat()}
+            data = {"last_updated": datetime.datetime.now(datetime.timezone.utc).isoformat()}
 
         # Add user
         if triggered_id == "add-user-button" and add_clicks:
@@ -3138,7 +3144,7 @@ def create_dashboard(
                 })
 
                 # Update data
-                data["last_updated"] = datetime.datetime.now().isoformat()
+                data["last_updated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         # Create user list
         users = list(app.auth.users.values())
@@ -3210,7 +3216,7 @@ def create_dashboard(
         ],
     )
     @require_permission("manage_roles")
-    def manage_roles(add_clicks, data, name, description, permissions):
+    def manage_roles(add_clicks, data, name, description, permissions) -> tuple[Any, str]:
         """
         Manage roles.
 
@@ -3308,7 +3314,7 @@ def create_dashboard(
             Input("dashboard-service-health", "n_clicks"),
         ],
     )
-    def switch_dashboard(*args):
+    def switch_dashboard(*args: Any) -> Any:
         """
         Switch between predefined dashboards based on dropdown selection.
 
@@ -3641,7 +3647,8 @@ def main() -> int:
     args = parser.parse_args()
 
     # Check if log directory exists
-    if not os.path.isdir(args.log_dir):
+    log_dir_path = Path(args.log_dir)
+    if not log_dir_path.is_dir():
         logger.error(f"Log directory does not exist: {args.log_dir}")
         return 1
 

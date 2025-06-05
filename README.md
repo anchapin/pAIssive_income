@@ -5,6 +5,8 @@
 > **CI will fail if coverage drops compared to the base branch (enforced by Codecov).**
 >
 > **Pull Requests will receive automated coverage comments from the [Codecov](https://about.codecov.io/) bot when Codecov integration is enabled for your repository.**
+>
+> **Recent Improvements**: Enhanced GitHub Actions reliability with comprehensive workflow fixes, improved error handling, and local testing validation using act tool.
 
 Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
 

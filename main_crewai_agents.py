@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from typing import Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -35,13 +36,16 @@ except ImportError:
 
     # Define dummy classes if crewai is not available to avoid NameErrors
     class Agent:  # type: ignore
-        pass
+        """Dummy Agent class when CrewAI is not available."""
+
 
     class Crew:  # type: ignore
-        pass
+        """Dummy Crew class when CrewAI is not available."""
+
 
     class Task:  # type: ignore
-        pass
+        """Dummy Task class when CrewAI is not available."""
+
 
 
 # Import memory-enhanced agent team
@@ -60,7 +64,8 @@ except ImportError:
 
     # Define a dummy class if not available
     class MemoryEnhancedCrewAIAgentTeam:  # type: ignore
-        pass
+        """Dummy MemoryEnhancedCrewAIAgentTeam class when mem0 is not available."""
+
 
 
 # Example: Define agent roles

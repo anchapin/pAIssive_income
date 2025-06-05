@@ -96,7 +96,7 @@ print(calculator("10 / 2"))  # Output: 5.0
 print(calculator("2 ** 3"))  # Output: 8
 ```
 
-The calculator tool uses Python's `eval()` function with a restricted environment for safety, but should still be used with caution.
+The calculator tool uses Python's `ast.literal_eval()` and a custom AST parser for safety, avoiding the dangerous `eval()` function.
 
 ## Integration with Agents
 

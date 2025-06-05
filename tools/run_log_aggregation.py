@@ -29,7 +29,9 @@ import sys
 from logging_config import configure_logging
 
 # Add the project root to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from pathlib import Path
+project_root = Path(__file__).parent.parent.resolve()
+sys.path.insert(0, str(project_root))
 
 # Import the log aggregation utilities
 from common_utils.logging.log_aggregation import (
@@ -110,7 +112,8 @@ def main() -> int:
     args = parse_args()
 
     # Create the log directory if it doesn't exist
-    os.makedirs(args.log_dir, exist_ok=True)
+    log_dir_path = Path(args.log_dir)
+    log_dir_path.mkdir(parents=True, exist_ok=True)
 
     # Configure logging
     logging.basicConfig(

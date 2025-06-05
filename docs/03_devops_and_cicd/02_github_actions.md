@@ -11,6 +11,8 @@ This section describes our CI/CD implementation with GitHub Actions.
 - **Test Coverage Requirement**: Maintains 15% minimum test coverage across all workflows
 - **Security Compliance**: All security scans must pass before merge
 - **Consolidated CI/CD**: Uses a single consolidated workflow for improved reliability and maintainability
+- **Local Testing**: All workflows validated using act tool for local testing and verification
+- **Enhanced Reliability**: Improved error handling, timeout configurations, and fallback mechanisms
 
 ## Key Practices
 

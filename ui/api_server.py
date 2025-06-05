@@ -98,7 +98,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode("utf-8"))
 
-    def _get_db_connection(self):
+    def _get_db_connection(self) -> Any:
         """
         Establish a PostgreSQL connection using DATABASE_URL env var.
 
@@ -327,7 +327,7 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
                     "Failed to start server after %d attempts", max_retries
                 )
                 msg = f"Failed to start server after {max_retries} attempts"
-                raise OSError(msg)
+                raise OSError(msg) from None
 
     # Verify that httpd was successfully initialized
     if httpd is None:

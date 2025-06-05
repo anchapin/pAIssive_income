@@ -29,7 +29,9 @@ import time
 from logging_config import configure_logging
 
 # Add the project root to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from pathlib import Path
+project_root = Path(__file__).parent.parent.resolve()
+sys.path.insert(0, str(project_root))
 
 # Import the centralized logging service
 from common_utils.logging.centralized_logging import CentralizedLoggingService
@@ -93,7 +95,8 @@ def main() -> None:
     args = parse_args()
 
     # Create the log directory if it doesn't exist
-    os.makedirs(args.log_dir, exist_ok=True)
+    log_dir_path = Path(args.log_dir)
+    log_dir_path.mkdir(parents=True, exist_ok=True)
 
     # Configure logging
     logging.basicConfig(
@@ -101,7 +104,7 @@ def main() -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(),
-            logging.FileHandler(os.path.join(args.log_dir, "centralized_logging_service.log")),
+            logging.FileHandler(log_dir_path / "centralized_logging_service.log"),
         ],
     )
 

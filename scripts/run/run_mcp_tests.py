@@ -502,6 +502,7 @@ def _check_import_capability() -> None:
     """Check if the module can be imported and examine its attributes."""
     try:
         import importlib
+        import importlib.util
 
         try:
             # Try to import the module

@@ -23,6 +23,7 @@ Welcome to the pAIssive Income Framework documentation. This documentation provi
     - [Workflow Fixes and Coverage Updates (PR #139)](workflow-fixes-pr139.md)
     - [Recent Workflow Improvements (req-28)](03_devops_and_cicd/workflow_improvements_req28.md)
     - [Workflow Fixes Summary](03_devops_and_cicd/workflow_fixes_summary.md)
+    - [Workflow Fixes for req-35: GitHub Actions Reliability](03_devops_and_cicd/workflow_fixes_req35.md)
     - [Setup PNPM Workflow](ci_cd/setup-pnpm.md)
     - [Test Setup Script Workflow](ci_cd/test-setup-script.md)
     - [Documentation Check Workflow](documentation-check-workflow.md)

@@ -60,6 +60,7 @@ $RECYCLE.BIN/
 # Task files
 # Translations
 # Unit test / coverage reports
+junit/test-results.xml
 # celery beat schedule file
 # mkdocs documentation
 # mypy
@@ -103,6 +104,7 @@ security-reports/current-bandit-results.json
 security-reports/bandit-results-*.sarif
 !security-reports/bandit-results.sarif
 !security-reports/bandit-results-ini.sarif
+security-reports/pip-audit-results.json
 bandit-results.json.tmp
 *.json.tmp
 coverage-*.xml
@@ -118,6 +120,11 @@ empty-sarif.json
 coverage.xml
 htmlcov/
 create_bandit_files.sh
+
+# Temporary/Generated Fix Files
+docs/03_devops_and_cicd/workflow_fixes_req35.md
+fix_dependency_issues.py
+fix_version_conflicts.py
 
 # Temporary and Generated Files
 commit_message.txt
