@@ -194,12 +194,14 @@ def _create_in_memory_module() -> bool:
     from types import ModuleType
 
     try:
-        # Create a mock module
+        # Create a mock module with proper version
         mock_module = ModuleType("modelcontextprotocol")
+        mock_module.__version__ = "0.1.0"
+        mock_module.__file__ = "<mock>"
 
         # Add a Client class to the module
         class MockClient:
-            def __init__(self, endpoint: str, **kwargs: dict) -> None:
+            def __init__(self, endpoint: str = "", **kwargs: dict) -> None:
                 self.endpoint = endpoint
                 self.kwargs = kwargs
 
@@ -210,16 +212,30 @@ def _create_in_memory_module() -> bool:
                 pass
 
             def send_message(self, message: str) -> str:
-                return f"Mock response to: {message}"
+                return f"Mock MCP response to: {message}"
 
-        # Add the Client class to the module
+        # Add a Server class to the module
+        class MockServer:
+            def __init__(self, name: str = "mock-server", **kwargs: dict) -> None:
+                self.name = name
+                self.kwargs = kwargs
+
+            def start(self) -> None:
+                pass
+
+            def stop(self) -> None:
+                pass
+
+        # Add the classes to the module
         # Use type ignore to suppress mypy error about adding attribute to ModuleType
         mock_module.Client = MockClient  # type: ignore[attr-defined]
+        mock_module.Server = MockServer  # type: ignore[attr-defined]
 
-        # Add the module to sys.modules
+        # Add the module to sys.modules with multiple names
         sys.modules["modelcontextprotocol"] = mock_module
+        sys.modules["mcp"] = mock_module  # Alternative import name
 
-        logger.info("Successfully created in-memory mock module")
+        logger.info("Successfully created in-memory mock MCP module")
     # We need to catch all exceptions here to ensure we can fall back to physical module creation
     # ruff: noqa: BLE001
     except Exception as e:
@@ -260,9 +276,11 @@ def _create_module_files(temp_dir: str) -> tuple[Path, Path]:
 
     # Create __init__.py
     with (mcp_dir / "__init__.py").open("w") as f:
-        f.write("""
+        f.write('''"""Mock modelcontextprotocol module."""
+__version__ = "0.1.0"
+
 class Client:
-    def __init__(self, endpoint, **kwargs):
+    def __init__(self, endpoint="", **kwargs):
         self.endpoint = endpoint
         self.kwargs = kwargs
 
@@ -273,8 +291,19 @@ class Client:
         pass
 
     def send_message(self, message):
-        return f"Mock response to: {message}"
-""")
+        return f"Mock MCP response to: {message}"
+
+class Server:
+    def __init__(self, name="mock-server", **kwargs):
+        self.name = name
+        self.kwargs = kwargs
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+''')
 
     # Create setup.py
     setup_file = Path(temp_dir) / "setup.py"

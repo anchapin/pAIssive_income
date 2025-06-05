@@ -15,7 +15,8 @@
     "tailwind:build:vite": "node ui/tailwind_utils.js --vite ./ui/react_frontend/vitest.config.js",
     "tailwind:build:postcss": "node ui/tailwind_utils.js --postcss-config ./ui/postcss.config.js",
     "tailwind:build:multi": "node ui/tailwind_utils.js --add-file ./tailwind.config.js ./ui/static/css/tailwind.css ./ui/static/css/tailwind.output.css --add-file ./ui/react_frontend/tailwind.config.js ./ui/react_frontend/src/index.css ./ui/react_frontend/src/tailwind.output.css",
-    "tailwind:config": "node ui/tailwind_utils.js --config-file ./ui/tailwind.config.json",    "test": "pnpm install && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
+    "tailwind:config": "node ui/tailwind_utils.js --config-file ./ui/tailwind.config.json",
+    "test": "pnpm install && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
     "test:ci": "pnpm install --frozen-lockfile && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
     "test:parallel": "pnpm install --frozen-lockfile && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --parallel --passWithNoTests",
     "coverage": "nyc report --reporter=text-lcov",
@@ -97,5 +98,6 @@
         "lines": 100
       }
     }
-  }
+  },
+  "packageManager": "pnpm@8.14.0+sha512.5d4bf97b349faf1a51318aa1ba887e99d9c36e203dbcb55938a91fddd2454246cb00723d6642f54d463a0f52a2701dadf8de002a37fc613c9cdc94ed5675ddce"
 }

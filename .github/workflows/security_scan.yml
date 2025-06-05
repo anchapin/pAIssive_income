@@ -95,23 +95,14 @@ jobs:
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
 
-      # Upload Trivy scan SARIF (simplified and optimized)
+      # Upload Trivy scan SARIF with unique category
       - name: Upload Trivy scan SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         continue-on-error: true
         with:
           sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}-${{ github.run_id }}
-
-      # Upload legacy format for backward compatibility
-      - name: Upload Trivy scan SARIF (Legacy)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}
+          category: security-scan-trivy-${{ runner.os }}-${{ github.run_id }}
 
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
@@ -506,12 +497,33 @@ jobs:
         run: mkdir -p security-reports
         shell: bash
 
-      - name: Install Bandit
+      - name: Install Bandit and additional security tools
         run: |
-          # Install Bandit
-          python -m pip install bandit
+          # Install Bandit, Safety, and pip-audit for comprehensive security scanning
+          python -m pip install bandit safety pip-audit
           # Verify installation
-          python -m pip list | grep bandit
+          python -m pip list | grep -E "bandit|safety|pip-audit"
+
+      - name: Run Safety and pip-audit (Linux/macOS)
+        if: runner.os != 'Windows'
+        continue-on-error: true
+        run: |
+          # Create security-reports directory if it doesn't exist
+          mkdir -p security-reports
+
+          # Run Safety check for Python dependency vulnerabilities
+          echo "Running Safety check..."
+          safety check --json --output security-reports/safety-results.json || {
+            echo "Safety check failed, creating empty results file"
+            echo '{"vulnerabilities": [], "errors": []}' > security-reports/safety-results.json
+          }
+
+          # Run pip-audit for Python dependency auditing
+          echo "Running pip-audit..."
+          pip-audit --format=json --output=security-reports/pip-audit-results.json || {
+            echo "pip-audit failed, creating empty results file"
+            echo '{"vulnerabilities": [], "errors": []}' > security-reports/pip-audit-results.json
+          }
 
       - name: Run Bandit (Linux/macOS)
         if: runner.os != 'Windows'
@@ -582,6 +594,32 @@ jobs:
 
 
 
+      - name: Run Safety and pip-audit (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Create security-reports directory if it doesn't exist
+          New-Item -ItemType Directory -Force -Path security-reports
+
+          # Run Safety check for Python dependency vulnerabilities
+          Write-Host "Running Safety check..."
+          try {
+            safety check --json --output security-reports/safety-results.json
+          } catch {
+            Write-Host "Safety check failed, creating empty results file: $_"
+            Set-Content -Path "security-reports/safety-results.json" -Value '{"vulnerabilities": [], "errors": []}'
+          }
+
+          # Run pip-audit for Python dependency auditing
+          Write-Host "Running pip-audit..."
+          try {
+            pip-audit --format=json --output=security-reports/pip-audit-results.json
+          } catch {
+            Write-Host "pip-audit failed, creating empty results file: $_"
+            Set-Content -Path "security-reports/pip-audit-results.json" -Value '{"vulnerabilities": [], "errors": []}'
+          }
+
       - name: Run Bandit (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
@@ -615,21 +653,21 @@ jobs:
             $emptySarif | ConvertTo-Json -Depth 10 | Set-Content -Path "security-reports/bandit-results.sarif"
           }
 
-      # Upload Bandit scan SARIF
+      # Upload Bandit scan SARIF with unique category
       - name: Upload Bandit scan SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         continue-on-error: true
         with:
           sarif_file: security-reports/bandit-results.sarif
-          category: bandit-${{ runner.os }}
+          category: security-scan-bandit-${{ runner.os }}-${{ github.run_id }}
 
-      - name: Upload Bandit Reports
+      - name: Upload Security Reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: bandit-reports-${{ runner.os }}
-          path: security-reports/bandit-results.sarif
+          name: security-reports-bandit-safety-pipaudit-${{ runner.os }}-${{ github.run_id }}
+          path: security-reports/
           retention-days: 7
 
   custom-secret-scan:

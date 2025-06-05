@@ -8,6 +8,6 @@ echo Running type checking...
 mypy .
 
 echo Running tests...
-pytest -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=1
+pytest -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15
 
 echo All tests completed!
