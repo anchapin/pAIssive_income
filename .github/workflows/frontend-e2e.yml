@@ -79,7 +79,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'pnpm'
-          cache-dependency-path: 'pnpm-lock.yaml'
+          cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
 
       # Install global pnpm if needed (for Windows)
       - name: Install global pnpm (Windows)
