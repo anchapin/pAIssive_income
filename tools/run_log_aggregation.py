@@ -26,10 +26,11 @@ import logging
 import os
 import sys
 
-from logging_config import configure_logging
-
 # Add the project root to the Python path
 from pathlib import Path
+
+from logging_config import configure_logging
+
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(project_root))
 
