@@ -1,0 +1,62 @@
+# Minimal requirements for CodeQL analysis
+# This file contains only essential dependencies needed for static code analysis
+# Excludes heavy packages like ML libraries, agent frameworks, etc.
+
+# Core web frameworks
+fastapi>=0.100.0
+uvicorn>=0.23.0
+flask>=2.3.0
+werkzeug>=2.3.0
+
+# Data validation and serialization
+pydantic>=2.6.0,<2.10.0
+pydantic-core>=2.33.0,<2.34.0
+
+# Database and ORM
+sqlalchemy>=2.0.0
+alembic>=1.11.0
+psycopg2-binary>=2.9.0
+
+# HTTP clients
+requests>=2.31.0
+httpx>=0.24.0
+aiohttp>=3.8.0
+
+# Authentication and security
+pyjwt>=2.8.0
+cryptography>=42.0.0
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+
+# Utilities
+python-dateutil>=2.8.0
+python-dotenv>=1.0.0
+jinja2>=3.1.0
+click>=8.0.2,<8.2.0
+python-multipart>=0.0.6
+pytz>=2023.3
+
+# Configuration and data formats
+pyyaml>=6.0
+toml>=0.10.0
+packaging>=23.0
+
+# Basic async support
+aiofiles>=23.0.0
+
+# Testing framework (for test file analysis)
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Redis (commonly used)
+redis>=4.5.0
+
+# Background tasks
+celery>=5.3.0
+
+# Basic data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Monitoring
+prometheus-client>=0.17.0

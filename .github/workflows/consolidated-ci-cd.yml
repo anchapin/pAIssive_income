@@ -124,29 +124,38 @@ jobs:
             ${{ runner.os }}-python-${{ matrix.python-version || '3.12' }}-
             ${{ runner.os }}-python-
 
+      - name: Install uv for consistent dependency management
+        continue-on-error: false
+        timeout-minutes: 10
+        run: |
+          echo "Installing uv for consistent dependency management..."
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        shell: bash
+
       - name: Install essential dependencies first
         continue-on-error: false
         timeout-minutes: ${{ matrix.os == 'windows-latest' && 20 || 15 }}
         run: |
-          echo "Installing essential dependencies with simplified approach..."
+          echo "Installing essential dependencies with uv..."
 
-          # Install basic tools
-          echo "Installing pip, setuptools, wheel..."
-          python -m pip install --upgrade pip setuptools wheel
+          # Create virtual environment with uv
+          uv venv .venv
+          source .venv/bin/activate
 
           # Install essential testing and linting tools with retry logic
           echo "Installing essential packages with retry logic..."
           for attempt in 1 2 3; do
             echo "Attempt $attempt: Installing essential packages..."
-            if python -m pip install --upgrade --force-reinstall pytest pytest-cov pytest-asyncio pytest-xdist pytest-mock ruff pyright; then
+            if uv pip install pytest pytest-cov pytest-asyncio pytest-xdist pytest-mock ruff pyright; then
               echo "✓ Essential packages installed successfully"
               break
             elif [ $attempt -eq 3 ]; then
               echo "⚠ Installing packages individually as fallback..."
-              python -m pip install pytest || echo "pytest install failed"
-              python -m pip install pytest-cov || echo "pytest-cov install failed"
-              python -m pip install ruff || echo "ruff install failed"
-              python -m pip install pyright || echo "pyright install failed"
+              uv pip install pytest || echo "pytest install failed"
+              uv pip install pytest-cov || echo "pytest-cov install failed"
+              uv pip install ruff || echo "ruff install failed"
+              uv pip install pyright || echo "pyright install failed"
             else
               echo "⚠ Attempt $attempt failed, retrying in 10 seconds..."
               sleep 10
@@ -162,6 +171,9 @@ jobs:
         timeout-minutes: ${{ matrix.os == 'macos-latest' && 30 || 25 }}
         run: |
           echo "Setting up Python environment for Unix systems..."
+
+          # Activate virtual environment
+          source .venv/bin/activate
 
           # Create mock modules first to prevent import errors
           echo "Creating mock modules..."
@@ -204,22 +216,31 @@ jobs:
               print(f'Created mock module: {module_name}')
           "
 
-          # Install requirements with simplified filtering
+          # Install requirements with simplified filtering using uv
           if [ -f requirements.txt ]; then
-            echo "Installing filtered requirements..."
+            echo "Installing filtered requirements with uv..."
             # Create filtered requirements excluding problematic packages
             grep -v -E "^(modelcontextprotocol|mcp-|crewai|mem0ai|mem0-ai)" requirements.txt | \
             grep -v -E "^#.*" | \
             grep -v -E "^[[:space:]]*$" > requirements_filtered.txt
 
-            python -m pip install -r requirements_filtered.txt || {
+            uv pip install -r requirements_filtered.txt || {
               echo "Filtered installation failed, trying essential packages only..."
               echo "fastapi uvicorn pydantic sqlalchemy pytest pytest-cov" > requirements_minimal.txt
-              python -m pip install -r requirements_minimal.txt
+              uv pip install -r requirements_minimal.txt
             }
           fi
 
           echo "✓ Unix dependency installation completed"
+
+      - name: Install uv (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "Installing uv for Windows..."
+          irm https://astral.sh/uv/install.ps1 | iex
+          $env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
+          echo "$env:USERPROFILE\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
@@ -228,6 +249,10 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Setting up Python environment for Windows..."
+
+          # Create virtual environment with uv
+          uv venv .venv
+          .\.venv\Scripts\Activate.ps1
 
           # Create mock modules first using Python (more reliable than PowerShell)
           Write-Host "Creating mock modules..."
@@ -270,9 +295,9 @@ jobs:
               print(f'Created mock module: {module_name}')
           "@
 
-          # Install requirements with simplified filtering
+          # Install requirements with simplified filtering using uv
           if (Test-Path requirements.txt) {
-            Write-Host "Installing filtered requirements..."
+            Write-Host "Installing filtered requirements with uv..."
             # Filter out problematic packages using PowerShell
             $requirements = Get-Content requirements.txt | Where-Object {
               -not $_.Contains("modelcontextprotocol") -and
@@ -287,11 +312,11 @@ jobs:
             if ($requirements.Count -gt 0) {
               $requirements | Set-Content -Path "requirements_filtered.txt"
               try {
-                python -m pip install -r requirements_filtered.txt
+                uv pip install -r requirements_filtered.txt
               } catch {
                 Write-Host "Filtered installation failed, trying essential packages only..."
                 "fastapi", "uvicorn", "pydantic", "sqlalchemy", "pytest", "pytest-cov" | Set-Content -Path "requirements_minimal.txt"
-                python -m pip install -r requirements_minimal.txt
+                uv pip install -r requirements_minimal.txt
               }
             }
           }
@@ -319,6 +344,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "Running code quality checks on Unix systems..."
+          source .venv/bin/activate
 
           echo "Running ruff check..."
           ruff check . --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" --exclude "mock_mcp" --exclude "mock_crewai" || echo "Ruff check failed"
@@ -332,6 +358,7 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Running code quality checks on Windows..."
+          .\.venv\Scripts\Activate.ps1
 
           Write-Host "Running ruff check..."
           try {
@@ -351,6 +378,14 @@ jobs:
         continue-on-error: true
         run: |
           echo "Running main test suite..."
+
+          # Activate virtual environment (Unix)
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            source .venv/bin/activate
+          else
+            .\.venv\Scripts\Activate.ps1
+          fi
+
           export PYTHONPATH="${PYTHONPATH}:$(pwd)"
           export PYTHONNOUSERSITE=1
           export CI=true

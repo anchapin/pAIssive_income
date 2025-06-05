@@ -32,39 +32,48 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip setuptools wheel
+        echo "Installing dependencies using uv for consistent package management..."
+
+        # Create virtual environment with uv
+        uv venv .venv
+        source .venv/bin/activate
 
         # Install essential testing dependencies first
         echo "Installing essential testing dependencies..."
-        python -m pip install pytest pytest-cov pytest-asyncio pytest-xdist pytest-mock
+        uv pip install pytest pytest-cov pytest-asyncio pytest-xdist pytest-mock
 
         # Install core application dependencies
         echo "Installing core application dependencies..."
-        python -m pip install fastapi uvicorn pydantic httpx redis flask
+        uv pip install fastapi uvicorn pydantic httpx redis flask
 
         # Install additional dependencies with error handling
         echo "Installing additional dependencies..."
-        python -m pip install aiohttp>=3.9.0 multidict yarl python-multipart "pydantic[email]" pydantic-core || {
+        uv pip install aiohttp>=3.9.0 multidict yarl python-multipart "pydantic[email]" pydantic-core || {
           echo "Warning: Some additional dependencies failed to install, continuing..."
         }
 
         # Try to install from requirements files with fallback
         if [ -f "requirements-ci.txt" ]; then
           echo "Installing CI-specific requirements..."
-          python -m pip install -r requirements-ci.txt || echo "CI requirements failed, using minimal setup"
+          uv pip install -r requirements-ci.txt || echo "CI requirements failed, using minimal setup"
         elif [ -f "requirements.txt" ]; then
           echo "Installing from requirements.txt..."
           # Filter out problematic packages for CI
           grep -v -E "^(modelcontextprotocol|mcp-|crewai|mem0ai)" requirements.txt > requirements_filtered.txt || cp requirements.txt requirements_filtered.txt
-          python -m pip install -r requirements_filtered.txt || echo "Requirements installation failed, using minimal setup"
+          uv pip install -r requirements_filtered.txt || echo "Requirements installation failed, using minimal setup"
         fi
 
         # Install the package in development mode if possible
         if [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
           echo "Installing package in development mode..."
-          python -m pip install -e . || echo "Development mode installation failed, continuing..."
+          uv pip install -e . || echo "Development mode installation failed, continuing..."
         fi
 
     - name: Create mock modules for CI
@@ -126,6 +135,7 @@ jobs:
 
     - name: Check logger initialization
       run: |
+        source .venv/bin/activate
         python scripts/check_logger_initialization.py --verbose || {
           echo "Warning: Logger initialization check failed, but continuing with tests"
         }
@@ -133,6 +143,9 @@ jobs:
     - name: Run tests with coverage
       timeout-minutes: 30
       run: |
+        # Activate virtual environment
+        source .venv/bin/activate
+
         # Set environment variables
         export PYTHONPATH="${PYTHONPATH}:$(pwd)"
         export CI=true
