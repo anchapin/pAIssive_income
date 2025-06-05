@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Logger initialization checker script.
+
 Validates Python files for proper logger setup patterns.
 """
 
@@ -12,7 +13,16 @@ from pathlib import Path
 
 
 class LoggerChecker(ast.NodeVisitor):
+    """AST visitor to check for proper logger initialization patterns."""
+
     def __init__(self, filename: str) -> None:
+        """
+        Initialize the logger checker.
+
+        Args:
+            filename: Path to the file being checked
+
+        """
         self.filename = filename
         self.issues: list[tuple[str, int, str]] = []
         self.has_logging_import = False
@@ -25,7 +35,8 @@ class LoggerChecker(ast.NodeVisitor):
         self.first_import_line = None
         self.last_import_line = None
 
-    def visit_Import(self, node: ast.Import) -> None:
+    def visit_import(self, node: ast.Import) -> None:
+        """Visit Import nodes to check for logging and third-party imports."""
         if self.first_import_line is None:
             self.first_import_line = node.lineno
         self.last_import_line = node.lineno
@@ -33,9 +44,11 @@ class LoggerChecker(ast.NodeVisitor):
         for alias in node.names:
             if alias.name == "logging":
                 self.has_logging_import = True
-            elif not alias.name.startswith(".") and "." not in alias.name:
-                # Check for third-party imports (simplified heuristic)
-                if alias.name not in [
+            elif (
+                not alias.name.startswith(".")
+                and "." not in alias.name
+                and alias.name
+                not in [
                     "os",
                     "sys",
                     "json",
@@ -48,11 +61,13 @@ class LoggerChecker(ast.NodeVisitor):
                     "itertools",
                     "functools",
                     "typing",
-                ]:
-                    self.has_third_party_imports = True
+                ]
+            ):
+                # Check for third-party imports (simplified heuristic)
+                self.has_third_party_imports = True
         self.generic_visit(node)
 
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+    def visit_import_from(self, node: ast.ImportFrom) -> None:
         """Visit ImportFrom nodes to check for logging and third-party imports."""
         if self.first_import_line is None:
             self.first_import_line = node.lineno
@@ -60,11 +75,25 @@ class LoggerChecker(ast.NodeVisitor):
 
         if node.module == "logging":
             self.has_logging_import = True
-        elif (node.module and not node.module.startswith(".") and
-              node.module.split(".")[0] not in [
-                  "os", "sys", "json", "time", "datetime", "re", "math",
-                  "random", "collections", "itertools", "functools", "typing",
-              ]):
+        elif (
+            node.module
+            and not node.module.startswith(".")
+            and node.module.split(".")[0]
+            not in [
+                "os",
+                "sys",
+                "json",
+                "time",
+                "datetime",
+                "re",
+                "math",
+                "random",
+                "collections",
+                "itertools",
+                "functools",
+                "typing",
+            ]
+        ):
             # Check for third-party imports
             self.has_third_party_imports = True
         self.generic_visit(node)
@@ -72,11 +101,13 @@ class LoggerChecker(ast.NodeVisitor):
     def visit_assign(self, node: ast.Assign) -> None:
         """Check for logger initialization patterns."""
         # Check for logger initialization patterns
-        if (isinstance(node.value, ast.Call) and
-            isinstance(node.value.func, ast.Attribute) and
-            isinstance(node.value.func.value, ast.Name) and
-            node.value.func.value.id == "logging" and
-            node.value.func.attr == "getLogger"):
+        if (
+            isinstance(node.value, ast.Call)
+            and isinstance(node.value.func, ast.Attribute)
+            and isinstance(node.value.func.value, ast.Name)
+            and node.value.func.value.id == "logging"
+            and node.value.func.attr == "getLogger"
+        ):
             self.has_logger_init = True
             self.logger_init_line = node.lineno
         self.generic_visit(node)

@@ -133,7 +133,8 @@ def create_process_kwargs() -> dict[str, Any]:
     if not is_windows():
         try:
             # On Unix-like systems, create new process group if supported
-            kwargs["preexec_fn"] = os.setsid
+            if hasattr(os, "setsid"):
+                kwargs["preexec_fn"] = os.setsid
         except AttributeError:
             logger.warning("os.setsid not available, process group management disabled")
 
@@ -175,7 +176,12 @@ async def run_command_async(
                 process.terminate()
             else:
                 try:
-                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                    if hasattr(os, "killpg") and hasattr(os, "getpgid"):
+                        killpg = os.killpg
+                        getpgid = os.getpgid
+                        killpg(getpgid(process.pid), signal.SIGTERM)
+                    else:
+                        process.terminate()
                 except (AttributeError, ProcessLookupError):
                     logger.warning("Failed to kill process group")
                     process.terminate()

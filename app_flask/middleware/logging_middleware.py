@@ -6,13 +6,13 @@ import time
 import traceback
 import uuid
 from logging import ERROR, INFO, Logger, getLogger
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
     from flask.app import Flask
     from flask.wrappers import Response
-    from werkzeug.wrappers import Response as WerkzeugResponse
 
+from flask import jsonify
 from flask.globals import current_app, g, request
 
 from app_flask.utils.logging_utils import sanitize_log_data, structured_log
@@ -202,7 +202,7 @@ def _setup_error_handler(app: Flask) -> None:
     @app.errorhandler(Exception)
     def log_exception(
         error: Exception,
-    ) -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+    ) -> Response:
         """
         Log unhandled exceptions.
 
@@ -238,7 +238,11 @@ def _setup_error_handler(app: Flask) -> None:
             extra=error_data,
         )
 
-        return {"error": "Internal server error", "request_id": g.request_id}, 500
+        response = jsonify(
+            {"error": "Internal server error", "request_id": g.request_id}
+        )
+        response.status_code = 500
+        return response
 
 
 def setup_request_logging(app: Flask) -> None:

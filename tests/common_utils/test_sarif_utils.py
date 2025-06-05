@@ -43,7 +43,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful
@@ -64,7 +64,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful (creates empty SARIF)
@@ -87,7 +87,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful (creates empty SARIF)
@@ -123,7 +123,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful
@@ -170,7 +170,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful

@@ -7,10 +7,11 @@ This script sets up argument parsing, environment creation, and the main RL trai
 import argparse
 
 
-def main():
+def main() -> None:
     """
-    Main entry point for RL training.
-    Parses arguments, initializes environment, and runs the training loop.
+    Train RL agent on ArtistRLEnv.
+
+    Parse arguments, initialize environment, and run the training loop.
     """
     parser = argparse.ArgumentParser(description="Train an RL agent on ArtistRLEnv.")
     parser.add_argument(
@@ -32,14 +33,18 @@ def main():
         obs = env.reset()
         done = False
         total_reward = 0.0
-        for step in range(args.max_steps):
+        for _step in range(args.max_steps):
             # Placeholder: random action
             action = env.action_space.sample()
             obs, reward, done, info = env.step(action)
             total_reward += reward
             if done:
                 break
-        print(f"Episode {episode + 1}: Total Reward = {total_reward}")
+        import logging
+
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+        logger.info("Episode %d: Total Reward = %f", episode + 1, total_reward)
 
     env.close()
 

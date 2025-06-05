@@ -11,10 +11,19 @@ Adapt and extend these scaffolds to fit your use-case.
 
 import logging
 import os
-from typing import Optional
+from typing import Optional, Protocol
 
 # Import standard CrewAI components
 from crewai import Agent, Crew, Task
+
+
+class TeamProtocol(Protocol):
+    """Protocol for team objects that can run workflows."""
+
+    def run(self) -> object:
+        """Run the team workflow."""
+        ...
+
 
 # Import memory-enhanced agent team
 try:
@@ -36,7 +45,9 @@ logger = logging.getLogger(__name__)
 # Example: Assemble into a Crew (team)
 
 
-def create_team(use_memory: bool = False, user_id: Optional[str] = None) -> object:
+def create_team(
+    use_memory: bool = False, user_id: Optional[str] = None
+) -> TeamProtocol:
     """
     Create and return a CrewAI team, optionally using memory enhancement.
 

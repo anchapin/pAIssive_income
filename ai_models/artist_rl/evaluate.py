@@ -4,10 +4,21 @@ Evaluation script for Artist RL module.
 Measures performance of baseline and trained agents on multi-step tool-use tasks.
 """
 
+from __future__ import annotations
+
 import argparse
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import gymnasium as gym
 
 
-def evaluate_agent(env, agent, episodes: int, max_steps: int):
+def evaluate_agent(
+    env: gym.Env,
+    agent: object,  # noqa: ARG001
+    episodes: int,
+    max_steps: int,
+) -> dict[str, Any]:
     """
     Evaluate the agent on the environment.
 
@@ -29,8 +40,9 @@ def evaluate_agent(env, agent, episodes: int, max_steps: int):
         for _ in range(max_steps):
             # Placeholder: agent policy (replace with agent.predict(obs) if available)
             action = env.action_space.sample()
-            obs, reward, done, info = env.step(action)
-            total_reward += reward
+            obs, reward, done, truncated, info = env.step(action)
+            done = done or truncated  # Combine done and truncated flags
+            total_reward += float(reward)
             if done:
                 break
         rewards.append(total_reward)
@@ -38,9 +50,11 @@ def evaluate_agent(env, agent, episodes: int, max_steps: int):
     return {"avg_reward": avg_reward, "all_rewards": rewards}
 
 
-def main():
+def main() -> None:
     """
-    Main entry point for evaluation.
+    Evaluate RL agent on ArtistRLEnv.
+
+    Parse arguments and run evaluation.
     """
     parser = argparse.ArgumentParser(description="Evaluate RL agent on ArtistRLEnv.")
     parser.add_argument(
@@ -49,7 +63,7 @@ def main():
     parser.add_argument(
         "--max-steps", type=int, default=50, help="Max steps per episode."
     )
-    # parser.add_argument("--agent-path", type=str, help="Path to trained agent (if any).")
+
     args = parser.parse_args()
 
     from .env import ArtistRLEnv
@@ -58,7 +72,11 @@ def main():
     agent = None  # Placeholder: load agent here
 
     metrics = evaluate_agent(env, agent, args.episodes, args.max_steps)
-    print("Evaluation Results:", metrics)
+    import logging
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    logger.info("Evaluation Results: %s", metrics)
 
     env.close()
 

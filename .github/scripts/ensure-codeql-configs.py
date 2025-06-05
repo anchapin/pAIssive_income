@@ -1,23 +1,35 @@
 #!/usr/bin/env python3
+# ruff: noqa: N999
 """
-Script to ensure CodeQL configuration files exist.
+Create CodeQL configuration files.
+
 This script creates the necessary CodeQL configuration files for security scanning.
 """
 
+from __future__ import annotations
+
 import json
-import os
+import logging
+from pathlib import Path
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def ensure_directory(directory):
+def ensure_directory(directory: str) -> None:
     """Ensure the directory exists."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-        print(f"Created directory: {directory}")
+    dir_path = Path(directory)
+    if not dir_path.exists():
+        dir_path.mkdir(parents=True, exist_ok=True)
+        logger.info("Created directory: %s", directory)
     else:
-        print(f"Directory already exists: {directory}")
+        logger.info("Directory already exists: %s", directory)
 
 
-def create_codeql_config(filename, config_name, os_name=None):
+def create_codeql_config(
+    filename: str, config_name: str, os_name: str | None = None
+) -> None:
     """Create a CodeQL configuration file with the given parameters."""
     config = {
         "name": config_name,
@@ -41,33 +53,36 @@ def create_codeql_config(filename, config_name, os_name=None):
     if os_name:
         config["os"] = os_name
 
-    with open(filename, "w") as f:
+    file_path = Path(filename)
+    with file_path.open("w") as f:
         json.dump(config, f, indent=2)
 
-    print(f"Created CodeQL configuration file: {filename}")
+    logger.info("Created CodeQL configuration file: %s", filename)
 
 
-def main():
-    """Main function to create CodeQL configuration files."""
+def main() -> None:
+    """Create CodeQL configuration files."""
     # Ensure the .github/codeql directory exists
-    codeql_dir = os.path.join(".github", "codeql")
-    ensure_directory(codeql_dir)
+    codeql_dir = Path(".github") / "codeql"
+    ensure_directory(str(codeql_dir))
 
     # Create the Ubuntu configuration
-    ubuntu_config = os.path.join(codeql_dir, "security-os-ubuntu.yml")
+    ubuntu_config = codeql_dir / "security-os-ubuntu.yml"
     create_codeql_config(
-        ubuntu_config, "CodeQL Configuration for Ubuntu", "ubuntu-latest"
+        str(ubuntu_config), "CodeQL Configuration for Ubuntu", "ubuntu-latest"
     )
 
     # Create the macOS configuration
-    macos_config = os.path.join(codeql_dir, "security-os-macos.yml")
-    create_codeql_config(macos_config, "CodeQL Configuration for macOS", "macos-latest")
+    macos_config = codeql_dir / "security-os-macos.yml"
+    create_codeql_config(
+        str(macos_config), "CodeQL Configuration for macOS", "macos-latest"
+    )
 
     # Create the unified configuration
-    unified_config = os.path.join(codeql_dir, "security-os-config.yml")
-    create_codeql_config(unified_config, "Unified CodeQL Configuration")
+    unified_config = codeql_dir / "security-os-config.yml"
+    create_codeql_config(str(unified_config), "Unified CodeQL Configuration")
 
-    print("All CodeQL configuration files created successfully.")
+    logger.info("All CodeQL configuration files created successfully.")
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ from api.app import app
 client = TestClient(app)
 # The test client will use the TOOL_API_KEY that is set in the environment.
 # This ensures consistency with what the application (api.app) expects.
-TOOL_API_KEY = os.getenv("TOOL_API_KEY")
+TOOL_API_KEY = os.getenv("TOOL_API_KEY") or "test-key"
 HEADERS = {"x-api-key": TOOL_API_KEY}
 
 

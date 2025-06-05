@@ -6,20 +6,29 @@ This script creates empty SARIF files for GitHub Advanced Security
 when the Bandit scan fails or produces no results.
 """
 
+from __future__ import annotations
+
 import json
+import logging
 import os
 import sys
+from pathlib import Path
 
 # Skip virtual environment check by setting environment variables
 os.environ["PYTHONNOUSERSITE"] = "1"
 os.environ["SKIP_VENV_CHECK"] = "1"
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def main():
+
+def main() -> None:
     """Create empty SARIF files."""
     # Create security-reports directory if it doesn't exist
-    os.makedirs("security-reports", exist_ok=True)
-    print("Created security-reports directory")
+    reports_dir = Path("security-reports")
+    reports_dir.mkdir(exist_ok=True)
+    logger.info("Created security-reports directory")
 
     # Create empty SARIF template
     empty_sarif = {
@@ -42,13 +51,16 @@ def main():
 
     # Write empty SARIF files
     try:
-        with open("security-reports/bandit-results.sarif", "w") as f:
+        bandit_results = reports_dir / "bandit-results.sarif"
+        bandit_results_ini = reports_dir / "bandit-results-ini.sarif"
+
+        with bandit_results.open("w") as f:
             json.dump(empty_sarif, f, indent=2)
-        with open("security-reports/bandit-results-ini.sarif", "w") as f:
+        with bandit_results_ini.open("w") as f:
             json.dump(empty_sarif, f, indent=2)
-        print("Created empty SARIF files")
-    except Exception as e:
-        print(f"Error creating SARIF files: {e}")
+        logger.info("Created empty SARIF files")
+    except OSError:
+        logger.exception("Error creating SARIF files")
         sys.exit(1)
 
 
@@ -56,6 +68,6 @@ if __name__ == "__main__":
     # Set CI environment variable if running in GitHub Actions
     if os.environ.get("GITHUB_ACTIONS"):
         os.environ["CI"] = "1"
-        print("GitHub Actions environment detected")
+        logger.info("GitHub Actions environment detected")
 
     main()

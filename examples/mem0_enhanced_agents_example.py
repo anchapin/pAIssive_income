@@ -139,7 +139,12 @@ def run_example() -> None:
 
             logger.info(f"Retrieved {len(memories)} memories (direct):")
             for i, memory in enumerate(memories):
-                logger.info(f"Memory {i + 1}: {memory.get('text', 'No text')[:100]}...")
+                if isinstance(memory, dict):
+                    logger.info(
+                        f"Memory {i + 1}: {memory.get('text', 'No text')[:100]}..."
+                    )
+                else:
+                    logger.info(f"Memory {i + 1}: {str(memory)[:100]}...")
         except Exception as e:
             logger.error(f"Error retrieving memories: {e}")
 

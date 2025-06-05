@@ -126,6 +126,7 @@ class TestUserService:
         assert success is True
         assert result["username"] == "testuser"
         assert result["email"] == "test@example.com"
+        assert result is not None
         assert "id" in result
         assert "password_hash" not in result
 
