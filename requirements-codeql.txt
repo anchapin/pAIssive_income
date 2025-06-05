@@ -9,8 +9,8 @@ flask>=2.3.0
 werkzeug>=2.3.0
 
 # Data validation and serialization
-pydantic>=2.6.0,<2.10.0
-pydantic-core>=2.33.0,<2.34.0
+pydantic>=2.6.0
+pydantic-core>=2.16.0
 
 # Database and ORM
 sqlalchemy>=2.0.0
@@ -24,9 +24,8 @@ aiohttp>=3.8.0
 
 # Authentication and security
 pyjwt>=2.8.0
-cryptography>=42.0.0
+cryptography>=41.0.0
 passlib[bcrypt]>=1.7.4
-python-jose[cryptography]>=3.3.0
 
 # Utilities
 python-dateutil>=2.8.0
@@ -54,9 +53,9 @@ redis>=4.5.0
 # Background tasks
 celery>=5.3.0
 
-# Basic data processing
-pandas>=2.0.0
-numpy>=1.24.0
+# Basic data processing (removed heavy packages for CodeQL)
+# pandas>=2.0.0
+# numpy>=1.24.0
 
 # Monitoring
 prometheus-client>=0.17.0

@@ -48,6 +48,28 @@ env/**
 **/*.rst
 **/sphinx/**
 
+# Specific third-party files causing CodeQL false positives
+**/*swagger-ui-bundle.js
+**/*-bundle.js
+**/chunks/*.js
+**/static/chunks/*.js
+**/_next/static/chunks/*.js
+**/emscripten_fetch_worker.js
+**/*.min.js
+**/*.compiled.js
+
+# Specific problematic paths from dependencies
+**/litellm/proxy/_experimental/out/_next/static/chunks/**
+**/litellm/proxy/swagger/**
+**/urllib3/contrib/emscripten/**
+
+# Generated and minified JavaScript files
+**/*.bundle.js
+**/*.chunk.js
+**/*.min.js
+**/webpack/**
+**/rollup/**
+
 # Generated files
 **/playwright-report/**
 **/generated/**
