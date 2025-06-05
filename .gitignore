@@ -185,3 +185,10 @@ artist_experiments/logs/
 # Environment reports that may contain sensitive information
 **/environment-report.json
 **/ci-reports/**/environment-report.json
+
+# New temporary/generated files
+=3.9.0
+bandit-report.json
+lint_baseline.json
+security-reports/current-bandit-results.json
+uv.lock
