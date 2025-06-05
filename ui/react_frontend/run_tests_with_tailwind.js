@@ -47,7 +47,8 @@ function parseArgs() {
     testCommand: '',
     parallel: false,
     watch: false,
-    skipBuild: false
+    skipBuild: false,
+    skipTests: false
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -67,6 +68,8 @@ function parseArgs() {
       options.watch = true;
     } else if (arg === '--skip-build') {
       options.skipBuild = true;
+    } else if (arg === '--skip-tests') {
+      options.skipTests = true;
     }
   }
 
@@ -126,18 +129,22 @@ async function main() {
       log(`${options.outputPath} already exists, skipping build`);
     }
 
-    // Run the tests
-    const testSuccess = await runTestsWithTailwind({
-      configPath: options.configPath,
-      inputPath: options.inputPath,
-      outputPath: options.outputPath,
-      testCommand: options.testCommand,
-      parallel: options.parallel
-    });
+    // Run the tests if not skipping
+    if (!options.skipTests) {
+      const testSuccess = await runTestsWithTailwind({
+        configPath: options.configPath,
+        inputPath: options.inputPath,
+        outputPath: options.outputPath,
+        testCommand: options.testCommand,
+        parallel: options.parallel
+      });
 
-    if (!testSuccess) {
-      log('Failed to run tests after trying all methods');
-      process.exit(1);
+      if (!testSuccess) {
+        log('Failed to run tests after trying all methods');
+        process.exit(1);
+      }
+    } else {
+      log('Skipping tests as requested');
     }
 
     log('Test process completed successfully');

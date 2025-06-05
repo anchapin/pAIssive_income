@@ -82,7 +82,7 @@
     "start:fallback": "node tests/fallback_server.js",
     "eject": "react-scripts eject",
     "preinstall": "npx only-allow pnpm",
-    "tailwind:build": "tailwindcss -c ./tailwind.config.js -i ./src/index.css -o ./src/tailwind.output.css --minify",
+    "tailwind:build": "node run_tests_with_tailwind.js --config ./tailwind.config.js --input ./src/index.css --output ./src/tailwind.output.css --skip-tests",
     "tailwind:watch": "node run_tests_with_tailwind.js --watch",
     "tailwind:build:custom": "node run_tests_with_tailwind.js --config ./tailwind.config.js --input ./src/index.css --output ./src/tailwind.output.css",
     "test:parallel": "node run_tests_with_tailwind.js --parallel --test-command \"npx vitest run --threads --passWithNoTests\"",
