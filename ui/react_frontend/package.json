@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@babel/core": "^7.27.1",
     "@copilotkit/react-core": "^1.8.12",
     "@copilotkit/react-ui": "^1.8.12",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
-    "node-notifier": "^8.0.2",
-    "nth-check": "2.1.1",
+    "node-notifier": "^10.0.1",
+    "nth-check": "^2.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "^7.6.0",
@@ -16,24 +17,25 @@
     "react-scripts": "^5.0.1",
     "typescript": "^5.8.3"
   },
-  "optionalDependencies": {
-    "@ag-ui-protocol/ag-ui": "^1.0.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "@ag-ui-protocol/ag-ui": "npm:@ag-ui-protocol/ag-ui-mock@^1.0.0"
-    }
-  },
   "devDependencies": {
+    "@babel/plugin-syntax-import-assertions": "^7.27.1",
+    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@babel/plugin-transform-nullish-coalescing-operator": "^7.27.1",
     "@babel/plugin-transform-optional-chaining": "^7.27.1",
+    "@babel/plugin-transform-runtime": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
+    "@babel/runtime": "^7.27.1",
     "@jest/reporters": "^29.7.0",
     "@playwright/test": "^1.52.0",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^4.4.1",
-    "@vitest/ui": "^1.6.0",
+    "@vitest/coverage-v8": "^3.1.4",
+    "@vitest/ui": "^3.1.4",
     "autoprefixer": "^10.4.16",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
@@ -42,43 +44,39 @@
     "esbuild": "^0.25.0",
     "eslint": "^9.0.0",
     "express": "^5.1.0",
-    "postcss": "^8.4.32",
+    "jsdom": "^24.0.0",
+    "postcss": "^8.4.35",
     "prismjs": "^1.30.0",
     "react-app-rewired": "^2.2.1",
     "resolve-url-loader": "^5.0.0",
     "tailwindcss": "^3.4.1",
     "tough-cookie": "^4.1.4",
-    "vitest": "^1.6.0"
+    "vi": "^1.0.0",
+    "vitest": "^3.1.4"
   },
-  "overrides": {
-    "nth-check": "^2.1.1",
-    "svgo": {
-      "css-select": {
-        "nth-check": "^2.1.1"
-      }
-    },
-    "postcss": "^8.4.32",
-    "resolve-url-loader": {
-      "postcss": "^8.4.32"
-    },
-    "css-loader": {
-      "postcss": "^8.4.32"
+  "pnpm": {
+    "overrides": {
+      "nth-check": "^2.1.1",
+      "postcss": "^8.4.35",
+      "prismjs": "^1.30.0"
     }
   },
   "scripts": {
     "start": "pnpm tailwind:build && react-app-rewired start",
     "build": "pnpm tailwind:build && react-app-rewired build",
-    "test": "node run_tests_with_tailwind.js --test-command \"npx react-app-rewired test --passWithNoTests\"",
+    "test": "pnpm test:unit",
     "test:legacy": "pnpm tailwind:build && react-app-rewired test --passWithNoTests",
     "test:unit": "pnpm tailwind:build && vitest run --passWithNoTests",
+    "test:unit:watch": "pnpm tailwind:build && vitest",
+    "test:unit:coverage": "vitest run --coverage",
     "test:unit:ui": "pnpm tailwind:build && vitest --ui --passWithNoTests",
-    "test:e2e": "pnpm tailwind:build && npx playwright test tests/e2e/agent_ui.spec.ts --passWithNoTests",
+    "test:e2e": "pnpm tailwind:build && npx playwright test tests/e2e/agent_ui.spec.ts",
     "test:e2e:with-servers": "pnpm tailwind:build && node -e \"process.platform === 'win32' ? require('child_process').execSync('powershell -File tests/run_e2e_tests.ps1', {stdio: 'inherit'}) : require('child_process').execSync('bash tests/run_e2e_tests.sh', {stdio: 'inherit'})\"",
     "test:mock-api": "node tests/run_mock_api_test.js",
-    "test:ci": "pnpm tailwind:build && node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json --passWithNoTests || true",
-    "test:ci:windows": "pnpm tailwind:build && node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json --skip-browser-install --passWithNoTests",
-    "test:simple": "pnpm tailwind:build && npx playwright test tests/e2e/simple_test.spec.ts --passWithNoTests",
-    "test:headless": "pnpm tailwind:build && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --headed=false --passWithNoTests",
+    "test:ci": "pnpm tailwind:build && node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json || true",
+    "test:ci:windows": "pnpm tailwind:build && node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json",
+    "test:simple": "pnpm tailwind:build && npx playwright test tests/e2e/simple_test.spec.ts",
+    "test:headless": "pnpm tailwind:build && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --headed=false",
     "ensure:report-dir": "node tests/ensure_report_dir.js",
     "start:mock-api": "node tests/mock_api_server.js",
     "start:fallback": "node tests/fallback_server.js",

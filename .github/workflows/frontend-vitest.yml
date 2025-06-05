@@ -13,10 +13,16 @@ on:
         required: false
         default: false
         type: boolean
+  workflow_run:
+    workflows: ["Gradual Lint Check"]
+    types:
+      - completed
 
 jobs:
   vitest:
     runs-on: ubuntu-latest
+    # Only run if auto-fix workflow completed successfully, or if triggered by other events
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     defaults:
       run:
         working-directory: ui/react_frontend
@@ -33,7 +39,7 @@ jobs:
         with:
           node-version: 24
           cache: 'pnpm'
-          cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       # Add global pnpm to PATH
       - name: Add global pnpm to PATH
@@ -57,7 +63,10 @@ jobs:
         run: pnpm --version
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          cd ../..
+          pnpm install
+          cd ui/react_frontend
 
       # Create coverage directory to prevent errors
       - name: Create coverage directory

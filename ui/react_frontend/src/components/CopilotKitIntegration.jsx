@@ -15,6 +15,7 @@ const CopilotKitIntegration = () => {
         <div className="mb-4">
           <p className="mb-2">Try typing in the textarea below and ask for help:</p>
           <CopilotTextarea
+            data-testid="mock-copilot-textarea"
             className="w-full p-2 border border-gray-300 rounded"
             placeholder="Type here and ask for help..."
             copilotContext={{

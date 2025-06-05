@@ -12,6 +12,8 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import sys
 from pathlib import Path
 
+from logging_config import configure_logging
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -248,6 +250,7 @@ def check_venv_exists() -> bool:
 
 
 if __name__ == "__main__":
+    configure_logging()
     # Skip virtual environment check entirely
     logger.info("Skipping virtual environment check")
 
@@ -265,7 +268,7 @@ if __name__ == "__main__":
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         # bandit_path is either a full path from shutil.which or the string "bandit"
         # nosec S603 - This is a safe subprocess call with no user input
-        subprocess.run(  # nosec B603 # noqa: S603
+        subprocess.run(  # nosec B603
             [bandit_path, "--version"],
             check=False,
             capture_output=True,
@@ -278,7 +281,7 @@ if __name__ == "__main__":
         # sys.executable is the path to the current Python interpreter
         # nosec S603 - This is a safe subprocess call with no user input
         try:
-            subprocess.run(  # nosec B603 # noqa: S603
+            subprocess.run(  # nosec B603
                 [sys.executable, "-m", "pip", "install", "bandit"],
                 check=False,
                 shell=False,  # Explicitly set shell=False for security
@@ -300,7 +303,7 @@ if __name__ == "__main__":
             try:
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
                 # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
+                subprocess.run(  # nosec B603
                     [
                         bandit_path,
                         "-r",
@@ -335,7 +338,7 @@ if __name__ == "__main__":
             try:
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
                 # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
+                subprocess.run(  # nosec B603
                     [
                         bandit_path,
                         "-r",

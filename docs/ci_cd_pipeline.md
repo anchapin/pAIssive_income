@@ -49,6 +49,7 @@ This stage ensures that code changes are accompanied by relevant documentation u
 - **Implementation**: Uses a custom Python script (`.github/scripts/check_documentation_updated.py`) that analyzes Git changes and categorizes files as documentation or non-documentation.
 - **Workflow File**: Defined in `.github/workflows/check-documentation.yml`.
 - **Resolution**: If this check fails, review your changes and update the relevant documentation to reflect your code modifications.
+- **Recent Updates**: Enhanced documentation enforcement as part of req-35 workflow reliability improvements.
 
 For more detailed information about this workflow, see [Documentation Check Workflow](documentation-check-workflow.md).
 

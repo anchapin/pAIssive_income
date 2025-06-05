@@ -23,13 +23,17 @@ from app_flask import create_app
 from app_flask.middleware.logging_middleware import setup_request_logging
 from config import Config
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Type variable for generic typing
 T = TypeVar("T")
 
 # Type hint for Flask app logger
 FlaskLogger = logging.Logger
 
-logger = LocalProxy[logging.Logger](lambda: current_app.logger)
+# Logger will be initialized after setup_logging() is called
+app_logger = LocalProxy[logging.Logger](lambda: current_app.logger)
 
 
 class CompressedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
@@ -247,6 +251,21 @@ def setup_logging() -> None:
         queue_listener.start()
         import atexit
 
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
+
         atexit.register(queue_listener.stop)
 
         # Log initialization success
@@ -309,7 +328,7 @@ if __name__ == "__main__":
 
     # Default to localhost for security, only bind to all interfaces in container
     if is_container:
-        default_host = "0.0.0.0"  # noqa: S104 - Intentional for container environments
+        default_host = "0.0.0.0"
         if hasattr(app, "logger"):
             app.logger.warning(
                 "Binding to all network interfaces (0.0.0.0). "

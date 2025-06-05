@@ -1,160 +1,340 @@
 #!/usr/bin/env python3
 """
-Test script for common_utils/tooling.py.
+Comprehensive tests for the common_utils.tooling module.
 
 This script tests the tool registry and individual tools including
-the text_analyzer tool as requested in the code review.
+the calculator and text_analyzer tools.
 """
 
-import unittest
+import ast
+import logging
+import re
+from collections.abc import Callable
+from typing import Any, Dict
 from unittest.mock import patch
 
-from common_utils import tooling
+import pytest
+
+from common_utils.tooling import (
+    _TOOL_REGISTRY,
+    MAX_EXPONENT_VALUE,
+    calculator,
+    get_tool,
+    list_tools,
+    register_tool,
+    text_analyzer,
+)
 
 
-class TestToolRegistry(unittest.TestCase):
+@pytest.fixture
+def clean_registry():
+    """Clean tool registry before and after each test."""
+    # Save the original registry
+    original_registry = dict(_TOOL_REGISTRY)
+    # Clear the registry for testing
+    _TOOL_REGISTRY.clear()
+    yield
+    # Restore the original registry
+    _TOOL_REGISTRY.clear()
+    _TOOL_REGISTRY.update(original_registry)
+
+
+class TestToolRegistry:
     """Test cases for the tool registry functionality."""
 
-    def test_register_and_get_tool(self) -> None:
+    def test_register_tool(self, clean_registry):
+        """Test register_tool function."""
+
+        # Define a test function
+        def test_func(x: int) -> int:
+            return x * 2
+
+        # Register the function
+        register_tool("test_tool", test_func)
+
+        # Check if the function was registered
+        assert "test_tool" in _TOOL_REGISTRY
+        assert _TOOL_REGISTRY["test_tool"] is test_func
+
+    def test_get_tool(self, clean_registry):
+        """Test get_tool function."""
+
+        # Define a test function
+        def test_func(x: int) -> int:
+            return x * 2
+
+        # Register the function
+        _TOOL_REGISTRY["test_tool"] = test_func
+
+        # Get the function
+        func = get_tool("test_tool")
+
+        # Check if the correct function was returned
+        assert func is test_func
+        assert func(5) == 10
+
+    def test_get_tool_nonexistent(self, clean_registry):
+        """Test get_tool with a nonexistent tool."""
+        # Try to get a nonexistent tool
+        with pytest.raises(KeyError):
+            get_tool("nonexistent_tool")
+
+    def test_list_tools(self, clean_registry):
+        """Test list_tools function."""
+
+        # Define test functions
+        def test_func1(x: int) -> int:
+            return x * 2
+
+        def test_func2(x: int) -> int:
+            return x * 3
+
+        # Register the functions
+        _TOOL_REGISTRY["test_tool1"] = test_func1
+        _TOOL_REGISTRY["test_tool2"] = test_func2
+
+        # List the tools
+        tools = list_tools()
+
+        # Check if the correct tools were returned
+        assert isinstance(tools, dict)
+        assert len(tools) == 2
+        assert "test_tool1" in tools
+        assert "test_tool2" in tools
+        assert tools["test_tool1"] is test_func1
+        assert tools["test_tool2"] is test_func2
+
+    def test_list_tools_empty(self, clean_registry):
+        """Test list_tools function with an empty registry."""
+        # List the tools
+        tools = list_tools()
+
+        # Check if an empty dict was returned
+        assert isinstance(tools, dict)
+        assert len(tools) == 0
+
+    def test_register_tool_overwrite(self, clean_registry):
+        """Test register_tool function with overwriting an existing tool."""
+
+        # Define test functions
+        def test_func1(x: int) -> int:
+            return x * 2
+
+        def test_func2(x: int) -> int:
+            return x * 3
+
+        # Register the first function
+        register_tool("test_tool", test_func1)
+        assert _TOOL_REGISTRY["test_tool"] is test_func1
+
+        # Register the second function with the same name
+        register_tool("test_tool", test_func2)
+        assert _TOOL_REGISTRY["test_tool"] is test_func2
+
+    def test_register_tool_with_lambda(self, clean_registry):
+        """Test register_tool function with a lambda function."""
+        # Define a lambda function
+        def lambda_func(x):
+            return x * 2
+
+        # Register the lambda function
+        register_tool("lambda_tool", lambda_func)
+
+        # Check if the function was registered
+        assert "lambda_tool" in _TOOL_REGISTRY
+        assert _TOOL_REGISTRY["lambda_tool"] is lambda_func
+
+        # Test the function
+        func = get_tool("lambda_tool")
+        assert func(5) == 10
+
+    def test_register_and_get_tool(self):
         """Test registering and retrieving a tool."""
+
         def dummy_tool(x: str) -> str:
             return f"processed: {x}"
 
-        tooling.register_tool("dummy", dummy_tool)
-        retrieved_tool = tooling.get_tool("dummy")
+        register_tool("dummy", dummy_tool)
+        retrieved_tool = get_tool("dummy")
 
-        self.assertEqual(retrieved_tool, dummy_tool)
-        self.assertEqual(retrieved_tool("test"), "processed: test")
+        assert retrieved_tool == dummy_tool
+        assert retrieved_tool("test") == "processed: test"
 
-    def test_list_tools(self) -> None:
-        """Test listing all registered tools."""
-        tools = tooling.list_tools()
+    def test_list_tools_contains_defaults(self):
+        """Test listing all registered tools includes defaults."""
+        tools = list_tools()
 
         # Should contain at least the default tools
-        self.assertIn("calculator", tools)
-        self.assertIn("text_analyzer", tools)
+        assert "calculator" in tools
+        assert "text_analyzer" in tools
 
         # Should be a dictionary
-        self.assertIsInstance(tools, dict)
+        assert isinstance(tools, dict)
 
 
-class TestCalculatorTool(unittest.TestCase):
+class TestCalculatorTool:
     """Test cases for the calculator tool."""
 
-    def test_basic_arithmetic(self) -> None:
+    def test_basic_arithmetic(self):
         """Test basic arithmetic operations."""
-        calculator = tooling.get_tool("calculator")
+        assert calculator("2 + 3") == 5
+        assert calculator("10 - 4") == 6
+        assert calculator("3 * 4") == 12
+        assert calculator("15 / 3") == 5.0
 
-        self.assertEqual(calculator("2 + 3"), 5)
-        self.assertEqual(calculator("10 - 4"), 6)
-        self.assertEqual(calculator("3 * 4"), 12)
-        self.assertEqual(calculator("15 / 3"), 5.0)
-
-    def test_complex_expressions(self) -> None:
+    def test_complex_expressions(self):
         """Test more complex mathematical expressions."""
-        calculator = tooling.get_tool("calculator")
+        assert calculator("2 + 3 * 4") == 14
+        assert calculator("(2 + 3) * 4") == 20
+        assert calculator("10 % 3") == 1
 
-        self.assertEqual(calculator("2 + 3 * 4"), 14)
-        self.assertEqual(calculator("(2 + 3) * 4"), 20)
-        self.assertEqual(calculator("10 % 3"), 1)
+    def test_calculator_with_parentheses(self):
+        """Test calculator function with parentheses."""
+        result = calculator("(2 + 3) * 4")
+        assert result == 20
 
-    def test_invalid_expressions(self) -> None:
+    def test_calculator_with_float_numbers(self):
+        """Test calculator function with float numbers."""
+        result = calculator("2.5 + 3.5")
+        assert result == 6.0
+
+    def test_calculator_with_modulo(self):
+        """Test calculator function with modulo operation."""
+        result = calculator("10 % 3")
+        assert result == 1
+
+    def test_calculator_with_exponentiation(self):
+        """Test calculator function with exponentiation."""
+        # This should be allowed since the values are small
+        result = calculator("2 ** 3")
+        assert result == 8
+
+    def test_calculator_with_large_exponentiation(self):
+        """Test calculator function with large exponentiation values."""
+        # This should be rejected due to the MAX_EXPONENT_VALUE limit
+        result = calculator(f"{MAX_EXPONENT_VALUE + 1} ** 2")
+        assert isinstance(result, str)
+        assert "Error:" in result
+        assert str(MAX_EXPONENT_VALUE) in result
+
+    def test_calculator_error(self):
+        """Test calculator function with an invalid expression."""
+        result = calculator("2 + / 3")
+        assert isinstance(result, str)
+        assert result.startswith("Error:")
+
+    def test_calculator_security(self):
+        """Test calculator function security (no access to builtins)."""
+        result = calculator("__import__('os').system('echo security_breach')")
+        assert isinstance(result, str)
+        assert result.startswith("Error:")
+
+    def test_calculator_with_invalid_characters(self):
+        """Test calculator function with invalid characters."""
+        result = calculator("2 + 3; import os")
+        assert isinstance(result, str)
+        assert "Error:" in result
+        assert "Invalid characters" in result
+
+    def test_calculator_with_empty_expression(self):
+        """Test calculator function with an empty expression."""
+        result = calculator("")
+        assert isinstance(result, str)
+        assert "Error:" in result
+
+    def test_calculator_with_whitespace_only(self):
+        """Test calculator function with whitespace only."""
+        result = calculator("   ")
+        assert isinstance(result, str)
+        assert "Error:" in result
+
+    def test_invalid_expressions(self):
         """Test handling of invalid expressions."""
-        calculator = tooling.get_tool("calculator")
-
         result = calculator("invalid expression")
-        self.assertIn("Error", str(result))
+        assert "Error" in str(result)
 
         result = calculator("2 + abc")
-        self.assertIn("Error", str(result))
+        assert "Error" in str(result)
+
+    def test_calculator_registered(self, clean_registry):
+        """Test that calculator is registered as a tool."""
+        # Register the calculator tool explicitly for this test
+        register_tool("calculator", calculator)
+
+        # Now check if it's registered
+        tools = list_tools()
+        assert "calculator" in tools
+        assert tools["calculator"] is calculator
 
 
-class TestTextAnalyzerTool(unittest.TestCase):
+class TestTextAnalyzerTool:
     """Test cases for the text_analyzer tool."""
 
-    def test_positive_sentiment(self) -> None:
+    def test_positive_sentiment(self):
         """Test positive sentiment analysis."""
-        text_analyzer = tooling.get_tool("text_analyzer")
-
         result = text_analyzer("This is a fantastic development!")
-        self.assertIn("Sentiment: positive", result)
-        self.assertIn("Positive indicators: 1", result)
-        self.assertIn("Negative indicators: 0", result)
+        assert "Sentiment: positive" in result
+        assert "Positive indicators: 1" in result
+        assert "Negative indicators: 0" in result
 
-    def test_negative_sentiment(self) -> None:
+    def test_negative_sentiment(self):
         """Test negative sentiment analysis."""
-        text_analyzer = tooling.get_tool("text_analyzer")
-
         result = text_analyzer("This is terrible and awful!")
-        self.assertIn("Sentiment: negative", result)
-        self.assertIn("Positive indicators: 0", result)
-        self.assertIn("Negative indicators: 2", result)
+        assert "Sentiment: negative" in result
+        assert "Positive indicators: 0" in result
+        assert "Negative indicators: 2" in result
 
-    def test_neutral_sentiment(self) -> None:
+    def test_neutral_sentiment(self):
         """Test neutral sentiment analysis."""
-        text_analyzer = tooling.get_tool("text_analyzer")
-
         result = text_analyzer("This is a regular statement.")
-        self.assertIn("Sentiment: neutral", result)
-        self.assertIn("Positive indicators: 0", result)
-        self.assertIn("Negative indicators: 0", result)
+        assert "Sentiment: neutral" in result
+        assert "Positive indicators: 0" in result
+        assert "Negative indicators: 0" in result
 
-    def test_mixed_sentiment(self) -> None:
+    def test_mixed_sentiment(self):
         """Test mixed sentiment with equal positive and negative indicators."""
-        text_analyzer = tooling.get_tool("text_analyzer")
-
         result = text_analyzer("I love this but I also hate that part.")
-        self.assertIn("Sentiment: neutral", result)  # Equal positive and negative
-        self.assertIn("Positive indicators: 1", result)
-        self.assertIn("Negative indicators: 1", result)
+        assert "Sentiment: neutral" in result  # Equal positive and negative
+        assert "Positive indicators: 1" in result
+        assert "Negative indicators: 1" in result
 
-    def test_word_and_character_count(self) -> None:
+    def test_word_and_character_count(self):
         """Test word and character counting functionality."""
-        text_analyzer = tooling.get_tool("text_analyzer")
-
         result = text_analyzer("Hello world")
-        self.assertIn("Words: 2", result)
-        self.assertIn("Characters: 11", result)
+        assert "Words: 2" in result
+        assert "Characters: 11" in result
 
-    def test_empty_text(self) -> None:
+    def test_empty_text(self):
         """Test handling of empty text."""
-        text_analyzer = tooling.get_tool("text_analyzer")
-
         result = text_analyzer("")
-        self.assertIn("Sentiment: neutral", result)
-        self.assertIn("Words: 0", result)
-        self.assertIn("Characters: 0", result)
+        assert "Sentiment: neutral" in result
+        assert "Words: 0" in result
+        assert "Characters: 0" in result
 
-    def test_case_insensitive_analysis(self) -> None:
+    def test_case_insensitive_analysis(self):
         """Test that sentiment analysis is case insensitive."""
-        text_analyzer = tooling.get_tool("text_analyzer")
-
         result_lower = text_analyzer("this is great")
         result_upper = text_analyzer("THIS IS GREAT")
         result_mixed = text_analyzer("This Is Great")
 
         # All should detect positive sentiment
-        self.assertIn("Sentiment: positive", result_lower)
-        self.assertIn("Sentiment: positive", result_upper)
-        self.assertIn("Sentiment: positive", result_mixed)
+        assert "Sentiment: positive" in result_lower
+        assert "Sentiment: positive" in result_upper
+        assert "Sentiment: positive" in result_mixed
 
-    def test_multiple_sentiment_words(self) -> None:
+    def test_multiple_sentiment_words(self):
         """Test text with multiple sentiment indicators."""
-        text_analyzer = tooling.get_tool("text_analyzer")
-
         result = text_analyzer("This is excellent, wonderful, and amazing!")
-        self.assertIn("Sentiment: positive", result)
-        self.assertIn("Positive indicators: 3", result)
+        assert "Sentiment: positive" in result
+        assert "Positive indicators: 3" in result
 
-    def test_error_handling(self) -> None:
+    def test_error_handling(self):
         """Test error handling in text analyzer."""
-        text_analyzer = tooling.get_tool("text_analyzer")
-
         # Mock an exception to test error handling
-        with patch('common_utils.tooling.len', side_effect=Exception("Test error")):
+        with patch("common_utils.tooling.len", side_effect=Exception("Test error")):
             result = text_analyzer("test text")
-            self.assertIn("Error analyzing text", result)
+            assert "Error analyzing text" in result
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main([__file__, "-v"])

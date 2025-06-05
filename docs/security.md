@@ -5,6 +5,13 @@ This document outlines security measures, fixes, and procedures implemented in t
 
 ## Recent Security Fixes
 
+### Workflow Security Improvements (req-35, December 2024)
+- Enhanced security scan reliability in GitHub Actions workflows
+- Improved Bandit configuration and SARIF report handling
+- Updated CodeQL analysis for better performance and accuracy
+- Fixed security scan upload failures with proper fallback mechanisms
+- Standardized security tool installation across all platforms (Ubuntu, Windows, macOS)
+
 ### Subprocess Security (May 2025)
 - Added input validation for all subprocess calls
 - Implemented absolute path resolution using `shutil.which()`

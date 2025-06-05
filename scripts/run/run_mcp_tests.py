@@ -15,8 +15,6 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -74,7 +72,12 @@ def _prepare_test_command() -> list[str]:
         "not test_mcp_server",
         "--confcutdir=tests/ai_models/adapters",
         "--noconftest",
-        "--no-cov",  # Disable coverage to avoid issues with the coverage report
+        # Add coverage for MCP adapter files only with lower threshold for MCP-specific tests
+        "--cov=ai_models.adapters.mcp_adapter",
+        "--cov=ai_models.adapters.exceptions",
+        "--cov-report=xml:coverage-mcp.xml",
+        "--cov-report=term",
+        "--cov-fail-under=1",  # Very low threshold for MCP-specific tests since they use mocks
     ]
 
     # Check if the test files exist, and if not, try alternative paths
@@ -87,7 +90,6 @@ def _prepare_test_command() -> list[str]:
                 logger.info("Using alternative path: %s", alt_path)
             else:
                 logger.warning("Test file not found at %s or %s", path, alt_path)
-
     # Use absolute path for the executable when possible
     if shutil.which(sys.executable):
         cmd[0] = shutil.which(sys.executable)
@@ -100,44 +102,64 @@ def _ensure_mcp_module_exists() -> None:
     try:
         import importlib.util
 
-        if importlib.util.find_spec("modelcontextprotocol") is None:
-            logger.warning(
-                "modelcontextprotocol module not found, creating mock implementation"
-            )
-            create_mock_mcp_module()
+        # First check if the module is already in sys.modules
+        if "modelcontextprotocol" in sys.modules:
+            logger.info("modelcontextprotocol module already exists in sys.modules")
+            return
 
-            # Verify the module was created successfully
-            if importlib.util.find_spec("modelcontextprotocol") is None:
-                logger.error("Failed to create mock modelcontextprotocol module")
-                # Try to install the mock module using the setup script
-                try:
-                    # Get the path to the setup script
-                    setup_script = (
-                        Path(__file__).parent.parent / "setup" / "install_mcp_sdk.py"
-                    )
-                    if setup_script.exists():
-                        logger.info(
-                            "Attempting to install MCP SDK using %s", setup_script
-                        )
-                        import subprocess
-
-                        result = subprocess.run(
-                            [sys.executable, str(setup_script)],
-                            check=False,
-                            capture_output=True,
-                            text=True,
-                            shell=False,
-                        )
-                        if result.returncode != 0:
-                            logger.error("Failed to install MCP SDK: %s", result.stderr)
-                        else:
-                            logger.info("Successfully installed MCP SDK")
-                    else:
-                        logger.error("Setup script not found at %s", setup_script)
-                except Exception:
-                    logger.exception("Error installing MCP SDK")
+        # Check if the module is available using find_spec
+        try:
+            spec = importlib.util.find_spec("modelcontextprotocol")
+            if spec is None:
+                logger.warning(
+                    "modelcontextprotocol module not found, creating mock implementation"
+                )
+                create_mock_mcp_module()
             else:
-                logger.info("Successfully created mock modelcontextprotocol module")
+                logger.info("modelcontextprotocol module found via find_spec")
+                return
+        except ValueError as e:
+            # Handle the case where __spec__ is None (which happens with our mock module)
+            if "modelcontextprotocol.__spec__ is None" in str(e):
+                logger.info("Mock module already exists but has None __spec__, continuing...")
+                return
+            logger.warning("ValueError checking for modelcontextprotocol module: %s", e)
+            create_mock_mcp_module()
+            return
+
+        # Verify the module was created successfully by trying to import it
+        try:
+            import modelcontextprotocol
+            logger.info("Successfully verified mock modelcontextprotocol module")
+        except ImportError:
+            logger.exception("Failed to create mock modelcontextprotocol module")
+            # Try to install the mock module using the setup script
+            try:
+                # Get the path to the setup script
+                setup_script = (
+                    Path(__file__).parent.parent / "setup" / "install_mcp_sdk.py"
+                )
+                if setup_script.exists():
+                    logger.info(
+                        "Attempting to install MCP SDK using %s", setup_script
+                    )
+                    import subprocess
+
+                    result = subprocess.run(
+                        [sys.executable, str(setup_script)],
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                        shell=False,
+                    )
+                    if result.returncode != 0:
+                        logger.exception("Failed to install MCP SDK: %s", result.stderr)
+                    else:
+                        logger.info("Successfully installed MCP SDK")
+                else:
+                    logger.exception("Setup script not found at %s", setup_script)
+            except Exception:
+                logger.exception("Error installing MCP SDK")
     except ImportError as e:
         logger.warning("Error checking for modelcontextprotocol module: %s", e)
         create_mock_mcp_module()
@@ -168,28 +190,42 @@ def _verify_module_availability() -> bool:
     try:
         import importlib.util
 
-        # Check if module is available
-        module_available = importlib.util.find_spec("modelcontextprotocol") is not None
-
-        if module_available:
-            logger.info("modelcontextprotocol module is available")
+        # First check if the module is in sys.modules
+        if "modelcontextprotocol" in sys.modules:
+            logger.info("modelcontextprotocol module is available in sys.modules")
             result = True
         else:
-            # Module not available
-            logger.error("modelcontextprotocol module still not available after setup")
+            # Check if module is available using find_spec
+            try:
+                module_available = importlib.util.find_spec("modelcontextprotocol") is not None
+                if module_available:
+                    logger.info("modelcontextprotocol module is available")
+                    result = True
+                else:
+                    # Module not available
+                    logger.error("modelcontextprotocol module still not available after setup")
+                    result = False
+            except ValueError as e:
+                # Handle the case where __spec__ is None (which happens with our mock module)
+                if "modelcontextprotocol.__spec__ is None" in str(e):
+                    logger.info("Mock module exists but has None __spec__, treating as available")
+                    result = True
+                else:
+                    logger.warning("ValueError checking for modelcontextprotocol module: %s", e)
+                    result = False
 
-            # In CI environments, we'll continue anyway
-            if _is_ci_environment():
-                logger.warning(
-                    "Running in CI environment, continuing despite missing module"
-                )
-                result = True
-            else:
-                # Not in CI, fail
-                logger.error(
-                    "Not running in CI environment, failing due to missing module"
-                )
-                result = False
+        # In CI environments, we'll continue anyway if module not available
+        if not result and _is_ci_environment():
+            logger.warning(
+                "Running in CI environment, continuing despite missing module"
+            )
+            result = True
+        elif not result:
+            # Not in CI, fail
+            logger.error(
+                "Not running in CI environment, failing due to missing module"
+            )
+
     except ImportError:
         logger.exception("Error checking for modelcontextprotocol module")
 
@@ -283,8 +319,6 @@ def _handle_test_failure(return_code: int, execution_success: bool) -> int:
         return 1
 
     return 0
-
-
 def run_mcp_tests() -> int:
     """
     Run MCP adapter tests without loading the main conftest.py.
@@ -293,6 +327,8 @@ def run_mcp_tests() -> int:
         int: The return code from the test run (0 for success, non-zero for failure)
 
     """
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     logger.info("Running MCP adapter tests...")
     logger.info("Platform: %s", platform.system())
     logger.info("Python version: %s", sys.version)
@@ -357,6 +393,11 @@ def create_mock_mcp_module() -> None:
         # Add the Client class to the module
         # mypy: disable-error-code=attr-defined
         mock_module.Client = MockClient  # type: ignore[attr-defined]
+
+        # Create a proper module spec to avoid ValueError
+        import importlib.util
+        spec = importlib.util.spec_from_loader("modelcontextprotocol", loader=None)
+        mock_module.__spec__ = spec
 
         # Add the module to sys.modules
         sys.modules["modelcontextprotocol"] = mock_module
@@ -433,7 +474,6 @@ setup(
         finally:
             # Don't remove the temp directory as it contains the installed package
             pass
-
     except Exception:
         logger.exception("Failed to create mock modelcontextprotocol module")
 
@@ -462,6 +502,7 @@ def _check_import_capability() -> None:
     """Check if the module can be imported and examine its attributes."""
     try:
         import importlib
+        import importlib.util
 
         try:
             # Try to import the module
@@ -576,8 +617,6 @@ def _recreate_mock_module() -> None:
             logger.info("Still failed to find modelcontextprotocol after recreation")
     except ImportError as e:
         logger.info("Error checking for modelcontextprotocol after recreation: %s", e)
-
-
 def diagnose_mcp_import_issues() -> None:
     """Diagnose issues with importing the modelcontextprotocol module."""
     try:
@@ -600,7 +639,6 @@ def diagnose_mcp_import_issues() -> None:
 
         # Try to create the mock module again
         _recreate_mock_module()
-
     except Exception:
         logger.exception("Error during diagnosis")
 

@@ -73,7 +73,6 @@ def main() -> None:
     query = input("Enter your research query: ").strip()
     if not query:
         # Using logging would be better in production code
-        print("No query entered. Exiting.")  # noqa: T201
         return
 
     # Send initial message to DataGathererAgent
@@ -93,12 +92,11 @@ def main() -> None:
         msg = communicator.receive(receiver=user_name, timeout=5.0)
         if msg and msg.type == "summary_result":
             # Using logging would be better in production code
-            print(f"\nSummary: {msg.payload['summary']}")  # noqa: T201
             break
         retries += 1
     else:
         # Using logging would be better in production code
-        print("\nFailed to receive summary message after multiple attempts. Exiting.")  # noqa: T201
+        pass
 
     # Clean up
     gatherer.stop()

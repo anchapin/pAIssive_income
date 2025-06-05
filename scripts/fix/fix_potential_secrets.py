@@ -16,11 +16,12 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, Pattern
+from re import Pattern
+from typing import Any
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
+
 
 # Define patterns for potential secrets
 SECRET_PATTERNS = {
@@ -271,6 +272,8 @@ def generate_sarif(results: dict[str, list[tuple[str, int, str]]]) -> dict[str, 
 
 def main() -> None:
     """Run the script."""
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     parser = argparse.ArgumentParser(
         description="Scan for potential secrets in the codebase"
     )

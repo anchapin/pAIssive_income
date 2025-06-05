@@ -13,7 +13,7 @@ import shutil
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -183,7 +183,7 @@ def _create_windows_junction(target_dir: Path, link_name: str) -> bool:
 
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         # nosec S603 - This is a safe subprocess call with no user input
-        subprocess.run(  # nosec B603 # noqa: S603
+        subprocess.run(  # nosec B603
             [
                 cmd_path,
                 "/c",
@@ -482,9 +482,12 @@ def _create_ini_sarif_file(
             return _create_empty_ini_sarif_file(ini_sarif_file)
         else:
             return True
-    except (OSError, PermissionError):
-        logger.exception("Failed to create ini SARIF file")
-        return False
+    except Exception:
+        logger.exception("Unexpected error in _create_ini_sarif_file")
+        return _create_empty_ini_sarif_file(ini_sarif_file)
+
+
+
 
 
 def _create_fallback_sarif_files() -> None:
@@ -516,6 +519,20 @@ def main() -> None:
         sarif_file = "security-reports/bandit-results.sarif"
         ini_sarif_file = "security-reports/bandit-results-ini.sarif"
 
+        # Check if SARIF file already exists and is valid
+        if Path(sarif_file).exists():
+            try:
+                with Path(sarif_file).open() as f:
+                    sarif_data = json.load(f)
+                    if sarif_data.get("version") == "2.1.0" and sarif_data.get("runs"):
+                        logger.info("Valid SARIF file already exists: %s", sarif_file)
+                        # Still create ini file for compatibility
+                        if not Path(ini_sarif_file).exists():
+                            _create_ini_sarif_file(json_file, sarif_file, ini_sarif_file)
+                        return
+            except (json.JSONDecodeError, KeyError):
+                logger.info("Existing SARIF file is invalid, will recreate")
+
         # Check if JSON file exists
         if not Path(json_file).exists():
             logger.warning("Bandit JSON file not found: %s", json_file)
@@ -532,10 +549,25 @@ def main() -> None:
             logger.info("Creating %s for compatibility", ini_sarif_file)
             _create_ini_sarif_file(json_file, sarif_file, ini_sarif_file)
 
+        # Validate the created SARIF file
+        if Path(sarif_file).exists():
+            try:
+                with Path(sarif_file).open() as f:
+                    sarif_data = json.load(f)
+                    if not sarif_data.get("version") or not sarif_data.get("runs"):
+                        msg = "Invalid SARIF structure"
+                        raise ValueError(msg)
+                logger.info("SARIF file validation successful")
+            except (json.JSONDecodeError, ValueError):
+                logger.warning("Created SARIF file is invalid, creating fallback")
+                _write_sarif_file(_create_empty_sarif(), sarif_file)
+
     except (OSError, PermissionError, json.JSONDecodeError):
         logger.exception("Unexpected error in main function")
         _create_fallback_sarif_files()
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     main()

@@ -1,6 +1,8 @@
 """test_models - Test module for database models."""
 
-from typing import Generator
+import logging
+from collections.abc import Generator
+from unittest.mock import patch
 
 import pytest
 from flask.app import Flask  # Import actual Flask class
@@ -43,7 +45,7 @@ def test_user_model(app: Flask) -> None:
         user = User(
             username="testuser",
             email="test@example.com",
-            password_hash="hashed_password",  # noqa: S106 - Test data only
+            password_hash="hashed_password",
         )
         db.session.add(user)
         db.session.commit()
@@ -53,7 +55,35 @@ def test_user_model(app: Flask) -> None:
         assert queried_user is not None
         assert queried_user.username == "testuser"
         assert queried_user.email == "test@example.com"
-        assert queried_user.password_hash == "hashed_password"  # noqa: S105 - Test data only
+        assert queried_user.password_hash == "hashed_password"
+
+        # Test to_dict method
+        user_dict = user.to_dict()
+        assert user_dict["username"] == "testuser"
+        assert user_dict["email"] == "test@example.com"
+        assert "password_hash" not in user_dict
+        assert "created_at" in user_dict
+        # Note: updated_at might not be present if the model doesn't have this field
+        # assert "updated_at" in user_dict
+
+        # Test from_dict method
+        new_user_data = {
+            "username": "newuser",
+            "email": "new@example.com",
+            "password_hash": "new_hash",
+            "is_admin": True,
+            "is_active": False,
+        }
+        new_user = User.from_dict(new_user_data)
+        assert new_user.username == "newuser"
+        assert new_user.email == "new@example.com"
+        assert new_user.password_hash == "new_hash"
+        assert new_user.is_admin == "true"  # String-based boolean
+        assert new_user.is_active == "false"  # String-based boolean
+
+        # Test update_last_login method
+        user.update_last_login()
+        assert user.last_login is not None
 
 
 def test_team_model(app: Flask) -> None:
@@ -84,7 +114,7 @@ def test_agent_model(app: Flask) -> None:
             name="Test Agent",
             role="tester",
             description="A test agent",
-            team_id=team.id,
+            team_id=str(team.id),  # Convert to string to match expected type
         )
         db.session.add(agent)
         db.session.commit()
@@ -95,7 +125,7 @@ def test_agent_model(app: Flask) -> None:
         assert queried_agent.name == "Test Agent"
         assert queried_agent.role == "tester"
         assert queried_agent.description == "A test agent"
-        assert queried_agent.team_id == team.id
+        assert str(queried_agent.team_id) == str(team.id)  # Compare as strings
 
 
 def test_team_agent_relationship(app: Flask) -> None:
@@ -125,3 +155,30 @@ def test_team_agent_relationship(app: Flask) -> None:
         # Query an agent and check its team
         agent = Agent.query.filter_by(name="Agent 1").first()
         assert agent.team.name == "Test Team"
+
+
+def test_user_update_last_login_error(app):
+    """Test the update_last_login method with a database error."""
+    with app.app_context():
+        # Create a user
+        user = User(
+            username="loginuser",
+            email="login@example.com",
+            password_hash="hashed_password",
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        # Import SQLAlchemyError
+        from sqlalchemy.exc import SQLAlchemyError
+
+        # Mock the db.session.commit method to raise an exception
+        with patch.object(
+            db.session, "commit", side_effect=SQLAlchemyError("Database error")
+        ), patch.object(db.session, "rollback") as mock_rollback:
+            # Call the method and check that it handles the exception
+            with pytest.raises(SQLAlchemyError):
+                user.update_last_login()
+
+            # Check that db.session.rollback was called
+            mock_rollback.assert_called_once()

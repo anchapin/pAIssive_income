@@ -82,7 +82,6 @@ export default defineConfig({
   // Create a directory for test artifacts
   outputDir: 'test-results/',
 
-  // Skip browser installation in CI environments
-  // This helps avoid issues with browser installation in restricted environments
-  skipInstallBrowsers: isCI,
+  // Allow browser installation in CI environments for proper testing
+  // skipInstallBrowsers: isCI,
 });
