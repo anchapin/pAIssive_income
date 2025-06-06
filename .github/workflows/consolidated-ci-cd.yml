@@ -90,18 +90,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Ensure fixed CodeQL workflow files are used
-      - name: Ensure fixed CodeQL workflow files
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          Write-Host "Ensuring fixed CodeQL workflow files are used..."
-          if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
-            Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
-            ./.github/scripts/ensure-fixed-codeql-workflows.ps1
-          } else {
-            Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
-          }
+      # - name: Ensure fixed CodeQL workflow files
+      #   if: runner.os == 'Windows'
+      #   shell: pwsh
+      #   run: |
+      #     Write-Host "Ensuring fixed CodeQL workflow files are used..."
+      #     if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
+      #       Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
+      #       ./.github/scripts/ensure-fixed-codeql-workflows.ps1
+      #     } else {
+      #       Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
+      #     }
 
       # Setup pnpm and Node.js for Tailwind CSS build
       - name: Setup pnpm
@@ -548,14 +547,14 @@ jobs:
       - name: Ensure fixed CodeQL workflow files
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          Write-Host "Ensuring fixed CodeQL workflow files are used..."
-          if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
-            Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
-            ./.github/scripts/ensure-fixed-codeql-workflows.ps1
-          } else {
-            Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
-          }
+      #   run: |
+      #     Write-Host "Ensuring fixed CodeQL workflow files are used..."
+      #     if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
+      #       Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
+      #       ./.github/scripts/ensure-fixed-codeql-workflows.ps1
+      #     } else {
+      #       Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
+      #     }
 
       - name: Set up Python
         uses: actions/setup-python@v5
