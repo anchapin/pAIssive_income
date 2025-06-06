@@ -229,7 +229,7 @@ class KnowledgeIntegrationLayer:
             try:
                 self.strategy = KnowledgeStrategy(strategy.lower())
             except ValueError:
-                raise ValueError(f"Unknown integration strategy: {strategy}")
+                raise ValueError(f"Unknown integration strategy: {strategy}") from None
         elif isinstance(strategy, KnowledgeStrategy):
             self.strategy = strategy
         else:

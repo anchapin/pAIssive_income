@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     # Check if dependencies are available
     if not CREWAI_AVAILABLE:
-        logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
+        logger.critical("CrewAI is not installed. Install with: pip install '.[agents]'")
         exit(1)
 
     if not MEM0_AVAILABLE:
@@ -169,7 +169,7 @@ if __name__ == "__main__":
         logger.info("CrewAI workflow completed successfully")
         logger.info(f"Result: {result}")
     except Exception as e:
-        logger.error(f"Error running CrewAI workflow: {e}")
+        logger.exception(f"Error running CrewAI workflow: {e}")
 
 # Next steps:
 # - Replace example agents, goals, and tasks with project-specific logic.

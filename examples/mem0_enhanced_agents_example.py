@@ -125,7 +125,7 @@ def run_example() -> None:
         logger.info("Workflow completed successfully")
         logger.info(f"Result: {result}")
     except Exception as e:
-        logger.error(f"Error running workflow: {e}")
+        logger.exception(f"Error running workflow: {e}")
 
     # Demonstrate memory retrieval (old, direct use)
     if team.memory is not None:
@@ -146,7 +146,7 @@ def run_example() -> None:
                 else:
                     logger.info(f"Memory {i + 1}: {str(memory)[:100]}...")
         except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+            logger.exception(f"Error retrieving memories: {e}")
 
     # --- New: Demonstrate retrieval using KnowledgeIntegrationLayer ---
     logger.info(
@@ -201,7 +201,7 @@ def run_example() -> None:
         # This is the new recommended pattern for agent/team knowledge retrieval:
         # Use KnowledgeIntegrationLayer as a unified, extensible interface to search across all sources.
     except Exception as e:
-        logger.error(f"Error using KnowledgeIntegrationLayer: {e}")
+        logger.exception(f"Error using KnowledgeIntegrationLayer: {e}")
 
 
 def main() -> None:

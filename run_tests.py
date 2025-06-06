@@ -489,15 +489,15 @@ def main() -> None:
             if result.stdout:
                 logger.info("Pytest stdout: %s", result.stdout)
             if result.stderr:
-                logger.error("Pytest stderr: %s", result.stderr)
+                logger.warning("Pytest stderr: %s", result.stderr)
     except subprocess.TimeoutExpired as timeout_error:
-        logger.error("Pytest execution timed out after 1 hour: %s", timeout_error)
+        logger.exception("Pytest execution timed out after 1 hour: %s", timeout_error)
         sys.exit(2)
     except subprocess.SubprocessError as subprocess_error:
-        logger.error("Error running pytest: %s", subprocess_error)
+        logger.exception("Error running pytest: %s", subprocess_error)
         sys.exit(1)
     except Exception as e:
-        logger.error("Unexpected error running pytest: %s", e)
+        logger.exception("Unexpected error running pytest: %s", e)
         sys.exit(1)
 
     # Exit with the same exit code as pytest
