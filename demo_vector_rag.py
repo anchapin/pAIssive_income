@@ -284,8 +284,10 @@ def test_deduplication_and_metadata():
     inserted, skipped = embed_and_insert_documents_with_dedup(
         [duplicate], embedder, collection
     )
-    assert len(inserted) == 0, "Deduplication failed: duplicate was inserted."  # noqa: S101
-    assert len(skipped) == 1, "Deduplication test: duplicate was not skipped."  # noqa: S101
+    if len(inserted) != 0:
+        raise AssertionError("Deduplication failed: duplicate was inserted.")
+    if len(skipped) != 1:
+        raise AssertionError("Deduplication test: duplicate was not skipped.")
     logger.info("Deduplication test passed.")
 
     # Insert a new doc with different source
@@ -298,15 +300,15 @@ def test_deduplication_and_metadata():
     inserted, skipped = embed_and_insert_documents_with_dedup(
         [new_doc], embedder, collection
     )
-    assert len(inserted) == 1, "Unique document was not inserted."  # noqa: S101
+    if len(inserted) != 1:
+        raise AssertionError("Unique document was not inserted.")
     logger.info("Insertion of new doc with different source passed.")
 
     # Test metadata filtering
     filter_meta = {"source": "wikipedia"}
     results = collection.get(where={"user_id": "global", **filter_meta})
-    assert any(doc == new_doc["content"] for doc in results["documents"]), (  # noqa: S101
-        "Metadata filtering failed."
-    )
+    if not any(doc == new_doc["content"] for doc in results["documents"]):
+        raise AssertionError("Metadata filtering failed.")
     logger.info("Metadata filtering test passed.")
 
 
