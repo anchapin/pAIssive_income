@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Union
 
 from flask import Blueprint, jsonify, request
 
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 
 if TYPE_CHECKING:
     from flask.wrappers import Response

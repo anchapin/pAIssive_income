@@ -19,7 +19,6 @@ from adk_demo.mem0_enhanced_adk_agents import (
     MemoryEnhancedSummarizerAgent,
 )
 
-
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(
     not ADK_AVAILABLE or not MEM0_AVAILABLE,
@@ -217,7 +216,10 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
         self.memory_mock.add.assert_called_once_with(
             [
                 {"role": "user", "content": "gather: {'query': 'Test query'}"},
-                {"role": "assistant", "content": "gather_result: {'data': 'Test data'}"},
+                {
+                    "role": "assistant",
+                    "content": "gather_result: {'data': 'Test data'}",
+                },
             ],
             user_id="test-user",
             metadata={

@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from common_utils.secrets.memory_backend import MemoryBackend
+from common_utils.custom_secrets.memory_backend import MemoryBackend
 
 
 class TestMemoryBackend:
@@ -29,7 +29,7 @@ class TestMemoryBackend:
         """Return a test secret value."""
         return "test_secret_value"
 
-    @patch("common_utils.secrets.memory_backend.logger")
+    @patch("common_utils.custom_secrets.memory_backend.logger")
     def test_get_secret_secure_logging(self, mock_logger, backend, test_key):
         """Test that get_secret uses secure logging."""
         # This should raise NotImplementedError

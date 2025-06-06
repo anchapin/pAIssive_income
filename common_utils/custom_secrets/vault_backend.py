@@ -1,5 +1,4 @@
-"""
-vault_backend - Module for common_utils/secrets.vault_backend.
+"""vault_backend - Module for common_utils/custom_secrets/vault_backend.py.
 
 This module provides integration with HashiCorp Vault for secrets management.
 """
@@ -12,7 +11,7 @@ from typing import Any
 # Third-party imports
 # Import vault libraries when implemented
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 
 # Initialize logger
 logger = get_logger(__name__)

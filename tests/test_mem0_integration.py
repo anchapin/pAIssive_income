@@ -6,8 +6,8 @@ with ADK agents. They require mem0ai to be installed and configured
 with an OpenAI API key.
 """
 
-import os
 import logging
+import os
 import sys
 import unittest
 from unittest.mock import patch
@@ -26,6 +26,7 @@ mem0 = None
 Memory = None
 try:
     import mem0ai
+
     mem0 = mem0ai
     Memory = mem0ai.Memory
 except ImportError as e:  # mem0 or agent frameworks not available, skip test
@@ -36,7 +37,6 @@ except ImportError as e:  # mem0 or agent frameworks not available, skip test
 try:
     from adk.agent import Agent
     # SimpleMemory is not used, so we don't import it
-    # from adk.memory import SimpleMemory
 except ImportError as e:
     # Mock ADK if not available
     logger.warning(f"ADK not available: {e}, using mock implementation")
@@ -193,6 +193,7 @@ def test_mem0_basic_functionality():
     """Placeholder for basic mem0 functionality test."""
     logger.info("Running basic mem0 functionality test (placeholder).")
     assert True
+
 
 if __name__ == "__main__":
     test_mem0_import()

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 import os
-import os.path  # Used for os.path.normpath and os.sep
+# os.path will be removed by replacing its usages with pathlib
 import platform
 import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
@@ -99,14 +99,18 @@ def validate_args(args: Sequence[str]) -> list[str]:
             continue
 
         # If the argument is a file path, check for directory traversal attempts
-        if os.path.sep in arg or "/" in arg or "\\" in arg:
+        if Path(arg).is_absolute() or Path(arg).parts: # Check if it looks like a path
             # Additional check for path traversal attempts
-            normalized_path = os.path.normpath(arg)
-            path_obj = Path(normalized_path)
-            if not normalized_path.startswith("..") and ".." not in path_obj.parts:
-                validated_args.append(arg)
-            else:
-                logger.warning("Skipping path with directory traversal: %s", arg)
+            try:
+                # Resolve to an absolute path to properly check parts
+                path_obj = Path(arg).resolve()
+                # Check if any part of the resolved path is '..'
+                if ".." not in path_obj.parts:
+                    validated_args.append(arg)
+                else:
+                    logger.warning("Skipping path with directory traversal: %s", arg)
+            except OSError as e: # Path resolution can fail
+                logger.warning("Could not normalize path %s, skipping: %s", arg, e)
         else:
             # If we get here, the argument passed all checks
             validated_args.append(arg)
@@ -211,7 +215,7 @@ def count_tests(validated_args: list[str]) -> int:
         logger.warning("Error collecting tests: %s. Falling back to single worker.", e)
         return default_test_count if has_test_files else 0
 
-    except Exception as e:
+    except Exception as e: # noqa: BLE001 # General catch-all for unexpected errors
         logger.warning(
             "Unexpected error collecting tests: %s. Falling back to single worker.", e
         )
@@ -273,12 +277,12 @@ def ensure_security_reports_dir() -> None:
                     # Use symlink on Unix
                     os.symlink(alt_reports_dir, "security-reports")
                 return
-            except Exception as symlink_error:
+            except OSError as symlink_error:
                 logger.warning(
                     "Failed to create symlink to alternative directory: %s",
                     symlink_error,
                 )
-    except Exception as alt_dir_error:
+    except OSError as alt_dir_error:
         logger.warning(
             "Failed to create alternative security_reports directory: %s", alt_dir_error
         )
@@ -315,11 +319,11 @@ def ensure_security_reports_dir() -> None:
             else:
                 # Use symlink on Unix
                 os.symlink(temp_dir, "security-reports")
-        except Exception as symlink_error:
+            except OSError as symlink_error:
             logger.warning(
                 "Failed to create symlink to temp directory: %s", symlink_error
             )
-    except Exception as temp_dir_error:
+    except OSError as temp_dir_error:
         logger.warning(
             "Failed to create security-reports directory in temp location: %s",
             temp_dir_error,
@@ -351,15 +355,14 @@ def check_venv_exists() -> bool:
             return True
 
         # Method 4: Check for common virtual environment directories
-        for venv_dir in [".venv", "venv", "env", ".env"]:
-            if os.path.isdir(venv_dir) and os.path.isfile(
-                os.path.join(venv_dir, "pyvenv.cfg")
-            ):
+        for venv_dir_name in [".venv", "venv", "env", ".env"]:
+            venv_path = Path(venv_dir_name)
+            if venv_path.is_dir() and (venv_path / "pyvenv.cfg").is_file():
                 return True
 
         # Not in a virtual environment
         return False
-    except Exception as e:
+    except Exception as e: # noqa: BLE001 # Catching broad exception due to various checks
         # If any error occurs, log it but assume we're not in a virtual environment
         logger.warning("Error checking for virtual environment: %s", e)
         return False
@@ -475,7 +478,7 @@ def main() -> None:
                 "Error checking for pytest-xdist: %s. Will run tests without parallelization.",
                 e,
             )
-    except Exception as e:
+    except Exception as e: # noqa: BLE001 # General catch-all for installation issues
         logger.warning(
             "Unexpected error installing pytest-xdist: %s. Will run tests without parallelization.",
             e,
@@ -527,7 +530,7 @@ def main() -> None:
                 "Failed to check for pytest-xdist: %s. Will run tests without parallelization.",
                 e,
             )
-        except Exception as e:
+        except Exception as e: # noqa: BLE001 # General catch-all for xdist check
             logger.warning(
                 "Unexpected error checking for pytest-xdist: %s. Will run tests without parallelization.",
                 e,
@@ -582,7 +585,7 @@ def main() -> None:
     except subprocess.SubprocessError as subprocess_error:
         logger.error("Error running pytest: %s", subprocess_error)
         sys.exit(1)
-    except Exception as e:
+    except Exception as e: # noqa: BLE001 # General catch-all for pytest execution
         logger.error("Unexpected error running pytest: %s", e)
         sys.exit(1)
 

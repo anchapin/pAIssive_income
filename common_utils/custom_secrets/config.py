@@ -1,5 +1,4 @@
-"""
-config - Module for common_utils/secrets.config.
+"""config - Module for common_utils/custom_secrets/config.py.
 
 This module provides a configuration manager that can handle secret references.
 """
@@ -14,7 +13,7 @@ from typing import Any
 
 # Third-party imports
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 
 from .secrets_manager import SecretsBackend, get_secret, set_secret
 

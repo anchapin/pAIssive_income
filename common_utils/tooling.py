@@ -175,11 +175,33 @@ def text_analyzer(text: str) -> str:
 
     Returns:
         str: Analysis results including sentiment and basic metrics.
+
     """
     try:
         # Basic sentiment analysis using simple keyword matching
-        positive_words = ['good', 'great', 'excellent', 'fantastic', 'amazing', 'wonderful', 'love', 'like', 'happy', 'positive']
-        negative_words = ['bad', 'terrible', 'awful', 'hate', 'dislike', 'sad', 'negative', 'horrible', 'worst']
+        positive_words = [
+            "good",
+            "great",
+            "excellent",
+            "fantastic",
+            "amazing",
+            "wonderful",
+            "love",
+            "like",
+            "happy",
+            "positive",
+        ]
+        negative_words = [
+            "bad",
+            "terrible",
+            "awful",
+            "hate",
+            "dislike",
+            "sad",
+            "negative",
+            "horrible",
+            "worst",
+        ]
 
         text_lower = text.lower()
         positive_count = sum(1 for word in positive_words if word in text_lower)
