@@ -1,0 +1,12 @@
+name: Ensure Fixed CodeQL Workflows
+
+on:
+  pull_request:
+    branches: [ main, dev, master, develop ]
+    paths:
+      - '.github/workflows/codeql*.yml'
+      - '.github/scripts/ensure-fixed-codeql-workflows.ps1'
+      - '.github/workflows/ensure-codeql-fixed.yml'
+  workflow_dispatch:
+
+

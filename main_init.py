@@ -5,12 +5,13 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-# Third-party imports
-from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
+
+# Third-party imports
+from flask import Flask
 
 # Local imports
 

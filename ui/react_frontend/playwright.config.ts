@@ -2,87 +2,36 @@ import { defineConfig, devices } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// Determine if we're running in CI
-const isCI = process.env.CI === 'true';
+/**
+ * Enhanced Playwright Configuration
+ *
+ * This configuration uses the enhanced environment detection functionality
+ * to adjust Playwright behavior based on the detected environment.
+ */
 
-// Create output directories if they don't exist
-const outputDir = path.join(process.cwd(), 'test-results');
-const reportDir = path.join(process.cwd(), 'playwright-report');
+// Import environment detection modules using require since they're CommonJS
+// We need to use dynamic import with eval to avoid TypeScript errors
+const environmentDetection = eval('require')('./tests/helpers/environment-detection');
+const playwrightEnvironment = eval('require')('./tests/helpers/playwright-environment');
 
-try {
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-    console.log(`Created test-results directory at ${outputDir}`);
-  }
+// Detect the current environment
+const env = environmentDetection.detectEnvironment();
 
-  if (!fs.existsSync(reportDir)) {
-    fs.mkdirSync(reportDir, { recursive: true });
-    console.log(`Created playwright-report directory at ${reportDir}`);
-  }
-} catch (error) {
-  console.error(`Error creating output directories: ${error}`);
-}
+// Create a Playwright environment report
+const reportPath = path.join(process.cwd(), 'playwright-report', 'environment-report.txt');
+playwrightEnvironment.createPlaywrightEnvironmentReport({ filePath: reportPath });
 
 // Log configuration information
 console.log(`Playwright configuration:`);
-console.log(`- Running in CI: ${isCI ? 'Yes' : 'No'}`);
-console.log(`- Platform: ${process.platform}`);
-console.log(`- Output directory: ${outputDir}`);
-console.log(`- Report directory: ${reportDir}`);
+console.log(`- Platform: ${env.platform}`);
+console.log(`- CI: ${env.isCI ? 'Yes' : 'No'}`);
+console.log(`- Docker: ${env.isDocker ? 'Yes' : 'No'}`);
+console.log(`- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}`);
+console.log(`- Cloud: ${env.isCloudEnvironment ? 'Yes' : 'No'}`);
+console.log(`- Node Environment: ${process.env.NODE_ENV || 'not set'}`);
 
-export default defineConfig({
-  testDir: './tests/e2e',
-  timeout: 180 * 1000, // Increase test timeout to 3 minutes for CI environments
-  expect: {
-    timeout: 60000 // Increase default assertion timeout to 60 seconds
-  },
-  reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
-    ['list'], // Add list reporter for better CI output
-    ['json', { outputFile: 'playwright-report/test-results.json' }] // Add JSON reporter for programmatic access
-  ],
-  use: {
-    // Use environment variable for baseURL if available
-    baseURL: process.env.REACT_APP_BASE_URL || 'http://localhost:3000',
+// Get Playwright configuration based on the detected environment
+const playwrightConfig = playwrightEnvironment.configurePlaywright({ verbose: true });
 
-    // Adjust trace settings based on environment
-    trace: isCI ? 'on-first-retry' : 'on', // Only capture traces on retry in CI to save resources
-
-    // Adjust screenshot settings based on environment
-    screenshot: isCI ? 'only-on-failure' : 'on', // Only capture screenshots on failure in CI
-
-    // Adjust video settings based on environment
-    video: isCI ? 'off' : 'on', // Disable videos in CI to save resources
-
-    // Increase timeouts for CI environments
-    navigationTimeout: isCI ? 90000 : 60000,
-    actionTimeout: isCI ? 45000 : 30000,
-
-    // Retry failed actions
-    retries: 3,
-  },
-  // Retry failed tests more times in CI
-  retries: isCI ? 3 : 2,
-
-  // Use fewer workers in CI to avoid resource contention
-  workers: isCI ? 1 : 1,
-
-  // Configure projects based on environment
-  projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        // Use headless mode in CI
-        headless: isCI ? true : false,
-      },
-    },
-  ],
-
-  // Create a directory for test artifacts
-  outputDir: 'test-results/',
-
-  // Skip browser installation in CI environments
-  // This helps avoid issues with browser installation in restricted environments
-  skipInstallBrowsers: isCI,
-});
+// Export the configuration
+export default defineConfig(playwrightConfig);

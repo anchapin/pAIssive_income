@@ -27,24 +27,23 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, Dict, List, Union
 
 # Import CrewAI components
 try:
-    import importlib.util
-
-    CREWAI_AVAILABLE = importlib.util.find_spec("crewai") is not None
+    from crewai import Agent, Crew, Task
+    CREWAI_AVAILABLE = True
 except ImportError:
     CREWAI_AVAILABLE = False
+    # Use placeholder classes from crewai_agents.py
 
 # Import mem0 components
 try:
     from mem0 import Memory
-
     MEM0_AVAILABLE = True
 except ImportError:
     MEM0_AVAILABLE = False
-    Memory = None  # type: ignore[assignment]
+    Memory = None  # type: ignore
 
 # Import base CrewAI agent team
 from agent_team.crewai_agents import CrewAIAgentTeam
@@ -64,19 +63,18 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     - Team execution
     """
 
-    def __init__(self, llm_provider: object = None, user_id: str | None = None) -> None:
+    def __init__(self, llm_provider: object = None, user_id: str = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
 
         Args:
             llm_provider: The LLM provider to use for agent interactions
             user_id: The user ID for memory storage and retrieval
-
         """
         super().__init__(llm_provider)
 
         # Initialize mem0 memory if available
-        if MEM0_AVAILABLE and Memory is not None:
+        if MEM0_AVAILABLE:
             self.memory = Memory()
             logger.info("mem0 memory initialized")
         else:
@@ -100,7 +98,6 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The created agent
-
         """
         # Create the agent using the parent method
         agent = super().add_agent(role, goal, backstory)
@@ -108,7 +105,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         # Store agent information in memory
         self._store_memory(
             f"Agent '{role}' added to team with goal: {goal}",
-            metadata={"agent_role": role, "agent_goal": goal},
+            metadata={"agent_role": role, "agent_goal": goal}
         )
 
         return agent
@@ -123,7 +120,6 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The created task
-
         """
         # Create the task using the parent method
         task = super().add_task(description, agent)
@@ -134,7 +130,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         # Store task information in memory
         self._store_memory(
             f"Task assigned to agent '{agent_role}': {description}",
-            metadata={"task_description": description, "agent_role": agent_role},
+            metadata={"task_description": description, "agent_role": agent_role}
         )
 
         return task
@@ -151,7 +147,6 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The result of the workflow
-
         """
         if not CREWAI_AVAILABLE:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
@@ -160,9 +155,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         # Retrieve relevant memories for context enhancement
         context_query = f"Information about team with {len(self.agents)} agents and {len(self.tasks)} tasks"
         memories = self._retrieve_relevant_memories(query=context_query)
-        logger.info(
-            "Retrieved %d relevant memories for context enhancement", len(memories)
-        )
+        logger.info(f"Retrieved {len(memories)} relevant memories for context enhancement")
 
         # Log the start of the workflow
         workflow_description = f"Starting memory-enhanced workflow with {len(self.agents)} agents and {len(self.tasks)} tasks"
@@ -177,7 +170,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         # Currently, CrewAI doesn't provide a direct way to inject context
         # into all agents, but we can use this for future extensions
         enhanced_context = self._enhance_context_with_memories(workflow_description)
-        logger.debug("Enhanced context: %s", enhanced_context[:100] + "...")
+        logger.debug(f"Enhanced context: {enhanced_context[:100]}...")
 
         # Run the workflow
         result = crew.kickoff()  # type: ignore[attr-defined]
@@ -186,46 +179,38 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         if isinstance(result, str):
             self._store_memory(
                 f"Workflow completed with result: {result[:100]}...",  # Store truncated result
-                metadata={"workflow_result": "success"},
+                metadata={"workflow_result": "success"}
             )
         else:
             self._store_memory(
                 "Workflow completed with non-string result",
-                metadata={"workflow_result": "success"},
+                metadata={"workflow_result": "success"}
             )
 
         return result
 
-    def _store_memory(
-        self,
-        content: str | list[dict[str, str]],
-        metadata: dict[str, str] | None = None,
-    ) -> None:
+    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Dict[str, str] = None) -> None:
         """
         Store a memory using mem0.
 
         Args:
             content: The content to store (string or conversation messages)
             metadata: Optional metadata for the memory
-
         """
         if self.memory is None:
             return
 
         try:
-            self.memory.add(content, user_id=self.user_id, metadata=metadata or {})
-            logger.debug(
-                "Memory stored: %s",
-                content[:50] + "..."
-                if isinstance(content, str)
-                else "Conversation stored",
+            self.memory.add(
+                content,
+                user_id=self.user_id,
+                metadata=metadata or {}
             )
-        except Exception:
-            logger.exception("Error storing memory")
+            logger.debug(f"Memory stored: {content[:50]}..." if isinstance(content, str) else "Conversation stored")
+        except Exception as e:
+            logger.error(f"Error storing memory: {e}")
 
-    def _retrieve_relevant_memories(
-        self, query: str | None = None, limit: int = 5
-    ) -> list[dict[str, Any]]:
+    def _retrieve_relevant_memories(self, query: str = None, limit: int = 5) -> List[Dict[str, Any]]:
         """
         Retrieve relevant memories for the current context.
 
@@ -235,7 +220,6 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             List of relevant memories
-
         """
         if self.memory is None:
             return []
@@ -247,15 +231,14 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         try:
             # Search for relevant memories
-            search_result = self.memory.search(
-                query=query, user_id=self.user_id, limit=limit
+            memories = self.memory.search(
+                query=query,
+                user_id=self.user_id,
+                limit=limit
             )
-            # Ensure we return a list of dictionaries
-            if isinstance(search_result, list):
-                return search_result
-            return []
-        except Exception:
-            logger.exception("Error retrieving memories")
+            return memories
+        except Exception as e:
+            logger.error(f"Error retrieving memories: {e}")
             return []
 
     def _enhance_context_with_memories(self, context: str) -> str:
@@ -271,7 +254,6 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The enhanced context with memories included
-
         """
         if self.memory is None:
             return context
@@ -283,15 +265,13 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             return context
 
         # Format memories as a string
-        memory_text = "\n".join(
-            [
-                f"- {memory.get('text', memory.get('memory', str(memory)))}"
-                for memory in memories
-            ]
-        )
+        memory_text = "\n".join([
+            f"- {memory.get('text', memory.get('memory', str(memory)))}"
+            for memory in memories
+        ])
 
         # Combine memories with original context
-        return f"""
+        enhanced_context = f"""
 Relevant memories:
 {memory_text}
 
@@ -299,13 +279,15 @@ Original context:
 {context}
 """
 
+        return enhanced_context
+
 
 # Example usage
 if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     # Check if dependencies are available
@@ -321,28 +303,29 @@ if __name__ == "__main__":
         researcher = team.add_agent(
             role="Researcher",
             goal="Find relevant information about the topic",
-            backstory="Expert at gathering and analyzing data from various sources",
+            backstory="Expert at gathering and analyzing data from various sources"
         )
 
         writer = team.add_agent(
             role="Writer",
             goal="Create engaging content based on research",
-            backstory="Skilled content creator with expertise in clear communication",
+            backstory="Skilled content creator with expertise in clear communication"
         )
 
         # Add tasks
         research_task = team.add_task(
             description="Research the latest trends in AI memory systems",
-            agent=researcher,
+            agent=researcher
         )
 
         writing_task = team.add_task(
-            description="Write a summary of the research findings", agent=writer
+            description="Write a summary of the research findings",
+            agent=writer
         )
 
         # Run the team
         try:
             result = team.run()
-            logger.info("Workflow result: %s", result)
-        except Exception:
-            logger.exception("Error running workflow")
+            logger.info(f"Workflow result: {result}")
+        except Exception as e:
+            logger.error(f"Error running workflow: {e}")

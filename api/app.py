@@ -1,26 +1,21 @@
-"""Main FastAPI app for pAIssive Income API."""
+"""app - Module for api.app."""
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+import os
 
-from api.routes.tool_router import router as tool_router
+# Import and register the password reset/auth blueprint
+from api.routes.auth import auth_bp
+from flask import Flask
 
-app = FastAPI(
-    title="pAIssive Income API",
-    description="RESTful API endpoints for agent-accessible tools and core services.",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-)
 
-# Enable CORS for development purposes
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, set this to the specific allowed origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def create_app():
+    app = Flask(__name__)
+    # Register the password reset/auth endpoints
+    app.register_blueprint(auth_bp)
+    return app
 
-# Register routers
-app.include_router(tool_router)
+# For local dev/testing: `python -m api.app` will launch the app
+if __name__ == "__main__":
+    app = create_app()
+    # Only enable debug mode in development environment, never in production
+    debug_mode = os.environ.get("FLASK_ENV") == "development"
+    app.run(debug=debug_mode)

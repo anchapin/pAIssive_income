@@ -50,7 +50,7 @@ importers:
         version: 6.1.2(postcss@8.5.3)
       eslint:
         specifier: ^9.0.0
-        version: 9.28.0(jiti@1.21.7)
+        version: 9.27.0(jiti@1.21.7)
       html-webpack-plugin:
         specifier: ^5.6.3
         version: 5.6.3(webpack@5.99.8)
@@ -937,8 +937,8 @@ packages:
     resolution: {integrity: sha512-gtF186CXhIl1p4pJNGZw8Yc6RlshoePRvE0X91oPGb3vZ8pM3qOS9W9NGPat9LziaBV7XrJWGylNQXkGcnM3IQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@eslint/js@9.28.0':
-    resolution: {integrity: sha512-fnqSjGWd/CoIp4EXIxWVK/sHA6DOHN4+8Ix2cX5ycOY7LG0UY8nHCU5pIp2eaE1Mc7Qd8kHspYNzYXT2ojPLzg==}
+  '@eslint/js@9.27.0':
+    resolution: {integrity: sha512-G5JD9Tu5HJEu4z2Uo4aHY2sLV64B7CDMXxFzqzjl3NKd6RVzSXNoE80jk7Y0lJkTTkjiIhBAqmlYwjuBY3tvpA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/object-schema@2.1.6':
@@ -1711,8 +1711,8 @@ packages:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
 
-  cssdb@8.3.0:
-    resolution: {integrity: sha512-c7bmItIg38DgGjSwDPZOYF/2o0QU/sSgkWOMyl8votOfgFuyiFKWPesmCGEsrGLxEA9uL540cp8LdaGEjUGsZQ==}
+  cssdb@8.2.5:
+    resolution: {integrity: sha512-leAt8/hdTCtzql9ZZi86uYAmCLzVKpJMMdjbvOGVnXFXz/BWFpBmM1MHEHU/RqtPyRYmabVmEW1DtX3YGLuuLA==}
 
   cssesc@3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
@@ -1996,8 +1996,8 @@ packages:
     resolution: {integrity: sha512-UyLnSehNt62FFhSwjZlHmeokpRK59rcz29j+F1/aDgbkbRTk7wIc9XzdoasMUbRNKDM0qQt/+BJ4BrpFeABemw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  eslint@9.28.0:
-    resolution: {integrity: sha512-ocgh41VhRlf9+fVpe7QKzwLj9c92fDiqOj8Y3Sd4/ZmVA4Btx4PlUYPq4pp9JDyupkf1upbEXecxL2mwNV7jPQ==}
+  eslint@9.27.0:
+    resolution: {integrity: sha512-ixRawFQuMB9DZ7fjU3iGGganFDp3+45bPOdaRurcFHSXO1e/sYwUX/FtQZpLZJR6SjMoJH8hR2pPEAfDyCoU2Q==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     hasBin: true
     peerDependencies:
@@ -4980,9 +4980,9 @@ snapshots:
 
   '@emotion/weak-memoize@0.4.0': {}
 
-  '@eslint-community/eslint-utils@4.7.0(eslint@9.28.0(jiti@1.21.7))':
+  '@eslint-community/eslint-utils@4.7.0(eslint@9.27.0(jiti@1.21.7))':
     dependencies:
-      eslint: 9.28.0(jiti@1.21.7)
+      eslint: 9.27.0(jiti@1.21.7)
       eslint-visitor-keys: 3.4.3
 
   '@eslint-community/regexpp@4.12.1': {}
@@ -5015,7 +5015,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@eslint/js@9.28.0': {}
+  '@eslint/js@9.27.0': {}
 
   '@eslint/object-schema@2.1.6': {}
 
@@ -5838,7 +5838,7 @@ snapshots:
 
   css-what@6.1.0: {}
 
-  cssdb@8.3.0: {}
+  cssdb@8.2.5: {}
 
   cssesc@3.0.0: {}
 
@@ -6099,15 +6099,15 @@ snapshots:
 
   eslint-visitor-keys@4.2.0: {}
 
-  eslint@9.28.0(jiti@1.21.7):
+  eslint@9.27.0(jiti@1.21.7):
     dependencies:
-      '@eslint-community/eslint-utils': 4.7.0(eslint@9.28.0(jiti@1.21.7))
+      '@eslint-community/eslint-utils': 4.7.0(eslint@9.27.0(jiti@1.21.7))
       '@eslint-community/regexpp': 4.12.1
       '@eslint/config-array': 0.20.0
       '@eslint/config-helpers': 0.2.2
       '@eslint/core': 0.14.0
       '@eslint/eslintrc': 3.3.1
-      '@eslint/js': 9.28.0
+      '@eslint/js': 9.27.0
       '@eslint/plugin-kit': 0.3.1
       '@humanfs/node': 0.16.6
       '@humanwhocodes/module-importer': 1.0.1
@@ -7335,7 +7335,7 @@ snapshots:
       css-blank-pseudo: 6.0.2(postcss@8.5.3)
       css-has-pseudo: 6.0.5(postcss@8.5.3)
       css-prefers-color-scheme: 9.0.1(postcss@8.5.3)
-      cssdb: 8.3.0
+      cssdb: 8.2.5
       postcss: 8.5.3
       postcss-attribute-case-insensitive: 6.0.3(postcss@8.5.3)
       postcss-clamp: 4.1.0(postcss@8.5.3)

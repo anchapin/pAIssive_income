@@ -16,12 +16,12 @@ from pathlib import Path
 from queue import Queue
 from typing import Any, TypeVar
 
-from flask.globals import current_app
 from werkzeug.local import LocalProxy
 
 from app_flask import create_app
 from app_flask.middleware.logging_middleware import setup_request_logging
 from config import Config
+from flask.globals import current_app
 
 # Type variable for generic typing
 T = TypeVar("T")

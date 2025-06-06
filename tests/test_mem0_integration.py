@@ -26,7 +26,6 @@ mem0 = None
 Memory = None
 try:
     import mem0ai
-
     mem0 = mem0ai
     Memory = mem0ai.Memory
 except ImportError as e:  # mem0 or agent frameworks not available, skip test
@@ -107,7 +106,8 @@ def test_mem0_import():
         logger.info(f"Successfully imported mem0ai version {mem0ai.__version__}")
         assert True
     except ImportError as e:
-        logger.exception(f"Failed to import mem0ai: {e}")
+        logger.error(f"Failed to import mem0ai: {e}")
+        assert False
 
 
 def test_mem0_dependencies():
@@ -122,7 +122,7 @@ def test_mem0_dependencies():
             importlib.import_module(dep)
             logger.info(f"Successfully imported {dep}")
         except ImportError as e:
-            logger.exception(f"Failed to import {dep}: {e}")
+            logger.error(f"Failed to import {dep}: {e}")
             all_installed = False
 
     assert all_installed, "Not all required dependencies are installed"
@@ -193,7 +193,6 @@ def test_mem0_basic_functionality():
     """Placeholder for basic mem0 functionality test."""
     logger.info("Running basic mem0 functionality test (placeholder).")
     assert True
-
 
 if __name__ == "__main__":
     test_mem0_import()
