@@ -88,3 +88,17 @@ See `requirements-artist.txt` for the complete list of dependencies.
 - [ARTIST Framework Summary](../docs/research/artist_framework_summary.md)
 - [ARTIST Framework Pilot Use Cases](../docs/research/artist_framework_pilot_use_cases.md)
 - [ARTIST Framework Implementation Recommendations](../docs/research/artist_framework_implementation_recommendations.md)
+
+## Feedback & Iterative Improvements
+
+### Summary of Feedback
+Feedback from users and developers on ARTIST agent usability and performance has highlighted the agent's effectiveness in mathematical reasoning tasks, with reinforcement learning (RL) notably improving multi-step problem solving. However, suggestions were made to provide clearer error messages and to expand the range of supported tools. Additionally, while RL training contributed to better performance, feedback indicated a need for more real-world evaluation scenarios to assess robustness and utility.
+
+### Iterative Improvements (Made or Planned)
+- Improved error handling and clearer error messages
+- Expanded the tool registry to cover a broader set of user needs
+- Enhanced RL reward functions for more meaningful learning signals
+- Designed and integrated more realistic and diverse test cases
+- Ongoing collection and analysis of user/developer feedback to guide further enhancements
+
+*This section will be updated as more feedback is gathered and additional improvements are implemented.*
