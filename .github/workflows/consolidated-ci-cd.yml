@@ -113,9 +113,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'pnpm' # This will cache the pnpm store
-          # cache-dependency-path: 'pnpm-lock.yaml' # Recommended: path to your pnpm lock file for this part of the build
+          node-version: '18'
+          cache: 'pnpm'
+          cache-dependency-path: ui/react_frontend/pnpm-lock.yaml
 
 
       - name: Install Node.js dependencies and build Tailwind CSS
