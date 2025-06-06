@@ -1455,7 +1455,7 @@ Hostname: ${env.hostname || 'unknown'}
 Username: ${env.username || 'unknown'}
 Memory Total: ${env.memory ? formatBytes(env.memory.total) : 'N/A'}
 Memory Free: ${env.memory ? formatBytes(env.memory.free) : 'N/A'}
-CPUs: ${env.cpus.length}
+CPUs: ${env.cpus ? env.cpus.length : 'N/A'}
 `;
   }
 
