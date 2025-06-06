@@ -411,75 +411,59 @@ def main() -> None:
             if check_result.returncode == 0:
                 logger.info("pytest-xdist is already installed")
             else:
-                # Try to install pytest-xdist
-                logger.info("Installing pytest-xdist...")
+                # Try to install pytest-xdist using only uv
+                logger.info("Installing pytest-xdist with uv...")
 
-                # Determine which package installer to use (pip or uv)
-                use_uv = False
-                try:
-                    # Check if uv is available
-                    # Get full path to uv executable to avoid B607 warning
-                    uv_path = shutil.which("uv") or "uv"
-                    # nosec B603 - subprocess call is used with shell=False and validated arguments
-                    # nosec B607 - We're using shutil.which to get the full path
-                    uv_check = subprocess.run(  # nosec B603 # nosec B607
-                        [uv_path, "--version"],
-                        check=False,
-                        capture_output=True,
-                        shell=False,
-                        env=get_sanitized_env(),
-                        timeout=30,
+                # Check if uv is available
+                uv_path = shutil.which("uv") or "uv"
+                uv_check = subprocess.run(
+                    [uv_path, "--version"],
+                    check=False,
+                    capture_output=True,
+                    shell=False,
+                    env=get_sanitized_env(),
+                    timeout=30,
+                )
+                if uv_check.returncode != 0:
+                    logger.error(
+                        "'uv' is not available. Please install 'uv' to manage test dependencies."
                     )
-                    use_uv = uv_check.returncode == 0
-                except (subprocess.SubprocessError, FileNotFoundError):
-                    use_uv = False
+                    sys.exit(1)
 
-                # Install using the appropriate tool
-                if use_uv:
-                    logger.info("Using uv to install pytest-xdist")
-                    install_cmd = ["uv", "pip", "install", "pytest-xdist"]
-                else:
-                    logger.info("Using pip to install pytest-xdist")
-                    install_cmd = [
-                        sys.executable,
-                        "-m",
-                        "pip",
-                        "install",
-                        "pytest-xdist",
-                    ]
-
-                # nosec B603 - subprocess call is used with shell=False and validated arguments
-                # nosec B607 - subprocess call is used with a fixed executable path
-                install_result = subprocess.run(  # nosec B603 # nosec B607
+                install_cmd = [uv_path, "pip", "install", "pytest-xdist"]
+                install_result = subprocess.run(
                     install_cmd,
                     check=False,
                     capture_output=True,
-                    shell=False,  # Explicitly set shell=False for security
+                    shell=False,
                     env=get_sanitized_env(),
-                    timeout=300,  # Set a timeout of 5 minutes
+                    timeout=300,
                 )
 
                 if install_result.returncode == 0:
-                    logger.info("Successfully installed pytest-xdist")
+                    logger.info("Successfully installed pytest-xdist with uv")
                 else:
-                    logger.warning(
-                        "Failed to install pytest-xdist. Will run tests without parallelization."
+                    logger.error(
+                        "Failed to install pytest-xdist with uv. Cannot proceed with parallel testing."
                     )
                     if install_result.stderr:
                         logger.debug(
                             "Installation error: %s",
                             install_result.stderr.decode("utf-8", errors="replace"),
                         )
+                    sys.exit(1)  # Exit on failure to install pytest-xdist with uv
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
-            logger.warning(
-                "Error checking for pytest-xdist: %s. Will run tests without parallelization.",
+            logger.error(
+                "Error checking for or installing pytest-xdist with uv: %s. Cannot proceed.",
                 e,
             )
+            sys.exit(1)
     except Exception as e:
-        logger.warning(
-            "Unexpected error installing pytest-xdist: %s. Will run tests without parallelization.",
+        logger.error(
+            "Unexpected error installing pytest-xdist with uv: %s. Cannot proceed.",
             e,
         )
+        sys.exit(1)
 
     # Ensure security-reports directory exists
     ensure_security_reports_dir()

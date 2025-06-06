@@ -2,10 +2,6 @@
 
 This document provides information about the ARTIST (Agentic Reasoning and Tool Integration in Self-improving Transformers) experiments implemented in the project.
 
-## Recent Updates
-
-- **April 2024:** ARTIST experiment environment isolation improved. Dedicated uv-based and Docker-based setup provided, dependencies tracked in `requirements-artist.txt`, robust `.gitignore` exclusions for outputs, and documentation/testing updated for reproducibility and clarity.
-
 ## Overview
 
 The ARTIST framework combines agentic reasoning, reinforcement learning, and dynamic tool use to enhance the capabilities of Large Language Models (LLMs). The isolated experiment environment allows for exploration of ARTIST concepts without affecting the main project.
@@ -143,14 +139,6 @@ The Docker configuration for ARTIST experiments includes:
 ## Integration with Main Project
 
 The ARTIST experiments leverage the existing `ArtistAgent` class from the main project's `ai_models` module and the tool registry from the `common_utils` module. This allows for experimentation with enhanced versions of these components without modifying the core codebase.
-
-## Output Directories
-
-The following directories within `artist_experiments/` are used for experiment outputs and are excluded from version control via `.gitignore`:
-
-- `artist_experiments/data/`: For experiment data files
-- `artist_experiments/models/`: For trained models
-- `artist_experiments/logs/`: For experiment logs
 
 ## Running Tests
 

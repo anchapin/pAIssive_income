@@ -9,13 +9,13 @@ from logging import ERROR, INFO, Logger, getLogger
 from typing import TYPE_CHECKING, Any, Union, cast
 
 if TYPE_CHECKING:
-    from flask.app import Flask
-    from flask.wrappers import Response
     from werkzeug.wrappers import Response as WerkzeugResponse
 
-from flask.globals import current_app, g, request
+    from flask.app import Flask
+    from flask.wrappers import Response
 
 from app_flask.utils.logging_utils import sanitize_log_data, structured_log
+from flask.globals import current_app, g, request
 
 # Type hint for Flask app logger
 FlaskLogger = Logger
