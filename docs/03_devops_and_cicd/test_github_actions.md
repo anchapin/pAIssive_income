@@ -14,7 +14,7 @@ ruff check .
 mypy .
 
 # Run tests with coverage
-pytest -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=1
+pytest -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15
 ```
 
 You can also use the provided batch script:
@@ -51,10 +51,10 @@ The following changes were made to fix the consolidated lint test workflow:
    - Added detailed error handling for security scans on both Unix and Windows
    - Fixed environment variable handling in the Docker build step
    - Added robust error handling for directory creation
-   - Lowered the coverage threshold to 1% to avoid failures during development
+   - Set the coverage threshold to 15% to maintain quality standards
 4. Updated the `pytest.ini` file:
    - Commented out unsupported configuration options
-   - Lowered the coverage threshold to match the workflow
+   - Set the coverage threshold to 15% to maintain quality standards
 5. Fixed the `conftest.py` file to address deprecation warnings
 6. Created a simple test module and tests to verify the workflow
 
@@ -70,7 +70,7 @@ If you encounter issues with the workflow, check the following:
 
 ## Future Improvements
 
-1. Increase the coverage threshold as more tests are added.
+1. Maintain the 15% coverage threshold and add more comprehensive tests.
 2. Add more comprehensive linting rules to the Ruff configuration.
 3. Implement pre-commit hooks to run linting and tests before commits.
 4. Add more robust error handling for the test steps.

@@ -1,5 +1,22 @@
-flask>=2.0.0
-psycopg2-binary
-gunicorn
-pytest
-pytest-cov
+# CI/CD specific dependencies
+flask>=2.3.0,<4.0.0
+psycopg2-binary>=2.9.9,<3.0.0
+gunicorn>=20.1.0,<22.0.0
+pytest>=7.0.0,<9.0.0
+pytest-cov>=4.0.0,<6.0.0
+pytest-xdist>=3.2.0,<4.0.0
+pytest-asyncio>=0.26.0,<1.0.0
+
+# Core dependencies for CI
+pydantic>=2.7.3,<3.0.0
+fastapi>=0.95.0,<0.110.0
+uvicorn>=0.22.0,<0.30.0
+httpx>=0.24.0,<1.0.0
+click>=8.0.0,<9.0.0
+
+# Security and linting tools
+ruff>=0.1.6,<1.0.0
+pyright>=1.1.0,<2.0.0
+safety>=3.0.0,<4.0.0
+bandit>=1.7.0,<2.0.0
+mypy>=1.0.0,<2.0.0

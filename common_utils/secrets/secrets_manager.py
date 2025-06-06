@@ -84,21 +84,21 @@ class SecretsBackend(enum.Enum):
 class SecretBackendProtocol(Protocol):
     """Protocol for secret backend implementations."""
 
-    def get_secret(self) -> str | None:
+    def get_secret(self, key: str) -> str | None:
         """Get a secret from the backend."""
-        ...
+        raise NotImplementedError
 
-    def set_secret(self) -> bool:
+    def set_secret(self, key: str, value: str) -> bool:
         """Set a secret in the backend."""
-        ...
+        raise NotImplementedError
 
-    def delete_secret(self) -> bool:
+    def delete_secret(self, key: str) -> bool:
         """Delete a secret from the backend."""
-        ...
+        raise NotImplementedError
 
     def list_secrets(self) -> dict[str, Any]:
         """List secrets in the backend."""
-        ...
+        raise NotImplementedError
 
 
 class SecretsManager:
