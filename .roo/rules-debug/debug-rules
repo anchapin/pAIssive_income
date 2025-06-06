@@ -12,12 +12,11 @@
 Your primary role is to **execute diagnostic tasks** delegated to you by the Boomerang orchestrator mode. Focus on fulfilling the specific instructions provided in the `new_task` message, referencing the relevant `taskmaster-ai` task ID.
 
 1.  **Task Execution:**
-    *   Carefully analyze the `message` from Boomerang, noting the `taskmaster-ai` ID, error details, and specific investigation scope.
+    *   Carefully analyze the `message` from Boomerang, noting the error details and specific investigation scope.
     *   Perform the requested diagnostics using appropriate tools:
         *   `read_file`: Examine specified code or log files.
         *   `search_files`: Locate relevant code, errors, or patterns.
         *   `execute_command`: Run specific diagnostic commands *only if explicitly instructed* by Boomerang.
-        *   `taskmaster-ai` `get_task`: Retrieve additional task context *only if explicitly instructed* by Boomerang.
     *   Focus on identifying the root cause of the issue described in the delegated task.
 2.  **Reporting Completion:** Signal completion using `attempt_completion`. Provide a concise yet thorough summary of the outcome in the `result` parameter. This summary is **crucial** for Boomerang to update `taskmaster-ai`. Include:
     *   Summary of diagnostic steps taken and findings (e.g., identified root cause, affected areas).
@@ -49,20 +48,3 @@ context_reporting: |
 
 **Taskmaster-AI Strategy (for Autonomous Operation):**
 
-# Only relevant if operating autonomously (not delegated by Boomerang).
-taskmaster_strategy:
-  status_prefix: "Begin autonomous responses with either '[TASKMASTER: ON]' or '[TASKMASTER: OFF]'."
-  initialization: |
-      <thinking>
-      - **CHECK FOR TASKMASTER (Autonomous Only):**
-      - Plan: If I need to use Taskmaster tools autonomously, first use `list_files` to check if `tasks/tasks.json` exists.
-      - If `tasks/tasks.json` is present = set TASKMASTER: ON, else TASKMASTER: OFF.
-      </thinking>
-      *Execute the plan described above only if autonomous Taskmaster interaction is required.*
-  if_uninitialized: |
-      1. **Inform:** "Task Master is not initialized. Autonomous Taskmaster operations cannot proceed."
-      2. **Suggest:** "Consider switching to Boomerang mode to initialize and manage the project workflow."
-  if_ready: |
-      1. **Verify & Load:** Optionally fetch tasks using `taskmaster-ai`'s `get_tasks` tool if needed for autonomous context.
-      2. **Set Status:** Set status to '[TASKMASTER: ON]'.
-      3. **Proceed:** Proceed with autonomous Taskmaster operations.

@@ -50,32 +50,14 @@ context_reporting: |
       - **Trigger:** Always provide a detailed `result` upon using `attempt_completion`.
       - **Mechanism:** Boomerang receives the `result` and performs the necessary Taskmaster updates.
 
-**Taskmaster-AI Strategy (for Autonomous Operation):**
 
-# Only relevant if operating autonomously (not delegated by Boomerang).
-taskmaster_strategy:
-  status_prefix: "Begin autonomous responses with either '[TASKMASTER: ON]' or '[TASKMASTER: OFF]'."
-  initialization: |
-      <thinking>
-      - **CHECK FOR TASKMASTER (Autonomous Only):**
-      - Plan: If I need to use Taskmaster tools autonomously, first use `list_files` to check if `tasks/tasks.json` exists.
-      - If `tasks/tasks.json` is present = set TASKMASTER: ON, else TASKMASTER: OFF.
-      </thinking>
-      *Execute the plan described above only if autonomous Taskmaster interaction is required.*
-  if_uninitialized: |
-      1. **Inform:** "Task Master is not initialized. Autonomous Taskmaster operations cannot proceed."
-      2. **Suggest:** "Consider switching to Boomerang mode to initialize and manage the project workflow."
-  if_ready: |
-      1. **Verify & Load:** Optionally fetch tasks using `taskmaster-ai`'s `get_tasks` tool if needed for autonomous context.
-      2. **Set Status:** Set status to '[TASKMASTER: ON]'.
-      3. **Proceed:** Proceed with autonomous Taskmaster operations.
 
 **Mode Collaboration & Triggers (Architect Perspective):**
 
 mode_collaboration: |
     # Architect Mode Collaboration (Focus on receiving from Boomerang and reporting back)
     - Delegated Task Reception (FROM Boomerang via `new_task`):
-      * Receive specific architectural/planning task instructions referencing a `taskmaster-ai` ID.
+      * Receive specific architectural/planning task instructions.
       * Analyze requirements, scope, and constraints provided by Boomerang.
     - Completion Reporting (TO Boomerang via `attempt_completion`):
       * Report design decisions, plans, analysis results, or identified subtasks in the `result`.

@@ -14,7 +14,8 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-fileConfig(config.config_file_name)
+if config.config_file_name:
+    fileConfig(config.config_file_name)
 logger = logging.getLogger("alembic.env")
 
 # Get database URL from environment or use default
@@ -57,7 +58,9 @@ def run_migrations_online() -> None:
     # This callback prevents auto-migration when there are no changes
     # See: https://alembic.sqlalchemy.org/en/latest/cookbook.html
     def process_revision_directives(
-        _context: object, _revision: object, directives: list[object]
+        _context: object,
+        _revision: object,
+        directives: list[object],
     ) -> None:
         """
         Process migration directives to detect empty migrations.
@@ -70,19 +73,23 @@ def run_migrations_online() -> None:
         """
         if getattr(config.cmd_opts, "autogenerate", False):
             script = directives[0]
-            if script.upgrade_ops.is_empty():
+            if script.upgrade_ops.is_empty():  # type: ignore[attr-defined]
                 directives[:] = []
             logger.info("No changes in schema detected.")
 
     from sqlalchemy import create_engine
 
-    engine = create_engine(config.get_main_option("sqlalchemy.url"))
+    db_url = config.get_main_option("sqlalchemy.url")
+    if not db_url:
+        msg = "Database URL not configured"
+        raise ValueError(msg)
+    engine = create_engine(db_url)
 
     with engine.connect() as connection:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            process_revision_directives=process_revision_directives,
+            process_revision_directives=process_revision_directives,  # type: ignore[arg-type]
         )
 
         with context.begin_transaction():

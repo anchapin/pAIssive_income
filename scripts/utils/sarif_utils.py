@@ -221,7 +221,10 @@ def convert_json_to_sarif(
 
             # Handle line number which might be an int or string
             line_raw = result.get(result_mapping.get("line_number", "line"), 1)
-            line_number = int(line_raw) if line_raw else 1
+            try:
+                line_number = int(line_raw) if line_raw is not None else 1  # type: ignore[arg-type]
+            except (ValueError, TypeError):
+                line_number = 1
 
             level = str(
                 result.get(result_mapping.get("level", "severity"), "warning")

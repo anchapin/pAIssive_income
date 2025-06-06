@@ -7,13 +7,18 @@ It's designed to be as simple as possible to avoid any issues with virtual envir
 """
 
 import json
-import os
+import logging
 import subprocess
 import sys
+from pathlib import Path
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Create security-reports directory
-os.makedirs("security-reports", exist_ok=True)
-print("Created security-reports directory")
+Path("security-reports").mkdir(exist_ok=True)
+logger.info("Created security-reports directory")
 
 # Create empty JSON files
 empty_json = {
@@ -23,13 +28,15 @@ empty_json = {
     "results": [],
 }
 
-with open("security-reports/bandit-results.json", "w") as f:
+bandit_results_path = Path("security-reports/bandit-results.json")
+with bandit_results_path.open("w") as f:
     json.dump(empty_json, f, indent=2)
-print("Created empty bandit-results.json")
+logger.info("Created empty bandit-results.json")
 
-with open("security-reports/bandit-results-ini.json", "w") as f:
+bandit_results_ini_path = Path("security-reports/bandit-results-ini.json")
+with bandit_results_ini_path.open("w") as f:
     json.dump(empty_json, f, indent=2)
-print("Created empty bandit-results-ini.json")
+logger.info("Created empty bandit-results-ini.json")
 
 # Create empty SARIF files
 empty_sarif = {
@@ -50,18 +57,20 @@ empty_sarif = {
     ],
 }
 
-with open("security-reports/bandit-results.sarif", "w") as f:
+bandit_sarif_path = Path("security-reports/bandit-results.sarif")
+with bandit_sarif_path.open("w") as f:
     json.dump(empty_sarif, f, indent=2)
-print("Created empty bandit-results.sarif")
+logger.info("Created empty bandit-results.sarif")
 
-with open("security-reports/bandit-results-ini.sarif", "w") as f:
+bandit_sarif_ini_path = Path("security-reports/bandit-results-ini.sarif")
+with bandit_sarif_ini_path.open("w") as f:
     json.dump(empty_sarif, f, indent=2)
-print("Created empty bandit-results-ini.sarif")
+logger.info("Created empty bandit-results-ini.sarif")
 
 # Try to run bandit if available
 try:
-    subprocess.run(
-        [
+    subprocess.run(  # nosec B603 B607  # noqa: S603
+        [  # noqa: S607
             "bandit",
             "-r",
             ".",
@@ -77,10 +86,10 @@ try:
         shell=False,
         timeout=600,
     )
-    print("Bandit scan completed")
-except Exception as e:
-    print(f"Error running bandit: {e}")
-    print("Using empty result files")
+    logger.info("Bandit scan completed")
+except subprocess.SubprocessError:
+    logger.exception("Error running bandit")
+    logger.info("Using empty result files")
 
-print("Bandit scan script completed successfully")
+logger.info("Bandit scan script completed successfully")
 sys.exit(0)

@@ -15,6 +15,7 @@ def test_mem0_import():
     """Test that mem0 can be imported."""
     try:
         import mem0  # nosec B404
+
         logger.info(f"Successfully imported mem0 version {mem0.__version__}")
         return True
     except ImportError as e:
@@ -31,6 +32,7 @@ def test_mem0_dependencies():
         try:
             # Use importlib instead of __import__ for better security
             import importlib
+
             importlib.import_module(dep)  # nosec B403
             logger.info(f"Successfully imported {dep}")
         except ImportError as e:
@@ -46,6 +48,7 @@ def test_mem0_basic_functionality():
     """Test basic mem0 functionality."""
     try:
         import mem0  # nosec B404        # Create a memory instance (without actually connecting to any services)
+
         # Using the correct API based on documentation, and ensuring instance creation works
         _ = mem0.Memory()  # nosec B106
 
