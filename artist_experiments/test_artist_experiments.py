@@ -55,8 +55,8 @@ class TestMultiAPIOrchestration(unittest.TestCase):
         api_tool = multi_api_orchestration.APITool()
         result = api_tool.search_products("test", 2)
         result_dict = json.loads(result)
-        assert len(result_dict["results"]) == 2  # noqa: PLR2004  # nosec # noqa: S101
-        assert result_dict["results"][0]["name"] == "test Product 1"  # nosec # noqa: S101
+        assert len(result_dict["results"]) == 2  # noqa: S101
+        assert result_dict["results"][0]["name"] == "test Product 1"  # noqa: S101
 
     def test_get_market_trends(self) -> None:
         """Test getting market trends."""
