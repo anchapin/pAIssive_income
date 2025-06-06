@@ -27,6 +27,7 @@
   "engines": {
     "node": ">=20"
   },
+  "type": "module",
   "dependencies": {
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
