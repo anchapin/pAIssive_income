@@ -135,7 +135,6 @@ class TestSecurityFixes(unittest.TestCase):
     @patch("fix_security_issues.IMPORTED_SECRET_SCANNER", False)
     @patch("fix_security_issues.globals")
     @patch("subprocess.run")
-    @pytest.mark.usefixtures("_")
     def test_run_security_scan_with_missing_imports(
         self, mock_subprocess_run: MagicMock, mock_globals: MagicMock
     ) -> None:
