@@ -1453,8 +1453,8 @@ Detailed System Information
 -------------------------
 Hostname: ${env.hostname || 'unknown'}
 Username: ${env.username || 'unknown'}
-Memory Total: ${formatBytes(env.memory.total)}
-Memory Free: ${formatBytes(env.memory.free)}
+Memory Total: ${env.memory ? formatBytes(env.memory.total) : 'N/A'}
+Memory Free: ${env.memory ? formatBytes(env.memory.free) : 'N/A'}
 CPUs: ${env.cpus.length}
 `;
   }
