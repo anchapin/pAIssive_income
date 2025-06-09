@@ -40,7 +40,7 @@
     "postcss": "^8.4.32",
     "autoprefixer": "^10.4.16",
     "postcss-preset-env": "^9.5.0",
-    "cssnano": "^6.1.0",
+    "cssnano": "^7.0.7",
     "@babel/core": "^7.27.1",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-react": "^7.26.3",
