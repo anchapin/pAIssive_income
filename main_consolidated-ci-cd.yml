@@ -89,6 +89,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd ui/react_frontend
+          ls -la
           npm install
       - name: Run tests
         run: |
@@ -187,6 +188,7 @@ jobs:
       - name: Run docker-compose tests
         run: |
           docker-compose -f docker-compose.ci.yml up -d --build
+          sleep 30
           docker-compose -f docker-compose.ci.yml exec -T api pytest
   auto-fix:
     name: Auto Fix
@@ -206,6 +208,7 @@ jobs:
       - name: Run auto-fix
         run: |
           ruff --fix .
+          git status
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
