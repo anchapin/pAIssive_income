@@ -94,25 +94,14 @@ lines-between-types = 1
 "ai_models/model_base_types.py" = ["E402"]
 "ai_models/model_types.py" = ["E402"]
 
-# Enhanced formatter settings
-[format]
-quote-style = "double"
-indent-style = "space"
-docstring-code-format = true
-docstring-code-line-length = 88
-line-ending = "auto"
-preview = true
-
-[lint.per-file-ignores]
+# Additional specific ignores
 "demo_vector_rag.py" = ["S101"]
 # Allow binding to 0.0.0.0 in dev/test server entrypoints
 "run_ui.py" = ["S104"]
 "artist_experiments/run_artist.py" = ["S104"]
 "verify_pr243_fixes.py" = ["S603"]
 "scripts/**/*.py" = ["ALL"]
-"tests/**/*.py" = ["ALL"]
 "adk_demo/**/*.py" = ["ALL"]
-"artist_experiments/**/*.py" = ["ALL"]
 "examples/**/*.py" = ["ALL"]
 "mock_adk/**/*.py" = ["ALL"]
 "mock_crewai/**/*.py" = ["ALL"]
@@ -122,3 +111,12 @@ preview = true
 "test-artifacts/**/*.py" = ["ALL"]
 "test-results/**/*.py" = ["ALL"]
 "ui/**/*.py" = ["ALL"]
+
+# Enhanced formatter settings
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = 88
+line-ending = "auto"
+preview = true
