@@ -11,12 +11,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Python Environment Setup
+
+**Quick Setup (Recommended):**
 ```bash
-# Install with optional dependencies (recommended)
+# Run the local environment setup script
+./setup_local_env.sh
+```
+
+**Manual Setup:**
+```bash
+# Set up PATH for local pip installation
+export PATH="$HOME/.local/bin:$PATH"
+
+# Install with optional dependencies (if full environment available)
 uv pip install -e ".[dev,agents,memory,ml]"
 
 # Alternative: using pip
 pip install -e ".[dev,agents,memory,ml]"
+
+# Minimal setup (essential tools only)
+pip install --break-system-packages ruff pytest mypy sqlalchemy fastapi pydantic
 ```
 
 ### Build & Test Commands
