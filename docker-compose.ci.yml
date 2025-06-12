@@ -10,24 +10,13 @@ version: '3.8'
 # - Added support for Windows environments with path normalization
 # - Enhanced security with input validation and sanitization
 services:
-  app:
-    # Reduce resource requirements for CI
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          cpus: '0.25'
-          memory: 512M
-    # Adjust healthcheck for CI with more lenient settings and faster checks
-    healthcheck:
-      test: ["CMD", "/app/docker-healthcheck.sh"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
-    # Add CI-specific environment variables with enhanced compatibility
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: pytest
+    volumes:
+      - .:/app
     environment:
       - FLASK_ENV=testing 
       - TESTING=true
@@ -46,15 +35,8 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - FLASK_DEBUG=1
       - FLASK_APP=app.py
-    # Add volumes for better debugging
-    volumes:
-      - ./logs:/app/logs
-      - ./test-results:/app/test-results
-    # Add restart policy for better reliability
-    restart: on-failure:3
-    # Add init process to handle zombie processes
-    init: true
-
+    depends_on:
+      - db
   frontend:
     build:
       context: ./ui/react_frontend
