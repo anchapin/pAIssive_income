@@ -12,11 +12,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Python Environment Setup
 ```bash
-# Install with optional dependencies
-pip install -e ".[dev,agents,memory,ml]"
+# Install with optional dependencies (recommended)
+uv pip install -e ".[dev,agents,memory,ml]"
 
-# Using uv (faster, preferred)
-uv pip install -r requirements.txt
+# Alternative: using pip
+pip install -e ".[dev,agents,memory,ml]"
 ```
 
 ### Build & Test Commands
@@ -165,12 +165,14 @@ The project includes comprehensive Cursor rules in `.cursor/rules/`:
 
 ## Key Configuration Files
 
-- `pyproject.toml`: Python dependencies, tool configuration (Ruff, MyPy, pytest)
+- `pyproject.toml`: Python dependencies, tool configuration (Ruff, MyPy, pytest) - **Primary configuration source**
 - `package.json`: Node.js dependencies, Tailwind build scripts, test coverage settings
 - `docker-compose.yml`: Multi-service orchestration with PostgreSQL, optional Redis
 - `Makefile`: Unified command interface for all quality operations
-- `ruff.toml`: Linting configuration (replaces flake8, black, isort)
 - `.cursor/rules/*.mdc`: Development workflow and coding standards
+
+### Linting Configuration Note
+Ruff configuration is centralized in `pyproject.toml` to avoid confusion. The separate `ruff.toml` file exists for specific performance optimizations but `pyproject.toml` serves as the authoritative configuration source.
 
 ## Common Workflows
 
