@@ -36,7 +36,7 @@
     "recharts": "^2.12.0"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^4.1.8",
     "postcss": "^8.4.32",
     "autoprefixer": "^10.4.16",
     "postcss-preset-env": "^9.5.0",
