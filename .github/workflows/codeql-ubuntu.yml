@@ -25,6 +25,10 @@ on:
   schedule:
     - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 # Limit concurrent runs to conserve resources
 concurrency:
@@ -85,6 +89,20 @@ jobs:
             echo "pnpm not found, will use npm instead"
           fi
 
+      # Set up Python for Python analysis
+      - name: Set up Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          # Remove cache: 'pip' to avoid cache folder path issues
+
+      # Display disk space before analysis
+      - name: Check disk space
+        shell: bash
+        run: df -h
+
+      # Verify lock files exist before analysis
       - name: Verify lock files
         shell: bash
         run: |
@@ -222,7 +240,7 @@ jobs:
                 - uses: security
               disable-default-queries: false
               trap-for-errors: true
-EOF
+            EOF
             cat > .github/codeql/security-os-config.yml << 'EOF'
               name: "Unified CodeQL Configuration"
               queries:
@@ -231,7 +249,7 @@ EOF
                 - uses: security
               disable-default-queries: false
               trap-for-errors: true
-EOF
+            EOF
           fi
 
       - name: Create .codeqlignore file
@@ -288,7 +306,7 @@ EOF
           **/*.sarif.json
           ui/react_frontend/node_modules/**
           sdk/javascript/node_modules/**
-EOL
+          EOL
           echo "Current directories:"
           ls -la
 

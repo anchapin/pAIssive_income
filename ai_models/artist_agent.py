@@ -52,24 +52,23 @@ class ArtistAgent:
         return ""
 
     def extract_relevant_expression(self, prompt: str, tool_name: str) -> str:
-        """
-        Extract the relevant expression from the prompt based on the tool.
-
-        This is a naive implementation for the calculator tool.
-
-        Args:
-            prompt (str): The user's input or problem description.
-            tool_name (str): The name of the selected tool.
-
-        Returns:
-            str: The extracted relevant expression.
-
-        """
+        """Extract the relevant expression from the prompt based on the tool."""
+        min_expression_length = 3
+        # Refactored to reduce return statements and complexity
+        if not prompt or not tool_name:
+            return ""
+        expression = ""
         if tool_name == "calculator":
-            # Naive extraction: assume the entire prompt is the expression
-            # This should be improved for more complex prompts
-            return prompt
-        return prompt  # Default to returning the whole prompt if extraction logic is not defined
+            expression = self._extract_calculator_expression(prompt)
+        elif tool_name == "text_analyzer":
+            expression = self._extract_text_analyzer_expression(prompt)
+        elif tool_name == "code_executor":
+            expression = self._extract_code_executor_expression(prompt)
+        else:
+            expression = self._extract_generic_expression(prompt)
+        if len(expression) < min_expression_length:
+            return ""
+        return expression
 
     def run(self, prompt: str) -> str:
         """

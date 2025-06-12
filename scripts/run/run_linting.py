@@ -41,7 +41,7 @@ def run(cmd: Union[str, list[str]], description: str) -> None:
 
     cmd_list[0] = executable
     # nosec comment below tells security scanners this is safe as we control the input
-    result = subprocess.run(cmd_list, shell=False, check=False)  # nosec B603 S603
+    result = subprocess.run(cmd_list, shell=False, check=False)  # nosec S603
     if result.returncode != 0:
         logger.error("❌ %s failed.", description)
         sys.exit(result.returncode)

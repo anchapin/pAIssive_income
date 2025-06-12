@@ -4,9 +4,9 @@ from http import HTTPStatus
 from pathlib import Path
 
 import pytest
+from flask import Flask
 
 from app_flask.mcp_servers import mcp_servers_api
-from flask import Flask
 
 
 @pytest.fixture

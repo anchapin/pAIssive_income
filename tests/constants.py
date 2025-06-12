@@ -36,6 +36,7 @@ DEFAULT_LIMIT = 10
 # Test data constants
 TEST_USERNAME = "testuser"
 TEST_EMAIL = "test@example.com"
+# The following test credentials are safe for use in test code only.
 TEST_PASSWORD = "Test-password-123"  # noqa: S105 - Test credential only
 TEST_ADMIN_USERNAME = "admin"
 TEST_ADMIN_EMAIL = "admin@example.com"

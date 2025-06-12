@@ -23,6 +23,7 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "demo_vector_rag.py",  # Incomplete demo file
 ]
 
 # Same as Black

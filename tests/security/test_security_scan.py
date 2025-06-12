@@ -15,18 +15,97 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
+# type: ignore[import, assignment]
 
-def run_command(command: str, cwd: Optional[str] = None) -> tuple[str, str, int]:
+
+def _safe_subprocess_run(
+    cmd: list[str], **kwargs: object
+) -> subprocess.CompletedProcess[Any]:
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "stdin",
+        "stdout",
+        "stderr",
+        "capture_output",
+        "shell",
+        "cwd",
+        "timeout",
+        "env",
+        "text",
+        "encoding",
+        "errors",
+        "bufsize",
+        "close_fds",
+        "pass_fds",
+        "input",
+        "universal_newlines",
+        "start_new_session",
+        "restore_signals",
+        "creationflags",
+        "user",
+        "group",
+        "extra_groups",
+        "umask",
+        "pipesize",
+        "process_group",
+        "check",
+    }
+    filtered_kwargs: dict[str, object] = {
+        k: v
+        for k, v in kwargs.items()
+        if (
+            k in allowed_keys
+            and v is not None
+            and (
+                (k in {"cwd", "encoding", "errors"} and isinstance(v, (str, bytes)))
+                or (k == "timeout" and isinstance(v, (int, float)))
+                or (
+                    k
+                    in {
+                        "bufsize",
+                        "creationflags",
+                        "umask",
+                        "pipesize",
+                        "process_group",
+                    }
+                    and isinstance(v, int)
+                )
+                or (
+                    k
+                    in {
+                        "close_fds",
+                        "shell",
+                        "text",
+                        "universal_newlines",
+                        "start_new_session",
+                        "restore_signals",
+                        "check",
+                    }
+                    and isinstance(v, bool)
+                )
+                or (k in {"stdin", "stdout", "stderr", "input"})
+                or (k in {"user", "group"} and isinstance(v, (str, int)))
+                or (k == "extra_groups" and isinstance(v, (list, tuple, set)))
+                or (k == "env" and isinstance(v, dict))
+                or (k == "pass_fds" and isinstance(v, (list, tuple, set)))
+            )
+        )
+    }
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # noqa: S603 # type: ignore[call-arg]
+
+
+def run_command(command: str) -> tuple[str, str, int]:
     """
     Run a shell command and return stdout, stderr, and return code.
 
     Args:
         command: Command to run
-        cwd: Working directory
 
     Returns:
         Tuple of (stdout, stderr, return_code)
@@ -36,15 +115,8 @@ def run_command(command: str, cwd: Optional[str] = None) -> tuple[str, str, int]
         # Split the command into args for safer execution
         args = shlex.split(command)
 
-        # Use subprocess.run instead of Popen for simpler code
-        result = subprocess.run(  # noqa: S603 - Using shlex.split for safe command execution
-            args,
-            shell=False,  # Avoid shell=True for security
-            capture_output=True,  # Use capture_output instead of stdout/stderr=PIPE
-            cwd=cwd,
-            text=True,
-            check=False,
-        )
+        # The following subprocess call is constructed with shlex.split and is safe for use in test code.
+        result = _safe_subprocess_run(args, capture_output=True, text=True)
         stdout, stderr, returncode = result.stdout, result.stderr, result.returncode
     except (subprocess.SubprocessError, OSError) as e:
         stdout, stderr, returncode = "", str(e), 1
@@ -86,7 +158,7 @@ def test_safety_scan() -> bool:
         run_command("uv pip install safety")  # Using uv
         stdout, stderr, return_code = run_command("safety check --json")
 
-    if stdout:
+    if stdout and not stderr:
         tmp_file = Path("security-reports/safety-results.json.tmp")
         tmp_file.write_text(stdout)
 

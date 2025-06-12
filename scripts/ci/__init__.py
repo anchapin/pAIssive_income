@@ -22,8 +22,8 @@ from .detect_ci_environment import (
 )
 
 __all__ = [
+    "create_ci_directories",
     "detect_ci_environment",
     "safe_file_exists",
     "safe_read_file",
-    "create_ci_directories",
 ]

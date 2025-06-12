@@ -6,10 +6,12 @@ This script analyzes GitHub Actions workflows to identify potential issues
 and provide troubleshooting recommendations.
 """
 
-import os
-import yaml
 import glob
-from typing import Dict, List, Any
+import os
+from typing import Any, Dict, List
+
+import yaml
+
 
 class WorkflowAnalyzer:
     def __init__(self, workflows_dir: str = ".github/workflows"):
@@ -31,7 +33,7 @@ class WorkflowAnalyzer:
             "issues": [],
             "warnings": [],
             "recommendations": [],
-            "file_analysis": {}
+            "file_analysis": {},
         }
 
         for workflow_file in workflow_files:
@@ -59,11 +61,11 @@ class WorkflowAnalyzer:
             "issues": [],
             "warnings": [],
             "recommendations": [],
-            "structure": {}
+            "structure": {},
         }
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = yaml.safe_load(f)
 
             if content is None:
@@ -80,7 +82,9 @@ class WorkflowAnalyzer:
 
         return result
 
-    def analyze_workflow_structure(self, workflow: Dict[str, Any], file_path: str) -> Dict[str, Any]:
+    def analyze_workflow_structure(
+        self, workflow: Dict[str, Any], file_path: str
+    ) -> Dict[str, Any]:
         """Analyze the structure of a workflow."""
         structure = {
             "has_name": "name" in workflow,
@@ -90,7 +94,7 @@ class WorkflowAnalyzer:
             "uses_timeouts": False,
             "uses_concurrency": False,
             "uses_continue_on_error": False,
-            "action_versions": []
+            "action_versions": [],
         }
 
         # Check required fields
@@ -111,12 +115,16 @@ class WorkflowAnalyzer:
                 if "timeout-minutes" in job_config:
                     structure["uses_timeouts"] = True
                 else:
-                    self.warnings.append(f"{file_path}: Job '{job_name}' missing timeout")
+                    self.warnings.append(
+                        f"{file_path}: Job '{job_name}' missing timeout"
+                    )
 
                 # Check for continue-on-error usage
                 if "continue-on-error" in job_config:
                     structure["uses_continue_on_error"] = True
-                    self.warnings.append(f"{file_path}: Job '{job_name}' uses continue-on-error")
+                    self.warnings.append(
+                        f"{file_path}: Job '{job_name}' uses continue-on-error"
+                    )
 
                 # Analyze steps
                 if "steps" in job_config:
@@ -133,7 +141,9 @@ class WorkflowAnalyzer:
         if "concurrency" in workflow:
             structure["uses_concurrency"] = True
         else:
-            self.recommendations.append(f"{file_path}: Consider adding concurrency control")
+            self.recommendations.append(
+                f"{file_path}: Consider adding concurrency control"
+            )
 
         return structure
 
@@ -145,7 +155,7 @@ class WorkflowAnalyzer:
             "actions/setup-python": "v5",
             "actions/cache": "v4",
             "actions/upload-artifact": "v4",
-            "actions/download-artifact": "v4"
+            "actions/download-artifact": "v4",
         }
 
         if "@" in action:
@@ -165,7 +175,7 @@ class WorkflowAnalyzer:
 
         for file_path in workflow_files:
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, encoding="utf-8") as f:
                     content = yaml.safe_load(f)
 
                 if content and "name" in content:
@@ -173,11 +183,7 @@ class WorkflowAnalyzer:
 
                 if content and "on" in content:
                     triggers = content["on"]
-                    if isinstance(triggers, dict):
-                        for trigger in triggers:
-                            if trigger in trigger_analysis:
-                                trigger_analysis[trigger].append(file_path)
-                    elif isinstance(triggers, list):
+                    if isinstance(triggers, dict) or isinstance(triggers, list):
                         for trigger in triggers:
                             if trigger in trigger_analysis:
                                 trigger_analysis[trigger].append(file_path)
@@ -278,7 +284,9 @@ class WorkflowAnalyzer:
     def get_timestamp(self) -> str:
         """Get current timestamp in ISO format."""
         from datetime import datetime
+
         return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
 
 def main():
     """Main function to run workflow analysis."""
@@ -292,15 +300,15 @@ def main():
     os.makedirs("ci-reports", exist_ok=True)
     report_file = "ci-reports/workflow-analysis-report.md"
 
-    with open(report_file, 'w', encoding='utf-8') as f:
+    with open(report_file, "w", encoding="utf-8") as f:
         f.write(report)
 
     print(f"📊 Analysis complete! Report saved to: {report_file}")
 
     # Print summary to console
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("WORKFLOW ANALYSIS SUMMARY")
-    print("="*50)
+    print("=" * 50)
     print(f"Total files: {results['total_files']}")
     print(f"Valid files: {results['valid_files']}")
     print(f"Invalid files: {results['invalid_files']}")
@@ -308,19 +316,21 @@ def main():
     print(f"Warnings: {len(results['warnings'])}")
     print(f"Recommendations: {len(results['recommendations'])}")
 
-    if results['issues']:
+    if results["issues"]:
         print("\n🚨 CRITICAL ISSUES FOUND:")
-        for issue in results['issues'][:5]:  # Show first 5
+        for issue in results["issues"][:5]:  # Show first 5
             print(f"  ❌ {issue}")
-        if len(results['issues']) > 5:
+        if len(results["issues"]) > 5:
             print(f"  ... and {len(results['issues']) - 5} more")
 
-    if results['invalid_files'] == 0 and len(results['issues']) == 0:
+    if results["invalid_files"] == 0 and len(results["issues"]) == 0:
         print("\n✅ All workflow files are valid!")
         return 0
-    else:
-        print(f"\n❌ Found {results['invalid_files']} invalid files and {len(results['issues'])} issues")
-        return 1
+    print(
+        f"\n❌ Found {results['invalid_files']} invalid files and {len(results['issues'])} issues"
+    )
+    return 1
+
 
 if __name__ == "__main__":
     exit(main())

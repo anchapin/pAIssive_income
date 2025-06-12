@@ -82,5 +82,16 @@ def list_experiments() -> dict:
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    port_str = os.environ.get("PORT", "5000")
+    try:
+        port = int(port_str)
+    except ValueError:
+        logger.warning(
+            "Invalid PORT environment variable: %s, defaulting to 5000", port_str
+        )
+        port = 5000
+    # Only enable debug and 0.0.0.0 binding if explicitly set for development
+    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+    # SECURITY WARNING: Binding to 0.0.0.0 is only enabled if FLASK_DEBUG=1 (development only).
+    host = "0.0.0.0" if debug_mode else "127.0.0.1"  # noqa: S104
+    app.run(host=host, port=port, debug=debug_mode)

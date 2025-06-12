@@ -57,7 +57,7 @@ def run_command(
     logger.info("Running command: %s", " ".join(command))
     try:
         # nosec comment below tells security scanners this is safe as we control the input
-        result = subprocess.run(  # nosec B603 S603
+        result = subprocess.run(  # nosec S603
             command,
             cwd=cwd,
             capture_output=capture_output,

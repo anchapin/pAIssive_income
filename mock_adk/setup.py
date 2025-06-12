@@ -1,4 +1,5 @@
 """Setup script for the mock ADK package."""
+
 from setuptools import find_packages, setup
 
 setup(
