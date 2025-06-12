@@ -3,17 +3,12 @@ Demo: Vector Database + RAG (Retrieval-Augmented Generation) using ChromaDB.
 
 with a Unified Schema and Best Practices for Interoperability.
 
-Requirements:
+Steps:
  1. uv pip install chromadb sentence-transformers
  2. python demo_vector_rag.py
 
-This script demonstrates:
-- Unified schema for vector DB (id, content, user_id, metadata, embedding)
-- Canonicalization and deduplication before upsert
-- Context propagation and metadata filtering on retrieval
-- Clear comments and test block for reference
-
-For more details, see README_mem0_integration.md.
+This script embeds example texts, stores them in a local vector DB,
+then retrieves the most relevant context for a query.
 """
 
 from __future__ import annotations
@@ -28,11 +23,14 @@ import chromadb
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 
-# Configure logging for reference usage
+# Configure logging instead of print statements
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
-# 1. Initialize ChromaDB client (local, persistent for demo)
+# 1. Initialize ChromaDB client (local, in-memory for demo)
 client = chromadb.Client(
     Settings(
         persist_directory=".chromadb_demo",  # change or remove for pure in-memory
@@ -122,29 +120,14 @@ demo_documents = [
     {
         "id": "5",
         "content": "Retrieval-Augmented Generation (RAG) enhances LLMs with external knowledge.",
-        "user_id": "global",
-        "metadata": {"type": "definition", "source": "demo", "lang": "en"},
-    },
-    # Example of a duplicate (should not be inserted twice)
-    {
-        "id": "6",
-        "content": "The Eiffel Tower is in Paris.",
-        "user_id": "global",
-        "metadata": {"type": "fact", "source": "demo", "lang": "en"},
-    },
-    # Example with different metadata (treated as different if source differs)
-    {
-        "id": "7",
-        "content": "The Eiffel Tower is in Paris.",
-        "user_id": "global",
-        "metadata": {"type": "travel", "source": "wikipedia", "lang": "en"},
     },
 ]
 
-# 4. Load embedding model (Sentence Transformers)
+# 3. Load embedding model (Sentence Transformers)
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
-# 5. Create/get collection
+
+# 4. Create/get collection
 collection = client.get_or_create_collection("demo_rag")
 
 
@@ -179,8 +162,7 @@ def embed_and_insert_documents_with_dedup(
     except (RuntimeError, ValueError, KeyError, TypeError) as e:
         logger.warning("Collection may be empty or error occurred: %s", e)
 
-    inserted_docs = []
-    skipped_ids = []
+    collection.add(ids=ids, documents=contents, embeddings=embeddings)
 
     for doc_in in docs:
         doc = prepare_document(doc_in, user_id=user_id_default)
@@ -255,13 +237,8 @@ def query_with_metadata_filter(
     )
 
 
-# Demo query: Retrieve facts only, for user 'global'
-logger.info("\n--- Retrieval Demo: Query with Metadata Filtering ---")
+# 6. Demo query
 query = "What city is the Eiffel Tower located in?"
-metadata_filter = {"type": "fact"}
-results = query_with_metadata_filter(
-    collection, query, user_id="global", metadata_filter=metadata_filter, n_results=3
-)
 
 logger.info("\nQuery: %s\nFilter: %s\nResults:", query, metadata_filter)
 docs = results.get("documents")
@@ -281,7 +258,9 @@ if docs is not None and metas is not None:
         meta = metas[i]
         logger.info("Fact %d: %s [meta: %s]", i + 1, doc, meta)
 
-# 8. Test block: Verify deduplication and filtering
+"""
+Expected output:
+"""
 
 
 def test_deduplication_and_metadata() -> None:

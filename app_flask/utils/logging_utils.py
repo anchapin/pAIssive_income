@@ -8,7 +8,7 @@ import time
 from logging import INFO, Logger, getLogger
 from typing import Any, Callable, TypeVar, cast
 
-from flask.globals import current_app, g
+from flask import current_app, g
 from werkzeug.local import LocalProxy
 
 logger = getLogger(__name__)

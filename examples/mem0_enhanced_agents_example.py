@@ -5,8 +5,8 @@ This script shows how to use the memory-enhanced agent team implementation
 to create and run a team of agents with persistent memory capabilities.
 
 Requirements:
-    - mem0ai package: pip install mem0ai
-    - crewai package: pip install crewai
+    - mem0ai package: uv pip install mem0ai
+    - crewai package: uv pip install crewai
 
 Usage:
     python examples/mem0_enhanced_agents_example.py
@@ -122,7 +122,7 @@ def run_example() -> None:
 
     # Demonstrate memory retrieval (old, direct use)
     if team.memory is not None:
-        logger.info("Retrieving memories from the workflow (direct mem0)")
+        logger.info("Retrieving memories from the workflow")
         try:
             memories = team.memory.search(
                 query="What agents were involved in the workflow?",

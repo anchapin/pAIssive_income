@@ -97,7 +97,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
     name = db.Column(db.String(80), nullable=False)
     role = db.Column(db.String(80))
     description = db.Column(db.String(255))
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"))
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(
         db.DateTime, server_default=db.func.now(), onupdate=db.func.now()

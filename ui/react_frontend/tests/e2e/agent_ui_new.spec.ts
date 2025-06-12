@@ -61,14 +61,28 @@ test.describe('AgentUI Integration', () => {
     await page.waitForTimeout(1000);
 
     // Check if the agent name is displayed
-    await page.waitForSelector('text="Test Agent"', { timeout: 5000 });
+    const agentName = await page.getByText(/test agent/i, { exact: false });
+    await expect(agentName).toBeVisible();
 
     // Check if the agent description is displayed
-    await page.waitForSelector('text="This is a test agent for e2e testing"', { timeout: 5000 });
+    const agentDesc = await page.getByText(/test agent for e2e testing/i, { exact: false });
+    await expect(agentDesc).toBeVisible();
+
+    // Accessibility: heading and main are present
+    const h1 = await page.$('h1');
+    expect(h1).not.toBeNull();
+    const main = await page.$('main, [role=main]');
+    expect(main).not.toBeNull();
+
+    // Accessibility: agent card is a region with label
+    const region = await page.$('[role=region][aria-label*="agent"], [aria-labelledby*="agent"]');
+    expect(region).not.toBeNull();
 
     // Check if the buttons are present
-    await page.waitForSelector('button:has-text("Help")', { timeout: 5000 });
-    await page.waitForSelector('button:has-text("Start")', { timeout: 5000 });
+    const helpBtn = await page.getByRole('button', { name: /help/i });
+    await expect(helpBtn).toBeVisible();
+    const startBtn = await page.getByRole('button', { name: /start/i });
+    await expect(startBtn).toBeVisible();
 
     // Take a screenshot for visual verification
     await page.screenshot({ path: 'agent-ui-component.png', fullPage: true });
@@ -124,10 +138,18 @@ test.describe('AgentUI Integration', () => {
     await page.waitForSelector('text="Test Agent"', { timeout: 5000 });
 
     // Click the Help button
-    await page.click('button:has-text("Help")');
+    await page.getByRole('button', { name: /help/i }).click();
 
     // Click the Start button
-    await page.click('button:has-text("Start")');
+    await page.getByRole('button', { name: /start/i }).click();
+
+    // Assert that a success/result message appears after action
+    const actionResult = await page.getByText(/success|completed|action received/i, { exact: false, timeout: 10000 });
+    await expect(actionResult).toBeVisible();
+
+    // Accessibility: action result is a status or alert
+    const statusEl = await page.$('[role=status], [role=alert]');
+    expect(statusEl).not.toBeNull();
 
     // We can't directly assert on network requests in Playwright,
     // but we can check that the page doesn't show any errors

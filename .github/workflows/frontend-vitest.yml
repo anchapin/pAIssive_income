@@ -18,6 +18,16 @@ on:
     types:
       - completed
 
+# Prevent concurrent runs to avoid memory issues
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Enable debug logging when requested
+  ACTIONS_RUNNER_DEBUG: ${{ inputs.debug == true }}
+  ACTIONS_STEP_DEBUG: ${{ inputs.debug == true }}
+
 jobs:
   vitest:
     runs-on: ubuntu-latest
@@ -89,16 +99,136 @@ jobs:
       - name: Build Tailwind CSS
         run: pnpm tailwind:build
 
-      # Run Vitest unit tests with error handling
-      - name: Run Vitest unit tests
+      # Generate enhanced environment report
+      - name: Generate enhanced environment report
+        continue-on-error: true
+        run: |
+          # Create directories
+          mkdir -p coverage
+          mkdir -p playwright-report
+          mkdir -p test-results
+          mkdir -p ci-reports/github
+
+          # Try to run the enhanced environment report generator with fallback
+          if [ -f "tests/helpers/generate-environment-report.js" ]; then
+            echo "Running enhanced environment report generator..."
+            node tests/helpers/generate-environment-report.js coverage/environment-report.txt || {
+              echo "Enhanced environment report generation failed, creating fallback report..."
+              echo "Basic Environment Report" > coverage/environment-report.txt
+              echo "Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" >> coverage/environment-report.txt
+              echo "CI: true" >> coverage/environment-report.txt
+              echo "Platform: $(uname -s)" >> coverage/environment-report.txt
+              echo "Node.js: $(node --version)" >> coverage/environment-report.txt
+            }
+
+            node tests/helpers/generate-environment-report.js coverage/environment-report.json --json || {
+              echo "JSON environment report generation failed, creating fallback..."
+              echo '{"timestamp":"'$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")'","ci":true,"platform":"'$(uname -s)'","nodeVersion":"'$(node --version)'"}' > coverage/environment-report.json
+            }
+
+            node tests/helpers/generate-environment-report.js ci-reports/github/environment-report.txt --env-vars || {
+              echo "Environment variables report generation failed, creating fallback..."
+              echo "Environment Variables Report" > ci-reports/github/environment-report.txt
+              echo "Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" >> ci-reports/github/environment-report.txt
+              echo "CI=true" >> ci-reports/github/environment-report.txt
+              echo "GITHUB_ACTIONS=true" >> ci-reports/github/environment-report.txt
+            }
+          else
+            echo "Enhanced environment report generator not found, creating basic reports..."
+            echo "Basic Environment Report" > coverage/environment-report.txt
+            echo "Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" >> coverage/environment-report.txt
+            echo "CI: true" >> coverage/environment-report.txt
+            echo "Platform: $(uname -s)" >> coverage/environment-report.txt
+            echo "Node.js: $(node --version)" >> coverage/environment-report.txt
+
+            echo '{"timestamp":"'$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")'","ci":true,"platform":"'$(uname -s)'","nodeVersion":"'$(node --version)'"}' > coverage/environment-report.json
+
+            echo "Environment Variables Report" > ci-reports/github/environment-report.txt
+            echo "Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" >> ci-reports/github/environment-report.txt
+            echo "CI=true" >> ci-reports/github/environment-report.txt
+            echo "GITHUB_ACTIONS=true" >> ci-reports/github/environment-report.txt
+          fi
+
+          echo "Enhanced environment reports generated successfully"
+
+          # Create a summary of the environment for the workflow
+          cat > coverage/environment-summary.txt << EOF
+          Environment Summary
+          ------------------
+          Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+          CI: true
+          GitHub Actions: true
+          Runner OS: $(uname -s)
+          Node.js: $(node --version)
+
+          Container Detection:
+            Docker: false
+            rkt: false
+            Singularity: false
+
+          Test Configuration:
+            Mode: Vitest Unit Tests with Parallel Execution
+            Debug Mode: ${{ inputs.debug }}
+          EOF
+
+          echo "Environment summary created at coverage/environment-summary.txt"
+
+      # Run Vitest unit tests with enhanced error handling and parallel execution
+      - name: Run Vitest unit tests with parallel execution
         id: run_tests
         continue-on-error: true
         run: |
-          # Set CI environment variables
+          # Set enhanced environment variables
           export CI=true
+          export CI_ENVIRONMENT=true
+          export CI_TYPE=github
+          export GITHUB_ACTIONS=true
+          export DOCKER_ENVIRONMENT=false
+          export RKT_ENVIRONMENT=false
+          export SINGULARITY_ENVIRONMENT=false
+          export KUBERNETES_SERVICE_HOST=""
+          export COMPOSE_PROJECT_NAME=""
+          export DOCKER_SWARM=""
+          export VERBOSE_LOGGING=true
 
-          # Run tests with proper error handling
-          pnpm run test:unit --passWithNoTests || echo "Tests failed but continuing workflow"
+          # Determine optimal number of workers for parallel execution
+          CPUS=$(nproc)
+          WORKERS=$(( CPUS > 2 ? CPUS - 1 : 2 ))
+          echo "Using $WORKERS workers for parallel test execution"
+
+          # Check if the test script exists in package.json
+          if ! pnpm run test:unit --help >/dev/null 2>&1; then
+            echo "Warning: test:unit script not found in package.json"
+            echo "Available scripts:"
+            pnpm run --help
+
+            # Try alternative test commands
+            if pnpm run test --help >/dev/null 2>&1; then
+              echo "Using 'test' script as fallback..."
+              pnpm run test || {
+                echo "Test script failed, creating error report..."
+                echo "Test execution failed at $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" > coverage/test-error-report.txt
+                echo "Reason: Fallback test script failed" >> coverage/test-error-report.txt
+                exit 1
+              }
+            else
+              echo "No viable test scripts found, creating error report..."
+              echo "Test execution failed at $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" > coverage/test-error-report.txt
+              echo "Reason: No test scripts found in package.json" >> coverage/test-error-report.txt
+              exit 1
+            fi
+          else
+            # Run tests with parallel execution and proper error handling
+            pnpm run test:unit --threads=$WORKERS --reporter=verbose || {
+              echo "Tests failed with exit code $?"
+              echo "Creating error report..."
+              echo "Test execution failed at $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" > coverage/test-error-report.txt
+              echo "Exit code: $?" >> coverage/test-error-report.txt
+              echo "Workers: $WORKERS" >> coverage/test-error-report.txt
+              echo "Tests failed but continuing workflow"
+            }
+          fi
 
       # Create a minimal coverage report if tests fail
       - name: Create minimal coverage report if tests fail

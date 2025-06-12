@@ -1,4 +1,4 @@
-name: Auto Fix (Linting & CodeQL Issues)
+name: Auto Fix (Linting Only)
 
 on:
   workflow_dispatch:
@@ -10,8 +10,7 @@ on:
         type: choice
         options:
           - lint
-          - codeql
-          - both
+          # Removed codeql and both options to prevent auto-fixing CodeQL issues
 
 permissions:
   contents: write

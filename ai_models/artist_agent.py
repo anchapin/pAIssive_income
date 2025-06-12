@@ -48,21 +48,6 @@ class ArtistAgent:
             ]
         ):
             return "calculator"
-
-        # Check for text analysis keywords
-        if any(
-            k in prompt.lower()
-            for k in [
-                "analyze",
-                "sentiment",
-                "text",
-                "phrase",
-                "analyze the",
-                "sentiment of",
-            ]
-        ):
-            return "text_analyzer"
-
         # Add more heuristics for other tools here
         return ""
 

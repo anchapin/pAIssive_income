@@ -14,8 +14,8 @@ Usage:
     response = agent.process_message(message)
 
 Requirements:
-    - mem0ai package: pip install mem0ai
-    - adk package: pip install adk
+    - mem0ai package: uv pip install mem0ai
+    - adk package: uv pip install adk
 """
 
 from __future__ import annotations
@@ -157,7 +157,7 @@ class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
             logger.info("mem0 memory initialized for agent %s", name)
         else:
             self.memory = None
-            logger.warning("mem0 not available. Install with: pip install mem0ai")
+            logger.warning("mem0 not available. Install with: uv pip install mem0ai")
 
         # Set user ID for memory operations
         self.user_id = user_id

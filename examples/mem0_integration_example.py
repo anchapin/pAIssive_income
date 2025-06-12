@@ -4,7 +4,7 @@ Example script demonstrating mem0 integration with our project.
 This script shows how mem0 could be used to enhance our agents with memory capabilities.
 It requires the mem0ai package to be installed:
 
-    pip install mem0ai
+    uv pip install mem0ai
 
 Note: This is a demonstration script and not intended for production use.
 """
