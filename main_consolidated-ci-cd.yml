@@ -1,24 +1,5 @@
-name: Consolidated CI/CD
 
-# Consolidated CI/CD Pipeline
-# This workflow handles continuous integration and deployment across multiple platforms.
-#
-# Jobs:
-# - lint-test: Code quality, type checking, and testing
-#   - Runs on: Ubuntu, Windows, MacOS
-#   - Performs: linting (ruff), type checking (mypy), testing (pytest)
-#   - Generates: test reports and coverage data
-#
-# - security: Comprehensive security scanning
-#   - Runs on: Ubuntu, Windows, MacOS
-#   - Tools: Safety, Bandit, Trivy, Semgrep, pip-audit, Gitleaks
-#   - Generates: SARIF reports and security artifacts
-#
-# - build-deploy: Docker image building and publishing
-#   - Runs on: Ubuntu only (for Docker compatibility)
-#   - Triggers: On main/dev branch pushes and version tags
-#   - Handles: Docker image building, caching, and publishing
-#   - Uses: Docker Buildx for optimized builds
+name: Consolidated CI/CD
 
 on:
   push:
@@ -28,7 +9,7 @@ on:
   pull_request:
     branches: [ main, dev, master, develop ]
   schedule:
-    - cron: '0 0 * * 0'  # Weekly, for regular security scans
+    - cron: '0 0 * * 0'
   workflow_dispatch:
 
 permissions:
@@ -71,85 +52,26 @@ jobs:
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          # Verify uv is installed and in PATH
           which uv || echo "uv not found in PATH"
 
       - name: Install uv (Windows)
         if: runner.os == 'Windows'
         run: |
           iwr -useb https://astral.sh/uv/install.ps1 | iex
-          echo "$HOME\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$HOME\.cargoin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: pwsh
 
-      - name: Install dependencies (Unix)
-        if: runner.os != 'Windows'
+      - name: Install dependencies
         run: |
-          # Ensure pip is up to date
-          python -m pip install --upgrade pip
-
-          # Install uv if not already available
-          which uv || python -m pip install uv
-
-          # Install testing tools
-          python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
-
-          # Install requirements
-          if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
-          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
-
-          # Install MCP SDK using the installation script
-          echo "Installing MCP SDK using installation script..."
-          python install_mcp_sdk.py
-
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          # Ensure pip is up to date
-          python -m pip install --upgrade pip
-
-          # Install testing tools
-          python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
-
-          # Install requirements (excluding MCP-related packages)
-          if (Test-Path requirements-dev.txt) {
-            python -m pip install -r requirements-dev.txt
-          }
-
-          # Install requirements.txt but skip MCP packages
-          if (Test-Path requirements.txt) {
-            $requirements = Get-Content requirements.txt | Where-Object { -not $_.Contains("mcp") -and -not $_.Contains("modelcontextprotocol") }
-            $requirements | Set-Content -Path "requirements_filtered.txt"
-            python -m pip install -r requirements_filtered.txt
-          }
-
-          # Create mock MCP module for Windows
-          python install_mcp_sdk.py
-
-      - name: Run linting (Unix)
-        if: runner.os != 'Windows'
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: Run linting
         run: |
           ruff check .
           mypy .
-
-      - name: Run linting (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
+      - name: Run tests
         run: |
-          # Skip MCP adapter files during linting on Windows
-          ruff check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
-          mypy --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
-
-      - name: Run MCP tests (Unix only)
-        if: runner.os != 'Windows'
-        run: |
-          # Run MCP adapter tests separately using the custom script
-          python run_mcp_tests.py
-
-      - name: Run other tests
-        run: |
-          # Run all tests except MCP adapter tests
-          pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py
+          pytest -v --cov=. --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -183,142 +105,18 @@ jobs:
         run: mkdir -p security-reports
         shell: bash
 
-      - name: Install security tools (Unix)
-        if: runner.os != 'Windows'
+      - name: Install security tools
         run: |
-          python -m pip install --upgrade pip
           pip install safety bandit semgrep pip-audit
 
-      - name: Install security tools (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          python -m pip install --upgrade pip
-          pip install safety bandit semgrep pip-audit
-
-      - name: Run security scans (Unix)
-        if: runner.os != 'Windows'
+      - name: Run security scans
         continue-on-error: true
         run: |
-          # Create security-reports directory if it doesn't exist
           mkdir -p security-reports
-          
-          # Create .github/bandit directory if it doesn't exist
-          mkdir -p .github/bandit
-          
-          # Generate Bandit configuration files
-          python generate_bandit_config.py ${{ github.run_id }}
-          
-          # Run safety check
-          safety check || true
-          
-          # Run Bandit with the generated configuration
-          platform=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
-          bandit_config_file=".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml"
-          if [ -f "$bandit_config_file" ]; then
-            echo "Using Bandit configuration file: $bandit_config_file"
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c "$bandit_config_file" --exclude ".venv,
-                                                                                                node_modules,
-                                                                                                tests" || true
-          else
-            echo "Bandit configuration file not found. Using default configuration."
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,
-                                                                                                node_modules,
-                                                                                                tests" || true
-          fi
-          
-          # Ensure the SARIF file exists
-          if [ ! -f "security-reports/bandit-results.sarif" ]; then
-            echo "Bandit did not generate a SARIF file. Creating an empty one."
-            cat > security-reports/bandit-results.sarif << 'EOF'
-{
-  "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-                  "runs": [
-    {
-      "tool": {
-        "driver": {
-          "name": "Bandit",
-          "informationUri": "https://github.com/PyCQA/bandit",
-          "version": "1.7.5",
-          "rules": []
-        }
-      },
-      "results": []
-    }
-  ]
-}
-EOF
-          fi
-          
-          # Run pip-audit
-          pip-audit || true
-          
-          # Run semgrep
-          semgrep scan --config auto || true
-
-      - name: Run security scans (Windows)
-        if: runner.os == 'Windows'
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          # Create security-reports directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path security-reports
-          
-          # Create .github/bandit directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path .github/bandit
-          
-          # Generate Bandit configuration files
-          python generate_bandit_config.py ${{ github.run_id }}
-          
-          # Run safety check
-          safety check
-          
-          # Run Bandit with the generated configuration
-          $banditConfigFile = ".github/bandit/bandit-config-windows-${{ github.run_id }}.yaml"
-          if (Test-Path $banditConfigFile) {
-            Write-Host "Using Bandit configuration file: $banditConfigFile"
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c $banditConfigFile --exclude ".venv,
-                                                                                                node_modules,
-                                                                                                tests"
-          } else {
-            Write-Host "Bandit configuration file not found. Using default configuration."
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,
-                                                                                                node_modules,
-                                                                                                tests"
-          }
-          
-          # Ensure the SARIF file exists
-          if (-not (Test-Path "security-reports/bandit-results.sarif")) {
-            Write-Host "Bandit did not generate a SARIF file. Creating an empty one."
-            $emptySarif = @"
-{
-  "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-                  "runs": [
-    {
-      "tool": {
-        "driver": {
-          "name": "Bandit",
-          "informationUri": "https://github.com/PyCQA/bandit",
-          "version": "1.7.5",
-          "rules": []
-        }
-      },
-      "results": []
-    }
-  ]
-}
-"@
-            Set-Content -Path "security-reports/bandit-results.sarif" -Value $emptySarif
-          }
-          
-          # Run pip-audit
-          pip-audit
-          
-          # Run semgrep
-          semgrep scan --config auto
-
+          safety check -o security-reports/safety-report.json || true
+          bandit -r . -f json -o security-reports/bandit-report.json || true
+          semgrep scan --config auto --json -o security-reports/semgrep-report.json || true
+          pip-audit -o security-reports/pip-audit-report.json || true
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
@@ -335,11 +133,60 @@ EOF
           name: security-reports-${{ runner.os }}-${{ github.run_id }}
           path: security-reports/
           retention-days: 7
-
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python, javascript
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+  docker-compose-integration:
+    name: Docker Compose Integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: Run docker-compose tests
+        run: |
+          docker-compose -f docker-compose.ci.yml up -d --build
+          docker-compose -f docker-compose.ci.yml exec -T api pytest
+  auto-fix:
+    name: Auto Fix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: Run auto-fix
+        run: |
+          ruff --fix .
+          
   build-deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
-    needs: [lint-test, security]
+    needs: [lint-test, security, codeql, docker-compose-integration, auto-fix]
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')) ||
       github.event_name == 'workflow_dispatch' ||
