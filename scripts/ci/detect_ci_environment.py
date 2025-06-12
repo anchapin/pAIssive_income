@@ -67,8 +67,10 @@ Usage:
 
 Options:
     --json      Output in JSON format
-    --verbose   Include verbose output
+    --verbose   Include verbose output.
 """
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -93,7 +95,7 @@ def safe_file_exists(file_path: str) -> bool:
     """
     try:
         return Path(file_path).exists()
-    except Exception:
+    except OSError:
         return False
 
 

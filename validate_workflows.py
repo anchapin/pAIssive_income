@@ -1,35 +1,43 @@
-import glob
-import os
+"""Validate GitHub workflow YAML files."""
+
+import logging
+from pathlib import Path
 
 import yaml
 
+logger = logging.getLogger(__name__)
 
-def validate_workflows():
-    workflow_dir = ".github/workflows"
-    workflow_files = glob.glob(os.path.join(workflow_dir, "*.yml"))
 
-    print(f"Checking {len(workflow_files)} workflow files...")
+def validate_workflows() -> bool:
+    """Validate all GitHub workflow YAML files."""
+    workflow_dir = Path(".github/workflows")
+    workflow_files = list(workflow_dir.glob("*.yml"))
+
+    logger.info("Checking %d workflow files...", len(workflow_files))
     errors = []
 
     for file_path in workflow_files:
         try:
-            with open(file_path, encoding="utf-8") as f:
+            with file_path.open(encoding="utf-8") as f:
                 yaml.safe_load(f)
-            print(f"OK: {os.path.basename(file_path)}")
-        except Exception as e:
-            error_msg = f"ERROR: {os.path.basename(file_path)}: {e!s}"
-            print(error_msg)
+            logger.info("OK: %s", file_path.name)
+        except yaml.YAMLError as e:
+            logger.exception("ERROR: %s", file_path.name)
+            errors.append((file_path, str(e)))
+        except OSError as e:
+            logger.exception("ERROR: %s", file_path.name)
             errors.append((file_path, str(e)))
 
-    print(
-        f"\nSummary: {len(workflow_files) - len(errors)}/{len(workflow_files)} files valid"
+    logger.info(
+        "Summary: %d/%d files valid",
+        len(workflow_files) - len(errors),
+        len(workflow_files),
     )
 
     if errors:
-        print("\nDetailed errors:")
+        logger.info("Detailed errors:")
         for file_path, error in errors:
-            print(f"\n{file_path}:")
-            print(f"  {error}")
+            logger.error("%s: %s", file_path, error)
 
     return len(errors) == 0
 
