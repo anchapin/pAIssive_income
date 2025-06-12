@@ -1,18 +1,17 @@
 /**
  * Tests for mock path-to-regexp implementation
  * 
- * Validates the functionality of mock path-to-regexp implementation
- * used in CI environments. These tests ensure the mock provides
- * expected behavior for path matching and parameter extraction.
+ * Validates that our mock implementation works correctly in CI environments
  */
 
+const assert = require('assert').strict;
 const pathToRegexp = require('./mock_path_to_regexp_fixed');
 const path = require('path');
 const fs = require('fs');
 
 describe('Mock path-to-regexp', () => {
   beforeEach(() => {
-    // Set up test environment
+    // Clear keys array before each test
     process.env.CI = 'true';
     process.env.VERBOSE_LOGGING = 'true';
   });
@@ -20,20 +19,20 @@ describe('Mock path-to-regexp', () => {
   describe('Basic functionality', () => {
     it('should return catch-all regex for null/undefined paths', () => {
       const regex = pathToRegexp(null);
-      expect(regex.toString()).toBe('/.*/');
+      assert.equal(regex.toString(), '/.*/');
     });
 
     it('should handle RegExp objects directly', () => {
       const input = /test/;
       const regex = pathToRegexp(input);
-      expect(regex).toBe(input);
+      assert.equal(regex, input);
     });
 
     it('should handle basic paths', () => {
       const keys = [];
       const regex = pathToRegexp('/test', keys);
-      expect(regex.toString()).toBe('/.*/');
-      expect(keys).toHaveLength(0);
+      assert.equal(regex.toString(), '/.*/');
+      assert.equal(keys.length, 0);
     });
   });
 
@@ -41,32 +40,32 @@ describe('Mock path-to-regexp', () => {
     it('should extract parameters from path', () => {
       const keys = [];
       pathToRegexp('/users/:id/posts/:postId', keys);
-      expect(keys).toHaveLength(2);
-      expect(keys[0].name).toBe('id');
-      expect(keys[1].name).toBe('postId');
+      assert.equal(keys.length, 2);
+      assert.equal(keys[0].name, 'id');
+      assert.equal(keys[1].name, 'postId');
     });
 
     it('should limit number of parameters', () => {
       const keys = [];
       const path = '/test/' + Array(25).fill(':param').join('/');
       pathToRegexp(path, keys);
-      expect(keys).toHaveLength(20); // MAX_PARAMS limit
+      assert.equal(keys.length, 20); // MAX_PARAMS limit
     });
   });
 
   describe('Parse function', () => {
     it('should parse path into tokens', () => {
       const tokens = pathToRegexp.parse('/users/:id');
-      expect(Array.isArray(tokens)).toBe(true);
-      expect(tokens).toHaveLength(2);
-      expect(tokens[0]).toBe('users');
-      expect(tokens[1].name).toBe('id');
+      assert(Array.isArray(tokens));
+      assert.equal(tokens.length, 2);
+      assert.equal(tokens[0], 'users');
+      assert.equal(tokens[1].name, 'id');
     });
 
     it('should handle empty paths', () => {
       const tokens = pathToRegexp.parse('');
-      expect(Array.isArray(tokens)).toBe(true);
-      expect(tokens).toHaveLength(0);
+      assert(Array.isArray(tokens));
+      assert.equal(tokens.length, 0);
     });
   });
 
@@ -74,19 +73,19 @@ describe('Mock path-to-regexp', () => {
     it('should compile path with parameters', () => {
       const toPath = pathToRegexp.compile('/users/:id/posts/:postId');
       const result = toPath({ id: '123', postId: '456' });
-      expect(result).toBe('/users/123/posts/456');
+      assert.equal(result, '/users/123/posts/456');
     });
 
     it('should handle missing parameters', () => {
       const toPath = pathToRegexp.compile('/users/:id');
       const result = toPath({});
-      expect(result).toBe('/users/');
+      assert.equal(result, '/users/');
     });
 
     it('should sanitize parameter values', () => {
       const toPath = pathToRegexp.compile('/users/:id');
       const result = toPath({ id: '../../../etc/passwd' });
-      expect(result).toContain(encodeURIComponent('../'));
+      assert(result.includes(encodeURIComponent('../')));
     });
   });
 
@@ -94,15 +93,15 @@ describe('Mock path-to-regexp', () => {
     it('should match exact paths', () => {
       const match = pathToRegexp.match('/users/:id');
       const result = match('/users/123');
-      expect(result.isExact).toBe(true);
-      expect(result.params.id).toBe('123');
+      assert.equal(result.isExact, true);
+      assert.equal(result.params.id, '123');
     });
 
     it('should handle non-matching paths', () => {
       const match = pathToRegexp.match('/users/:id');
       const result = match('/posts/123');
-      expect(result.isExact).toBe(false);
-      expect(result.params).toEqual({});
+      assert.equal(result.isExact, false);
+      assert.deepEqual(result.params, {});
     });
   });
 
@@ -110,7 +109,7 @@ describe('Mock path-to-regexp', () => {
     it('should normalize Windows paths', () => {
       const match = pathToRegexp.match('\\users\\:id');
       const result = match('/users/123');
-      expect(result.params.id).toBe('123');
+      assert.equal(result.params.id, '123');
     });
   });
 
@@ -119,7 +118,7 @@ describe('Mock path-to-regexp', () => {
       const longPath = '/' + 'a'.repeat(3000);
       const keys = [];
       pathToRegexp(longPath, keys);
-      expect(keys).toHaveLength(0);
+      assert(keys.length === 0);
     });
 
     it('should prevent ReDoS attacks', () => {
@@ -128,7 +127,7 @@ describe('Mock path-to-regexp', () => {
       const keys = [];
       pathToRegexp(maliciousPath, keys);
       const duration = Date.now() - start;
-      expect(duration).toBeLessThan(1000); // Should complete quickly
+      assert(duration < 1000); // Should complete quickly
     });
   });
 
@@ -142,7 +141,7 @@ describe('Mock path-to-regexp', () => {
     it('should create necessary directories', () => {
       testDirs.forEach(dir => {
         const fullPath = path.join(process.cwd(), dir);
-        expect(fs.existsSync(fullPath)).toBe(true);
+        assert(fs.existsSync(fullPath));
       });
     });
 
@@ -152,7 +151,7 @@ describe('Mock path-to-regexp', () => {
           const fullPath = path.join(process.cwd(), dir);
           const stats = fs.statSync(fullPath);
           const mode = stats.mode & 0o777;
-          expect(mode).toBe(0o755);
+          assert.equal(mode, 0o755);
         });
       }
     });

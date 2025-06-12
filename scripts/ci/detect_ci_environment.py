@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CI Environment Detection Script.
+CI Environment Detection Script
 
 This script detects the current CI environment and outputs detailed information about it.
 It supports a wide range of CI platforms including:
@@ -70,8 +70,6 @@ Options:
     --verbose   Include verbose output
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import os
@@ -91,7 +89,6 @@ def safe_file_exists(file_path: str) -> bool:
 
     Returns:
         bool: True if the file exists, False otherwise
-
     """
     try:
         return Path(file_path).exists()
@@ -108,11 +105,10 @@ def safe_read_file(file_path: str) -> str | None:
 
     Returns:
         str: File contents or None if the file doesn't exist or can't be read
-
     """
     try:
         if safe_file_exists(file_path):
-            with open(file_path, encoding="utf-8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 return f.read()
         return None
     except Exception:
@@ -125,7 +121,6 @@ def detect_ci_environment() -> dict[str, Any]:
 
     Returns:
         Dict[str, Any]: Dictionary with CI environment information
-
     """
     # Operating System Detection
     os_info = {
@@ -226,7 +221,9 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_type"] = "github"
         ci_info["ci_platform"] = "GitHub Actions"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("GITHUB_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("GITHUB_")
         }
     elif os.environ.get("JENKINS_URL"):
         ci_info["ci_type"] = "jenkins"
@@ -234,7 +231,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("JENKINS_", "BUILD_"))
+            if key.startswith("JENKINS_") or key.startswith("BUILD_")
         }
     elif os.environ.get("GITLAB_CI"):
         ci_info["ci_type"] = "gitlab"
@@ -242,19 +239,23 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("CI_", "GITLAB_"))
+            if key.startswith("CI_") or key.startswith("GITLAB_")
         }
     elif os.environ.get("CIRCLECI"):
         ci_info["ci_type"] = "circle"
         ci_info["ci_platform"] = "CircleCI"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("CIRCLE_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("CIRCLE_")
         }
     elif os.environ.get("TRAVIS"):
         ci_info["ci_type"] = "travis"
         ci_info["ci_platform"] = "Travis CI"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("TRAVIS_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("TRAVIS_")
         }
     elif os.environ.get("TF_BUILD"):
         ci_info["ci_type"] = "azure"
@@ -262,7 +263,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("AGENT_", "BUILD_", "SYSTEM_"))
+            if key.startswith("AGENT_") or key.startswith("BUILD_") or key.startswith("SYSTEM_")
         }
     elif os.environ.get("TEAMCITY_VERSION"):
         ci_info["ci_type"] = "teamcity"
@@ -292,13 +293,17 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_type"] = "drone"
         ci_info["ci_platform"] = "Drone CI"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("DRONE_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("DRONE_")
         }
     elif os.environ.get("BUDDY") or os.environ.get("BUDDY_WORKSPACE_ID"):
         ci_info["ci_type"] = "buddy"
         ci_info["ci_platform"] = "Buddy"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("BUDDY_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("BUDDY_")
         }
     elif os.environ.get("BUILDKITE"):
         ci_info["ci_type"] = "buildkite"
@@ -322,7 +327,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("VERCEL_", "NOW_"))
+            if key.startswith("VERCEL_") or key.startswith("NOW_")
         }
     elif os.environ.get("NETLIFY"):
         ci_info["ci_type"] = "netlify"
@@ -336,7 +341,9 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_type"] = "heroku"
         ci_info["ci_platform"] = "Heroku CI"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("HEROKU_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("HEROKU_")
         }
     elif os.environ.get("SEMAPHORE") or os.environ.get("SEMAPHORE_WORKFLOW_ID"):
         ci_info["ci_type"] = "semaphore"
@@ -350,13 +357,17 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_type"] = "codefresh"
         ci_info["ci_platform"] = "Codefresh"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("CF_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("CF_")
         }
     elif os.environ.get("CI_PIPELINE_ID") and os.environ.get("CI_REPO"):
         ci_info["ci_type"] = "woodpecker"
         ci_info["ci_platform"] = "Woodpecker CI"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("CI_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("CI_")
         }
     elif os.environ.get("HARNESS_BUILD_ID"):
         ci_info["ci_type"] = "harness"
@@ -370,7 +381,9 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_type"] = "render"
         ci_info["ci_platform"] = "Render"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("RENDER_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("RENDER_")
         }
     elif os.environ.get("RAILWAY_ENVIRONMENT_ID"):
         ci_info["ci_type"] = "railway"
@@ -384,7 +397,9 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_type"] = "flyio"
         ci_info["ci_platform"] = "Fly.io"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("FLY_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("FLY_")
         }
     # New CI platforms
     elif os.environ.get("CM_BUILD_ID") or os.environ.get("CODEMAGIC_ID"):
@@ -393,7 +408,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("CM_", "CODEMAGIC_"))
+            if key.startswith("CM_") or key.startswith("CODEMAGIC_")
         }
     elif os.environ.get("CODESPACE_NAME") or os.environ.get("GITHUB_CODESPACE_NAME"):
         ci_info["ci_type"] = "github-codespaces"
@@ -401,7 +416,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("CODESPACE_", "GITHUB_CODESPACE_"))
+            if key.startswith("CODESPACE_") or key.startswith("GITHUB_CODESPACE_")
         }
     elif os.environ.get("CLOUD_BUILD") or os.environ.get("CLOUD_BUILD_ID"):
         ci_info["ci_type"] = "google-cloud-build"
@@ -417,17 +432,15 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("ALIBABA_", "ALICLOUD_"))
+            if key.startswith("ALIBABA_") or key.startswith("ALICLOUD_")
         }
-    elif os.environ.get("DEVCLOUD_PIPELINE_ID") or os.environ.get(
-        "HUAWEICLOUD_PIPELINE"
-    ):
+    elif os.environ.get("DEVCLOUD_PIPELINE_ID") or os.environ.get("HUAWEICLOUD_PIPELINE"):
         ci_info["ci_type"] = "huawei-cloud"
         ci_info["ci_platform"] = "Huawei Cloud DevCloud"
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("DEVCLOUD_", "HUAWEICLOUD_"))
+            if key.startswith("DEVCLOUD_") or key.startswith("HUAWEICLOUD_")
         }
     elif os.environ.get("CODING_PIPELINE_ID") or os.environ.get("TENCENT_CLOUD_CI"):
         ci_info["ci_type"] = "tencent-cloud"
@@ -435,13 +448,15 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("CODING_", "TENCENT_"))
+            if key.startswith("CODING_") or key.startswith("TENCENT_")
         }
     elif os.environ.get("BAIDU_CLOUD_CI") or os.environ.get("BAIDU_PIPELINE_ID"):
         ci_info["ci_type"] = "baidu-cloud"
         ci_info["ci_platform"] = "Baidu Cloud CICD"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("BAIDU_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("BAIDU_")
         }
     elif os.environ.get("SOURCEGRAPH_EXECUTOR") or os.environ.get("SRC_EXECUTOR_NAME"):
         ci_info["ci_type"] = "sourcegraph"
@@ -449,21 +464,23 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("SOURCEGRAPH_", "SRC_"))
+            if key.startswith("SOURCEGRAPH_") or key.startswith("SRC_")
         }
-    elif os.environ.get("GITPOD_WORKSPACE_ID") or os.environ.get(
-        "GITPOD_WORKSPACE_URL"
-    ):
+    elif os.environ.get("GITPOD_WORKSPACE_ID") or os.environ.get("GITPOD_WORKSPACE_URL"):
         ci_info["ci_type"] = "gitpod"
         ci_info["ci_platform"] = "Gitpod"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("GITPOD_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("GITPOD_")
         }
     elif os.environ.get("REPL_ID") or os.environ.get("REPL_OWNER"):
         ci_info["ci_type"] = "replit"
         ci_info["ci_platform"] = "Replit"
         ci_info["ci_environment_variables"] = {
-            key: value for key, value in os.environ.items() if key.startswith("REPL_")
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("REPL_")
         }
     elif os.environ.get("STACKBLITZ_ENV") or os.environ.get("STACKBLITZ_PROJECT_ID"):
         ci_info["ci_type"] = "stackblitz"
@@ -479,7 +496,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith(("GLITCH_", "PROJECT_"))
+            if key.startswith("GLITCH_") or key.startswith("PROJECT_")
         }
     elif ci_info["is_ci"]:
         ci_info["ci_type"] = "generic"
@@ -521,11 +538,7 @@ def detect_ci_environment() -> dict[str, Any]:
             container_info["detection_method"] = ".dockerenv file"
         elif safe_file_exists("/run/.containerenv"):
             container_info["detection_method"] = ".containerenv file"
-        elif (
-            safe_file_exists("/proc/1/cgroup")
-            and safe_read_file("/proc/1/cgroup") is not None
-            and "docker" in (safe_read_file("/proc/1/cgroup") or "").lower()
-        ):
+        elif safe_file_exists("/proc/1/cgroup") and safe_read_file("/proc/1/cgroup") is not None and "docker" in (safe_read_file("/proc/1/cgroup") or "").lower():
             container_info["detection_method"] = "cgroup file"
         else:
             container_info["detection_method"] = "environment variable"
@@ -801,7 +814,6 @@ def create_ci_directories() -> list[dict[str, Any]]:
 
     Returns:
         List[Dict[str, Any]]: List of created directories with status
-
     """
     directories = [
         "ci-reports",
@@ -828,14 +840,11 @@ def main() -> int:
 
     Returns:
         int: Exit code
-
     """
     parser = argparse.ArgumentParser(description="CI Environment Detection Script")
     parser.add_argument("--json", action="store_true", help="Output in JSON format")
     parser.add_argument("--verbose", action="store_true", help="Include verbose output")
-    parser.add_argument(
-        "--create-dirs", action="store_true", help="Create CI directories"
-    )
+    parser.add_argument("--create-dirs", action="store_true", help="Create CI directories")
     args = parser.parse_args()
 
     # Detect CI environment
@@ -916,11 +925,7 @@ def main() -> int:
         if args.create_dirs and "ci_directories" in env_info:
             print("\nCI Directories:")
             for directory in env_info["ci_directories"]:
-                status = (
-                    "✅ Created"
-                    if directory["created"]
-                    else f"❌ Failed: {directory['error']}"
-                )
+                status = "✅ Created" if directory["created"] else f"❌ Failed: {directory['error']}"
                 print(f"  {directory['directory']}: {status}")
 
         # System Information (if verbose)
@@ -928,9 +933,7 @@ def main() -> int:
             print("\nSystem Information:")
             print(f"  Hostname: {env_info['system']['hostname']}")
             print(f"  Python Version: {env_info['system']['python_version']}")
-            print(
-                f"  Python Implementation: {env_info['system']['python_implementation']}"
-            )
+            print(f"  Python Implementation: {env_info['system']['python_implementation']}")
             print(f"  Python Executable: {env_info['system']['python_executable']}")
 
     return 0

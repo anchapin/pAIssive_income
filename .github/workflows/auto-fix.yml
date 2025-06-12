@@ -1,90 +1,36 @@
-name: Auto Fix (Linting Only)
+name: Auto-fix
 on:
-  workflow_dispatch:
-    inputs:
-      fix_type:
-        description: Type of fix to apply
-        required: true
-        default: lint
-        type: choice
-        options:
-        - lint
-permissions:
-  contents: write
-  pull-requests: write
+  pull_request:
+    paths:
+      - "**.py"
+      - "**.js"
+      - "**.ts"
+      - "**.tsx"
+      - "**.jsx"
+      - "**.json"
+      - "**.yml"
+      - "**.yaml"
+
 jobs:
-  fix-linting-issues:
-    if: ${{ github.event.inputs.fix_type == 'lint' || github.event.inputs.fix_type
-      == 'both' }}
-    name: Fix Linting Issues
+  auto-fix:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ github.head_ref || github.ref_name }}
-        fetch-depth: 0
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: '~/.cache/pip
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-          ~/.cache/uv
+      - name: Fix Python code
+        run: |
+          pip install ruff
+          ruff --fix .
 
-          .pytest_cache'
-        key: ${{ runner.os }}-deps-${{ hashFiles('**/requirements*.txt') }}
-        restore-keys: ${{ runner.os }}-deps-
-    - name: Install uv and dependencies
-      run: 'python -m pip install --upgrade pip
+      - name: Fix JavaScript/TypeScript code
+        run: |
+          npm install -g prettier
+          prettier --write .
 
-        curl -LsSf https://astral.sh/uv/install.sh |
-          sh
-
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-        uv venv .venv || python -m venv .venv
-
-        source .venv/bin/activate
-
-        uv pip install setuptools wheel ruff || python -m pip install ruff
-
-        uv pip install -e ".[dev]" || pip install -e ".[dev]"
-
-        '
-    - name: Run fix_linting_issues.py if present, else fallback to Ruff
-      run: |
-        source .venv/bin/activate
-        if [ -f "fix_linting_issues.py" ]; then
-          python fix_linting_issues.py --verbose
-        else
-          echo "fix_linting_issues.py not found, running Ruff fix on all Python files"
-          ruff check --fix .
-          ruff format .
-        fi
-    - name: Check for changes
-      id: lint-git-check
-      run: |
-        if [[ -n "$(git status --porcelain)" ]]; then
-          echo "changes=true" >> $GITHUB_OUTPUT
-          git status --porcelain
-        else
-          echo "No changes detected"
-        fi
-    - name: Commit linting fixes
-      if: steps.lint-git-check.outputs.changes == 'true'
-      run: 'git config --local user.email "github-actions[bot]@users.noreply.github.com"
-
-        git config --local user.name "github-actions[bot]"
-
-        git add .
-
-        git commit -m "Auto-fix linting issues"
-
-        git push
-
-        '
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git commit -am "Auto-fix: Apply ruff and prettier fixes"
+          git push

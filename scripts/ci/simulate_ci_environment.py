@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CI Environment Simulation Script.
+CI Environment Simulation Script
 
 This script simulates different CI environments for testing purposes.
 It sets environment variables and creates necessary files to mimic various CI platforms.
@@ -74,22 +74,20 @@ Options:
     --cleanup              Remove all simulated environment variables and files
 """
 
-from __future__ import annotations
-
 import argparse
 import os
 import platform
 import sys
 import tempfile
+from typing import Dict, List, Tuple
 
 
-def setup_github_actions() -> dict[str, str]:
+def setup_github_actions() -> Dict[str, str]:
     """
     Set up GitHub Actions environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -115,13 +113,12 @@ def setup_github_actions() -> dict[str, str]:
     }
 
 
-def setup_jenkins() -> dict[str, str]:
+def setup_jenkins() -> Dict[str, str]:
     """
     Set up Jenkins environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -140,13 +137,12 @@ def setup_jenkins() -> dict[str, str]:
     }
 
 
-def setup_gitlab_ci() -> dict[str, str]:
+def setup_gitlab_ci() -> Dict[str, str]:
     """
     Set up GitLab CI environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -174,13 +170,12 @@ def setup_gitlab_ci() -> dict[str, str]:
     }
 
 
-def setup_circleci() -> dict[str, str]:
+def setup_circleci() -> Dict[str, str]:
     """
     Set up CircleCI environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -199,13 +194,12 @@ def setup_circleci() -> dict[str, str]:
     }
 
 
-def setup_travis() -> dict[str, str]:
+def setup_travis() -> Dict[str, str]:
     """
     Set up Travis CI environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -225,13 +219,12 @@ def setup_travis() -> dict[str, str]:
     }
 
 
-def setup_azure_pipelines() -> dict[str, str]:
+def setup_azure_pipelines() -> Dict[str, str]:
     """
     Set up Azure Pipelines environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -256,13 +249,12 @@ def setup_azure_pipelines() -> dict[str, str]:
     }
 
 
-def setup_docker() -> dict[str, str]:
+def setup_docker() -> Dict[str, str]:
     """
     Set up Docker environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "DOCKER_ENVIRONMENT": "true",
@@ -272,13 +264,12 @@ def setup_docker() -> dict[str, str]:
     }
 
 
-def setup_kubernetes() -> dict[str, str]:
+def setup_kubernetes() -> Dict[str, str]:
     """
     Set up Kubernetes environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "KUBERNETES_SERVICE_HOST": "10.0.0.1",
@@ -291,13 +282,12 @@ def setup_kubernetes() -> dict[str, str]:
     }
 
 
-def setup_docker_compose() -> dict[str, str]:
+def setup_docker_compose() -> Dict[str, str]:
     """
     Set up Docker Compose environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "COMPOSE_PROJECT_NAME": "project",
@@ -307,13 +297,12 @@ def setup_docker_compose() -> dict[str, str]:
     }
 
 
-def setup_docker_swarm() -> dict[str, str]:
+def setup_docker_swarm() -> Dict[str, str]:
     """
     Set up Docker Swarm environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "DOCKER_SWARM": "true",
@@ -322,13 +311,12 @@ def setup_docker_swarm() -> dict[str, str]:
     }
 
 
-def setup_aws() -> dict[str, str]:
+def setup_aws() -> Dict[str, str]:
     """
     Set up AWS environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "AWS_REGION": "us-west-2",
@@ -337,38 +325,34 @@ def setup_aws() -> dict[str, str]:
     }
 
 
-def setup_aws_lambda() -> dict[str, str]:
+def setup_aws_lambda() -> Dict[str, str]:
     """
     Set up AWS Lambda environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     aws_vars = setup_aws()
-    aws_vars.update(
-        {
-            "AWS_LAMBDA_FUNCTION_NAME": "my-function",
-            "AWS_LAMBDA_FUNCTION_VERSION": "$LATEST",
-            "AWS_LAMBDA_FUNCTION_MEMORY_SIZE": "128",
-            "AWS_LAMBDA_FUNCTION_TIMEOUT": "3",
-            "AWS_LAMBDA_LOG_GROUP_NAME": "/aws/lambda/my-function",
-            "AWS_LAMBDA_LOG_STREAM_NAME": "2020/01/01/[$LATEST]abcdef1234567890",
-            "AWS_EXECUTION_ENV": "AWS_Lambda_python3.8",
-            "LAMBDA_TASK_ROOT": "/var/task",
-            "LAMBDA_RUNTIME_DIR": "/var/runtime",
-        }
-    )
+    aws_vars.update({
+        "AWS_LAMBDA_FUNCTION_NAME": "my-function",
+        "AWS_LAMBDA_FUNCTION_VERSION": "$LATEST",
+        "AWS_LAMBDA_FUNCTION_MEMORY_SIZE": "128",
+        "AWS_LAMBDA_FUNCTION_TIMEOUT": "3",
+        "AWS_LAMBDA_LOG_GROUP_NAME": "/aws/lambda/my-function",
+        "AWS_LAMBDA_LOG_STREAM_NAME": "2020/01/01/[$LATEST]abcdef1234567890",
+        "AWS_EXECUTION_ENV": "AWS_Lambda_python3.8",
+        "LAMBDA_TASK_ROOT": "/var/task",
+        "LAMBDA_RUNTIME_DIR": "/var/runtime",
+    })
     return aws_vars
 
 
-def setup_azure() -> dict[str, str]:
+def setup_azure() -> Dict[str, str]:
     """
     Set up Azure environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "AZURE_SUBSCRIPTION_ID": "12345678-1234-1234-1234-123456789012",
@@ -378,36 +362,32 @@ def setup_azure() -> dict[str, str]:
     }
 
 
-def setup_azure_functions() -> dict[str, str]:
+def setup_azure_functions() -> Dict[str, str]:
     """
     Set up Azure Functions environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     azure_vars = setup_azure()
-    azure_vars.update(
-        {
-            "AZURE_FUNCTIONS_ENVIRONMENT": "Development",
-            "WEBSITE_SITE_NAME": "my-function-app",
-            "WEBSITE_INSTANCE_ID": "12345678-1234-1234-1234-123456789012",
-            "WEBSITE_RESOURCE_GROUP": "my-resource-group",
-            "FUNCTIONS_WORKER_RUNTIME": "python",
-            "FUNCTIONS_EXTENSION_VERSION": "~3",
-            "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=abcdef1234567890==;EndpointSuffix=core.windows.net",
-        }
-    )
+    azure_vars.update({
+        "AZURE_FUNCTIONS_ENVIRONMENT": "Development",
+        "WEBSITE_SITE_NAME": "my-function-app",
+        "WEBSITE_INSTANCE_ID": "12345678-1234-1234-1234-123456789012",
+        "WEBSITE_RESOURCE_GROUP": "my-resource-group",
+        "FUNCTIONS_WORKER_RUNTIME": "python",
+        "FUNCTIONS_EXTENSION_VERSION": "~3",
+        "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=abcdef1234567890==;EndpointSuffix=core.windows.net",
+    })
     return azure_vars
 
 
-def setup_gcp() -> dict[str, str]:
+def setup_gcp() -> Dict[str, str]:
     """
     Set up GCP environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "GOOGLE_CLOUD_PROJECT": "my-project",
@@ -418,34 +398,30 @@ def setup_gcp() -> dict[str, str]:
     }
 
 
-def setup_gcp_cloud_functions() -> dict[str, str]:
+def setup_gcp_cloud_functions() -> Dict[str, str]:
     """
     Set up GCP Cloud Functions environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     gcp_vars = setup_gcp()
-    gcp_vars.update(
-        {
-            "FUNCTION_NAME": "my-function",
-            "FUNCTION_REGION": "us-central1",
-            "FUNCTION_MEMORY_MB": "128",
-            "FUNCTION_TIMEOUT_SEC": "60",
-            "FUNCTION_IDENTITY": "my-function@my-project.iam.gserviceaccount.com",
-        }
-    )
+    gcp_vars.update({
+        "FUNCTION_NAME": "my-function",
+        "FUNCTION_REGION": "us-central1",
+        "FUNCTION_MEMORY_MB": "128",
+        "FUNCTION_TIMEOUT_SEC": "60",
+        "FUNCTION_IDENTITY": "my-function@my-project.iam.gserviceaccount.com",
+    })
     return gcp_vars
 
 
-def create_docker_files() -> list[tuple[str, str]]:
+def create_docker_files() -> List[Tuple[str, str]]:
     """
     Create Docker-related files.
 
     Returns:
-        list[tuple[str, str]]: List of (file_path, content) tuples
-
+        List[Tuple[str, str]]: List of (file_path, content) tuples
     """
     return [
         ("/.dockerenv", ""),
@@ -453,34 +429,26 @@ def create_docker_files() -> list[tuple[str, str]]:
     ]
 
 
-def create_kubernetes_files() -> list[tuple[str, str]]:
+def create_kubernetes_files() -> List[Tuple[str, str]]:
     """
     Create Kubernetes-related files.
 
     Returns:
-        list[tuple[str, str]]: List of (file_path, content) tuples
-
+        List[Tuple[str, str]]: List of (file_path, content) tuples
     """
     return [
-        (
-            "/var/run/secrets/kubernetes.io/serviceaccount/token",
-            "eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9...",
-        ),
+        ("/var/run/secrets/kubernetes.io/serviceaccount/token", "eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9..."),
         ("/var/run/secrets/kubernetes.io/serviceaccount/namespace", "default"),
-        (
-            "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
-            "-----BEGIN CERTIFICATE-----\nMIIC5z...",
-        ),
+        ("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt", "-----BEGIN CERTIFICATE-----\nMIIC5z..."),
     ]
 
 
-def setup_codemagic() -> dict[str, str]:
+def setup_codemagic() -> Dict[str, str]:
     """
     Set up Codemagic environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -496,13 +464,12 @@ def setup_codemagic() -> dict[str, str]:
     }
 
 
-def setup_github_codespaces() -> dict[str, str]:
+def setup_github_codespaces() -> Dict[str, str]:
     """
     Set up GitHub Codespaces environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CODESPACE_NAME": "username-project-abcdef",
@@ -515,13 +482,12 @@ def setup_github_codespaces() -> dict[str, str]:
     }
 
 
-def setup_google_cloud_build() -> dict[str, str]:
+def setup_google_cloud_build() -> Dict[str, str]:
     """
     Set up Google Cloud Build environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -536,13 +502,12 @@ def setup_google_cloud_build() -> dict[str, str]:
     }
 
 
-def setup_alibaba_cloud() -> dict[str, str]:
+def setup_alibaba_cloud() -> Dict[str, str]:
     """
     Set up Alibaba Cloud DevOps environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -557,13 +522,12 @@ def setup_alibaba_cloud() -> dict[str, str]:
     }
 
 
-def setup_huawei_cloud() -> dict[str, str]:
+def setup_huawei_cloud() -> Dict[str, str]:
     """
     Set up Huawei Cloud DevCloud environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -577,13 +541,12 @@ def setup_huawei_cloud() -> dict[str, str]:
     }
 
 
-def setup_tencent_cloud() -> dict[str, str]:
+def setup_tencent_cloud() -> Dict[str, str]:
     """
     Set up Tencent Cloud CODING environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -597,13 +560,12 @@ def setup_tencent_cloud() -> dict[str, str]:
     }
 
 
-def setup_baidu_cloud() -> dict[str, str]:
+def setup_baidu_cloud() -> Dict[str, str]:
     """
     Set up Baidu Cloud CICD environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -617,13 +579,12 @@ def setup_baidu_cloud() -> dict[str, str]:
     }
 
 
-def setup_sourcegraph() -> dict[str, str]:
+def setup_sourcegraph() -> Dict[str, str]:
     """
     Set up Sourcegraph environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CI": "true",
@@ -635,13 +596,12 @@ def setup_sourcegraph() -> dict[str, str]:
     }
 
 
-def setup_gitpod() -> dict[str, str]:
+def setup_gitpod() -> Dict[str, str]:
     """
     Set up Gitpod environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "GITPOD_WORKSPACE_ID": "username-project-abcdef",
@@ -652,13 +612,12 @@ def setup_gitpod() -> dict[str, str]:
     }
 
 
-def setup_replit() -> dict[str, str]:
+def setup_replit() -> Dict[str, str]:
     """
     Set up Replit environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "REPL_ID": "12345678-1234-1234-1234-123456789012",
@@ -670,13 +629,12 @@ def setup_replit() -> dict[str, str]:
     }
 
 
-def setup_stackblitz() -> dict[str, str]:
+def setup_stackblitz() -> Dict[str, str]:
     """
     Set up Stackblitz environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "STACKBLITZ_ENV": "true",
@@ -687,13 +645,12 @@ def setup_stackblitz() -> dict[str, str]:
     }
 
 
-def setup_glitch() -> dict[str, str]:
+def setup_glitch() -> Dict[str, str]:
     """
     Set up Glitch environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "GLITCH_EDITOR_URL": "https://glitch.com/edit/#!/project",
@@ -705,7 +662,7 @@ def setup_glitch() -> dict[str, str]:
     }
 
 
-def get_ci_env_vars(ci_type: str) -> dict[str, str]:
+def get_ci_env_vars(ci_type: str) -> Dict[str, str]:
     """
     Get environment variables for a specific CI platform.
 
@@ -713,56 +670,55 @@ def get_ci_env_vars(ci_type: str) -> dict[str, str]:
         ci_type: CI platform type
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     ci_type = ci_type.lower()
     if ci_type == "github":
         return setup_github_actions()
-    if ci_type == "jenkins":
+    elif ci_type == "jenkins":
         return setup_jenkins()
-    if ci_type == "gitlab":
+    elif ci_type == "gitlab":
         return setup_gitlab_ci()
-    if ci_type == "circle":
+    elif ci_type == "circle":
         return setup_circleci()
-    if ci_type == "travis":
+    elif ci_type == "travis":
         return setup_travis()
-    if ci_type == "azure":
+    elif ci_type == "azure":
         return setup_azure_pipelines()
-    if ci_type == "codemagic":
+    elif ci_type == "codemagic":
         return setup_codemagic()
-    if ci_type == "github-codespaces":
+    elif ci_type == "github-codespaces":
         return setup_github_codespaces()
-    if ci_type == "google-cloud-build":
+    elif ci_type == "google-cloud-build":
         return setup_google_cloud_build()
-    if ci_type == "alibaba-cloud":
+    elif ci_type == "alibaba-cloud":
         return setup_alibaba_cloud()
-    if ci_type == "huawei-cloud":
+    elif ci_type == "huawei-cloud":
         return setup_huawei_cloud()
-    if ci_type == "tencent-cloud":
+    elif ci_type == "tencent-cloud":
         return setup_tencent_cloud()
-    if ci_type == "baidu-cloud":
+    elif ci_type == "baidu-cloud":
         return setup_baidu_cloud()
-    if ci_type == "sourcegraph":
+    elif ci_type == "sourcegraph":
         return setup_sourcegraph()
-    if ci_type == "gitpod":
+    elif ci_type == "gitpod":
         return setup_gitpod()
-    if ci_type == "replit":
+    elif ci_type == "replit":
         return setup_replit()
-    if ci_type == "stackblitz":
+    elif ci_type == "stackblitz":
         return setup_stackblitz()
-    if ci_type == "glitch":
+    elif ci_type == "glitch":
         return setup_glitch()
-    return {"CI": "true"}
+    else:
+        return {"CI": "true"}
 
 
-def setup_podman() -> dict[str, str]:
+def setup_podman() -> Dict[str, str]:
     """
     Set up Podman environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "PODMAN_ENVIRONMENT": "true",
@@ -772,13 +728,12 @@ def setup_podman() -> dict[str, str]:
     }
 
 
-def setup_lxc() -> dict[str, str]:
+def setup_lxc() -> Dict[str, str]:
     """
     Set up LXC/LXD environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "LXC_ENVIRONMENT": "true",
@@ -789,13 +744,12 @@ def setup_lxc() -> dict[str, str]:
     }
 
 
-def setup_containerd() -> dict[str, str]:
+def setup_containerd() -> Dict[str, str]:
     """
     Set up Containerd environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CONTAINERD_ENVIRONMENT": "true",
@@ -805,13 +759,12 @@ def setup_containerd() -> dict[str, str]:
     }
 
 
-def setup_crio() -> dict[str, str]:
+def setup_crio() -> Dict[str, str]:
     """
     Set up CRI-O environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CRIO_ENVIRONMENT": "true",
@@ -821,7 +774,7 @@ def setup_crio() -> dict[str, str]:
     }
 
 
-def get_container_env_vars(container_type: str) -> dict[str, str]:
+def get_container_env_vars(container_type: str) -> Dict[str, str]:
     """
     Get environment variables for a specific container environment.
 
@@ -829,36 +782,35 @@ def get_container_env_vars(container_type: str) -> dict[str, str]:
         container_type: Container environment type
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     container_type = container_type.lower()
     if container_type == "docker":
         return setup_docker()
-    if container_type == "kubernetes":
+    elif container_type == "kubernetes":
         return setup_kubernetes()
-    if container_type == "docker-compose":
+    elif container_type == "docker-compose":
         return setup_docker_compose()
-    if container_type == "docker-swarm":
+    elif container_type == "docker-swarm":
         return setup_docker_swarm()
-    if container_type == "podman":
+    elif container_type == "podman":
         return setup_podman()
-    if container_type == "lxc":
+    elif container_type == "lxc":
         return setup_lxc()
-    if container_type == "containerd":
+    elif container_type == "containerd":
         return setup_containerd()
-    if container_type == "crio":
+    elif container_type == "crio":
         return setup_crio()
-    return {}
+    else:
+        return {}
 
 
-def setup_oci() -> dict[str, str]:
+def setup_oci() -> Dict[str, str]:
     """
     Set up Oracle Cloud Infrastructure (OCI) environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "OCI_RESOURCE_PRINCIPAL_VERSION": "2.2",
@@ -870,13 +822,12 @@ def setup_oci() -> dict[str, str]:
     }
 
 
-def setup_ibm_cloud() -> dict[str, str]:
+def setup_ibm_cloud() -> Dict[str, str]:
     """
     Set up IBM Cloud environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "BLUEMIX_REGION": "us-south",
@@ -887,13 +838,12 @@ def setup_ibm_cloud() -> dict[str, str]:
     }
 
 
-def setup_digitalocean() -> dict[str, str]:
+def setup_digitalocean() -> Dict[str, str]:
     """
     Set up DigitalOcean environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "DIGITALOCEAN_ACCESS_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -904,13 +854,12 @@ def setup_digitalocean() -> dict[str, str]:
     }
 
 
-def setup_linode() -> dict[str, str]:
+def setup_linode() -> Dict[str, str]:
     """
     Set up Linode environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "LINODE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -921,13 +870,12 @@ def setup_linode() -> dict[str, str]:
     }
 
 
-def setup_vultr() -> dict[str, str]:
+def setup_vultr() -> Dict[str, str]:
     """
     Set up Vultr environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "VULTR_API_KEY": "1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
@@ -938,13 +886,12 @@ def setup_vultr() -> dict[str, str]:
     }
 
 
-def setup_cloudflare() -> dict[str, str]:
+def setup_cloudflare() -> Dict[str, str]:
     """
     Set up Cloudflare environment variables.
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     return {
         "CLOUDFLARE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -956,7 +903,7 @@ def setup_cloudflare() -> dict[str, str]:
     }
 
 
-def get_cloud_env_vars(cloud_type: str) -> dict[str, str]:
+def get_cloud_env_vars(cloud_type: str) -> Dict[str, str]:
     """
     Get environment variables for a specific cloud environment.
 
@@ -964,35 +911,35 @@ def get_cloud_env_vars(cloud_type: str) -> dict[str, str]:
         cloud_type: Cloud environment type
 
     Returns:
-        dict[str, str]: Dictionary of environment variables
-
+        Dict[str, str]: Dictionary of environment variables
     """
     cloud_type = cloud_type.lower()
     if cloud_type == "aws":
         return setup_aws()
-    if cloud_type == "aws-lambda":
+    elif cloud_type == "aws-lambda":
         return setup_aws_lambda()
-    if cloud_type == "azure":
+    elif cloud_type == "azure":
         return setup_azure()
-    if cloud_type == "azure-functions":
+    elif cloud_type == "azure-functions":
         return setup_azure_functions()
-    if cloud_type == "gcp":
+    elif cloud_type == "gcp":
         return setup_gcp()
-    if cloud_type == "gcp-cloud-functions":
+    elif cloud_type == "gcp-cloud-functions":
         return setup_gcp_cloud_functions()
-    if cloud_type == "oci":
+    elif cloud_type == "oci":
         return setup_oci()
-    if cloud_type == "ibm-cloud":
+    elif cloud_type == "ibm-cloud":
         return setup_ibm_cloud()
-    if cloud_type == "digitalocean":
+    elif cloud_type == "digitalocean":
         return setup_digitalocean()
-    if cloud_type == "linode":
+    elif cloud_type == "linode":
         return setup_linode()
-    if cloud_type == "vultr":
+    elif cloud_type == "vultr":
         return setup_vultr()
-    if cloud_type == "cloudflare":
+    elif cloud_type == "cloudflare":
         return setup_cloudflare()
-    return {}
+    else:
+        return {}
 
 
 def main() -> int:
@@ -1001,80 +948,25 @@ def main() -> int:
 
     Returns:
         int: Exit code
-
     """
     parser = argparse.ArgumentParser(description="CI Environment Simulation Script")
     parser.add_argument("--ci-type", help="CI platform to simulate")
     parser.add_argument("--container-type", help="Container environment to simulate")
     parser.add_argument("--cloud-type", help="Cloud environment to simulate")
-    parser.add_argument(
-        "--cleanup",
-        action="store_true",
-        help="Remove all simulated environment variables and files",
-    )
+    parser.add_argument("--cleanup", action="store_true", help="Remove all simulated environment variables and files")
     args = parser.parse_args()
 
     if args.cleanup:
         # Clean up environment variables
         for key in list(os.environ.keys()):
-            if key.startswith(
-                (
-                    "GITHUB_",
-                    "JENKINS_",
-                    "CI_",
-                    "CIRCLE_",
-                    "TRAVIS_",
-                    "AGENT_",
-                    "BUILD_",
-                    "SYSTEM_",
-                    "DOCKER_",
-                    "KUBERNETES_",
-                    "COMPOSE_",
-                    "SWARM_",
-                    "AWS_",
-                    "AZURE_",
-                    "GOOGLE_",
-                    "GCP_",
-                    "FUNCTION_",
-                    "CM_",
-                    "CODEMAGIC_",
-                    "CODESPACE_",
-                    "CODESPACES",
-                    "CLOUD_BUILD_",
-                    "ALIBABA_",
-                    "ALICLOUD_",
-                    "DEVCLOUD_",
-                    "HUAWEICLOUD_",
-                    "CODING_",
-                    "TENCENT_",
-                    "BAIDU_",
-                    "SOURCEGRAPH_",
-                    "SRC_",
-                    "GITPOD_",
-                    "REPL_",
-                    "STACKBLITZ_",
-                    "GLITCH_",
-                    "PROJECT_",
-                    "PODMAN_",
-                    "PODMAN",
-                    "LXC_",
-                    "LXC",
-                    "LXD",
-                    "CONTAINERD_",
-                    "CONTAINERD",
-                    "CRIO_",
-                    "CRIO",
-                    "OCI_",
-                    "BLUEMIX_",
-                    "IBM_CLOUD_",
-                    "VCAP_",
-                    "DIGITALOCEAN_",
-                    "LINODE_",
-                    "VULTR_",
-                    "CLOUDFLARE_",
-                    "CF_",
-                )
-            ):
+            if key.startswith(("GITHUB_", "JENKINS_", "CI_", "CIRCLE_", "TRAVIS_", "AGENT_", "BUILD_", "SYSTEM_",
+                              "DOCKER_", "KUBERNETES_", "COMPOSE_", "SWARM_", "AWS_", "AZURE_", "GOOGLE_", "GCP_",
+                              "FUNCTION_", "CM_", "CODEMAGIC_", "CODESPACE_", "CODESPACES", "CLOUD_BUILD_",
+                              "ALIBABA_", "ALICLOUD_", "DEVCLOUD_", "HUAWEICLOUD_", "CODING_", "TENCENT_",
+                              "BAIDU_", "SOURCEGRAPH_", "SRC_", "GITPOD_", "REPL_", "STACKBLITZ_", "GLITCH_",
+                              "PROJECT_", "PODMAN_", "PODMAN", "LXC_", "LXC", "LXD", "CONTAINERD_", "CONTAINERD",
+                              "CRIO_", "CRIO", "OCI_", "BLUEMIX_", "IBM_CLOUD_", "VCAP_", "DIGITALOCEAN_",
+                              "LINODE_", "VULTR_", "CLOUDFLARE_", "CF_")):
                 del os.environ[key]
 
         # Clean up CI variable

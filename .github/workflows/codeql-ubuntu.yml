@@ -1,370 +1,340 @@
-name: CodeQL Analysis (Ubuntu)
-on:
-  push:
-    branches:
-      - main
-      - dev
-      - master
-      - develop
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.svg'
-      - '**/*.ico'
-      - .gitignore
-      - docs/**
-      - LICENSE
-      - SECURITY.md
-      - CONTRIBUTING.md
-      - CODE_OF_CONDUCT.md
-  pull_request:
-    branches:
-      - main
-      - dev
-      - master
-      - develop
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.svg'
-      - '**/*.ico'
-      - .gitignore
-      - docs/**
-      - LICENSE
-      - SECURITY.md
-      - CONTRIBUTING.md
-      - CODE_OF_CONDUCT.md
-  schedule:
-    - cron: '0 4 * * 1'
-  workflow_dispatch: {}
+name: "CodeQL Analysis (Ubuntu)"
 
+# This workflow performs CodeQL analysis for JavaScript/TypeScript and Python on Ubuntu
+# It now uses a single job to analyze both languages.
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - '.gitignore'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'SECURITY.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+  schedule:
+    - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
+  workflow_dispatch:  # Allow manual triggering
+
+# Limit concurrent runs to conserve resources
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
+  # Required for all workflows
   security-events: write
+  # Only needed for workflows in private repositories
   actions: read
   contents: read
 
 jobs:
-  analyze:
-    name: Analyze
+  analyze-ubuntu:
+    name: Analyze (Ubuntu)
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        language:
-          - javascript-typescript
-          - python
+
     steps:
-    - name: Shared CI Setup
-      run: bash scripts/ci-setup.sh
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      # JavaScript/TypeScript specific setup
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '8.15.4'
+          run_install: false
 
-    - name: Setup pnpm
-      if: matrix.language == 'javascript-typescript'
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8.15.4
-        run_install: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: Set up Node.js
-      if: matrix.language == 'javascript-typescript'
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: Add pnpm to PATH
+        shell: bash
+        run: |
+          echo "PATH=$(pnpm -g bin):$(pnpm bin):$PATH" >> $GITHUB_ENV
+          echo "Current PATH: $PATH"
+          which pnpm || {
+            echo "pnpm not found in PATH. Installing globally with npm..."
+            npm install -g pnpm
+            echo "PATH=$(npm bin -g):$PATH" >> $GITHUB_ENV
+            which pnpm || { echo "Error: pnpm is still not in PATH after npm install."; exit 1; }
+          }
 
-    - name: Add pnpm to PATH
-      if: matrix.language == 'javascript-typescript'
-      shell: bash
-      run: |
-        # Add both global and local pnpm to PATH
-        echo "PATH=$(pnpm -g bin):$(pnpm bin):$PATH" >> $GITHUB_ENV
-        # Verify pnpm is in PATH
-        echo "Current PATH: $PATH"
-        which pnpm || {
-          echo "pnpm not found in PATH. Installing globally with npm..."
-          npm install -g pnpm
-          echo "PATH=$(npm bin -g):$PATH" >> $GITHUB_ENV
-          which pnpm || { echo "Error: pnpm is still not in PATH after npm install."; exit 1; }
-        }
+      - name: Verify Node.js and pnpm installation
+        shell: bash
+        run: |
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          if command -v pnpm &>/dev/null; then
+            echo "pnpm version: $(pnpm --version)"
+          else
+            echo "pnpm not found, will use npm instead"
+          fi
 
-    - name: Verify Node.js and pnpm installation
-      if: matrix.language == 'javascript-typescript'
-      shell: bash
-      run: |
-        echo "Node.js version: $(node --version)"
-        echo "npm version: $(npm --version)"
-        if command -v pnpm &>/dev/null; then
-          echo "pnpm version: $(pnpm --version)"
-        else
-          echo "pnpm not found, will use npm instead"
-        fi
-
-    - name: Set up Python
-      if: matrix.language == 'python'
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-        cache: pip
-
-    - name: Check disk space
-      shell: bash
-      run: df -h
-
-    - name: Verify lock files
-      if: matrix.language == 'javascript-typescript'
-      shell: bash
-      run: |
-        echo "Verifying lock files exist before CodeQL analysis..."
-        LOCK_FILES=$(find . -name "package-lock.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml")
-
-        if [ -z "$LOCK_FILES" ]; then
-          echo "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
-
-          # Create a minimal valid package-lock.json with echo
-          echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
-
-          echo "Created minimal package-lock.json in the root directory."
-
-          # Verify the file was created
-          if [ -f "package-lock.json" ]; then
-            echo "Verification: package-lock.json exists and contains:"
-            cat package-lock.json
-
-            # Add to .gitignore if it exists
-            if [ -f ".gitignore" ]; then
-              if ! grep -q "package-lock.json" .gitignore; then
-                echo -e "\n# Generated during CodeQL analysis\npackage-lock.json" >> .gitignore
-                echo "Added package-lock.json to .gitignore"
+      - name: Verify lock files
+        shell: bash
+        run: |
+          echo "Verifying lock files exist before CodeQL analysis..."
+          LOCK_FILES=$(find . -name "package-lock.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml")
+          if [ -z "$LOCK_FILES" ]; then
+            echo "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
+            echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
+            echo "Created minimal package-lock.json in the root directory."
+            if [ -f "package-lock.json" ]; then
+              echo "Verification: package-lock.json exists and contains:"
+              cat package-lock.json
+              if [ -f ".gitignore" ]; then
+                if ! grep -q "package-lock.json" .gitignore; then
+                  echo -e "\n# Generated during CodeQL analysis\npackage-lock.json" >> .gitignore
+                  echo "Added package-lock.json to .gitignore"
+                fi
+              fi
+            else
+              echo "CRITICAL ERROR: Failed to create package-lock.json"
+              node -e "fs.writeFileSync('package-lock.json', JSON.stringify({name:'paissive-income',version:'1.0.0',lockfileVersion":3,"packages":{'':{'name':'paissive-income','version':'1.0.0'}}}))" || true
+              if [ -f "package-lock.json" ]; then
+                echo "Successfully created package-lock.json using Node.js"
               fi
             fi
           else
-            echo "CRITICAL ERROR: Failed to create package-lock.json"
+            echo "Found lock files:"
+            echo "$LOCK_FILES"
+          fi
+        continue-on-error: true
 
-            # Try alternative method
-            node -e "fs.writeFileSync('package-lock.json', JSON.stringify({name:'paissive-income', version:'1.0.0', lockfileVersion: 3, packages:{'':{'name':'paissive-income', 'version':'1.0.0'}}}))" || true
-            if [ -f "package-lock.json" ]; then
-              echo "Successfully created package-lock.json using Node.js"
+      - name: Install Node.js dependencies
+        shell: bash
+        run: |
+          install_deps() {
+            local dir=$1
+            local original_dir=$(pwd)
+            if [ -n "$dir" ]; then
+              cd "$dir" || return 1
             fi
-          fi
-        else
-          echo "Found lock files:"
-          echo "$LOCK_FILES"
-        fi
-      continue-on-error: true
-
-    - name: Install Node.js dependencies
-      if: matrix.language == 'javascript-typescript'
-      shell: bash
-      run: |
-        # Function to install dependencies with fallback
-        install_deps() {
-          local dir=$1
-          local original_dir=$(pwd)
-
-          if [ -n "$dir" ]; then
-            cd "$dir" || return 1
-          fi
-
-          echo "Installing dependencies in $(pwd)..."
-
-          # Try with pnpm first (preferred)
-          if command -v pnpm &>/dev/null; then
-            echo "Using pnpm to install dependencies..."
-            pnpm install || {
-              echo "pnpm install failed, trying with npm..."
+            echo "Installing dependencies in $(pwd)..."
+            if command -v pnpm &>/dev/null; then
+              echo "Using pnpm to install dependencies..."
+              pnpm install || {
+                echo "pnpm install failed, trying with npm..."
+                npm install || {
+                  echo "Both pnpm and npm installation failed in $(pwd)"
+                  if [ -n "$dir" ]; then cd "$original_dir"; fi
+                  return 1
+                }
+              }
+            else
+              echo "pnpm not found, using npm..."
               npm install || {
-                echo "Both pnpm and npm installation failed in $(pwd)"
-                if [ -n "$dir" ]; then
-                  cd "$original_dir"
-                fi
+                echo "npm install failed in $(pwd)"
+                if [ -n "$dir" ]; then cd "$original_dir"; fi
                 return 1
               }
+            fi
+            if [ -n "$dir" ]; then cd "$original_dir"; fi
+            return 0
+          }
+          if [ -f "package.json" ]; then echo "Found package.json in root directory"; install_deps; fi
+          if [ -f "ui/react_frontend/package.json" ]; then echo "Found package.json in ui/react_frontend"; install_deps "ui/react_frontend"; fi
+          if [ -f "sdk/javascript/package.json" ]; then echo "Found package.json in sdk/javascript"; install_deps "sdk/javascript"; fi
+        continue-on-error: true
+
+      - name: Clean up node_modules
+        shell: bash
+        run: |
+          echo "Cleaning up node_modules to save space..."
+          find . -name "node_modules" -type d -prune -exec rm -rf {} \; 2>/dev/null || true
+        continue-on-error: true
+
+      # Python specific setup
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade "uv>=0.7.8"
+          if [ -f requirements.txt ]; then
+            echo "Installing pip dependencies from requirements.txt using 'uv pip'..."
+            uv pip install -r requirements.txt || {
+              echo "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            }
+          elif [ -f requirements-dev.txt ]; then
+            echo "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
+            uv pip install -r requirements-dev.txt || {
+              echo "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements-dev.txt
             }
           else
-            # Fallback to npm if pnpm is not available
-            echo "pnpm not found, using npm..."
-            npm install || {
-              echo "npm install failed in $(pwd)"
-              if [ -n "$dir" ]; then
-                cd "$original_dir"
-              fi
-              return 1
+            echo "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
+          fi
+          if [ -f setup.py ]; then
+            echo "Installing package in development mode using 'uv pip'..."
+            uv pip install -e . || {
+              echo "Failed to install package with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -e .
             }
           fi
+        continue-on-error: true
 
-          if [ -n "$dir" ]; then
-            cd "$original_dir"
+      # Common steps
+      - name: Check disk space
+        shell: bash
+        run: df -h
+
+      - name: Ensure CodeQL configuration files
+        shell: bash
+        continue-on-error: true
+        run: |
+          if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
+            echo "Running ensure-codeql-configs.sh script..."
+            bash .github/scripts/ensure-codeql-configs.sh
+          else
+            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
+            mkdir -p .github/codeql
+            cat > .github/codeql/security-os-ubuntu.yml << 'EOF'
+              name: "CodeQL Configuration for Ubuntu"
+              os: ubuntu-latest
+              queries:
+                - uses: security-and-quality
+                - uses: security-extended
+                - uses: security
+              disable-default-queries: false
+              trap-for-errors: true
+EOF
+            cat > .github/codeql/security-os-config.yml << 'EOF'
+              name: "Unified CodeQL Configuration"
+              queries:
+                - uses: security-and-quality
+                - uses: security-extended
+                - uses: security
+              disable-default-queries: false
+              trap-for-errors: true
+EOF
           fi
 
-          return 0
-        }
+      - name: Create .codeqlignore file
+        shell: bash
+        run: |
+          echo "Creating .codeqlignore file..."
+          cat > .codeqlignore << 'EOL'
+          .venv/**
+          venv/**
+          env/**
+          .env/**
+          **/virtualenv/**
+          **/site-packages/**
+          **/dist-packages/**
+          **/node_modules/**
+          **/dist/**
+          **/build/**
+          **/vendor/**
+          **/external/**
+          **/third_party/**
+          **/__pycache__/**
+          **/.pytest_cache/**
+          **/.mypy_cache/**
+          **/.ruff_cache/**
+          **/*.pyc
+          **/*.pyo
+          **/*.pyd
+          **/test/**
+          **/tests/**
+          **/__tests__/**
+          **/__mocks__/**
+          **/*.test.js
+          **/*.test.ts
+          **/*.test.jsx
+          **/*.test.tsx
+          **/*.spec.js
+          **/*.spec.ts
+          **/*.spec.jsx
+          **/*.spec.tsx
+          **/.github/**
+          **/.vscode/**
+          **/.idea/**
+          **/coverage/**
+          **/.git/**
+          **/docs/**
+          **/*.md
+          **/*.mdx
+          **/*.rst
+          **/sphinx/**
+          **/playwright-report/**
+          **/generated/**
+          **/sarif-results/**
+          **/*.sarif
+          **/*.sarif.json
+          ui/react_frontend/node_modules/**
+          sdk/javascript/node_modules/**
+EOL
+          echo "Current directories:"
+          ls -la
 
-        # Install dependencies in root directory if package.json exists
-        if [ -f "package.json" ]; then
-          echo "Found package.json in root directory"
-          install_deps
-        fi
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript, python # Analyze both languages
+          queries: security-and-quality
+          config-file: .github/codeql/security-os-ubuntu.yml
+          debug: true
 
-        # Install dependencies in ui/react_frontend if package.json exists
-        if [ -f "ui/react_frontend/package.json" ]; then
-          echo "Found package.json in ui/react_frontend"
-          install_deps "ui/react_frontend"
-        fi
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+        continue-on-error: true
 
-        # Install dependencies in sdk/javascript if package.json exists
-        if [ -f "sdk/javascript/package.json" ]; then
-          echo "Found package.json in sdk/javascript"
-          install_deps "sdk/javascript"
-        fi
-      continue-on-error: true
-
-    - name: Clean up node_modules
-      if: matrix.language == 'javascript-typescript'
-      shell: bash
-      run: |
-        echo "Cleaning up node_modules to save space..."
-        find . -name "node_modules" -type d -prune -exec rm -rf {} \; 2>/dev/null || true
-      continue-on-error: true
-
-    - name: Create .codeqlignore file
-      shell: bash
-      run: |
-        echo "Creating .codeqlignore file..."
-        cat > .codeqlignore << 'EOL'
-        .venv/**
-        venv/**
-        env/**
-        .env/**
-        **/virtualenv/**
-        **/site-packages/**
-        **/dist-packages/**
-        **/node_modules/**
-        **/dist/**
-        **/build/**
-        **/vendor/**
-        **/external/**
-        **/third_party/**
-        **/__pycache__/**
-        **/.pytest_cache/**
-        **/.mypy_cache/**
-        **/.ruff_cache/**
-        **/*.pyc
-        **/*.pyo
-        **/*.pyd
-        **/test/**
-        **/tests/**
-        **/__tests__/**
-        **/__mocks__/**
-        **/*.test.js
-        **/*.test.ts
-        **/*.test.jsx
-        **/*.test.tsx
-        **/*.spec.js
-        **/*.spec.ts
-        **/*.spec.jsx
-        **/*.spec.tsx
-        **/.github/**
-        **/.vscode/**
-        **/.idea/**
-        **/coverage/**
-        **/.git/**
-        **/docs/**
-        **/*.md
-        **/*.mdx
-        **/*.rst
-        **/sphinx/**
-        **/playwright-report/**
-        **/generated/**
-        **/sarif-results/**
-        **/*.sarif
-        **/*.sarif.json
-        ui/react_frontend/node_modules/**
-        sdk/javascript/node_modules/**
-        EOL
-
-        # List directories to verify
-        echo "Current directories:"
-        ls -la
-
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
-        queries: security-and-quality
-
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
-      continue-on-error: true
-
-    - name: Verify environment before analysis
-      shell: bash
-      run: |
-        echo "Verifying environment before CodeQL analysis..."
-
-        # Create sarif-results directory if it doesn't exist
-        if [ ! -d "sarif-results" ]; then
-          echo "Creating sarif-results directory..."
-          mkdir -p sarif-results
-        fi
-
-        # JavaScript/TypeScript specific checks
-        if [ "${{ matrix.language }}" = "javascript-typescript" ]; then
-          # Final check for package-lock.json - create it if it still doesn't exist
+      - name: Verify environment before analysis
+        shell: bash
+        run: |
+          echo "Verifying environment before CodeQL analysis..."
+          if [ ! -d "sarif-results" ]; then echo "Creating sarif-results directory..."; mkdir -p sarif-results; fi
+          # JavaScript/TypeScript specific checks
           if [ ! -f "package-lock.json" ]; then
             echo "WARNING: package-lock.json still not found! Creating it as a last resort..."
             echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
             echo "Created minimal package-lock.json in the root directory."
           fi
-
-          # Verify package-lock.json
-          if [ -f "package-lock.json" ]; then
-            echo "package-lock.json exists and contains:"
-            cat package-lock.json
-          else
-            echo "CRITICAL ERROR: package-lock.json still not found after multiple attempts!"
-          fi
-        fi
-
-        # Python specific checks
-        if [ "${{ matrix.language }}" = "python" ]; then
+          if [ -f "package-lock.json" ]; then echo "package-lock.json exists and contains:"; cat package-lock.json; else echo "CRITICAL ERROR: package-lock.json still not found after multiple attempts!"; fi
+          # Python specific checks
           echo "Verifying Python environment..."
           python --version
           pip --version
-        fi
+          echo "Environment verification complete."
 
-        echo "Environment verification complete."
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/security/os:ubuntu-latest" # Single category for the combined analysis
+          upload: true
+          output: sarif-results/codeql-ubuntu-analysis.sarif # Single output file
+        continue-on-error: false
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:${{ matrix.language }}"
-        upload: true
-        output: sarif-results/${{ matrix.language }}-ubuntu.sarif
-      continue-on-error: false
-
-    - name: Upload SARIF results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: ${{ matrix.language }}-ubuntu-sarif
-        path: sarif-results/${{ matrix.language }}-ubuntu.sarif
-        retention-days: 7
-        if-no-files-found: warn
+      - name: Upload SARIF results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: codeql-ubuntu-analysis-sarif # Single artifact name
+          path: sarif-results/codeql-ubuntu-analysis.sarif
+          retention-days: 7
+          if-no-files-found: warn

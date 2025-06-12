@@ -125,11 +125,7 @@ detect_node_version() {
 }
 
 # Function to pull images in parallel (optimized)
-# TODO: Add automated tests for this function to verify:
-#  - Dynamic Node.js version detection from Dockerfile.dev
-#  - Fallback behavior when primary image pull fails
-#  - Proper handling of missing Dockerfile.dev
-#  - Correct file updates when fallbacks are used
+# See https://github.com/anchapin/pAIssive_income/issues/1 for test coverage tasks for this function
 pull_images() {
   log "Pulling Docker images in parallel..."
 

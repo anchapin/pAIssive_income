@@ -97,17 +97,17 @@ function isGitHubActions() {
 function isDockerEnvironment() {
   try {
     return !!(
-      // Standard Docker environment file
-      fs.existsSync('/.dockerenv') ||
-
       // Environment variable set in our Docker setup
       process.env.DOCKER_ENVIRONMENT === 'true' ||
 
-      // Podman/container environment file
-      fs.existsSync('/run/.containerenv') ||
+      // Standard Docker environment file (Linux/macOS only)
+      (process.platform !== 'win32' && fs.existsSync('/.dockerenv')) ||
 
-      // Check cgroup for Docker - only on Linux platforms
-      (process.platform === 'linux' && 
+      // Podman/container environment file (Linux only)
+      (process.platform !== 'win32' && fs.existsSync('/run/.containerenv')) ||
+
+      // Check cgroup for Docker (Linux only)
+      (process.platform !== 'win32' && 
        fs.existsSync('/proc/1/cgroup') &&
        fs.readFileSync('/proc/1/cgroup', 'utf8').includes('docker'))
     );
@@ -128,8 +128,8 @@ function isRktEnvironment() {
       process.env.RKT_ENVIRONMENT === 'true' ||
       process.env.RKT === 'true' ||
 
-      // Check cgroup for rkt - only on Linux platforms
-      (process.platform === 'linux' &&
+      // Check cgroup for rkt (Linux only)
+      (process.platform !== 'win32' && 
        fs.existsSync('/proc/1/cgroup') &&
        fs.readFileSync('/proc/1/cgroup', 'utf8').includes('rkt'))
     );
@@ -151,11 +151,9 @@ function isSingularityEnvironment() {
       process.env.SINGULARITY === 'true' ||
       !!process.env.SINGULARITY_CONTAINER ||
 
-      // Check for Singularity specific files - only on Linux platforms
-      (process.platform === 'linux' && (
-        fs.existsSync('/.singularity.d') ||
-        fs.existsSync('/singularity')
-      ))
+      // Check for Singularity specific files (Linux/macOS only)
+      (process.platform !== 'win32' && fs.existsSync('/.singularity.d')) ||
+      (process.platform !== 'win32' && fs.existsSync('/singularity'))
     );
   } catch (error) {
     console.warn(`Error detecting Singularity environment: ${error.message}`);
@@ -172,8 +170,8 @@ function isKubernetesEnvironment() {
     // Standard Kubernetes environment variables
     process.env.KUBERNETES_SERVICE_HOST ||
 
-    // Check for Kubernetes service account token - only on Linux platforms
-    (process.platform === 'linux' && fs.existsSync('/var/run/secrets/kubernetes.io'))
+    // Check for Kubernetes service account token
+    (process.platform !== 'win32' && fs.existsSync('/var/run/secrets/kubernetes.io'))
   );
 }
 
@@ -183,28 +181,8 @@ function isKubernetesEnvironment() {
  * @returns {boolean} True if directory was created or already exists
  */
 function createDirectoryWithErrorHandling(dirPath) {
-  try {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-      console.log(`Created directory at ${dirPath}`);
-    }
-    return true;
-  } catch (error) {
-    console.error(`Failed to create directory at ${dirPath}: ${error.message}`);
-
-    // Try with absolute path as fallback
-    try {
-      const absolutePath = path.resolve(process.cwd(), dirPath);
-      if (!fs.existsSync(absolutePath)) {
-        fs.mkdirSync(absolutePath, { recursive: true });
-        console.log(`Created directory at absolute path: ${absolutePath}`);
-      }
-      return true;
-    } catch (fallbackError) {
-      console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
-      return false;
-    }
-  }
+  // Use the enhanced safelyCreateDirectory function
+  return safelyCreateDirectory(dirPath);
 }
 
 /**
@@ -214,32 +192,24 @@ function createDirectoryWithErrorHandling(dirPath) {
  * @returns {boolean} True if file was created successfully
  */
 function createMarkerFile(filePath, content) {
-  try {
-    // Ensure directory exists
-    const dirPath = path.dirname(filePath);
-    createDirectoryWithErrorHandling(dirPath);
-
-    // Write the file
-    fs.writeFileSync(filePath, content);
-    console.log(`Created marker file at ${filePath}`);
-    return true;
-  } catch (error) {
-    console.error(`Failed to create marker file at ${filePath}: ${error.message}`);
-
-    // Try with a timestamp-based filename in the same directory
+  // Use the enhanced safelyWriteFile function
+  const result = safelyWriteFile(filePath, content);
+  
+  // If the primary write fails, try with a timestamp-based filename
+  if (!result) {
     try {
       const dirPath = path.dirname(filePath);
       const timestampFilename = `marker-${Date.now()}.txt`;
       const timestampPath = path.join(dirPath, timestampFilename);
 
-      fs.writeFileSync(timestampPath, content);
-      console.log(`Created marker file with timestamp name: ${timestampPath}`);
-      return true;
+      return safelyWriteFile(timestampPath, content);
     } catch (fallbackError) {
       console.error(`Failed to create marker with timestamp filename: ${fallbackError.message}`);
       return false;
     }
   }
+  
+  return result;
 }
 
 /**
@@ -334,6 +304,86 @@ ${getEnvironmentInfo()}
   return success;
 }
 
+/**
+ * Safely create a directory with error handling
+ * @param {string} dirPath - Directory path to create
+ * @returns {boolean} True if directory was created or already exists
+ */
+function safelyCreateDirectory(dirPath) {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      console.log(`Created directory at ${dirPath}`);
+    }
+    return true;
+  } catch (error) {
+    console.error(`Failed to create directory at ${dirPath}: ${error.message}`);
+
+    // Try with absolute path as fallback
+    try {
+      const absolutePath = path.resolve(process.cwd(), dirPath);
+      if (!fs.existsSync(absolutePath)) {
+        fs.mkdirSync(absolutePath, { recursive: true });
+        console.log(`Created directory at absolute path: ${absolutePath}`);
+      }
+      return true;
+    } catch (fallbackError) {
+      console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
+      return false;
+    }
+  }
+}
+
+/**
+ * Safely write a file with error handling
+ * @param {string} filePath - File path to write
+ * @param {string} content - Content to write
+ * @param {Object} [options] - Options for writing
+ * @param {boolean} [options.append=false] - Whether to append to the file
+ * @returns {boolean} True if file was written successfully
+ */
+function safelyWriteFile(filePath, content, options = {}) {
+  const { append = false } = options;
+  
+  try {
+    // Ensure directory exists
+    const dirPath = path.dirname(filePath);
+    safelyCreateDirectory(dirPath);
+
+    // Write the file
+    if (append) {
+      fs.appendFileSync(filePath, content);
+    } else {
+      fs.writeFileSync(filePath, content);
+    }
+    console.log(`Created file at ${filePath}`);
+    return true;
+  } catch (error) {
+    console.error(`Failed to write file at ${filePath}: ${error.message}`);
+
+    // Try with absolute path as fallback
+    try {
+      const absolutePath = path.resolve(process.cwd(), filePath);
+      const absoluteDirPath = path.dirname(absolutePath);
+      
+      // Ensure directory exists
+      safelyCreateDirectory(absoluteDirPath);
+      
+      // Write the file
+      if (append) {
+        fs.appendFileSync(absolutePath, content);
+      } else {
+        fs.writeFileSync(absolutePath, content);
+      }
+      console.log(`Created file at absolute path: ${absolutePath}`);
+      return true;
+    } catch (fallbackError) {
+      console.error(`Failed to write file with absolute path: ${fallbackError.message}`);
+      return false;
+    }
+  }
+}
+
 // Export all functions
 module.exports = {
   isCI,
@@ -345,5 +395,7 @@ module.exports = {
   createDirectoryWithErrorHandling,
   createMarkerFile,
   getEnvironmentInfo,
-  createCISuccessMarkers
+  createCISuccessMarkers,
+  safelyCreateDirectory,
+  safelyWriteFile
 };

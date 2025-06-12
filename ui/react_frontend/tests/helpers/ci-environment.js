@@ -1079,15 +1079,16 @@ function createCIReport(filePath, options = {}) {
         hostname: env.hostname,
         username: env.username,
         memory: {
-          total: env.memory && env.memory.total ? formatBytes(env.memory.total) : 'unknown',
-          free: env.memory && env.memory.free ? formatBytes(env.memory.free) : 'unknown'
+          total: env.memory.total,
+          free: env.memory.free,
+          totalFormatted: formatBytes(env.memory.total),
+          freeFormatted: formatBytes(env.memory.free)
         },
-        cpus: env.cpus ? env.cpus.length : 'unknown',
-        cpuInfo: env.cpus ? env.cpus.map(cpu => ({
+        cpus: env.cpus.length,
+        cpuInfo: env.cpus.map(cpu => ({
           model: cpu.model,
-          speed: cpu.speed,
-          times: cpu.times
-        })) : []
+          speed: cpu.speed
+        }))
       };
     }
 
@@ -1452,9 +1453,9 @@ Detailed System Information
 -------------------------
 Hostname: ${env.hostname || 'unknown'}
 Username: ${env.username || 'unknown'}
-Memory Total: ${env.memory && env.memory.total ? formatBytes(env.memory.total) : 'unknown'}
-Memory Free: ${env.memory && env.memory.free ? formatBytes(env.memory.free) : 'unknown'}
-CPUs: ${env.cpus ? env.cpus.length : 'unknown'}
+Memory Total: ${env.memory ? formatBytes(env.memory.total) : 'N/A'}
+Memory Free: ${env.memory ? formatBytes(env.memory.free) : 'N/A'}
+CPUs: ${env.cpus ? env.cpus.length : 'N/A'}
 `;
   }
 

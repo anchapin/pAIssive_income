@@ -1,5 +1,5 @@
 """
-CI Environment Detection Module.
+CI Environment Detection Module
 
 This module provides functions to detect and handle different environments:
 - Operating Systems: Windows, macOS, Linux, WSL
@@ -22,8 +22,8 @@ from .detect_ci_environment import (
 )
 
 __all__ = [
-    "create_ci_directories",
     "detect_ci_environment",
     "safe_file_exists",
     "safe_read_file",
+    "create_ci_directories",
 ]

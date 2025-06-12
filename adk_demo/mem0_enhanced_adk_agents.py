@@ -14,8 +14,8 @@ Usage:
     response = agent.process_message(message)
 
 Requirements:
-    - mem0ai package: pip install mem0ai
-    - adk package: pip install adk
+    - mem0ai package: uv pip install mem0ai
+    - adk package: uv pip install adk
 """
 
 from __future__ import annotations
@@ -155,7 +155,7 @@ class MemoryEnhancedAgent(BaseAgent):
             logger.info("mem0 memory initialized for agent %s", name)
         else:
             self.memory = None
-            logger.warning("mem0 not available. Install with: pip install mem0ai")
+            logger.warning("mem0 not available. Install with: uv pip install mem0ai")
 
         # Set user ID for memory operations
         self.user_id = user_id
@@ -345,9 +345,9 @@ if __name__ == "__main__":
 
     # Check if dependencies are available
     if not ADK_AVAILABLE:
-        logger.error("ADK is not installed. Install with: pip install adk")
+        logger.error("ADK is not installed. Install with: uv pip install adk")
     elif not MEM0_AVAILABLE:
-        logger.error("mem0 is not installed. Install with: pip install mem0ai")
+        logger.error("mem0 is not installed. Install with: uv pip install mem0ai")
     else:
         # Create memory-enhanced agents
         gatherer = MemoryEnhancedDataGathererAgent(

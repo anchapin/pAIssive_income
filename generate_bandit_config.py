@@ -85,7 +85,7 @@ shell_injection:
 EMPTY_SARIF = """{
   "version": "2.1.0",
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-                  "runs": [
+  "runs": [
     {
       "tool": {
         "driver": {
@@ -104,7 +104,7 @@ EMPTY_SARIF = """{
 COMPACT_SARIF = """{
   "version": "2.1.0",
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-                  "runs": [
+  "runs": [
     {
       "tool": {
         "driver": {
@@ -142,9 +142,8 @@ def write_sarif_file(path: Path, content: str) -> None:
 
     """
     # If the file has a .json extension, use json.dump for proper formatting
-    if path.suffix == ".json":
+    if path.suffix == '.json':
         import json
-
         try:
             # Parse the content as JSON
             json_content = json.loads(content)
@@ -171,7 +170,6 @@ def get_run_ids(current_run_id: str) -> list[str]:
 
     Returns:
         List of run IDs to process
-
     """
     return [current_run_id]
 
