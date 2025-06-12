@@ -36,7 +36,15 @@ services:
       - FLASK_DEBUG=1
       - FLASK_APP=app.py
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   frontend:
     build:
       context: ./ui/react_frontend
