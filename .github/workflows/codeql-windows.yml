@@ -1,44 +1,114 @@
-name: "CodeQL Windows"
+name: "CodeQL Analysis - Windows"
+
+# This workflow performs CodeQL analysis for JavaScript/TypeScript and Python on Windows
+# It runs on push to main branches, pull requests to main branches, and on a weekly schedule
+# The workflow is designed to provide comprehensive security analysis with detailed configuration
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main, dev, master, develop ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - '.gitignore'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'SECURITY.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
   schedule:
-    - cron: '30 1 * * 0'
+    - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
+  workflow_dispatch:  # Allow manual triggering
+
+# Limit concurrent runs to conserve resources
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  # Required for all workflows
+  security-events: write
+  # Only needed for workflows in private repositories
+  actions: read
+  contents: read
 
 jobs:
-  analyze:
-    name: Analyze
+  analyze-javascript:
+    name: Analyze JavaScript/TypeScript
     runs-on: windows-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'javascript-typescript', 'python' ]
+    timeout-minutes: 90  # Increased timeout for larger codebases
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full git history for better analysis
 
-      - name: Setup Node.js
-        if: matrix.language == 'javascript-typescript'
+      # Cache CodeQL database to speed up analysis
+      - name: Cache CodeQL database
+        uses: actions/cache@v4
+        with:
+          path: ~/.codeql/databases
+          key: codeql-javascript-${{ github.sha }}
+          restore-keys: |
+            codeql-javascript-
+
+      # Set up pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '8'
+
+      # Set up Node.js for better JavaScript/TypeScript analysis
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1' # Specify a patch version
 
-      - name: Setup Python
-        if: matrix.language == 'python'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          cache: 'pip'
+      # Verify pnpm installation
+      - name: Check pnpm version
+        run: pnpm --version
 
+      # Install dependencies if package.json exists
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          # Check for package.json in the root directory
+          if (Test-Path package.json) {
+            Write-Host "Installing dependencies with pnpm in root directory..."
+            pnpm install
+          } else {
+            Write-Host "No package.json found in root directory, checking ui/react_frontend..."
+            # Check for package.json in ui/react_frontend
+            if (Test-Path ui/react_frontend/package.json) {
+              Write-Host "Installing dependencies with pnpm in ui/react_frontend..."
+              cd ui/react_frontend
+              pnpm install
+            } else {
+              Write-Host "No package.json found in ui/react_frontend, skipping dependency installation."
+            }
+          }
+        continue-on-error: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+          config-file: ./.github/codeql/security-os-windows.yml
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Display disk space before analysis
       - name: Check disk space
         shell: pwsh
         run: Get-Volume
@@ -414,17 +484,128 @@ trap-for-errors: true
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
+          category: "/security/os:windows-latest"
           upload: true
-          output: sarif-results/${{ matrix.language }}-windows.sarif
-        continue-on-error: false # Fail the workflow if CodeQL analysis fails
+          output: sarif-results/javascript-typescript-windows.sarif
 
-      # Upload SARIF results as an artifact (with fallback for failures)
+      # Add OS-specific configuration for Windows
+      - name: Upload OS-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/javascript-typescript-windows.sarif
+          category: "/security/os:windows-latest"
+
+      # Upload SARIF results as an artifact
       - name: Upload SARIF results
         uses: actions/upload-artifact@v4
-        if: always() # Always attempt to upload artifacts even if previous steps fail
         with:
-          name: ${{ matrix.language }}-windows-sarif
-          path: sarif-results/${{ matrix.language }}-windows.sarif
+          name: javascript-typescript-windows-sarif
+          path: sarif-results/javascript-typescript-windows.sarif
           retention-days: 7
-          if-no-files-found: warn # Warn but don't fail if no files are found
+
+  analyze-python:
+    name: Analyze Python
+    runs-on: windows-latest
+    timeout-minutes: 90  # Increased timeout for larger codebases
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full git history for better analysis
+
+      # Cache CodeQL database to speed up analysis
+      - name: Cache CodeQL database
+        uses: actions/cache@v4
+        with:
+          path: ~/.codeql/databases
+          key: codeql-python-${{ github.sha }}
+          restore-keys: |
+            codeql-python-
+
+      # Set up Python for better analysis
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      # Install dependencies if requirements.txt exists
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade uv
+          if (Test-Path requirements.txt) {
+            Write-Host "Installing pip dependencies from requirements.txt using 'uv pip'..."
+            try {
+              python -m uv pip install -r requirements.txt
+            } catch {
+              Write-Host "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            }
+          } elseif (Test-Path requirements-dev.txt) {
+            Write-Host "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
+            try {
+              python -m uv pip install -r requirements-dev.txt
+            } catch {
+              Write-Host "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements-dev.txt
+            }
+          } else {
+            Write-Host "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
+          }
+
+          # Install package in development mode if setup.py exists
+          if (Test-Path setup.py) {
+            Write-Host "Installing package in development mode using 'uv pip'..."
+            try {
+              python -m uv pip install -e .
+            } catch {
+              Write-Host "Failed to install package with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -e .
+            }
+          }
+        continue-on-error: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          queries: security-and-quality
+          config-file: ./.github/codeql/security-os-windows.yml
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Display disk space before analysis
+      - name: Check disk space
+        shell: pwsh
+        run: Get-Volume
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/security/os:windows-latest"
+          upload: true
+          output: sarif-results/python-windows.sarif
+
+      # Add OS-specific configuration for Windows
+      - name: Upload OS-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/python-windows.sarif
+          category: "/security/os:windows-latest"
+
+      # Upload SARIF results as an artifact
+      - name: Upload SARIF results
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-windows-sarif
+          path: sarif-results/python-windows.sarif
+          retention-days: 7

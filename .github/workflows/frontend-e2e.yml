@@ -1,388 +1,169 @@
 name: Frontend E2E Tests
 
 on:
-  pull_request:
+  push:
+    branches: [ main, develop ]
     paths:
-      - "ui/react_frontend/**"
-      - ".github/workflows/frontend-e2e.yml"
+      - 'ui/react_frontend/**'
+      - '.github/workflows/frontend-e2e.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'ui/react_frontend/**'
+      - '.github/workflows/frontend-e2e.yml'
   workflow_dispatch:
-    inputs:
-      platform:
-        description: 'Platform to test on'
-        required: false
-        default: 'ubuntu'
-        type: choice
-        options:
-          - ubuntu
-          - windows
-          - both
-      mode:
-        description: 'Test Mode'
-        required: false
-        default: 'default'
-        type: choice
-        options:
-          - default
-          - mock
-          - fixed
-          - ci
 
 jobs:
-  e2e:
-    runs-on: ${{ (github.event.inputs.platform == 'both' || github.event.inputs.platform == '') && 'ubuntu-latest' || format('{0}-latest', github.event.inputs.platform) }}
-
-    defaults:
-      run:
-        working-directory: ui/react_frontend
+  frontend-e2e:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [18.x]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Mode-specific step for mock mode
-      - name: Setup mock API server dependencies
-        if: ${{ github.event.inputs.mode == 'mock' }}
-        run: |
-          pnpm add -D express@5.1.0 cors@2.8.5 body-parser@2.2.0
-
-      # Mode-specific step for fixed mode (example)
-      - name: Setup fixed E2E environment
-        if: ${{ github.event.inputs.mode == 'fixed' }}
-        run: |
-          echo "Running in FIXED E2E mode"
-          # Add any setup steps unique to fixed mode here
-
-      # Mode-specific step for CI-only
-      - name: Setup CI E2E environment
-        if: ${{ github.event.inputs.mode == 'ci' }}
-        run: |
-          echo "Running in CI E2E mode"
-          # Add any CI-specific setup here
-
-      # Continue with the original E2E steps, using conditional logic as needed for each mode
-
-      # Set up Node.js and pnpm directly in this job
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: '8'
-
-      - name: Setup Node.js
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      # Install global pnpm if needed (for Windows)
-      - name: Install global pnpm (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
-          if (-not $pnpmCmd) {
-            Write-Host "Installing pnpm globally with npm..."
-            npm install -g pnpm
-          }
-          pnpm --version
+          node-version: ${{ matrix.node-version }}
+      
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: ui/react_frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('ui/react_frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: pnpm install
-
-      - name: Build Tailwind CSS
-        run: pnpm tailwind:build
-
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-
-      # No Python setup needed since we're using the Node.js mock API server
-
-      - name: Install Express for mock API server (Linux/macOS)
+        working-directory: ui/react_frontend
+        run: |
+          npm install
+      
+      - name: Install Playwright browsers
+        working-directory: ui/react_frontend
+        run: |
+          npx playwright install --with-deps
+      
+      - name: Setup environment (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          # Ensure the playwright-report directory exists
+          # Create directories
+          mkdir -p logs
+          mkdir -p ci-reports/github
+          mkdir -p test-results/github
           mkdir -p playwright-report
-          echo "Created playwright-report directory"
-
-          # Create logs directory
-          mkdir -p logs
-          echo "Created logs directory"
-
-          # Check if Express and related packages are already installed
-          if [ -d "node_modules/express" ] && [ -d "node_modules/cors" ] && [ -d "node_modules/body-parser" ]; then
-            echo "Express and related packages are already installed"
-          else
-            # Install Express and related packages for the mock API server
-            echo "Installing Express and related packages..."
-            pnpm add -D express@5.1.0 cors@2.8.5 body-parser@2.2.0
-          fi
-
-          # Create a marker file in the playwright-report directory
-          echo "Mock API server setup started at $(date)" > playwright-report/mock-api-setup.txt
-
-          # Test the mock API server with error handling
-          echo "Testing mock API server..."
-          pnpm test:mock-api || {
-            echo "Mock API server test failed, but continuing..."
-            echo "Mock API server test failed at $(date)" > playwright-report/mock-api-test-failed.txt
-          }
-
-          # Start the mock API server with error handling
-          echo "Starting mock API server..."
-          node tests/mock_api_server.js > logs/mock-api-server.log 2>&1 &
-          MOCK_API_PID=$!
-          echo "Mock API server started with PID: $MOCK_API_PID"
-          echo "Mock API server started with PID: $MOCK_API_PID" > playwright-report/mock-api-started.txt
-
-          # Wait for the server to start
-          SERVER_READY=false
-          for i in {1..30}; do
-            if curl --silent --fail http://localhost:8000/health > /dev/null 2>&1; then
-              echo "Mock API server is ready."
-              SERVER_READY=true
-              break
-            fi
-            echo "Waiting for mock API server to be ready... (Attempt $i/30)"
-            sleep 1
-          done
-
-          # Create status file regardless of server status
-          if [ "$SERVER_READY" = true ]; then
-            echo "Mock API server is ready at $(date)" > playwright-report/mock-api-ready.txt
-          else
-            echo "Mock API server failed to start within 30 seconds at $(date)" > playwright-report/mock-api-failed.txt
-            # Don't exit with error, let the tests try to run anyway
-            echo "Mock API server failed to start within 30 seconds, but continuing..."
-          fi
-
-      - name: Install Express for mock API server (Windows)
+          mkdir -p playwright-report/html
+          
+          # Set environment variables
+          echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" >> $GITHUB_ENV
+          echo "REACT_APP_AG_UI_ENABLED=true" >> $GITHUB_ENV
+          echo "CI=true" >> $GITHUB_ENV
+          echo "VERBOSE_LOGGING=true" >> $GITHUB_ENV
+          
+          # Set enhanced environment detection variables
+          echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
+          echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
+          echo "CI_PLATFORM=github" >> $GITHUB_ENV
+          echo "CI_TYPE=github" >> $GITHUB_ENV
+          echo "CI_RUNNER_OS=$(uname -s)" >> $GITHUB_ENV
+          echo "CI_WORKSPACE=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          
+          # Set container environment detection variables
+          echo "DOCKER_ENVIRONMENT=false" >> $GITHUB_ENV
+          echo "KUBERNETES_SERVICE_HOST=" >> $GITHUB_ENV
+          echo "RKT_ENVIRONMENT=false" >> $GITHUB_ENV
+          echo "SINGULARITY_ENVIRONMENT=false" >> $GITHUB_ENV
+          echo "DOCKER_COMPOSE=false" >> $GITHUB_ENV
+          echo "DOCKER_SWARM=" >> $GITHUB_ENV
+      
+      - name: Setup environment (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Ensure the playwright-report directory exists
-          if (-not (Test-Path "playwright-report")) {
-            New-Item -ItemType Directory -Path "playwright-report" -Force
-          }
-          Write-Host "Created or verified playwright-report directory"
-
-          # Create logs directory
-          if (-not (Test-Path "logs")) {
-            New-Item -ItemType Directory -Path "logs" -Force
-          }
-          Write-Host "Created or verified logs directory"
-
-          # Check if Express and related packages are already installed
-          if ((Test-Path "node_modules/express") -and (Test-Path "node_modules/cors") -and (Test-Path "node_modules/body-parser")) {
-            Write-Host "Express and related packages are already installed"
-          } else {
-            # Install Express and related packages for the mock API server
-            Write-Host "Installing Express and related packages..."
-            pnpm add -D express@5.1.0 cors@2.8.5 body-parser@2.2.0
-          }
-
-          # Create a marker file in the playwright-report directory
-          Set-Content -Path "playwright-report/mock-api-setup.txt" -Value "Mock API server setup started at $(Get-Date)"
-
-          # Test the mock API server with error handling
-          Write-Host "Testing mock API server..."
-          try {
-            pnpm test:mock-api
-          } catch {
-            Write-Host "Mock API server test failed, but continuing... $_"
-            Set-Content -Path "playwright-report/mock-api-test-failed.txt" -Value "Mock API server test failed at $(Get-Date)"
-          }
-
-          # Start the mock API server with error handling
-          Write-Host "Starting mock API server..."
-          try {
-            $mockApiProcess = Start-Process -FilePath "node" -ArgumentList "tests/mock_api_server.js" -PassThru -NoNewWindow -RedirectStandardOutput "logs/mock-api-server.log" -RedirectStandardError "logs/mock-api-server-error.log"
-            Write-Host "Mock API server started with PID: $($mockApiProcess.Id)"
-            Set-Content -Path "playwright-report/mock-api-started.txt" -Value "Mock API server started with PID: $($mockApiProcess.Id) at $(Get-Date)"
-          } catch {
-            Write-Host "Failed to start mock API server: $_"
-            Set-Content -Path "playwright-report/mock-api-start-failed.txt" -Value "Failed to start mock API server at $(Get-Date): $_"
-          }
-
-          # Wait for the server to start
-          $maxRetries = 30
-          $retryCount = 0
-          $serverReady = $false
-
-          while (-not $serverReady -and $retryCount -lt $maxRetries) {
-            try {
-              $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing -ErrorAction SilentlyContinue
-              if ($response.StatusCode -eq 200) {
-                Write-Host "Mock API server is ready."
-                $serverReady = $true
-              }
-            } catch {
-              Write-Host "Waiting for mock API server to be ready... (Attempt $($retryCount+1)/$maxRetries)"
-              Start-Sleep -Seconds 1
-            }
-            $retryCount++
-          }
-
-          # Create status file regardless of server status
-          if ($serverReady) {
-            Set-Content -Path "playwright-report/mock-api-ready.txt" -Value "Mock API server is ready at $(Get-Date)"
-          } else {
-            Set-Content -Path "playwright-report/mock-api-failed.txt" -Value "Mock API server failed to start within 30 seconds at $(Get-Date)"
-            # Don't exit with error, let the tests try to run anyway
-            Write-Host "Mock API server failed to start within 30 seconds, but continuing..."
-          }
-
-      - name: Run tests with CI test runner (Linux/macOS)
+          # Create directories
+          New-Item -ItemType Directory -Path "logs" -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path "ci-reports/github" -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path "test-results/github" -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path "playwright-report" -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path "playwright-report/html" -Force -ErrorAction SilentlyContinue
+          
+          # Set environment variables
+          echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "REACT_APP_AG_UI_ENABLED=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "CI=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "VERBOSE_LOGGING=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+          
+          # Set enhanced environment detection variables
+          echo "GITHUB_ACTIONS=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "CI_ENVIRONMENT=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "CI_PLATFORM=github" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "CI_TYPE=github" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "CI_RUNNER_OS=$env:OS" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "CI_WORKSPACE=$env:GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_ENV -Append
+          
+          # Set container environment detection variables
+          echo "DOCKER_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "KUBERNETES_SERVICE_HOST=" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "RKT_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "SINGULARITY_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "DOCKER_COMPOSE=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "DOCKER_SWARM=" | Out-File -FilePath $env:GITHUB_ENV -Append
+      
+      - name: Run tests (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
+        working-directory: ui/react_frontend
         run: |
-          # Set environment variables
-          export REACT_APP_API_BASE_URL=http://localhost:8000/api
-          export REACT_APP_AG_UI_ENABLED=true
-          export CI=true
-
-          # Create logs directory
-          mkdir -p logs
-
-          # Run the CI test runner with error handling
-          echo "Running CI test runner..."
-          node tests/run_ci_tests.js --passWithNoTests || {
-            echo "Tests failed but continuing workflow"
-            echo "Test failures detected at $(date)" > logs/test-failures.txt
-          }
-
-      - name: Run tests with CI test runner (Windows)
+          if [ -f "tests/run_ci_tests_enhanced.js" ]; then
+            echo "Running Enhanced CI test runner..."
+            node tests/run_ci_tests_enhanced.js
+          else
+            echo "Enhanced CI test runner not found, falling back to regular runner..."
+            node tests/run_ci_tests.js
+          fi
+      
+      - name: Run tests (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
+        working-directory: ui/react_frontend
         run: |
-          # Set environment variables
-          $env:REACT_APP_API_BASE_URL = "http://localhost:8000/api"
-          $env:REACT_APP_AG_UI_ENABLED = "true"
-          $env:CI = "true"
-
-          # Create logs directory
-          if (-not (Test-Path "logs")) {
-            New-Item -ItemType Directory -Path "logs" -Force
-          }
-
-          # Run the CI test runner with error handling
-          Write-Host "Running CI test runner..."
           try {
-            node tests/run_ci_tests.js --passWithNoTests
+            if (Test-Path "tests/run_ci_tests_enhanced.js") {
+              Write-Host "Running Enhanced CI test runner..."
+              node tests/run_ci_tests_enhanced.js
+            } else {
+              Write-Host "Enhanced CI test runner not found, falling back to regular runner..."
+              node tests/run_ci_tests.js
+            }
           } catch {
             Write-Host "Tests failed but continuing workflow: $_"
-            Set-Content -Path "logs/test-failures.txt" -Value "Test failures detected at $(Get-Date)"
+            Set-Content -Path "../../logs/test-failures.txt" -Value "Test failures detected at $(Get-Date)"
           }
-
-      # The tests are now run by the CI test runner
-      # This step is kept for backward compatibility but is now a no-op
-      - name: Install the ag-ui package if needed (Linux/macOS)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          # Create playwright-report directory first
-          mkdir -p playwright-report
-
-          # Install the ag-ui package if needed
-          if ! grep -q "@ag-ui-protocol/ag-ui" node_modules/.package-lock.json 2>/dev/null; then
-            echo "Installing @ag-ui-protocol/ag-ui package..."
-            pnpm add @ag-ui-protocol/ag-ui || echo "Failed to install @ag-ui-protocol/ag-ui, will use local implementation"
-          fi
-
-          # Create a report file to indicate this step was run
-          echo "ag-ui package installation step completed at $(date)" > playwright-report/ag-ui-installation.txt
-
-      # The tests are now run by the CI test runner
-      # This step is kept for backward compatibility but is now a no-op
-      - name: Install the ag-ui package if needed (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          # Create playwright-report directory first
-          if (-not (Test-Path "playwright-report")) {
-            New-Item -ItemType Directory -Path "playwright-report" -Force
-          }
-
-          # Install the ag-ui package if needed
-          if (-not (Test-Path "node_modules/@ag-ui-protocol")) {
-            Write-Host "Installing @ag-ui-protocol/ag-ui package..."
-            pnpm add @ag-ui-protocol/ag-ui
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to install @ag-ui-protocol/ag-ui, will use local implementation"
-            }
-          }
-
-          # Create a report file to indicate this step was run
-          Set-Content -Path "playwright-report/ag-ui-installation.txt" -Value "ag-ui package installation step completed at $(Get-Date)"
-
-      - name: Create and verify playwright-report directory (Linux/macOS)
-        if: runner.os != 'Windows' && always()
-        shell: bash
-        run: |
-          # Ensure the directory exists
-          mkdir -p playwright-report/
-          mkdir -p playwright-report/html/
-
-          # Create a dummy file if the directory is empty to prevent upload issues
-          if [ -z "$(ls -A playwright-report/)" ]; then
-            echo "Creating dummy files in empty playwright-report directory"
-            echo "Test run completed at $(date)" > playwright-report/test-summary.txt
-            echo "<html><body><h1>Test Results</h1></body></html>" > playwright-report/index.html
-            echo "<html><body><h1>Detailed Results</h1></body></html>" > playwright-report/html/index.html
-
-            # Create a simple junit-results.xml
-            echo '<?xml version="1.0" encoding="UTF-8"?><testsuites name="AgentUI CI Tests" tests="1" failures="0" errors="0" time="0.1"><testsuite name="AgentUI CI Tests" tests="1" failures="0" errors="0" time="0.1"><testcase name="simple test" classname="simple_test.spec.ts" time="0.1"></testcase></testsuite></testsuites>' > playwright-report/junit-results.xml
-          fi
-
-          # List directory contents
-          echo "Contents of playwright-report directory:"
-          ls -la playwright-report/ || echo "playwright-report directory is empty or doesn't exist"
-
-          echo "Contents of playwright-report/html directory:"
-          ls -la playwright-report/html/ || echo "playwright-report/html directory is empty or doesn't exist"
-
-      - name: Create and verify playwright-report directory (Windows)
-        if: runner.os == 'Windows' && always()
-        shell: pwsh
-        run: |
-          # Ensure the directory exists
-          if (-not (Test-Path "playwright-report")) {
-            New-Item -ItemType Directory -Path "playwright-report" -Force
-          }
-
-          if (-not (Test-Path "playwright-report\html")) {
-            New-Item -ItemType Directory -Path "playwright-report\html" -Force
-          }
-
-          # Create a dummy file if the directory is empty to prevent upload issues
-          if (-not (Get-ChildItem -Path "playwright-report" -Force -ErrorAction SilentlyContinue)) {
-            Write-Host "Creating dummy files in empty playwright-report directory"
-            Set-Content -Path "playwright-report\test-summary.txt" -Value "Test run completed at $(Get-Date)"
-            Set-Content -Path "playwright-report\index.html" -Value "<html><body><h1>Test Results</h1></body></html>"
-            Set-Content -Path "playwright-report\html\index.html" -Value "<html><body><h1>Detailed Results</h1></body></html>"
-
-            # Create a simple junit-results.xml
-            Set-Content -Path "playwright-report\junit-results.xml" -Value '<?xml version="1.0" encoding="UTF-8"?><testsuites name="AgentUI CI Tests" tests="1" failures="0" errors="0" time="0.1"><testsuite name="AgentUI CI Tests" tests="1" failures="0" errors="0" time="0.1"><testcase name="simple test" classname="simple_test.spec.ts" time="0.1"></testcase></testsuite></testsuites>'
-          }
-
-          # List directory contents
-          Write-Host "Contents of playwright-report directory:"
-          Get-ChildItem -Path "playwright-report" -Force -ErrorAction SilentlyContinue | Format-Table -AutoSize
-
-          Write-Host "Contents of playwright-report\html directory:"
-          Get-ChildItem -Path "playwright-report\html" -Force -ErrorAction SilentlyContinue | Format-Table -AutoSize
-
+      
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ runner.os }}-${{ github.run_id }}
-          path: |
-            playwright-report/
-            logs/
+          path: playwright-report/
           if-no-files-found: warn
           retention-days: 30
-
-      - name: Upload test results as separate artifact
+      
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ runner.os }}-${{ github.run_id }}
+          path: logs/
+          if-no-files-found: warn
+          retention-days: 30
+      
+      - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:

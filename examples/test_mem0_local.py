@@ -4,21 +4,21 @@ Test script for mem0 local installation.
 This script demonstrates basic mem0 functionality using a local installation.
 It requires the mem0ai package to be installed:
 
-    pip install mem0ai
+    uv pip install mem0ai
 
 Note: This script requires an OpenAI API key to be set as an environment variable:
     export OPENAI_API_KEY='your-api-key'
 """
 
+import json
 import os
 import sys
-import json
-from typing import Dict, List, Any, Optional
+from typing import Any, Optional
 
 try:
     from mem0 import Memory
 except ImportError:
-    print("mem0ai package not installed. Please install it with: pip install mem0ai")
+    print("mem0ai package not installed. Please install it with: uv pip install mem0ai")
     sys.exit(1)
 
 def print_json(data: Any) -> None:

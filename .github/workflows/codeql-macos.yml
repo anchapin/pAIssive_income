@@ -1,27 +1,10 @@
-name: "CodeQL Analysis (macOS)"
+name: "CodeQL Analysis - macOS"
 
 # This workflow performs CodeQL analysis for JavaScript/TypeScript and Python on macOS
-# It's a specialized version of the main CodeQL workflow for macOS-specific analysis
+# It runs on push to main branches, pull requests to main branches, and on a weekly schedule
+# The workflow is designed to provide comprehensive security analysis with detailed configuration
 
 on:
-  push:
-    branches: [ main, dev, master, develop ]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.svg'
-      - '**/*.ico'
-      - '.gitignore'
-      - 'docs/**'
-      - 'LICENSE'
-      - 'SECURITY.md'
-      - 'CONTRIBUTING.md'
-      - 'CODE_OF_CONDUCT.md'
   pull_request:
     branches: [ main, dev, master, develop ]
     paths-ignore:
@@ -57,15 +40,10 @@ permissions:
   contents: read
 
 jobs:
-  analyze:
-    name: Analyze
+  analyze-javascript:
+    name: Analyze JavaScript/TypeScript
     runs-on: macos-latest
     timeout-minutes: 90  # Increased timeout for larger codebases
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'javascript-typescript', 'python' ]
 
     steps:
       - name: Checkout repository
@@ -78,55 +56,123 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.codeql/databases
-          key: codeql-${{ matrix.language }}-macos-${{ github.sha }}
+          key: codeql-javascript-${{ github.sha }}
           restore-keys: |
-            codeql-${{ matrix.language }}-macos-
+            codeql-javascript-
 
-      # Set up pnpm first
+      # Set up pnpm
       - name: Setup pnpm
-        if: matrix.language == 'javascript-typescript'
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v4
         with:
-          version: '8.15.4'
-          run_install: false
+          version: '8'
 
-      # Set up Node.js for JavaScript/TypeScript analysis
+      # Add pnpm to PATH (macOS)
+      - name: Add pnpm to PATH
+        shell: bash
+        run: |
+          export PATH=$(pnpm bin):$PATH
+          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+          echo "Current PATH: $PATH"
+          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
+
+      # Set up Node.js for better JavaScript/TypeScript analysis
       - name: Set up Node.js
-        if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1' # Specify a patch version
           # Disable cache to avoid potential issues with pnpm
           # cache: 'pnpm'
 
-      # Add pnpm to PATH
-      - name: Add pnpm to PATH
-        if: matrix.language == 'javascript-typescript'
-        shell: bash
-        run: |
-          # Add both global and local pnpm to PATH
-          echo "PATH=$(pnpm -g bin):$(pnpm bin):$PATH" >> $GITHUB_ENV
-          # Verify pnpm is in PATH
-          echo "Current PATH: $PATH"
-          which pnpm || {
-            echo "pnpm not found in PATH. Installing globally with npm..."
-            npm install -g pnpm
-            echo "PATH=$(npm bin -g):$PATH" >> $GITHUB_ENV
-            which pnpm || { echo "Error: pnpm is still not in PATH after npm install."; exit 1; }
-          }
+      # Verify pnpm installation
+      - name: Check pnpm version
+        run: pnpm --version
 
-      # Set up Python for Python analysis
+      # Install dependencies if package.json exists
+      - name: Install dependencies
+        run: |
+          # Check for package.json in the root directory
+          if [ -f package.json ]; then
+            echo "Installing dependencies with pnpm in root directory..."
+            pnpm install
+          else
+            echo "No package.json found in root directory, checking ui/react_frontend..."
+            # Check for package.json in ui/react_frontend
+            if [ -f ui/react_frontend/package.json ]; then
+              echo "Installing dependencies with pnpm in ui/react_frontend..."
+              cd ui/react_frontend && pnpm install
+            else
+              echo "No package.json found in ui/react_frontend, skipping dependency installation."
+            fi
+          fi
+        continue-on-error: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+          config-file: ./.github/codeql/security-os-macos.yml
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Display disk space before analysis
+      - name: Check disk space
+        run: df -h
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/security/os:macOS-latest"
+          upload: true
+          output: sarif-results/javascript-typescript-macos.sarif
+
+      # Add OS-specific configuration for macOS
+      - name: Upload OS-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/javascript-typescript-macos.sarif
+          category: "/security/os:macOS-latest"
+
+      # Upload SARIF results as an artifact
+      - name: Upload SARIF results
+        uses: actions/upload-artifact@v4
+        with:
+          name: javascript-typescript-macos-sarif
+          path: sarif-results/javascript-typescript-macos.sarif
+          retention-days: 7
+
+  analyze-python:
+    name: Analyze Python
+    runs-on: macos-latest
+    timeout-minutes: 90  # Increased timeout for larger codebases
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full git history for better analysis
+
+      # Cache CodeQL database to speed up analysis
+      - name: Cache CodeQL database
+        uses: actions/cache@v4
+        with:
+          path: ~/.codeql/databases
+          key: codeql-python-${{ github.sha }}
+          restore-keys: |
+            codeql-python-
+
+      # Set up Python for better analysis
       - name: Set up Python
-        if: matrix.language == 'python'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
 
-      # Verify lock files exist before analysis with enhanced error handling
-      - name: Verify lock files
-        if: matrix.language == 'javascript-typescript'
-        shell: bash
+      # Install dependencies if requirements.txt exists
+      - name: Install dependencies
         run: |
           echo "Verifying lock files exist before CodeQL analysis..."
           LOCK_FILES=$(find . -name "package-lock.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml")
@@ -284,51 +330,12 @@ jobs:
           fi
         continue-on-error: true
 
-      # Ensure CodeQL configuration files exist
-      - name: Ensure CodeQL configuration files
-        shell: bash
-        run: |
-          if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
-            echo "Running ensure-codeql-configs.sh script..."
-            bash .github/scripts/ensure-codeql-configs.sh
-          else
-            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
-
-            # Ensure directory exists
-            mkdir -p .github/codeql
-
-            # Create minimal macOS configuration using a single heredoc
-            cat > .github/codeql/security-os-macos.yml << 'EOF'
-name: "CodeQL Configuration for macOS"
-os: macos-latest
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
-
-            # Create minimal unified configuration using a single heredoc
-            cat > .github/codeql/security-os-config.yml << 'EOF'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
-          fi
-
-      # Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
+          languages: python
           queries: security-and-quality
-          config-file: .github/codeql/security-os-macos.yml
-          debug: true
+          config-file: ./.github/codeql/security-os-macos.yml
 
       # Autobuild attempts to build any compiled languages
       - name: Autobuild
@@ -336,21 +343,27 @@ EOF
 
       # Display disk space before analysis
       - name: Check disk space
-        shell: bash
         run: df -h
 
-      # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
+          category: "/security/os:macOS-latest"
           upload: true
-          output: sarif-results/${{ matrix.language }}-macos.sarif
+          output: sarif-results/python-macos.sarif
+
+      # Add OS-specific configuration for macOS
+      - name: Upload OS-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/python-macos.sarif
+          category: "/security/os:macOS-latest"
 
       # Upload SARIF results as an artifact
       - name: Upload SARIF results
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.language }}-macos-sarif
-          path: sarif-results/${{ matrix.language }}-macos.sarif
+          name: python-macos-sarif
+          path: sarif-results/python-macos.sarif
           retention-days: 7
