@@ -2,9 +2,10 @@
 
 import os
 
+from flask import Flask
+
 # Import and register the password reset/auth blueprint
 from api.routes.auth import auth_bp
-from flask import Flask
 
 
 def create_app():

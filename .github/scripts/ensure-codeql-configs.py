@@ -40,7 +40,7 @@ def create_codeql_config(filename, config_name, os_name=None):
     if os_name:
         config["os"] = os_name
 
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         json.dump(config, f, indent=2)
 
     print(f"Created CodeQL configuration file: {filename}")

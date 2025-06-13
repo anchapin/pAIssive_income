@@ -285,6 +285,16 @@ For more details on the mem0 integration, see:
 - [docs/README_mem0.md](docs/README_mem0.md) - Overview of mem0 investigation
 - [docs/mem0_core_apis.md](docs/mem0_core_apis.md) - Documentation of mem0's core APIs
 
+## ARTIST (Agentic Reasoning) Integration
+
+This project supports [ARTIST](https://arxiv.org/abs/2402.00838) (Agentic Reasoning and Tool Integration in Self-improving Transformers), an advanced framework for agentic reasoning and dynamic tool use in LLM-driven systems.
+
+- **Agentic Reasoning**: Leverage ARTIST's self-improving agent architecture to orchestrate complex reasoning and multi-tool workflows, enhancing both automation and adaptability.
+- **Integration Points**: Core logic resides in `ai_models/artist_agent.py`, with tool registry support and experiments in `artist_experiments/`.
+- **Experiments & Extensibility**: Run or extend experiments such as math problem solving and multi-API orchestration, or integrate ARTIST agents into your own workflows.
+
+See [docs/ARTIST_integration.md](docs/ARTIST_integration.md) for setup instructions, usage examples, troubleshooting, and demo checklists.
+
 ## 🚀 Getting Started
 
 For installation, setup, and usage, see our [Getting Started Guide](docs/00_introduction/02_getting_started.md).

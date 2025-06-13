@@ -30,7 +30,7 @@ uv pip install -e ".[dev,agents,memory,ml]"
 pip install -e ".[dev,agents,memory,ml]"
 
 # Minimal setup (essential tools only)
-pip install --break-system-packages ruff pytest mypy sqlalchemy fastapi pydantic
+pip install --break-system-packages ruff pytest pyright sqlalchemy fastapi pydantic
 ```
 
 ### Build & Test Commands
@@ -179,7 +179,7 @@ The project includes comprehensive Cursor rules in `.cursor/rules/`:
 
 ## Key Configuration Files
 
-- `pyproject.toml`: Python dependencies, tool configuration (Ruff, MyPy, pytest) - **Primary configuration source**
+- `pyproject.toml`: Python dependencies, tool configuration (Ruff, pyright, pytest) - **Primary configuration source**
 - `package.json`: Node.js dependencies, Tailwind build scripts, test coverage settings
 - `docker-compose.yml`: Multi-service orchestration with PostgreSQL, optional Redis
 - `Makefile`: Unified command interface for all quality operations
@@ -210,3 +210,7 @@ Ruff configuration is centralized in `pyproject.toml` to avoid confusion. The se
 - Use the comprehensive security scanning pipeline
 - Handle sensitive data through the secrets management system
 - Follow input validation patterns established in `common_utils/validation/`
+
+## Tool Preferences
+- Use 'uv' and 'pnpm' for this project
+- Use pyright instead of pyrefly

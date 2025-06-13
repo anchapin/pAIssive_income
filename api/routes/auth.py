@@ -1,4 +1,3 @@
-import html
 import logging
 import os
 import re
@@ -8,19 +7,18 @@ from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 
 import bcrypt
+from flask import Blueprint, jsonify, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from sqlalchemy import Column, DateTime, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from flask import Blueprint, jsonify, request
-
 # Pattern for allowed characters in logs. Anything not matching this will be replaced.
 # Allows: a-z, A-Z, 0-9, space, period, underscore, @, :, /, =, -
 ALLOWED_CHARS_PATTERN = re.compile(r"[^a-zA-Z0-9\s\._@:/=-]")
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 # Flask-Limiter instance (for demo; in prod, usually set up in main app)
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
@@ -62,9 +60,9 @@ def send_email(to_addr, subject, body):
 
     # Create email with proper encoding
     msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = FROM_ADDR
-    msg['To'] = to_addr
+    msg["Subject"] = subject
+    msg["From"] = FROM_ADDR
+    msg["To"] = to_addr
 
     try:
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
@@ -75,46 +73,45 @@ def send_email(to_addr, subject, body):
             server.sendmail(FROM_ADDR, [to_addr], msg.as_string())
         logging.info(f"[Password Reset] Sent email to {sanitize_log_data(to_addr)}")
     except Exception as e:
-        logging.error(f"[Password Reset] Failed to send email: {str(e)}")
+        logging.exception(f"[Password Reset] Failed to send email: {e!s}")
 
 def sanitize_log_data(data):
     if data is None:
-        return '<none>'
+        return "<none>"
 
     MAX_LOG_LENGTH = 256
 
     if isinstance(data, str):
         # Replace newlines first
-        sanitized = data.replace('\n', ' ').replace('\r', ' ')
+        sanitized = data.replace("\n", " ").replace("\r", " ")
 
         # Replace any characters not in the allowed set with an underscore
-        sanitized = ALLOWED_CHARS_PATTERN.sub('_', sanitized)
+        sanitized = ALLOWED_CHARS_PATTERN.sub("_", sanitized)
 
         # Truncate
         sanitized = sanitized[:MAX_LOG_LENGTH]
 
         # Removed html.escape from the return
         return sanitized
-    else:
-        # For non-strings, convert to string, then apply basic sanitization (length and newlines)
-        s_data = str(data).replace('\n', ' ').replace('\r', ' ')
-        # Also apply the strict character filter to the string representation of non-string data
-        s_data = ALLOWED_CHARS_PATTERN.sub('_', s_data)
-        # Removed html.escape from the return
-        return s_data[:MAX_LOG_LENGTH]
+    # For non-strings, convert to string, then apply basic sanitization (length and newlines)
+    s_data = str(data).replace("\n", " ").replace("\r", " ")
+    # Also apply the strict character filter to the string representation of non-string data
+    s_data = ALLOWED_CHARS_PATTERN.sub("_", s_data)
+    # Removed html.escape from the return
+    return s_data[:MAX_LOG_LENGTH]
 
-@auth_bp.route('/forgot-password', methods=['POST'])
+@auth_bp.route("/forgot-password", methods=["POST"])
 @limiter.limit("5 per minute")
 def forgot_password():
     """Handle forgot password requests with proper security measures."""
     data = request.get_json() or {}
-    email = data.get('email', '').strip().lower() if data.get('email') else ''
+    email = data.get("email", "").strip().lower() if data.get("email") else ""
 
     # Get client IP with fallback
     remote_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
-    if remote_ip and ',' in remote_ip:
+    if remote_ip and "," in remote_ip:
         # If multiple IPs in X-Forwarded-For, take the first one
-        remote_ip = remote_ip.split(',')[0].strip()
+        remote_ip = remote_ip.split(",")[0].strip()
 
     # Sanitize data for logging
     safe_email = sanitize_log_data(email)
@@ -146,7 +143,7 @@ def forgot_password():
             logging.info(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset token generated for {safe_email} from {safe_ip} token_prefix={token_prefix_sanitized}...")
 
             # Compose reset link with proper URL construction
-            frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+            frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
             reset_link = f"{frontend_url}/reset-password/{token}"
 
             subject = "Password Reset Request"
@@ -154,7 +151,7 @@ def forgot_password():
             send_email(email, subject, body)
         except Exception as e:
             # Log the error but don't expose details to the client
-            logging.error(f"[ERROR] Failed to process password reset: {str(e)}")
+            logging.exception(f"[ERROR] Failed to process password reset: {e!s}")
             session.rollback()
         finally:
             session.close()
@@ -162,18 +159,18 @@ def forgot_password():
     # Respond identically in either case for security
     return jsonify({"message": "If the email is registered, a reset link will be sent."}), 200
 
-@auth_bp.route('/reset-password', methods=['POST'])
+@auth_bp.route("/reset-password", methods=["POST"])
 @limiter.limit("5 per minute")
 def reset_password():
     """Handle password reset with proper security measures."""
     data = request.get_json() or {}
-    token = data.get('token', '')
-    new_password = data.get('new_password', '')
+    token = data.get("token", "")
+    new_password = data.get("new_password", "")
 
     # Get client IP with fallback
     remote_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
-    if remote_ip and ',' in remote_ip:
-        remote_ip = remote_ip.split(',')[0].strip()
+    if remote_ip and "," in remote_ip:
+        remote_ip = remote_ip.split(",")[0].strip()
 
     # Sanitize data for logging
     safe_ip = sanitize_log_data(remote_ip)
@@ -206,7 +203,7 @@ def reset_password():
 
         # Hash the new password with bcrypt (already secure)
         hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
-        USERS[email]['password'] = hashed
+        USERS[email]["password"] = hashed
 
         # Delete the used token
         session.delete(prt)
@@ -216,7 +213,7 @@ def reset_password():
         return jsonify({"message": "Password has been reset."}), 200
     except Exception as e:
         # Log the error but don't expose details to the client
-        logging.error(f"[ERROR] Failed to reset password: {str(e)}")
+        logging.exception(f"[ERROR] Failed to reset password: {e!s}")
         session.rollback()
         return jsonify({"message": "An error occurred. Please try again later."}), 500
     finally:

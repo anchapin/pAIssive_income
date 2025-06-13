@@ -89,6 +89,7 @@ def safe_file_exists(file_path: str) -> bool:
 
     Returns:
         bool: True if the file exists, False otherwise
+
     """
     try:
         return Path(file_path).exists()
@@ -105,10 +106,11 @@ def safe_read_file(file_path: str) -> str | None:
 
     Returns:
         str: File contents or None if the file doesn't exist or can't be read
+
     """
     try:
         if safe_file_exists(file_path):
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 return f.read()
         return None
     except Exception:
@@ -121,6 +123,7 @@ def detect_ci_environment() -> dict[str, Any]:
 
     Returns:
         Dict[str, Any]: Dictionary with CI environment information
+
     """
     # Operating System Detection
     os_info = {
@@ -814,6 +817,7 @@ def create_ci_directories() -> list[dict[str, Any]]:
 
     Returns:
         List[Dict[str, Any]]: List of created directories with status
+
     """
     directories = [
         "ci-reports",
@@ -840,6 +844,7 @@ def main() -> int:
 
     Returns:
         int: Exit code
+
     """
     parser = argparse.ArgumentParser(description="CI Environment Detection Script")
     parser.add_argument("--json", action="store_true", help="Output in JSON format")

@@ -63,13 +63,9 @@ def ensure_directory(directory: str) -> None:
     Path(directory).mkdir(parents=True, exist_ok=True)
 
 
-def test_safety_scan() -> bool:
+def test_safety_scan() -> None:
     """
     Test the Safety scan functionality.
-
-    Returns:
-        bool: True if successful, False otherwise
-
     """
     logger.info("\n=== Testing Safety Scan ===")
     ensure_directory("security-reports")
@@ -108,26 +104,22 @@ def test_safety_scan() -> bool:
     # Convert to SARIF format
     logger.info("Converting Safety results to SARIF format...")
     stdout, stderr, return_code = run_command(
-        "python sarif_utils.py security-reports/safety-results.json "
+        "python3 scripts/utils/sarif_utils.py security-reports/safety-results.json "
         "security-reports/safety-results.sarif Safety "
         "https://pyup.io/safety/"
     )
 
     if return_code != 0:
         logger.error("Error converting Safety results to SARIF: %s", stderr)
-        return False
+        assert False, f"Failed to convert Safety results to SARIF: {stderr}"
 
     logger.info("Safety scan test completed")
-    return True
+    assert True
 
 
-def test_bandit_scan() -> bool:
+def test_bandit_scan() -> None:
     """
     Test the Bandit scan functionality.
-
-    Returns:
-        bool: True if successful, False otherwise
-
     """
     logger.info("\n=== Testing Bandit Scan ===")
     ensure_directory("security-reports")
@@ -166,26 +158,22 @@ def test_bandit_scan() -> bool:
     # Convert to SARIF format
     logger.info("Converting Bandit results to SARIF format...")
     stdout, stderr, return_code = run_command(
-        "python sarif_utils.py security-reports/bandit-results.json "
+        "python3 scripts/utils/sarif_utils.py security-reports/bandit-results.json "
         "security-reports/bandit-results.sarif Bandit "
         "https://bandit.readthedocs.io/"
     )
 
     if return_code != 0:
         logger.error("Error converting Bandit results to SARIF: %s", stderr)
-        return False
+        assert False, f"Failed to convert Bandit results to SARIF: {stderr}"
 
     logger.info("Bandit scan test completed")
-    return True
+    assert True
 
 
-def test_sarif_file_handling() -> bool:
+def test_sarif_file_handling() -> None:
     """
     Test SARIF file handling functionality.
-
-    Returns:
-        bool: True if successful, False otherwise
-
     """
     logger.info("\n=== Testing SARIF File Handling ===")
     ensure_directory("security-reports")
@@ -198,13 +186,13 @@ def test_sarif_file_handling() -> bool:
 
         # Create a test SARIF file
         stdout, stderr, return_code = run_command(
-            'python sarif_utils.py "[]" security-reports/test-results.sarif '
+            'python3 scripts/utils/sarif_utils.py "[]" security-reports/test-results.sarif '
             "Test https://example.com"
         )
 
         if return_code != 0:
             logger.error("Error creating test SARIF file: %s", stderr)
-            return False
+            assert False, f"Failed to create test SARIF file: {stderr}"
 
         sarif_files = list(Path("security-reports").glob("*.sarif"))
 
@@ -224,12 +212,12 @@ def test_sarif_file_handling() -> bool:
         except json.JSONDecodeError:
             logger.warning("❌ %s is not valid JSON", sarif_file)
             logger.info("Creating a valid but empty SARIF file as fallback")
-            cmd = f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'
+            cmd = f'python3 scripts/utils/sarif_utils.py "[]" {sarif_file} Test https://example.com'
             stdout, stderr, return_code = run_command(cmd)
 
             if return_code != 0:
                 logger.exception("Error creating fallback SARIF file")
-                return False
+                assert False, "Failed to create fallback SARIF file"
 
         # Create compressed version
         compressed_file_name = f"{sarif_file.name}.gz"
@@ -242,12 +230,12 @@ def test_sarif_file_handling() -> bool:
 
         if return_code != 0:
             logger.error("Error creating compressed version: %s", stderr)
-            return False
+            assert False, f"Failed to create compressed version: {stderr}"
 
         logger.info("Created compressed version: %s", compressed_file)
 
     logger.info("SARIF file handling test completed")
-    return True
+    assert True
 
 
 def main() -> int:
