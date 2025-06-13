@@ -138,8 +138,6 @@ reporting_team = Crew(
 )
 
 if __name__ == "__main__":
-    import logging
-
     # Configure logging
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -200,13 +198,8 @@ class CrewAIAgentTeam:
         self.api_client = None
 
         # Dedicated logger for agentic reasoning
+        # Note: Logger configuration is deferred to the application
         self.logger = logging.getLogger("agentic_reasoning")
-        if not self.logger.hasHandlers():
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-        self.logger.setLevel(logging.INFO)
 
     def add_agent(self, role: str, goal: str, backstory: str) -> object:
         """
@@ -259,32 +252,38 @@ class CrewAIAgentTeam:
         """
         return Crew(agents=self.agents, tasks=self.tasks)  # type: ignore[arg-type]
 
-    def _heuristic_tool_selection(self, description: str) -> tuple[str, callable] | tuple[None, None]:
+    def _heuristic_tool_selection(self, description: str) -> tuple[str, dict] | tuple[None, None]:
         """
-        Select a tool based on task description using heuristic matching.
+        Select a tool based on task description using extensible heuristic matching.
+
+        This method uses a more generic tool registration mechanism that leverages
+        tool metadata including keywords and custom input preprocessors.
 
         Args:
             description: The task description
 
         Returns:
-            (tool_name, tool_func) if found, else (None, None)
+            (tool_name, tool_metadata) if found, else (None, None)
 
         """
-        # Gather all registered tools
+        # Gather all registered tools with their metadata
         available_tools = list_tools()
         description_lower = description.lower()
         self.logger.info("Considering tools for task: '%s'", description)
-        # Heuristic: Match tool name or keywords
-        for tool_name, tool_func in available_tools.items():
+        
+        # Enhanced heuristic: Use tool metadata for better matching
+        for tool_name, tool_metadata in available_tools.items():
+            # Check if tool name appears in description
             if tool_name.lower() in description_lower:
                 self.logger.info("Tool '%s' matched by name in description.", tool_name)
-                return tool_name, tool_func
-            # Example: additional heuristics for calculator
-            if tool_name == "calculator":
-                key_words = ["calculate", "math", "add", "subtract", "multiply", "divide", "+", "-", "*", "/", "%"]
-                if any(word in description_lower for word in key_words):
-                    self.logger.info("Tool '%s' matched by keyword in description.", tool_name)
-                    return tool_name, tool_func
+                return tool_name, tool_metadata
+            
+            # Check keywords if available in tool metadata
+            keywords = tool_metadata.get("keywords", [])
+            if keywords and any(keyword.lower() in description_lower for keyword in keywords):
+                self.logger.info("Tool '%s' matched by keyword in description.", tool_name)
+                return tool_name, tool_metadata
+        
         self.logger.info("No tool matched by heuristic.")
         return None, None
 
@@ -309,23 +308,28 @@ class CrewAIAgentTeam:
         for task in self.tasks:
             description = getattr(task, "description", "")
             self.logger.info("---\nEvaluating task: '%s'", description)
-            tool_name, tool_func = self._heuristic_tool_selection(description)
-            if tool_name and tool_func:
-                # For demonstration, pass the description as the parameter (or extract expr for calculator)
-                tool_input = description
-                # Try to extract a math expression if it's the calculator
-                if tool_name == "calculator":
-                    # NOTE: This regex is intentionally simple for demonstration and will match
-                    # the first contiguous block of math-like characters, which may include extra spaces.
-                    # For more robust extraction in production, consider improving this to handle
-                    # more complex/natural language task descriptions.
-                    match = re.search(r"([0-9\+\-\*\/\.\s\%\(\)]+)", description)
-                    if match:
-                        tool_input = match.group(1)
+            tool_name, tool_metadata = self._heuristic_tool_selection(description)
+            if tool_name and tool_metadata:
+                # Use input preprocessor if available, otherwise use description
+                input_preprocessor = tool_metadata.get("input_preprocessor")
+                if input_preprocessor:
+                    tool_input = input_preprocessor(description)
+                else:
+                    # Fallback: try to extract expression for calculator-like tools
+                    tool_input = description
+                    if tool_name == "calculator":
+                        # NOTE: This regex is intentionally simple for demonstration and will match
+                        # the first contiguous block of math-like characters, which may include extra spaces.
+                        # For more robust extraction in production, consider improving this to handle
+                        # more complex/natural language task descriptions.
+                        match = re.search(r"([0-9\+\-\*\/\.\s\%\(\)]+)", description)
+                        if match:
+                            tool_input = match.group(1)
+                
                 self.logger.info("Invoking tool '%s' with input: %r", tool_name, tool_input)
                 try:
-                    # Get the actual function from the tool dictionary
-                    func = tool_func["func"]
+                    # Get the actual function from the tool metadata
+                    func = tool_metadata["func"]
                     # Strip whitespace from the input to avoid indentation errors
                     result = func(tool_input.strip())
                     self.logger.info("Tool '%s' returned: %r", tool_name, result)
