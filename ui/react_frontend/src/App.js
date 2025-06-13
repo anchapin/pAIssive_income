@@ -63,6 +63,8 @@ import UserEngagementPage from './pages/UserEngagementPage';
 import ApiAnalyticsPage from './pages/ApiAnalyticsPage';
 import AboutPage from './pages/AboutPage';
 import NotFoundPage from './pages/NotFoundPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 // App wrapper with theme and context
 function AppWithProviders() {
@@ -186,6 +188,8 @@ function AppContent() {
               {error && <div>Error loading agent: {error}</div>}
             </div>
           } />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Layout>

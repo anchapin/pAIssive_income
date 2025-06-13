@@ -1,28 +1,36 @@
 /**
- * Tests for the AgentUI component integration
+ * Enhanced tests for the AgentUI component
  *
- * This test verifies that the AgentUI component is properly integrated
- * into the application. It uses a simple assertion to ensure the test
- * suite passes while we implement more comprehensive tests.
+ * These tests render the real AgentUI component and make assertions
+ * about the rendered output and user interactions.
  */
-// Using Jest for testing
+
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import AgentUI from '../components/AgentUI';
+
+// Mock agent data
+const mockAgent = {
+  id: 1,
+  name: 'Test Agent',
+  description: 'This is a test agent'
+};
+
 describe('AgentUI Component', () => {
-  it('should be properly integrated', () => {
-    // This is a placeholder test to ensure the test suite passes
-    expect(true).toBe(true);
+  it('renders the agent name and description', () => {
+    render(<AgentUI agent={mockAgent}></AgentUI>);
+    expect(screen.getByText('Test Agent')).toBeInTheDocument();
+    expect(screen.getByText('This is a test agent')).toBeInTheDocument();
   });
 
-  it('should handle agent data correctly', () => {
-    // Mock agent data
-    const mockAgent = {
-      id: 1,
-      name: 'Test Agent',
-      description: 'This is a test agent'
-    };
-
-    // Verify the mock data structure
-    expect(mockAgent).toHaveProperty('id');
-    expect(mockAgent).toHaveProperty('name');
-    expect(mockAgent).toHaveProperty('description');
+  it('renders an action button and triggers callback on click', () => {
+    const mockOnAction = jest.fn();
+    render(<AgentUI agent={mockAgent} onAction={mockOnAction}></AgentUI>);
+    // Assume the button is labeled "Run Action"
+    const button = screen.getByRole('button', { name: /run action/i });
+    expect(button).toBeInTheDocument();
+    fireEvent.click(button);
+    expect(mockOnAction).toHaveBeenCalledTimes(1);
   });
 });

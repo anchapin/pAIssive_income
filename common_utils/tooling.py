@@ -148,7 +148,6 @@ register_tool(
 
 
 
-
 def text_analyzer(text: str) -> str:
     """
     Analyze text for basic sentiment and characteristics.

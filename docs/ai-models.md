@@ -647,27 +647,3 @@ niches = team.run_niche_analysis(["e-commerce", "content creation"])
 for i, niche in enumerate(niches):
     print(f"{i+1}. {niche['name']} (Score: {niche['opportunity_score']:.2f})")
 ```
-
-## Reinforcement Learning for Agent Tool Use
-
-The project now includes a dedicated RL (Reinforcement Learning) training module located at `ai_models/artist_rl/`. This module provides a Gymnasium-style RL environment for training agents (such as the `ArtistAgent`) on multi-step tool-use tasks.
-
-**Key Features:**
-- Custom RL environment (`ArtistRLEnv`) for interfacing with agentic tool use.
-- Scripts for RL training (`train.py`) and evaluation (`evaluate.py`).
-- Designed for research and improvement of agent reasoning and tool selection through RL.
-- Includes its own README with setup and usage instructions (see `ai_models/artist_rl/README.md`).
-
-**Example Usage:**
-
-```bash
-# Train an RL agent for multi-step tool-use
-python -m ai_models.artist_rl.train --episodes 100 --max-steps 50
-
-# Evaluate agent performance
-python -m ai_models.artist_rl.evaluate --episodes 10 --max-steps 50
-```
-
-Refer to the RL module's README for details on environment configuration, dependencies, and extensibility.
-
-```

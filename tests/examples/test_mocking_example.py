@@ -79,7 +79,7 @@ def test_fetch_user_data_with_mock(mock_get):
     assert result == {"id": 123, "name": "John Doe"}
 
     # Verify that the mock was called with the expected arguments
-    mock_get.assert_called_once_with("https://api.example.com/users/123")
+    mock_get.assert_called_once_with("https://api.example.com/users/123", timeout=10)
 
 
 # Example test that uses monkeypatch (an alternative to patch)
@@ -103,7 +103,7 @@ def test_fetch_user_data_with_monkeypatch(monkeypatch):
             pass
 
     # Define a replacement for requests.get
-    def mock_get(_url):
+    def mock_get(_url, timeout=None):
         return MockResponse({"id": 456, "name": "Jane Smith"})
 
     # Apply the monkeypatch
