@@ -89,7 +89,8 @@ def create_team(use_memory: bool = False, user_id: str | None = None) -> object:
         )
 
         team.add_task(
-            description="Write a summary report based on analysis.", agent=writer
+            description="Write a summary report based on analysis.",
+            agent=writer
         )
 
         return team

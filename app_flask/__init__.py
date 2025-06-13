@@ -8,14 +8,13 @@ from pathlib import Path
 # Standard library imports
 from typing import Any
 
+# Third-party imports
+from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 # Local imports
 from config import Config
-
-# Third-party imports
-from flask import Flask
 
 from .mcp_servers import mcp_servers_api
 from .middleware.logging_middleware import setup_request_logging

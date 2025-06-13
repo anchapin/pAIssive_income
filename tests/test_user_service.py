@@ -4,7 +4,6 @@ from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from flask import Flask
 
 # Import at the top level
@@ -50,14 +49,12 @@ class MockDB:
 # Create patch for flask.models
 patch("users.models.User", MockUser).start()
 
-# Patch the session attribute of the db object
-patch.object(db, "session", MagicMock()).start()
+# Patch the db object itself since it's a session
+patch("users.models.db", MagicMock()).start()
 
 # Mock Flask app context
-patch("flask.current_app._get_current_object", MagicMock()).start()
 patch("flask.has_app_context", MagicMock(return_value=True)).start()
-patch("flask._app_ctx_stack.top", MagicMock()).start()
-patch("flask.current_app.app_context", MagicMock(return_value=MockAppContext())).start()
+patch("flask.current_app", MagicMock()).start()
 
 
 @pytest.fixture

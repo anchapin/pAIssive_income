@@ -88,6 +88,7 @@ def setup_github_actions() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -119,6 +120,7 @@ def setup_jenkins() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -143,6 +145,7 @@ def setup_gitlab_ci() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -176,6 +179,7 @@ def setup_circleci() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -200,6 +204,7 @@ def setup_travis() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -225,6 +230,7 @@ def setup_azure_pipelines() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -255,6 +261,7 @@ def setup_docker() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "DOCKER_ENVIRONMENT": "true",
@@ -270,6 +277,7 @@ def setup_kubernetes() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "KUBERNETES_SERVICE_HOST": "10.0.0.1",
@@ -288,6 +296,7 @@ def setup_docker_compose() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "COMPOSE_PROJECT_NAME": "project",
@@ -303,6 +312,7 @@ def setup_docker_swarm() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "DOCKER_SWARM": "true",
@@ -317,6 +327,7 @@ def setup_aws() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "AWS_REGION": "us-west-2",
@@ -331,6 +342,7 @@ def setup_aws_lambda() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     aws_vars = setup_aws()
     aws_vars.update({
@@ -353,6 +365,7 @@ def setup_azure() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "AZURE_SUBSCRIPTION_ID": "12345678-1234-1234-1234-123456789012",
@@ -368,6 +381,7 @@ def setup_azure_functions() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     azure_vars = setup_azure()
     azure_vars.update({
@@ -388,6 +402,7 @@ def setup_gcp() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "GOOGLE_CLOUD_PROJECT": "my-project",
@@ -404,6 +419,7 @@ def setup_gcp_cloud_functions() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     gcp_vars = setup_gcp()
     gcp_vars.update({
@@ -422,6 +438,7 @@ def create_docker_files() -> List[Tuple[str, str]]:
 
     Returns:
         List[Tuple[str, str]]: List of (file_path, content) tuples
+
     """
     return [
         ("/.dockerenv", ""),
@@ -435,6 +452,7 @@ def create_kubernetes_files() -> List[Tuple[str, str]]:
 
     Returns:
         List[Tuple[str, str]]: List of (file_path, content) tuples
+
     """
     return [
         ("/var/run/secrets/kubernetes.io/serviceaccount/token", "eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9..."),
@@ -449,6 +467,7 @@ def setup_codemagic() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -470,6 +489,7 @@ def setup_github_codespaces() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CODESPACE_NAME": "username-project-abcdef",
@@ -488,6 +508,7 @@ def setup_google_cloud_build() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -508,6 +529,7 @@ def setup_alibaba_cloud() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -528,6 +550,7 @@ def setup_huawei_cloud() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -547,6 +570,7 @@ def setup_tencent_cloud() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -566,6 +590,7 @@ def setup_baidu_cloud() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -585,6 +610,7 @@ def setup_sourcegraph() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CI": "true",
@@ -602,6 +628,7 @@ def setup_gitpod() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "GITPOD_WORKSPACE_ID": "username-project-abcdef",
@@ -618,6 +645,7 @@ def setup_replit() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "REPL_ID": "12345678-1234-1234-1234-123456789012",
@@ -635,6 +663,7 @@ def setup_stackblitz() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "STACKBLITZ_ENV": "true",
@@ -651,6 +680,7 @@ def setup_glitch() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "GLITCH_EDITOR_URL": "https://glitch.com/edit/#!/project",
@@ -671,46 +701,46 @@ def get_ci_env_vars(ci_type: str) -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     ci_type = ci_type.lower()
     if ci_type == "github":
         return setup_github_actions()
-    elif ci_type == "jenkins":
+    if ci_type == "jenkins":
         return setup_jenkins()
-    elif ci_type == "gitlab":
+    if ci_type == "gitlab":
         return setup_gitlab_ci()
-    elif ci_type == "circle":
+    if ci_type == "circle":
         return setup_circleci()
-    elif ci_type == "travis":
+    if ci_type == "travis":
         return setup_travis()
-    elif ci_type == "azure":
+    if ci_type == "azure":
         return setup_azure_pipelines()
-    elif ci_type == "codemagic":
+    if ci_type == "codemagic":
         return setup_codemagic()
-    elif ci_type == "github-codespaces":
+    if ci_type == "github-codespaces":
         return setup_github_codespaces()
-    elif ci_type == "google-cloud-build":
+    if ci_type == "google-cloud-build":
         return setup_google_cloud_build()
-    elif ci_type == "alibaba-cloud":
+    if ci_type == "alibaba-cloud":
         return setup_alibaba_cloud()
-    elif ci_type == "huawei-cloud":
+    if ci_type == "huawei-cloud":
         return setup_huawei_cloud()
-    elif ci_type == "tencent-cloud":
+    if ci_type == "tencent-cloud":
         return setup_tencent_cloud()
-    elif ci_type == "baidu-cloud":
+    if ci_type == "baidu-cloud":
         return setup_baidu_cloud()
-    elif ci_type == "sourcegraph":
+    if ci_type == "sourcegraph":
         return setup_sourcegraph()
-    elif ci_type == "gitpod":
+    if ci_type == "gitpod":
         return setup_gitpod()
-    elif ci_type == "replit":
+    if ci_type == "replit":
         return setup_replit()
-    elif ci_type == "stackblitz":
+    if ci_type == "stackblitz":
         return setup_stackblitz()
-    elif ci_type == "glitch":
+    if ci_type == "glitch":
         return setup_glitch()
-    else:
-        return {"CI": "true"}
+    return {"CI": "true"}
 
 
 def setup_podman() -> Dict[str, str]:
@@ -719,6 +749,7 @@ def setup_podman() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "PODMAN_ENVIRONMENT": "true",
@@ -734,6 +765,7 @@ def setup_lxc() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "LXC_ENVIRONMENT": "true",
@@ -750,6 +782,7 @@ def setup_containerd() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CONTAINERD_ENVIRONMENT": "true",
@@ -765,6 +798,7 @@ def setup_crio() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CRIO_ENVIRONMENT": "true",
@@ -783,26 +817,26 @@ def get_container_env_vars(container_type: str) -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     container_type = container_type.lower()
     if container_type == "docker":
         return setup_docker()
-    elif container_type == "kubernetes":
+    if container_type == "kubernetes":
         return setup_kubernetes()
-    elif container_type == "docker-compose":
+    if container_type == "docker-compose":
         return setup_docker_compose()
-    elif container_type == "docker-swarm":
+    if container_type == "docker-swarm":
         return setup_docker_swarm()
-    elif container_type == "podman":
+    if container_type == "podman":
         return setup_podman()
-    elif container_type == "lxc":
+    if container_type == "lxc":
         return setup_lxc()
-    elif container_type == "containerd":
+    if container_type == "containerd":
         return setup_containerd()
-    elif container_type == "crio":
+    if container_type == "crio":
         return setup_crio()
-    else:
-        return {}
+    return {}
 
 
 def setup_oci() -> Dict[str, str]:
@@ -811,6 +845,7 @@ def setup_oci() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "OCI_RESOURCE_PRINCIPAL_VERSION": "2.2",
@@ -828,6 +863,7 @@ def setup_ibm_cloud() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "BLUEMIX_REGION": "us-south",
@@ -844,6 +880,7 @@ def setup_digitalocean() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "DIGITALOCEAN_ACCESS_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -860,6 +897,7 @@ def setup_linode() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "LINODE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -876,6 +914,7 @@ def setup_vultr() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "VULTR_API_KEY": "1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
@@ -892,6 +931,7 @@ def setup_cloudflare() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     return {
         "CLOUDFLARE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -912,34 +952,34 @@ def get_cloud_env_vars(cloud_type: str) -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Dictionary of environment variables
+
     """
     cloud_type = cloud_type.lower()
     if cloud_type == "aws":
         return setup_aws()
-    elif cloud_type == "aws-lambda":
+    if cloud_type == "aws-lambda":
         return setup_aws_lambda()
-    elif cloud_type == "azure":
+    if cloud_type == "azure":
         return setup_azure()
-    elif cloud_type == "azure-functions":
+    if cloud_type == "azure-functions":
         return setup_azure_functions()
-    elif cloud_type == "gcp":
+    if cloud_type == "gcp":
         return setup_gcp()
-    elif cloud_type == "gcp-cloud-functions":
+    if cloud_type == "gcp-cloud-functions":
         return setup_gcp_cloud_functions()
-    elif cloud_type == "oci":
+    if cloud_type == "oci":
         return setup_oci()
-    elif cloud_type == "ibm-cloud":
+    if cloud_type == "ibm-cloud":
         return setup_ibm_cloud()
-    elif cloud_type == "digitalocean":
+    if cloud_type == "digitalocean":
         return setup_digitalocean()
-    elif cloud_type == "linode":
+    if cloud_type == "linode":
         return setup_linode()
-    elif cloud_type == "vultr":
+    if cloud_type == "vultr":
         return setup_vultr()
-    elif cloud_type == "cloudflare":
+    if cloud_type == "cloudflare":
         return setup_cloudflare()
-    else:
-        return {}
+    return {}
 
 
 def main() -> int:
@@ -948,6 +988,7 @@ def main() -> int:
 
     Returns:
         int: Exit code
+
     """
     parser = argparse.ArgumentParser(description="CI Environment Simulation Script")
     parser.add_argument("--ci-type", help="CI platform to simulate")

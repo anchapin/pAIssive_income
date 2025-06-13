@@ -13,7 +13,7 @@ import unittest
 from pathlib import Path
 
 # Import the module to test
-import sarif_utils
+from scripts.utils import sarif_utils
 
 
 class TestSarifUtils(unittest.TestCase):
