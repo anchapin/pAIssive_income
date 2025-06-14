@@ -63,7 +63,6 @@ Replace-Workflow -originalFile $CODEQL_MACOS_WORKFLOW -fixedFile $CODEQL_MACOS_F
 Replace-Workflow -originalFile $CODEQL_UBUNTU_WORKFLOW -fixedFile $CODEQL_UBUNTU_FIXED_WORKFLOW -description "CodeQL Ubuntu"
 
 Log "Workflow file replacement completed"
-<<<<<<< HEAD
 
 # Ensure CodeQL workflow files are fixed
 Write-Host "Ensuring CodeQL workflow files are fixed..."
@@ -123,5 +122,3 @@ jobs:
 Set-Content -Path ".github/workflows/codeql.yml" -Value $codeqlWorkflowContent
 
 Write-Host "CodeQL workflow files have been fixed."
-=======
->>>>>>> origin/main
