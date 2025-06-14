@@ -25,7 +25,7 @@ def is_git_tracked(path) -> bool:
         # Use git ls-files to check if the file is tracked (not ignored)
         # --error-unmatch causes non-tracked files to raise an error
         git_exe = shutil.which("git") or "git"
-        subprocess.check_output(  # noqa: S603 - Using git with proper arguments
+        subprocess.check_output(
             [git_exe, "ls-files", "--error-unmatch", os.path.relpath(path)],
             stderr=subprocess.DEVNULL,
         )

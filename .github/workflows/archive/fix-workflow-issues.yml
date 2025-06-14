@@ -1,0 +1,112 @@
+name: Fix Workflow Issues
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: |
+          if ! which pnpm; then
+            echo "pnpm not found, installing globally with npm..."
+            npm install -g pnpm
+          fi
+          pnpm install --no-optional || npm install --no-optional
+
+      - name: Create required directories
+        run: |
+          mkdir -p tests/unit
+          mkdir -p tests/e2e
+          mkdir -p tests/mock-api
+          mkdir -p tests/__mocks__
+          mkdir -p ci-reports
+          mkdir -p ci-artifacts
+          mkdir -p ci-logs
+          mkdir -p ci-temp
+          mkdir -p ci-cache
+          mkdir -p test-results/github
+          mkdir -p logs
+          mkdir -p .pnpm-store
+          mkdir -p .pnpm-cache
+          mkdir -p node_modules
+
+      - name: Set up environment variables
+        run: |
+          echo "CI=true" >> $GITHUB_ENV
+          echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
+          echo "CI_TYPE=github" >> $GITHUB_ENV
+          echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
+          echo "CI_PLATFORM=github" >> $GITHUB_ENV
+          echo "CI_OS=$(uname -s)" >> $GITHUB_ENV
+          echo "CI_ARCH=$(uname -m)" >> $GITHUB_ENV
+          echo "CI_NODE_VERSION=$(node --version)" >> $GITHUB_ENV
+          echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
+          echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
+          echo "NODE_ENV=test" >> $GITHUB_ENV
+          echo "TESTING=true" >> $GITHUB_ENV
+          echo "PNPM_HOME=$HOME/.local/share/pnpm" >> $GITHUB_ENV
+          echo "PATH=$PNPM_HOME:$PATH" >> $GITHUB_ENV
+          echo "PNPM_STORE_DIR=$GITHUB_WORKSPACE/.pnpm-store" >> $GITHUB_ENV
+          echo "PNPM_CACHE_DIR=$GITHUB_WORKSPACE/.pnpm-cache" >> $GITHUB_ENV
+
+      - name: Create dummy test files
+        run: |
+          # Create dummy test files if they don't exist
+          touch tests/unit/dummy.test.js
+          touch tests/e2e/dummy.spec.js
+          touch tests/mock-api/dummy.test.js
+          touch tests/__mocks__/dummy.js
+
+      - name: Generate environment report
+        run: |
+          {
+            echo "=== Workflow Environment Report ==="
+            echo "Date: $(date)"
+            echo "OS: $(uname -a)"
+            echo "Node: $(node --version)"
+            echo "npm: $(npm --version)"
+            echo "pnpm: $(pnpm --version)"
+            echo "Runner OS: ${{ runner.os }}"
+            echo "Workspace: ${{ github.workspace }}"
+            echo "Event: ${{ github.event_name }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Ref: ${{ github.ref }}"
+            echo "SHA: ${{ github.sha }}"
+            echo "=========================="
+          } > ci-reports/workflow-environment-report.txt
+
+      - name: Display environment report
+        run: cat ci-reports/workflow-environment-report.txt
+
+      - name: Verify workflow setup
+        run: |
+          # Verify pnpm installation
+          pnpm --version
+          pnpm config get store-dir
+          pnpm config get cache-dir
+
+          # Verify test directories
+          ls -la tests/
+          ls -la ci-reports/
+          ls -la test-results/
+
+          # Verify environment variables
+          env | grep -E 'CI_|NODE_|PNPM_'

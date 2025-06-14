@@ -105,8 +105,8 @@ regexes = [
     "(TEST_PASSWORD|MOCK_PASSWORD|DUMMY_PASSWORD|SAMPLE_PASSWORD)[\"'][^\"']+[\"']",
     "(?i)password[\"'](test|mock|dummy|example|sample)[^\"']+[\"']",
     "(?i)(password|token|secret|key|credential)[\"']\\s*:\\s*[\"'](test|mock|dummy|example|sample)[^\"']*[\"']",
-    "(?i)(password|token|secret|key|credential)\\s*=\\s*[\"'](test|mock|dummy|example|sample)[^\"']*[\"']",
-
+            "(?i)(password|token|secret|key|credential)\\s*=\\s*[\"'](test|mock|dummy|example|sample)[^\"']*[\"']",
+            
     # Common hex patterns
     "0123456789ABCDEFabcdef",
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",

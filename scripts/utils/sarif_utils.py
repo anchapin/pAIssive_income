@@ -13,13 +13,94 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import (
+    Any,
+    Dict,
+    Final,
+    Literal,
+    NoReturn,
+    Optional,
+    TypedDict,
+    Union,
+    overload,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
+# Type aliases and constants
+SARIF_VERSION: Final[str] = "2.1.0"
+SARIF_SCHEMA_URL: Final[str] = (
+    "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+    "Schemata/sarif-schema-2.1.0.json"
+)
 
-def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
+# Command line argument constants
+MIN_ARGS: Final[int] = 4
+ARG_INPUT_FILE: Final[int] = 1
+ARG_OUTPUT_FILE: Final[int] = 2
+ARG_TOOL_NAME: Final[int] = 3
+ARG_TOOL_URL: Final[int] = 4
+
+
+class SarifRule(TypedDict):
+    """Type definition for a SARIF rule."""
+
+    id: str
+    shortDescription: dict[str, str]
+    fullDescription: dict[str, str]
+    help: dict[str, str]
+    defaultConfiguration: dict[str, Union[str, int, float, bool]]
+    properties: dict[str, Any]
+
+
+class SarifLocation(TypedDict):
+    """Type definition for a SARIF location."""
+
+    physicalLocation: dict[str, Any]
+    logicalLocations: list[dict[str, str]]
+
+
+class SarifResult(TypedDict):
+    """Type definition for a SARIF result."""
+
+    ruleId: str
+    level: Literal["none", "note", "warning", "error"]
+    message: dict[str, str]
+    locations: list[SarifLocation]
+    partialFingerprints: dict[str, str]
+
+
+class SarifToolDriver(TypedDict):
+    """Type definition for a SARIF tool driver."""
+
+    name: str
+    informationUri: str
+    rules: list[SarifRule]
+
+
+class SarifTool(TypedDict):
+    """Type definition for a SARIF tool."""
+
+    driver: SarifToolDriver
+
+
+class SarifRun(TypedDict):
+    """Type definition for a SARIF run."""
+
+    tool: SarifTool
+    results: list[SarifResult]
+
+
+class SarifFile(TypedDict):
+    """Type definition for a complete SARIF file."""
+
+    version: Literal["2.1.0"]
+    schema: str  # Note: This represents the $schema field
+    runs: list[SarifRun]
+
+
+def create_empty_sarif(tool_name: str, tool_url: str = "") -> SarifFile:
     """
     Create an empty SARIF file structure.
 
@@ -36,18 +117,15 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
 
     """
     if not isinstance(tool_name, str):
-        raise TypeError
+        msg = "tool_name must be a string"
+        raise TypeError(msg)
     if not tool_name or tool_name.isspace():
-        raise ValueError
+        msg = "tool_name cannot be empty or whitespace"
+        raise ValueError(msg)
 
-    # Return the SARIF structure directly - no need for try/except here
-    # as the structure is static and won't raise exceptions
     return {
-        "version": "2.1.0",
-        "$schema": (
-            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
-            "Schemata/sarif-schema-2.1.0.json"
-        ),
+        "version": SARIF_VERSION,
+        "$schema": SARIF_SCHEMA_URL,
         "runs": [
             {
                 "tool": {
@@ -63,7 +141,15 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
     }
 
 
-def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
+@overload
+def save_sarif_file(sarif_data: SarifFile, output_file: str) -> bool: ...
+
+
+@overload
+def save_sarif_file(sarif_data: SarifFile, output_file: Path) -> bool: ...
+
+
+def save_sarif_file(sarif_data: SarifFile, output_file: Union[str, Path]) -> bool:
     """
     Save SARIF data to a file.
 
@@ -81,9 +167,11 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
 
     """
     if not output_file:
-        raise ValueError
+        msg = "output_file cannot be empty"
+        raise ValueError(msg)
     if not isinstance(sarif_data, dict):
-        raise TypeError
+        msg = "sarif_data must be a dict"
+        raise TypeError(msg)
 
     try:
         # Create directory if it doesn't exist
@@ -108,16 +196,47 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
         return True
 
 
+# Type aliases for the mapping dictionary
+FieldMapping = Dict[
+    Literal[
+        "rule_id",
+        "message",
+        "file_path",
+        "line_number",
+        "level",
+        "rule_name",
+        "rule_description",
+    ],
+    str,
+]
+
+# Constants for severity levels
+SeverityLevel = Literal["none", "note", "warning", "error"]
+DEFAULT_LEVEL: Final[SeverityLevel] = "warning"
+DEFAULT_LINE_NUMBER: Final[int] = 1
+
+# Default field mapping
+DEFAULT_FIELD_MAPPING: Final[FieldMapping] = {
+    "rule_id": "id",
+    "message": "message",
+    "file_path": "file",
+    "line_number": "line",
+    "level": "severity",
+    "rule_name": "name",
+    "rule_description": "description",
+}
+
+
 def add_result(
-    sarif_data: dict[str, Any],
+    sarif_data: SarifFile,
     rule_id: str,
     message: str,
     file_path: str,
     line_number: int,
-    level: str = "warning",
+    level: SeverityLevel = DEFAULT_LEVEL,
     rule_name: str = "",
     rule_description: str = "",
-) -> dict[str, Any]:
+) -> SarifFile:
     """
     Add a result to a SARIF data structure.
 
@@ -127,7 +246,7 @@ def add_result(
         message: Description of the issue
         file_path: Path to the file where the issue was found
         line_number: Line number where the issue was found
-        level: Severity level (note, warning, error)
+        level: Severity level (none, note, warning, error)
         rule_name: Short name of the rule
         rule_description: Longer description of the rule
 
@@ -140,18 +259,21 @@ def add_result(
     rule_exists = any(r.get("id") == rule_id for r in rules)
 
     if not rule_exists:
-        rule = {"id": rule_id, "shortDescription": {"text": rule_name or rule_id}}
-
-        if rule_description:
-            rule["fullDescription"] = {"text": rule_description}
-
-        if level:
-            rule["defaultConfiguration"] = {"level": level}
+        rule: SarifRule = {
+            "id": rule_id,
+            "shortDescription": {"text": rule_name or rule_id},
+            "fullDescription": {"text": rule_description}
+            if rule_description
+            else {"text": ""},
+            "help": {"text": ""},
+            "defaultConfiguration": {"level": level},
+            "properties": {},
+        }
 
         rules.append(rule)
 
     # Add result
-    result = {
+    result: SarifResult = {
         "ruleId": rule_id,
         "level": level,
         "message": {"text": message},
@@ -163,6 +285,7 @@ def add_result(
                 }
             }
         ],
+        "partialFingerprints": {},
     }
 
     sarif_data["runs"][0]["results"].append(result)
@@ -170,11 +293,11 @@ def add_result(
 
 
 def convert_json_to_sarif(
-    json_data: dict[str, object] | list[dict[str, object]] | None,
+    json_data: Union[dict[str, Any], list[dict[str, Any]], None],
     tool_name: str,
     tool_url: str = "",
-    result_mapping: Optional[dict[str, str]] = None,
-) -> dict[str, object]:
+    result_mapping: Optional[FieldMapping] = None,
+) -> SarifFile:
     """
     Convert generic JSON data to SARIF format.
 
@@ -187,20 +310,15 @@ def convert_json_to_sarif(
     Returns:
         Dict containing SARIF data
 
+    Raises:
+        TypeError: If json_data is not a dict or list
+        ValueError: If required fields are missing or invalid
+
     """
     sarif_data = create_empty_sarif(tool_name, tool_url)
 
-    # Default mapping if none provided
-    if result_mapping is None:
-        result_mapping = {
-            "rule_id": "id",
-            "message": "message",
-            "file_path": "file",
-            "line_number": "line",
-            "level": "severity",
-            "rule_name": "name",
-            "rule_description": "description",
-        }
+    # Use default mapping if none provided
+    mapping = result_mapping if result_mapping is not None else DEFAULT_FIELD_MAPPING
 
     # Ensure we have a list of results to process
     if isinstance(json_data, dict):
@@ -208,39 +326,42 @@ def convert_json_to_sarif(
     elif isinstance(json_data, list):
         results = json_data  # Assume the list itself contains results
     else:
-        # Define a more specific error message
-        error_msg = "Unsupported JSON data type. Expected dict or list."
-        raise TypeError(error_msg)
+        msg = "Unsupported JSON data type. Expected dict or list."
+        raise TypeError(msg)
 
     if isinstance(results, list):
         for result in results:
             # Extract fields using mapping
-            rule_id = str(result.get(result_mapping.get("rule_id", "id"), "unknown"))
-            message = str(result.get(result_mapping.get("message", "message"), ""))
-            file_path = str(result.get(result_mapping.get("file_path", "file"), ""))
+            rule_id = str(result.get(mapping.get("rule_id", "id"), "unknown"))
+            message = str(result.get(mapping.get("message", "message"), ""))
+            file_path = str(result.get(mapping.get("file_path", "file"), ""))
 
             # Handle line number which might be an int or string
-            line_raw = result.get(result_mapping.get("line_number", "line"), 1)
-            line_number = int(line_raw) if line_raw else 1
+            line_raw = result.get(
+                mapping.get("line_number", "line"), DEFAULT_LINE_NUMBER
+            )
+            line_number = int(line_raw) if line_raw else DEFAULT_LINE_NUMBER
 
-            level = str(
-                result.get(result_mapping.get("level", "severity"), "warning")
+            # Convert severity to SARIF level
+            raw_level = str(
+                result.get(mapping.get("level", "severity"), DEFAULT_LEVEL)
             ).lower()
-            rule_name = str(result.get(result_mapping.get("rule_name", "name"), ""))
-            rule_description = str(
-                result.get(result_mapping.get("rule_description", "description"), "")
+            level: SeverityLevel = (
+                "error"
+                if raw_level in ("error", "high", "critical")
+                else "warning"
+                if raw_level in ("warning", "medium")
+                else "note"
+                if raw_level in ("note", "low", "info")
+                else "none"
             )
 
-            # Map severity levels if needed
-            if level not in ["note", "warning", "error"]:
-                if level.upper() in ["HIGH", "CRITICAL"]:
-                    level = "error"
-                elif level.upper() in ["MEDIUM"]:
-                    level = "warning"
-                else:
-                    level = "note"
+            rule_name = str(result.get(mapping.get("rule_name", "name"), ""))
+            rule_description = str(
+                result.get(mapping.get("rule_description", "description"), "")
+            )
 
-            # Add to SARIF
+            # Add the result to SARIF data
             add_result(
                 sarif_data,
                 rule_id,
@@ -255,12 +376,32 @@ def convert_json_to_sarif(
     return sarif_data
 
 
+@overload
 def convert_file(
     input_file: str,
     output_file: str,
     tool_name: str,
     tool_url: str = "",
-    result_mapping: Optional[dict[str, str]] = None,
+    result_mapping: Optional[FieldMapping] = None,
+) -> bool: ...
+
+
+@overload
+def convert_file(
+    input_file: Path,
+    output_file: Union[str, Path],
+    tool_name: str,
+    tool_url: str = "",
+    result_mapping: Optional[FieldMapping] = None,
+) -> bool: ...
+
+
+def convert_file(
+    input_file: Union[str, Path],
+    output_file: Union[str, Path],
+    tool_name: str,
+    tool_url: str = "",
+    result_mapping: Optional[FieldMapping] = None,
 ) -> bool:
     """
     Convert a JSON file to SARIF format.
@@ -275,6 +416,11 @@ def convert_file(
     Returns:
         bool: True if successful, False otherwise
 
+    Raises:
+        OSError: On filesystem-related errors
+        TypeError: If arguments have invalid types
+        ValueError: If paths are invalid
+
     """
     try:
         # Check if input file exists and has content
@@ -282,13 +428,15 @@ def convert_file(
         if not input_path.exists() or input_path.stat().st_size == 0:
             logger.warning("Input file [%s] is empty or does not exist", input_file)
             logger.info("Creating an empty SARIF file at %s", output_file)
-            empty_sarif = create_empty_sarif(tool_name, tool_url)
+            empty_sarif: SarifFile = create_empty_sarif(tool_name, tool_url)
             return save_sarif_file(empty_sarif, output_file)
 
         # Input file exists and has content, try to parse it
         try:
             with input_path.open() as f:
-                json_data = json.load(f)
+                json_data: Union[dict[str, Any], list[dict[str, Any]], None] = (
+                    json.load(f)
+                )
         except json.JSONDecodeError:
             logger.exception("Error parsing JSON from %s", input_file)
             logger.info("Creating an empty SARIF file at %s", output_file)
@@ -296,12 +444,13 @@ def convert_file(
             return save_sarif_file(empty_sarif, output_file)
 
         # Convert to SARIF
-        sarif_data = convert_json_to_sarif(
+        sarif_data: SarifFile = convert_json_to_sarif(
             json_data, tool_name, tool_url, result_mapping
         )
 
         # Save SARIF file
         return save_sarif_file(sarif_data, output_file)
+
     except Exception:
         logger.exception("Error converting file")
         # Ensure we always create a valid SARIF file even on error
@@ -318,34 +467,32 @@ def convert_file(
             return True  # Return success since we created a valid SARIF file
 
 
-if __name__ == "__main__":
-    # Simple command-line interface
-    MIN_ARGS = 4  # input_file, output_file, tool_name are required
+def main() -> NoReturn:
+    """
+    Command line interface for SARIF conversion.
+
+    Usage:
+        python sarif_utils.py input.json output.sarif "Tool Name" [tool_url]
+
+    Raises:
+        SystemExit: Always exits with status code
+
+    """
     if len(sys.argv) < MIN_ARGS:
-        logger.error(
-            "Usage: python sarif_utils.py <input_file> <output_file> <tool_name> "
-            "[tool_url]"
+        print(
+            "Usage: python sarif_utils.py input.json output.sarif"
+            ' "Tool Name" [tool_url]'
         )
         sys.exit(1)
 
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
-    tool_name = sys.argv[3]
-    tool_url = sys.argv[4] if len(sys.argv) > MIN_ARGS else ""
+    input_file: str = sys.argv[ARG_INPUT_FILE]
+    output_file: str = sys.argv[ARG_OUTPUT_FILE]
+    tool_name: str = sys.argv[ARG_TOOL_NAME]
+    tool_url: str = sys.argv[ARG_TOOL_URL] if len(sys.argv) > MIN_ARGS else ""
 
-    # Check if input_file is a JSON string (starts with '[' or '{')
-    if input_file.strip().startswith(("[", "{")):
-        logger.info("Detected JSON string input, creating SARIF directly")
-        try:
-            json_data = json.loads(input_file)
-            sarif_data = convert_json_to_sarif(json_data, tool_name, tool_url)
-            success = save_sarif_file(sarif_data, output_file)
-        except json.JSONDecodeError:
-            logger.exception("Error parsing JSON string")
-            empty_sarif = create_empty_sarif(tool_name, tool_url)
-            success = save_sarif_file(empty_sarif, output_file)
-    else:
-        # Process as file path
-        success = convert_file(input_file, output_file, tool_name, tool_url)
-
+    success: bool = convert_file(input_file, output_file, tool_name, tool_url)
     sys.exit(0 if success else 1)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,1 @@
+"""ADK demo tests package."""

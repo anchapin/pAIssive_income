@@ -3,7 +3,8 @@ Check documentation updates in pull requests and commits.
 
 This script is designed to be used as part of a GitHub Actions workflow.
 It ensures that whenever code or non-documentation files are changed in a pull request or push,
-at least one documentation file is also updated. If not, the script exits with a nonzero status,
+at least one documentation file is also updated. If not,
+the script exits with a nonzero status,
 causing the workflow to fail.
 
 Documentation files are defined as:

@@ -1,8 +1,11 @@
 """config.py - Configuration for Flask app and SQLAlchemy."""
 
+from __future__ import annotations
+
 import os
 from datetime import timedelta
 from pathlib import Path
+from typing import ClassVar
 
 
 class Config:
@@ -12,11 +15,48 @@ class Config:
     APP_DIR = Path(__file__).parent.resolve()
     LOG_DIR = APP_DIR / "logs"
 
-    # Database settings
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb"
+    # Server settings
+    # In container environments, bind to all interfaces (0.0.0.0)
+    # In non-container environments, bind only to localhost (127.0.0.1)
+    # This can be overridden by setting the FLASK_HOST environment variable    # Only bind to all interfaces if explicitly configured and in container mode
+    HOST = os.environ.get(
+        "FLASK_HOST",
+        "127.0.0.1",  # Default to localhost for security
     )
+    PORT = int(os.environ.get("FLASK_PORT", "5000"))
+    DEBUG = (
+        os.environ.get("FLASK_ENV", "production") == "development"
+        and os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    )
+
+    # Disable reloader in container or production environments
+    USE_RELOADER = DEBUG and (
+        os.environ.get("FLASK_ENV") == "development"
+        and not bool(os.environ.get("CONTAINER"))
+    )
+
+    # Force disable debug mode in container environments
+    if os.environ.get("CONTAINER") == "true":
+        DEBUG = False
+        USE_RELOADER = False
+
+    # Database settings    # Get the database URI based on environment
+    if os.environ.get("FLASK_ENV") == "development":
+        SQLALCHEMY_DATABASE_URI = os.environ.get(
+            "DATABASE_URL",
+            "sqlite:///:memory:",  # Safe default for development
+        )
+    else:
+        SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+        if SQLALCHEMY_DATABASE_URI is None:
+            db_env_error = "DATABASE_URL environment variable must be set in production"
+            raise ValueError(db_env_error)
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS: ClassVar[dict[str, object]] = {
+        "pool_pre_ping": True,  # Enable connection health checks
+        "pool_recycle": 300,  # Recycle connections every 5 minutes
+    }
 
     # Logging settings
     LOG_FILE = LOG_DIR / "flask.log"

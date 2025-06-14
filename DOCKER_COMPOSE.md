@@ -42,13 +42,17 @@ Key environment variables:
 ### Docker Compose Bake Integration (Build Acceleration)
 
 Docker Compose now supports delegating builds to [Docker Bake](https://docs.docker.com/build/bake/) for better performance and advanced build features.
-To enable this, set the environment variable `COMPOSE_BAKE=true` before running Compose commands:
+To enable this,
+set the environment variable `COMPOSE_BAKE=true` before running Compose commands:
 
 ```bash
 export COMPOSE_BAKE=true
 ```
 
-With `COMPOSE_BAKE=true`, Compose will use Docker Bake to orchestrate parallel builds, which can significantly speed up image creation, especially on multi-core systems.
+With `COMPOSE_BAKE=true`,
+Compose will use Docker Bake to orchestrate parallel builds,
+which can significantly speed up image creation,
+especially on multi-core systems.
 
 You can always unset this variable to revert to standard Compose build behavior.
 
@@ -158,7 +162,8 @@ The Docker Compose setup uses the following volumes:
 
 ## Networks
 
-All services are connected to the `paissive-network` bridge network, allowing them to communicate with each other using service names as hostnames.
+All services are connected to the `paissive-network` bridge network,
+allowing them to communicate with each other using service names as hostnames.
 
 ## GitHub Actions Integration
 
@@ -178,7 +183,9 @@ The workflow:
 1. **Services not starting**: Check the logs with `docker compose logs`
 2. **Database connection issues**: Ensure the database is healthy with `docker compose ps db`
 3. **Frontend not connecting to API**: Check the `REACT_APP_API_URL` environment variable
-4. **Build issues with Bake**: If you encounter problems when `COMPOSE_BAKE=true` (e.g., unfamiliar errors or build failures), try unsetting the variable and running Compose normally:
+4. **Build issues with Bake**: If you encounter problems when `COMPOSE_BAKE=true` (e.g.,
+unfamiliar errors or build failures),
+try unsetting the variable and running Compose normally:
    ```bash
    unset COMPOSE_BAKE
    docker compose up -d --build

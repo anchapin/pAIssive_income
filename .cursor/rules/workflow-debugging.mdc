@@ -1,0 +1,247 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Workflow Debugging and Troubleshooting
+
+This rule provides systematic approaches to debug and fix GitHub Actions workflow failures.
+
+## **Common Failure Categories**
+
+### **1. YAML Syntax Errors**
+- **Symptoms**: Workflow doesn't start, parsing errors in logs
+- **Causes**: Indentation issues, missing quotes, malformed structures
+- **Solutions**: Use YAML validators, check indentation, verify quotes
+
+### **2. PowerShell Environment Variable Errors**
+- **Symptoms**: `$env: GITHUB_ENV` or `$env: GITHUB_OUTPUT` errors
+- **Causes**: Extra space after `env:`
+- **Solutions**: Remove spaces, use `$env:GITHUB_ENV` format
+
+### **3. Multiline String Formatting**
+- **Symptoms**: Unexpected tokens, string parsing errors
+- **Causes**: Improper multiline string handling
+- **Solutions**: Use `|` for literal blocks, proper escaping
+
+## **Debugging Workflow**
+
+### **Step 1: Identify Error Type**
+
+```bash
+# Check workflow syntax locally
+yamllint .github/workflows/your-workflow.yml
+
+# Validate YAML structure
+python -c "import yaml; yaml.safe_load(open('.github/workflows/your-workflow.yml'))"
+```
+
+### **Step 2: Common Fix Patterns**
+
+```yaml
+# ✅ FIX: PowerShell environment variables
+- name: Set environment variable
+  shell: pwsh
+  run: |
+    echo "MY_VAR=value" >> $env:GITHUB_ENV
+    echo "output_name=result" >> $env:GITHUB_OUTPUT
+
+# ✅ FIX: Multiline scripts
+- name: Run complex script
+  run: |
+    echo "Starting process..."
+    if [ -f "file.txt" ]; then
+      echo "File exists"
+    fi
+
+# ✅ FIX: JSON output handling
+- name: Create JSON file
+  run: |
+    echo '{"results": [], "errors": []}' > results.json
+    cat results.json
+```
+
+### **Step 3: Validation Commands**
+
+```bash
+# Validate specific workflow file
+gh workflow list
+gh workflow view workflow-name
+
+# Check workflow runs
+gh run list --workflow=workflow-name
+gh run view run-id
+```
+
+## **Error Pattern Recognition**
+
+### **YAML Parser Errors**
+```
+Error: "Unexpected token" or "mapping values are not allowed"
+```
+**Fix**: Check indentation and key-value pair formatting
+
+### **PowerShell Syntax Errors**
+```
+Error: "Cannot find path" or "env: GITHUB_ENV"
+```
+**Fix**: Remove space after `env:` → use `$env:GITHUB_ENV`
+
+### **String Escaping Errors**
+```
+Error: "Unexpected flow-map-end token" or quote-related errors
+```
+**Fix**: Properly escape quotes and use multiline blocks
+
+## **Debugging Tools and Techniques**
+
+### **Local Validation**
+```bash
+# Install yamllint
+pip install yamllint
+
+# Validate workflow files
+yamllint .github/workflows/
+
+# Check specific file
+yamllint .github/workflows/ci.yml
+```
+
+### **Online Validators**
+- **YAML Lint**: http://www.yamllint.com/
+- **GitHub Actions Validator**: Various online tools
+- **JSON Validator**: For JSON strings within YAML
+
+### **GitHub CLI Debugging**
+```bash
+# List workflows
+gh workflow list
+
+# View workflow details
+gh workflow view workflow-name
+
+# Check recent runs
+gh run list --limit 10
+
+# View specific run
+gh run view run-id --log
+```
+
+## **Systematic Troubleshooting Process**
+
+### **1. Syntax Validation**
+```bash
+# Check YAML syntax
+yamllint .github/workflows/failing-workflow.yml
+
+# Validate with Python
+python -c "
+import yaml
+with open('.github/workflows/failing-workflow.yml') as f:
+    try:
+        yaml.safe_load(f)
+        print('YAML is valid')
+    except yaml.YAMLError as e:
+        print(f'YAML Error: {e}')
+"
+```
+
+### **2. Environment Variable Fixes**
+```powershell
+# Search for problematic patterns
+grep -r "\$env: " .github/workflows/
+
+# Fix PowerShell environment variables
+sed -i 's/\$env: /\$env:/g' .github/workflows/*.yml
+```
+
+### **3. Multiline String Fixes**
+```bash
+# Find potential multiline issues
+grep -n "run: '" .github/workflows/*.yml
+grep -n 'run: "' .github/workflows/*.yml
+```
+
+## **Prevention Strategies**
+
+### **Pre-commit Validation**
+```yaml
+# .github/workflows/validate.yml
+name: Validate Workflows
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate YAML
+        run: |
+          pip install yamllint
+          yamllint .github/workflows/
+```
+
+### **Template Usage**
+```yaml
+# Use this template for new workflows
+name: Template Workflow
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  template:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup
+        run: |
+          echo "Setting up environment..."
+          echo "SETUP_COMPLETE=true" >> $GITHUB_ENV
+```
+
+## **Emergency Fixes**
+
+### **Quick Syntax Fixes**
+```bash
+# Fix common PowerShell issues
+find .github/workflows -name "*.yml" -exec sed -i 's/\$env: /\$env:/g' {} \;
+
+# Fix indentation (convert tabs to spaces)
+find .github/workflows -name "*.yml" -exec sed -i 's/\t/  /g' {} \;
+```
+
+### **Rollback Strategy**
+```bash
+# Revert to last working commit
+git log --oneline .github/workflows/
+git checkout HEAD~1 -- .github/workflows/problematic-workflow.yml
+```
+
+## **Monitoring and Alerts**
+
+### **Workflow Health Checks**
+- Monitor workflow success rates
+- Set up notifications for failures
+- Regular review of workflow logs
+- Automated syntax validation
+
+### **Documentation Updates**
+- Keep workflow documentation current
+- Document known issues and fixes
+- Maintain troubleshooting runbooks
+
+## **File References**
+
+- Main workflow: [consolidated-ci-cd.yml](mdc:.github/workflows/consolidated-ci-cd.yml)
+- Validation tools: [validate_workflows.py](mdc:validate_workflows.py)
+- Fix scripts: [fix_workflow_issues.py](mdc:fix_workflow_issues.py)
+
+## **Contact and Resources**
+
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [YAML Specification](https://yaml.org/spec/)
+- [PowerShell Documentation](https://docs.microsoft.com/en-us/powershell/)

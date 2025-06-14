@@ -15,11 +15,10 @@ os.environ["PYTHONNOUSERSITE"] = "1"
 os.environ["SKIP_VENV_CHECK"] = "1"
 
 
-def main():
+def main() -> None:
     """Create empty SARIF files."""
     # Create security-reports directory if it doesn't exist
     os.makedirs("security-reports", exist_ok=True)
-    print("Created security-reports directory")
 
     # Create empty SARIF template
     empty_sarif = {
@@ -46,9 +45,7 @@ def main():
             json.dump(empty_sarif, f, indent=2)
         with open("security-reports/bandit-results-ini.sarif", "w") as f:
             json.dump(empty_sarif, f, indent=2)
-        print("Created empty SARIF files")
-    except Exception as e:
-        print(f"Error creating SARIF files: {e}")
+    except Exception:
         sys.exit(1)
 
 
@@ -56,6 +53,5 @@ if __name__ == "__main__":
     # Set CI environment variable if running in GitHub Actions
     if os.environ.get("GITHUB_ACTIONS"):
         os.environ["CI"] = "1"
-        print("GitHub Actions environment detected")
 
     main()

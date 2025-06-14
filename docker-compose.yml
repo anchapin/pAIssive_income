@@ -100,7 +100,13 @@ services:
       timeout: 3s    # Reduced from 5s for faster feedback in CI
       retries: 15    # Reduced from 20 for faster feedback in CI
       start_period: 15s  # Reduced from 30s for faster feedback in CI
-    command: ["postgres", "-c", "log_statement=all", "-c", "log_connections=on", "-c", "max_connections=200"]
+    command: ["postgres",
+    "-c",
+    "log_statement=all",
+    "-c",
+    "log_connections=on",
+    "-c",
+    "max_connections=200"]
     deploy:
       resources:
         limits:
