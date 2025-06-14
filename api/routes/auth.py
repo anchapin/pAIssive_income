@@ -192,7 +192,7 @@ def reset_password():
             logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (invalid/expired token) from {safe_ip} token_prefix={safe_token_prefix}...")
             return jsonify({"message": "Invalid or expired reset link."}), 400
 
-        email = prt.email
+        email = str(prt.email)
         safe_email = sanitize_log_data(email)
 
         if email not in USERS:

@@ -27,7 +27,7 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 # Import CrewAI components
 try:
@@ -63,7 +63,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     - Team execution
     """
 
-    def __init__(self, llm_provider: object = None, user_id: str = None) -> None:
+    def __init__(self, llm_provider: object = None, user_id: Optional[str] = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
 
@@ -75,7 +75,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         super().__init__(llm_provider)
 
         # Initialize mem0 memory if available
-        if MEM0_AVAILABLE:
+        if MEM0_AVAILABLE and Memory is not None:
             self.memory = Memory()
             logger.info("mem0 memory initialized")
         else:
@@ -193,7 +193,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         return result
 
-    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Dict[str, str] = None) -> None:
+    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Optional[Dict[str, str]] = None) -> None:
         """
         Store a memory using mem0.
 
@@ -215,7 +215,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         except Exception as e:
             logger.error(f"Error storing memory: {e}")
 
-    def _retrieve_relevant_memories(self, query: str = None, limit: int = 5) -> List[Dict[str, Any]]:
+    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> List[Dict[str, Any]]:
         """
         Retrieve relevant memories for the current context.
 

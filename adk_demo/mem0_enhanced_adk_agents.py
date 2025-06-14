@@ -399,7 +399,7 @@ if __name__ == "__main__":
 
         # Create a gather message
         gather_message = Message(
-            message_type="gather", payload={"query": "AI memory systems"}, sender="user"
+            type="gather", payload={"query": "AI memory systems"}, sender="user"
         )
 
         # Process the message
@@ -412,7 +412,7 @@ if __name__ == "__main__":
             # Forward to summarizer
             logger.info("Forwarding data to summarizer agent")
             summarize_message = Message(
-                message_type="summarize",
+                type="summarize",
                 payload={
                     "data": response.payload.get("data", ""),
                     "original_sender": "DataGatherer",
