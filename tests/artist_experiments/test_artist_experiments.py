@@ -4,6 +4,8 @@ Tests for ARTIST experiments.
 This module contains tests for the ARTIST experiments.
 """
 
+from __future__ import annotations
+
 import json
 from unittest.mock import MagicMock, patch
 

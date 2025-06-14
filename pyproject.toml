@@ -207,67 +207,32 @@ docstring-code-line-length = 88
 line-ending = "auto"
 preview = true
 
-[tool.mypy]
-python_version = "3.10"
+[tool.pyright]
+pythonVersion = "3.10"
 exclude = ["ui/react_frontend", "scripts/__init__.py", ".github/scripts/__init__.py", ".github/scripts"]
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
-check_untyped_defs = true
-disallow_untyped_decorators = false
-no_implicit_optional = false
-ignore_missing_imports = true
-warn_return_any = false
-warn_unused_configs = true
-warn_redundant_casts = true
-warn_unused_ignores = false
-warn_no_return = false
-warn_unreachable = false
-show_error_codes = true
-cache_dir = ".mypy_cache"
-incremental = true
-follow_imports = "skip"
-follow_imports_for_stubs = true
-namespace_packages = true
-explicit_package_bases = true
-mypy_path = "mypy_stubs"
-files = ["!scripts/__init__.py", "!.github/scripts/__init__.py"]
+reportMissingImports = false
+reportMissingTypeStubs = false
+reportUnusedImport = false
+reportUnusedVariable = false
+reportGeneralTypeIssues = false
+reportOptionalMemberAccess = false
+reportOptionalSubscript = false
+reportPrivateImportUsage = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnknownParameterType = false
+reportMissingParameterType = false
+reportMissingTypeArgument = false
+reportUntypedFunctionDecorator = false
+reportUntypedClassDecorator = false
+reportUntypedBaseClass = false
+reportUntypedNamedTuple = false
+reportPrivateUsage = false
+reportConstantRedefinition = false
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
+reportOverlappingOverload = false
+typeCheckingMode = "basic"
 
-[[tool.mypy.overrides]]
-module = "mypy.plugins.*"
-ignore_missing_imports = true
 
-[[tool.mypy.overrides]]
-module = "run_ui"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "migrations.env"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "users.password_reset"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "api.utils.auth"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "test_sarif_utils"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "run_mcp_tests"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "install_mcp_sdk"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "scripts.manage_quality"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "tests.api.*"
-ignore_errors = true

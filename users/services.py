@@ -56,6 +56,27 @@ class DBSessionProtocol(Protocol):
         """Commit the current transaction."""
 
 
+# Define protocol for User Repository
+class UserRepositoryProtocol(Protocol):
+    """Protocol defining the interface for user repository objects."""
+
+    def find_by_id(self, user_id: str) -> dict[str, Any] | None:
+        """Find a user by ID."""
+
+    def find_by_username(self, username: str) -> dict[str, Any] | None:
+        """Find a user by username."""
+
+    def find_by_email(self, email: str) -> dict[str, Any] | None:
+        """Find a user by email."""
+
+    def find_api_key(self, api_key: str) -> dict[str, Any] | None:
+        """Find an API key."""
+
+    def update(self, user_id: int, data: dict[str, Any]) -> bool:  # noqa: ARG002
+        """Update a user."""
+        return False  # Placeholder implementation
+
+
 # Initialize logger
 logger = get_logger(__name__)
 

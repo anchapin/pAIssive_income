@@ -48,6 +48,8 @@ jobs:
     name: Analyze JavaScript/TypeScript
     runs-on: macos-latest
     timeout-minutes: 90  # Increased timeout for larger codebases
+    env:
+      TOOL_API_KEY: "ci-test-api-key-for-github-actions"
 
     steps:
       - name: Checkout repository

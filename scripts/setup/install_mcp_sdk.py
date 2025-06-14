@@ -75,8 +75,10 @@ def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str
 
     try:
         # Use absolute path for the executable when possible
-        if command and shutil.which(command[0]):
-            command[0] = shutil.which(command[0])
+        if command:
+            absolute_path = shutil.which(command[0])
+            if absolute_path:
+                command[0] = absolute_path
 
         # Convert any Path objects in command to str
         command = [str(c) if isinstance(c, Path) else c for c in command]

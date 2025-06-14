@@ -80,13 +80,10 @@ async def get_current_user(
         raise credentials_exception
 
     # Get the user ID from the token
-    user_id_raw = payload.get("sub")
-    if not user_id_raw:
-        logger.warning("Token missing subject claim")
+    user_id = payload.get("sub")
+    if not user_id or not isinstance(user_id, str):
+        logger.warning("Token missing or invalid subject claim")
         raise credentials_exception
-
-    # Ensure user_id is a string
-    user_id = str(user_id_raw)
 
     # Get the user from the repository
     if not user_service.user_repository:

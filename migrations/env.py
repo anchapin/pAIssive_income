@@ -100,7 +100,7 @@ def run_migrations_online() -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            process_revision_directives=process_revision_directives,
+            process_revision_directives=process_revision_directives,  # type: ignore[arg-type]
         )
 
         with context.begin_transaction():

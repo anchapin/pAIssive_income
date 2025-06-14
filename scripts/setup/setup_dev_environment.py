@@ -95,8 +95,10 @@ def run_command(
 
     try:
         # Use absolute path for the executable when possible
-        if cmd and shutil.which(cmd[0]):
-            cmd[0] = shutil.which(cmd[0])
+        if cmd:
+            executable_path = shutil.which(cmd[0])
+            if executable_path:
+                cmd[0] = executable_path
 
         # Convert any Path objects in cmd to str
         cmd = [str(c) if isinstance(c, Path) else c for c in cmd]

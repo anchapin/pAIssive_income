@@ -6,14 +6,14 @@ from unittest.mock import patch
 
 import pytest
 
-try:
-    from api.app import create_app
+from fastapi.testclient import TestClient
 
-    app = create_app()
-    client = app.test_client()
+try:
+    from api.app import app  # type: ignore[import-untyped]
 except ImportError:
     app = None
-    client = None
+
+client = TestClient(app) if app else None
 
 
 @pytest.mark.skipif(app is None, reason="Main FastAPI app not found for testing")

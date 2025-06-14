@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Optional
+from typing import Any, Optional
 
 try:
     from mem0 import Memory
@@ -22,8 +22,9 @@ except ImportError:
     sys.exit(1)
 
 
-def print_json(data: object) -> None:
+def print_json(data: Any) -> None:
     """Print data as formatted JSON."""
+
 
 
 def test_basic_memory_operations() -> None:
@@ -104,6 +105,7 @@ def test_memory_deletion(user_id: str) -> None:
     print_json(delete_result)
 
 
+
 def main() -> None:
     """Run all tests."""
     # Check if OpenAI API key is set
@@ -115,6 +117,7 @@ def main() -> None:
     memory_id = test_basic_memory_operations()
     test_memory_updates(memory_id)
     test_memory_deletion(user_id)
+
 
 
 if __name__ == "__main__":

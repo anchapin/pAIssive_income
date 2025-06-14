@@ -27,7 +27,23 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Dict, List, Optional, Union
+
+# Import CrewAI components
+try:
+    from crewai import Agent, Crew, Task
+    CREWAI_AVAILABLE = True
+except ImportError:
+    CREWAI_AVAILABLE = False
+    # Use placeholder classes from crewai_agents.py
+
+# Import mem0 components
+try:
+    from mem0 import Memory
+    MEM0_AVAILABLE = True
+except ImportError:
+    MEM0_AVAILABLE = False
+    Memory = None  # type: ignore
 
 # Import base CrewAI agent team
 from agent_team.crewai_agents import AgentProtocol, CrewAIAgentTeam, TaskProtocol
@@ -63,13 +79,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     - Team execution
     """
 
-    agents: list[AgentProtocol]  # Explicitly declare for type checkers
-    tasks: list[TaskProtocol]
-    user_id: str
-
-    def __init__(
-        self, llm_provider: object = None, user_id: Optional[str] = None
-    ) -> None:
+    def __init__(self, llm_provider: object = None, user_id: Optional[str] = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
 
@@ -81,7 +91,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         super().__init__(llm_provider)
 
         # Initialize mem0 memory if available
-        if mem0_available and Memory is not None:
+        if MEM0_AVAILABLE and Memory is not None:
             self.memory = Memory()
             logger.info("mem0 memory initialized")
         else:
@@ -212,11 +222,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         else:
             return result
 
-    def _store_memory(
-        self,
-        content: Union[str, list[dict[str, str]]],
-        metadata: Optional[dict[str, str]] = None,
-    ) -> None:
+    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Optional[Dict[str, str]] = None) -> None:
         """
         Store a memory using mem0.
 
@@ -238,9 +244,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         except Exception:
             logger.exception("Error storing memory")
 
-    def _retrieve_relevant_memories(
-        self, query: Optional[str] = None, limit: int = 5
-    ) -> list[dict[str, Any]]:
+    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> List[Dict[str, Any]]:
         """
         Retrieve relevant memories and RAG results for the current context.
 

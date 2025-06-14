@@ -8,7 +8,7 @@ exclude = [
     ".git",
     ".git-rewrite",
     ".hg",
-    ".mypy_cache",
+    ".pyright_cache",
     ".nox",
     ".pants.d",
     ".pytype",
@@ -86,8 +86,8 @@ max-complexity = 10
 "scripts/fix/fix_all_issues_final.py" = ["S603", "G004", "PTH", "TRY300", "PERF401", "PERF203", "INP001"]
 # Ignore subprocess security warnings in manage.py
 "manage.py" = ["S603", "C901", "PLR0912", "PLR0915"]
-# Ignore type annotation issues in mypy stubs
-"mypy_stubs/**/*.pyi" = ["ANN401", "PYI001", "PYI018", "PYI021", "D204"]
+# Ignore type annotation issues in type stubs
+"type_stubs/**/*.pyi" = ["ANN401", "PYI001", "PYI018", "PYI021", "D204"]
 # Allow Any in logging functions where it's appropriate for *args/**kwargs
 "common_utils/logging/secure_logging.py" = ["ANN401"]
 # Allow binding to all interfaces in development/container contexts

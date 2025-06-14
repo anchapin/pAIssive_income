@@ -19,6 +19,26 @@ from typing import Optional, Protocol
 # Import standard CrewAI components
 from crewai import Agent, Crew, Task
 
+
+class TeamProtocol(Protocol):
+    """Protocol for team objects that can run workflows."""
+
+    def run(self) -> object:
+        """Run the team workflow."""
+        pass
+
+
+# Import memory-enhanced agent team
+try:
+    from agent_team.mem0_enhanced_agents import (
+        MEM0_AVAILABLE,
+        MemoryEnhancedCrewAIAgentTeam,
+    )
+
+    CREWAI_AVAILABLE = True
+except ImportError:
+    MEM0_AVAILABLE = False
+    CREWAI_AVAILABLE = False
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -26,34 +46,14 @@ logger = logging.getLogger(__name__)
 
 # Example: Assemble into a Crew (team)
 
-mem0_available = False
-crewai_available = False
-memory_enhanced_team_cls = None
-try:
-    from agent_team.mem0_enhanced_agents import (
-        MEM0_AVAILABLE,
-        MemoryEnhancedCrewAIAgentTeam,
-    )
-
-    mem0_available = MEM0_AVAILABLE
-    memory_enhanced_team_cls = MemoryEnhancedCrewAIAgentTeam
-    crewai_available = True
-except ImportError:
-    pass
-
-
-# Protocol for objects with a run() method
-class HasRunMethod(Protocol):
-    """Protocol for objects with a run() method."""
-
-    def run(self) -> object:
-        """Run the main logic for the implementing class."""
-        ...
+mem0_available = MEM0_AVAILABLE
+crewai_available = CREWAI_AVAILABLE
+memory_enhanced_team_cls = MemoryEnhancedCrewAIAgentTeam if CREWAI_AVAILABLE else None
 
 
 def create_team(
     use_memory: bool = False, user_id: Optional[str] = None
-) -> HasRunMethod:
+) -> TeamProtocol:
     """
     Create and return a CrewAI team, optionally using memory enhancement.
 
@@ -139,10 +139,12 @@ def create_team(
         agent=data_gatherer,
     )
     task_analyze = Task(
-        description="Analyze gathered data for trends and anomalies.", agent=analyzer
+        description="Analyze gathered data for trends and anomalies.",
+        agent=analyzer,
     )
     task_report = Task(
-        description="Write a summary report based on analysis.", agent=writer
+        description="Write a summary report based on analysis.",
+        agent=writer
     )
 
     reporting_team = Crew(
@@ -170,7 +172,7 @@ if __name__ == "__main__":
     use_memory = os.environ.get("USE_MEMORY", "1") == "1"
     user_id = os.environ.get("USER_ID", "example_user")
 
-    team: HasRunMethod = create_team(use_memory=use_memory, user_id=user_id)
+    team: TeamProtocol = create_team(use_memory=use_memory, user_id=user_id)
 
     # Example: Run the workflow (for demonstration; adapt as needed)
     try:

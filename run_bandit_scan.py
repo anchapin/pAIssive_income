@@ -108,11 +108,11 @@ def create_empty_json_files() -> bool:
         with Path("security-reports/bandit-results-ini.sarif").open("w") as f:
             json.dump(empty_sarif, f, indent=2)
         logger.info("Created empty bandit-results-ini.sarif")
-    except Exception:
-        logger.exception("Failed to create empty files")
-        return False
-    else:
+
         return True
+    except Exception as e:
+        logger.exception("Failed to create empty files: %s", e)
+        return False
 
 
 def find_bandit_executable() -> str:

@@ -19,11 +19,10 @@ def test_mem0_import() -> bool | None:
         import mem0  # nosec B404  # Safe: test-only import, not user-supplied
 
         logger.info("Successfully imported mem0 version %s", mem0.__version__)
-    except ImportError:
-        logger.exception("Failed to import mem0")
-        return False
-    else:
         return True
+    except ImportError as e:
+        logger.error("Failed to import mem0: %s", e)
+        return False
 
 
 def test_mem0_dependencies() -> bool:
@@ -54,6 +53,8 @@ def test_mem0_basic_functionality() -> bool | None:
     try:
         import mem0  # nosec B404  # Safe: test-only import, not user-supplied
 
+        # Create a memory instance (without actually connecting to any services)
+        # Using the correct API based on documentation, and ensuring instance creation works
         mem0.Memory()  # nosec B106  # Safe: test-only instantiation
         logger.info("Successfully created Memory instance")
     except Exception:

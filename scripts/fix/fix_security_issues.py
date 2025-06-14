@@ -45,7 +45,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 # Import the existing security tools if possible
 imported_secret_scanner = False
 try:
-    from fix_potential_secrets import scan_directory
+    from fix_potential_secrets import scan_directory  # type: ignore[import-untyped]
 
     imported_secret_scanner = True
 except ImportError:
