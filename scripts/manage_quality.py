@@ -133,7 +133,8 @@ def create_process_kwargs() -> dict[str, Any]:
     if not is_windows():
         try:
             # On Unix-like systems, create new process group if supported
-            kwargs["preexec_fn"] = os.setsid
+            if hasattr(os, "setsid"):
+                kwargs["preexec_fn"] = os.setsid
         except AttributeError:
             logger.warning("os.setsid not available, process group management disabled")
 
@@ -175,7 +176,12 @@ async def run_command_async(
                 process.terminate()
             else:
                 try:
-                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                    if hasattr(os, "killpg") and hasattr(os, "getpgid"):
+                        killpg = os.killpg
+                        getpgid = os.getpgid
+                        killpg(getpgid(process.pid), signal.SIGTERM)
+                    else:
+                        process.terminate()
                 except (AttributeError, ProcessLookupError):
                     logger.warning("Failed to kill process group")
                     process.terminate()
@@ -200,35 +206,15 @@ async def run_checks(files: set[Path]) -> list[CheckResult]:
     python_executable = sys.executable
 
     # Special handling for problematic files
-    mypy_args = [
+    pyright_args = [
         python_executable,
         "-m",
-        "mypy",
-        "--install-types",
-        "--non-interactive",
-        "--namespace-packages",
-        "--explicit-package-bases",
-        "--exclude",
-        "scripts/__init__.py",
-        "--exclude",
-        ".github/scripts/__init__.py",
+        "pyright",
     ]
-
-    # Add special flags for problematic files
-    problematic_files = {"flask/__init__.py", "flask/models.py", "migrations/env.py"}
-
-    if any(str(f).endswith(pf) for f in files for pf in problematic_files):
-        mypy_args.extend(
-            [
-                "--disable-error-code=attr-defined",
-                "--disable-error-code=name-defined",
-                "--disable-error-code=unused-ignore",
-            ]
-        )
 
     checks = [
         ("ruff", [python_executable, "-m", "ruff", "check", "--fix"]),
-        ("mypy", mypy_args),
+        ("pyright", pyright_args),
     ]
 
     tasks = [run_command_async(name, cmd, files) for name, cmd in checks]

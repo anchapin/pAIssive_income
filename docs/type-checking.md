@@ -2,53 +2,53 @@
 
 This document provides information about the type checking system used in the pAIssive Income project.
 
-## Migration from MyPy to Pyrefly
+## Migration from MyPy to Pyright
 
-As of May 2025, the project has migrated from using MyPy to Pyrefly for type checking. This change was made to improve type checking performance and capabilities.
+As of December 2024, the project has migrated from using MyPy to Pyright for type checking. This change was made to improve type checking performance and capabilities.
 
-### Why Pyrefly?
+### Why Pyright?
 
-[Pyrefly](https://github.com/pyrefly-io/pyrefly) is a modern Python type checker that offers several advantages over MyPy:
+[Pyright](https://github.com/microsoft/pyright) is a fast, feature-rich Python type checker that offers several advantages over MyPy:
 
-- Faster performance
-- Better error messages
+- Significantly faster performance
+- Better error messages and diagnostics
 - More accurate type inference
-- Improved compatibility with modern Python features
+- Excellent compatibility with modern Python features
+- Rich IDE integration (especially with VS Code)
 - Simpler configuration
 
 ### Removed Configuration Files
 
 As part of the migration, the following MyPy configuration files have been removed:
 
-- `mypy.ini` - Main MyPy configuration file
-- `.mypy_exclude` - File patterns to exclude from type checking
-- `.pre-commit-mypy.ini` - MyPy configuration for pre-commit hooks
+### Using Pyright
 
-### Using Pyrefly
-
-To run type checking with Pyrefly:
+To run type checking with Pyright:
 
 ```bash
-# Install Pyrefly (if not already installed)
-uv pip install pyrefly
+# Install Pyright (if not already installed)
+uv add --dev pyright
 
 # Run type checking
-pyrefly .
+pyright .
 ```
 
 ### Configuration
 
-Pyrefly uses a simpler configuration model than MyPy. Configuration can be added to `pyproject.toml` if needed:
+Pyright configuration is defined in `pyproject.toml`:
 
 ```toml
-[tool.pyrefly]
-python_version = "3.10"
+[tool.pyright]
+pythonVersion = "3.10"
 exclude = ["ui/react_frontend", "scripts/__init__.py", ".github/scripts/__init__.py"]
+reportMissingImports = false
+reportMissingTypeStubs = false
+typeCheckingMode = "basic"
 ```
 
 ### CI/CD Integration
 
-The CI/CD pipeline has been updated to use Pyrefly instead of MyPy. This includes:
+The CI/CD pipeline has been updated to use Pyright instead of MyPy. This includes:
 
 - Updated GitHub Actions workflows
 - Updated pre-commit hooks

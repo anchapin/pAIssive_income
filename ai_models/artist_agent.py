@@ -18,7 +18,7 @@ class ArtistAgent:
     def __init__(self) -> None:
         """Initialize the agent with available tools."""
         # Discover available tools at initialization
-        self.tools: dict[str, Callable[..., Any]] = tooling.list_tools()
+        self.tools: dict[str, dict[str, Any]] = tooling.list_tools()
 
     def decide_tool(self, prompt: str) -> str:
         """
@@ -84,7 +84,8 @@ class ArtistAgent:
         """
         tool_name = self.decide_tool(prompt)
         if tool_name and tool_name in self.tools:
-            tool_func = self.tools[tool_name]
+            tool_entry = self.tools[tool_name]
+            tool_func = tool_entry["func"]
             relevant_expression = self.extract_relevant_expression(prompt, tool_name)
             result = tool_func(relevant_expression)
             return str(result)  # Ensure we return a string

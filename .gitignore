@@ -53,6 +53,7 @@
 *.sarif
 !security-reports/*.sarif
 *.sarif.json
+*.tmp
 # Explicit ignore for security/test artifacts
 bandit-output.json
 bandit-results.json
@@ -70,6 +71,7 @@ security-reports/bandit-results-*.sarif
 coverage-*.xml
 junit/test-results-*.xml
 *-results-*.json
+*-results.json
 *-results-*.xml
 secrets.sarif.json
 create_bandit_files.sh

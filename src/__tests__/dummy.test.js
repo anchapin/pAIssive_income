@@ -2,7 +2,7 @@
  * Dummy test file to ensure the test suite passes
  */
 
-const assert = require('assert');
+import assert from 'assert';
 
 // Simple test that always passes
 describe('Dummy Test', () => {
