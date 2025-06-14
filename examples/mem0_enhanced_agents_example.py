@@ -30,24 +30,32 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def check_dependencies() -> None:
-    """Check and install required dependencies for the example."""
+def check_dependencies() -> bool:
+    """
+    Check if required dependencies are installed.
+
+    Returns:
+        bool: True if all dependencies are available, False otherwise
+
+    """
     try:
         from crewai import Agent, Crew  # noqa: F401
     except ImportError:
-        logger.exception("CrewAI is not installed. Install with: pip install crewai")
-        return
+        logger.error("CrewAI is not installed. Install with: uv pip install crewai")
+        return False
 
     if not MEM0_AVAILABLE:
-        logger.error("mem0 is not installed. Install with: pip install mem0ai")
-        return
+        logger.error("mem0 is not installed. Install with: uv pip install mem0ai")
+        return False
 
     # Check for OpenAI API key (required by mem0)
     if "OPENAI_API_KEY" not in os.environ:
         logger.warning("OPENAI_API_KEY environment variable not set.")
         logger.warning("mem0 requires an OpenAI API key to function properly.")
         logger.warning("Set it with: export OPENAI_API_KEY='your-api-key'")
-        return
+        return False
+
+    return True
 
 
 def create_research_team(user_id: str) -> MemoryEnhancedCrewAIAgentTeam:
@@ -89,11 +97,11 @@ def create_research_team(user_id: str) -> MemoryEnhancedCrewAIAgentTeam:
         agent=researcher,
     )
 
-    team.add_task(
+    development_task = team.add_task(
         description="Design an AI tool based on the market research", agent=developer
     )
 
-    team.add_task(
+    monetization_task = team.add_task(
         description="Create a monetization strategy for the AI tool", agent=monetization
     )
 
@@ -102,7 +110,9 @@ def create_research_team(user_id: str) -> MemoryEnhancedCrewAIAgentTeam:
 
 def run_example() -> None:
     """Run the example workflow with memory-enhanced agents."""
-    check_dependencies()
+    # Check dependencies
+    if not check_dependencies():
+        return
 
     # Create a unique user ID (in a real application, this would be the actual user ID)
     user_id = "example_user_123"
@@ -116,11 +126,11 @@ def run_example() -> None:
     try:
         result = team.run()
         logger.info("Workflow completed successfully")
-        logger.info("Result: %s", result)
-    except Exception:
-        logger.exception("Error running workflow")
+        logger.info(f"Result: {result}")
+    except Exception as e:
+        logger.error(f"Error running workflow: {e}")
 
-    # Demonstrate memory retrieval (old, direct use)
+    # Demonstrate memory retrieval
     if team.memory is not None:
         logger.info("Retrieving memories from the workflow")
         try:
@@ -130,7 +140,7 @@ def run_example() -> None:
                 limit=5,
             )
 
-            logger.info("Retrieved %d memories (direct):", len(memories))
+            logger.info(f"Retrieved {len(memories)} memories:")
             for i, memory in enumerate(memories):
                 logger.info(
                     "Memory %d: %s...", i + 1, memory.get("text", "No text")[:100]

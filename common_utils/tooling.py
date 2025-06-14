@@ -5,73 +5,84 @@ This module allows registration and retrieval of callable tools (functions, APIs
 for use by agent wrappers.
 """
 
+# ruff: noqa: C901, N802
+
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
-# Global tool registry
-_TOOL_REGISTRY: dict[str, Callable[..., Any]] = {}
+# Tool registry: maps tool name to dict with 'func', optional 'keywords', optional 'input_preprocessor'
+_TOOL_REGISTRY: dict[str, dict[str, Any]] = {}
 
 
-def register_tool(name: str, func: Callable[..., Any]) -> None:
+def register_tool(
+    name: str,
+    func: Callable[..., Any],
+    *,
+    keywords: Optional[list[str]] = None,
+    input_preprocessor: Optional[Callable[[str], Any]] = None,
+) -> None:
     """
-    Register a callable tool with a name.
+    Register a callable tool with a name and optional metadata.
 
     Args:
         name (str): Name of the tool.
         func (Callable): Function implementing the tool.
+        keywords (list[str], optional): Keywords for heuristic selection.
+        input_preprocessor (Callable, optional): Function to extract/prepare input for this tool from a task description.
 
     """
-    _TOOL_REGISTRY[name] = func
+    _TOOL_REGISTRY[name] = {
+        "func": func,
+        "keywords": keywords or [],
+        "input_preprocessor": input_preprocessor,
+    }
 
 
 def get_tool(name: str) -> Callable[..., Any]:
-    """
-    Retrieve a registered tool by name.
-
-    Args:
-        name (str): Name of the tool.
-
-    Returns:
-        Callable: The tool function.
-
-    """
-    return _TOOL_REGISTRY[name]
+    """Retrieve a registered tool's main callable by name."""
+    return _TOOL_REGISTRY[name]["func"]
 
 
-def list_tools() -> dict[str, Callable[..., Any]]:
-    """
-    List all registered tools.
-
-    Returns:
-        dict[str, Callable]: Mapping of tool names to functions.
-
-    """
+def list_tools() -> dict[str, dict[str, Any]]:
+    """List all registered tools and their metadata."""
     return dict(_TOOL_REGISTRY)
 
 
-# Example tool: simple calculator
-# Constants for calculator limits
-MAX_EXPONENT_VALUE = 100  # Maximum allowed value for exponentiation
-
-
-def calculator(expression: str) -> object:  # noqa: C901
+# Example input preprocessor for calculator
+def calculator_input_preprocessor(description: str) -> str:
     """
-    Evaluate a mathematical expression safely.
+    Extract a math expression from the task description for the calculator tool.
+
+    For demo: use a simple regex, as before.
+    """
+    import re
+
+    match = re.search(r"([0-9\+\-\*\/\.\s\%\(\)]+)", description)
+    if match:
+        return match.group(1)
+    return description
+
+
+# Example tool: simple calculator (unchanged)
+MAX_EXPONENT_VALUE = 100
+
+
+def calculator(expression: str) -> object:
+    """
+    Evaluate a mathematical expression safely and return the result.
 
     Args:
-        expression (str): A string math expression (e.g., "2 + 2 * 3").
+        expression: A string containing a mathematical expression to evaluate
 
     Returns:
-        The result of the expression.
+        The result of the calculation or an error message
 
     """
-    # Use a safer approach with a custom parser
     import ast
     import operator
     import re
 
-    # Define allowed operators and their functions
     operators = {
         "+": operator.add,
         "-": operator.sub,
@@ -82,11 +93,9 @@ def calculator(expression: str) -> object:  # noqa: C901
     }
 
     try:
-        # Validate input - only allow numbers, operators, and whitespace
         if not re.match(r"^[\d\s\+\-\*\/\(\)\.\%]+$", expression):
             return "Error: Invalid characters in expression"
 
-        # Disallow potentially dangerous patterns
         if "**" in expression and any(
             n > MAX_EXPONENT_VALUE
             for n in [float(x) for x in re.findall(r"\d+", expression) if x.isdigit()]
@@ -94,25 +103,14 @@ def calculator(expression: str) -> object:  # noqa: C901
             return (
                 f"Error: Exponentiation with values > {MAX_EXPONENT_VALUE} not allowed"
             )
-
-        # Try to use ast.literal_eval for simple expressions
         try:
             return ast.literal_eval(expression)
         except (ValueError, SyntaxError):
-            # For expressions with operators, implement a safer alternative to eval
-            # Parse the expression and evaluate it using the operators dictionary
-            import ast
 
-            # Create a custom evaluator that uses our restricted operators
-            # Note: Method names must match AST node types exactly for NodeVisitor to work
-            # We need to disable N802 (function name should be lowercase) for these methods
             class SafeExpressionEvaluator(ast.NodeVisitor):
-                # Method names must match AST node types exactly
-                def visit_BinOp(self, node: ast.BinOp) -> object:  # noqa: N802
-                    """Process binary operations."""
+                def visit_BinOp(self, node: ast.BinOp) -> object:
                     left = self.visit(node.left)
                     right = self.visit(node.right)
-
                     if isinstance(node.op, ast.Add):
                         return operators["+"](left, right)
                     if isinstance(node.op, ast.Sub):
@@ -128,9 +126,7 @@ def calculator(expression: str) -> object:  # noqa: C901
                     error_msg = f"Unsupported operator: {type(node.op).__name__}"
                     raise ValueError(error_msg)
 
-                # Method names must match AST node types exactly
-                def visit_UnaryOp(self, node: ast.UnaryOp) -> object:  # noqa: N802
-                    """Process unary operations."""
+                def visit_UnaryOp(self, node: ast.UnaryOp) -> object:
                     operand = self.visit(node.operand)
                     if isinstance(node.op, ast.USub):
                         return -operand
@@ -139,22 +135,16 @@ def calculator(expression: str) -> object:  # noqa: C901
                     error_msg = f"Unsupported unary operator: {type(node.op).__name__}"
                     raise ValueError(error_msg)
 
-                # Method names must match AST node types exactly
-                def visit_Num(self, node: ast.Num) -> object:  # noqa: N802
-                    """Process numeric nodes."""
+                def visit_Num(self, node: ast.Num) -> object:
                     return node.n
 
-                # Method names must match AST node types exactly
-                def visit_Constant(self, node: ast.Constant) -> object:  # noqa: N802
-                    """Process constant nodes."""
+                def visit_Constant(self, node: ast.Constant) -> object:
                     return node.value
 
                 def generic_visit(self, node: ast.AST) -> None:
-                    """Handle unsupported node types."""
                     error_msg = f"Unsupported node type: {type(node).__name__}"
                     raise ValueError(error_msg)
 
-            # Parse and evaluate the expression
             parsed_expr = ast.parse(expression, mode="eval")
             evaluator = SafeExpressionEvaluator()
             return evaluator.visit(parsed_expr.body)
@@ -162,8 +152,25 @@ def calculator(expression: str) -> object:  # noqa: C901
         return f"Error: {e}"
 
 
-# Register the example calculator tool
-register_tool("calculator", calculator)
+# Register the calculator tool with keywords and input preprocessor
+register_tool(
+    "calculator",
+    calculator,
+    keywords=[
+        "calculate",
+        "math",
+        "add",
+        "subtract",
+        "multiply",
+        "divide",
+        "+",
+        "-",
+        "*",
+        "/",
+        "%",
+    ],
+    input_preprocessor=calculator_input_preprocessor,
+)
 
 
 def text_analyzer(text: str) -> str:
@@ -177,32 +184,32 @@ def text_analyzer(text: str) -> str:
         str: Analysis results including sentiment and basic metrics.
 
     """
-    try:
-        # Basic sentiment analysis using simple keyword matching
-        positive_words = [
-            "good",
-            "great",
-            "excellent",
-            "fantastic",
-            "amazing",
-            "wonderful",
-            "love",
-            "like",
-            "happy",
-            "positive",
-        ]
-        negative_words = [
-            "bad",
-            "terrible",
-            "awful",
-            "hate",
-            "dislike",
-            "sad",
-            "negative",
-            "horrible",
-            "worst",
-        ]
+    # Basic sentiment analysis using simple keyword matching
+    positive_words = [
+        "good",
+        "great",
+        "excellent",
+        "fantastic",
+        "amazing",
+        "wonderful",
+        "love",
+        "like",
+        "happy",
+        "positive",
+    ]
+    negative_words = [
+        "bad",
+        "terrible",
+        "awful",
+        "hate",
+        "dislike",
+        "sad",
+        "negative",
+        "horrible",
+        "worst",
+    ]
 
+    try:
         text_lower = text.lower()
         positive_count = sum(1 for word in positive_words if word in text_lower)
         negative_count = sum(1 for word in negative_words if word in text_lower)

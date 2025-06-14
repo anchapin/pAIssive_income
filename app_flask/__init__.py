@@ -11,9 +11,17 @@ from typing import Any
 
 # Third-party imports
 from flask import Flask
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
-# Import database extensions
-from .database import db, migrate
+# Local imports
+from config import Config
+
+from .mcp_servers import mcp_servers_api
+
+# Initialize extensions
+db = SQLAlchemy()
+migrate = Migrate()
 
 # Define FlaskApp as an alias for the actual Flask class
 FlaskApp = Flask

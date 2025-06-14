@@ -64,7 +64,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.11.1' # Specify a patch version
 
       - name: Add pnpm to PATH
         shell: bash
@@ -326,7 +326,11 @@ jobs:
         shell: bash
         run: |
           echo "Verifying environment before CodeQL analysis..."
-          if [ ! -d "sarif-results" ]; then echo "Creating sarif-results directory..."; mkdir -p sarif-results; fi
+
+          if [ ! -d "sarif-results" ]; then
+            echo "Creating sarif-results directory..."
+            mkdir -p sarif-results
+          fi
           # JavaScript/TypeScript specific checks
           if [ ! -f "package-lock.json" ]; then
             echo "WARNING: package-lock.json still not found! Creating it as a last resort..."

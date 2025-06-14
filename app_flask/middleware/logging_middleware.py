@@ -8,13 +8,13 @@ import uuid
 from logging import ERROR, INFO, Logger, getLogger
 from typing import TYPE_CHECKING, Any, Union, cast
 
-from flask.globals import current_app, g, request
-
-from app_flask.utils.logging_utils import sanitize_log_data, structured_log
-
 if TYPE_CHECKING:
     from flask import Flask, Response
     from werkzeug.wrappers import Response as WerkzeugResponse
+
+from flask.globals import current_app, g, request
+
+from app_flask.utils.logging_utils import sanitize_log_data, structured_log
 
 logger = getLogger(__name__)
 

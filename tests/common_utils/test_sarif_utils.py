@@ -13,12 +13,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+# Import the module to test
 from scripts.utils import sarif_utils
-
-# Add the project root to the Python path for importing scripts package
-_PROJECT_ROOT = Path(__file__).parent.parent.parent
-if str(_PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT))
 
 
 class TestSarifUtils(unittest.TestCase):

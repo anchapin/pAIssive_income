@@ -2,7 +2,7 @@
 """test_models - Test module for database models."""
 
 import pytest
-from flask import Flask
+from flask.app import Flask  # Import actual Flask class
 from flask.testing import FlaskClient
 
 from app_flask import db

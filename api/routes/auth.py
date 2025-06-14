@@ -24,7 +24,6 @@ ALLOWED_CHARS_PATTERN = re.compile(r"[^a-zA-Z0-9\s\._@:/=-]")
 
 # Create a proper logger for this module
 logger = logging.getLogger(__name__)
-
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 # Flask-Limiter instance (for demo; in prod, usually set up in main app)
@@ -276,3 +275,8 @@ def reset_password() -> tuple[object, int]:
         return jsonify({"message": "An error occurred. Please try again later."}), 500
     finally:
         session.close()
+
+
+# To enable: import and register this blueprint with your Flask app, e.g.:
+# from api.routes.auth import auth_bp
+# app.register_blueprint(auth_bp)

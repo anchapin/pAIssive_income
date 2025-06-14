@@ -6,6 +6,7 @@ This script analyzes GitHub Actions workflows to identify potential issues
 and provide troubleshooting recommendations.
 """
 
+<<<<<<< HEAD
 from __future__ import annotations
 
 import sys
@@ -18,6 +19,14 @@ import yaml
 MAX_CONCURRENT_TRIGGERS = 5
 MAX_ISSUES_TO_DISPLAY = 5
 
+=======
+import glob
+import os
+from typing import Any, Dict, List
+
+import yaml
+
+>>>>>>> origin/main
 
 class WorkflowAnalyzer:
     """Analyze GitHub Actions workflows for issues and recommendations."""
@@ -80,8 +89,13 @@ class WorkflowAnalyzer:
         }
 
         try:
+<<<<<<< HEAD
             content = Path(file_path).read_text(encoding="utf-8")
             content = yaml.safe_load(content)
+=======
+            with open(file_path, encoding="utf-8") as f:
+                content = yaml.safe_load(f)
+>>>>>>> origin/main
 
             if content is None:
                 result["issues"].append("Empty or invalid YAML content")
@@ -190,7 +204,11 @@ class WorkflowAnalyzer:
 
         for file_path in workflow_files:
             try:
+<<<<<<< HEAD
                 with Path(file_path).open(encoding="utf-8") as f:
+=======
+                with open(file_path, encoding="utf-8") as f:
+>>>>>>> origin/main
                     content = yaml.safe_load(f)
 
                 if content and "name" in content:
@@ -198,7 +216,11 @@ class WorkflowAnalyzer:
 
                 if content and "on" in content:
                     triggers = content["on"]
+<<<<<<< HEAD
                     if isinstance(triggers, (dict, list)):
+=======
+                    if isinstance(triggers, dict) or isinstance(triggers, list):
+>>>>>>> origin/main
                         for trigger in triggers:
                             if trigger in trigger_analysis:
                                 trigger_analysis[trigger].append(file_path)
@@ -314,7 +336,12 @@ def main() -> int:
     Path("ci-reports").mkdir(exist_ok=True)
     report_file = Path("ci-reports/workflow-analysis-report.md")
 
+<<<<<<< HEAD
     report_file.write_text(report, encoding="utf-8")
+=======
+    with open(report_file, "w", encoding="utf-8") as f:
+        f.write(report)
+>>>>>>> origin/main
 
     print(f"📊 Analysis complete! Report saved to: {report_file}")
 
@@ -331,19 +358,31 @@ def main() -> int:
 
     if results["issues"]:
         print("\n🚨 CRITICAL ISSUES FOUND:")
+<<<<<<< HEAD
         for issue in results["issues"][:MAX_ISSUES_TO_DISPLAY]:  # Show first 5
             print(f"  ❌ {issue}")
         if len(results["issues"]) > MAX_ISSUES_TO_DISPLAY:
             print(f"  ... and {len(results['issues']) - MAX_ISSUES_TO_DISPLAY} more")
+=======
+        for issue in results["issues"][:5]:  # Show first 5
+            print(f"  ❌ {issue}")
+        if len(results["issues"]) > 5:
+            print(f"  ... and {len(results['issues']) - 5} more")
+>>>>>>> origin/main
 
     if results["invalid_files"] == 0 and len(results["issues"]) == 0:
         print("\n✅ All workflow files are valid!")
         return 0
+<<<<<<< HEAD
     print(
         f"\n❌ Found {results['invalid_files']} invalid files and {len(results['issues'])} issues"
     )
     return 1
 
+=======
+    print(f"\n❌ Found {results['invalid_files']} invalid files and {len(results['issues'])} issues")
+    return 1
+>>>>>>> origin/main
 
 if __name__ == "__main__":
     sys.exit(main())

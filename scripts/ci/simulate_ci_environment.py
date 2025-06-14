@@ -89,7 +89,11 @@ def setup_github_actions() -> dict[str, str]:
     Set up GitHub Actions environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -121,7 +125,11 @@ def setup_jenkins() -> dict[str, str]:
     Set up Jenkins environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -146,7 +154,11 @@ def setup_gitlab_ci() -> dict[str, str]:
     Set up GitLab CI environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -180,7 +192,11 @@ def setup_circleci() -> dict[str, str]:
     Set up CircleCI environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -205,7 +221,11 @@ def setup_travis() -> dict[str, str]:
     Set up Travis CI environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -231,7 +251,11 @@ def setup_azure_pipelines() -> dict[str, str]:
     Set up Azure Pipelines environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -262,7 +286,11 @@ def setup_docker() -> dict[str, str]:
     Set up Docker environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -278,7 +306,11 @@ def setup_kubernetes() -> dict[str, str]:
     Set up Kubernetes environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -297,7 +329,11 @@ def setup_docker_compose() -> dict[str, str]:
     Set up Docker Compose environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -313,7 +349,11 @@ def setup_docker_swarm() -> dict[str, str]:
     Set up Docker Swarm environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -328,7 +368,11 @@ def setup_aws() -> dict[str, str]:
     Set up AWS environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -343,7 +387,11 @@ def setup_aws_lambda() -> dict[str, str]:
     Set up AWS Lambda environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     aws_vars = setup_aws()
@@ -368,7 +416,11 @@ def setup_azure() -> dict[str, str]:
     Set up Azure environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -384,7 +436,11 @@ def setup_azure_functions() -> dict[str, str]:
     Set up Azure Functions environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     azure_vars = setup_azure()
@@ -407,7 +463,11 @@ def setup_gcp() -> dict[str, str]:
     Set up GCP environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -424,7 +484,11 @@ def setup_gcp_cloud_functions() -> dict[str, str]:
     Set up GCP Cloud Functions environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     gcp_vars = setup_gcp()
@@ -445,7 +509,11 @@ def create_docker_files() -> list[tuple[str, str]]:
     Create Docker-related files.
 
     Returns:
+<<<<<<< HEAD
         list[tuple[str, str]]: List of (file_path, content) tuples
+=======
+        List[Tuple[str, str]]: List of (file_path, content) tuples
+>>>>>>> origin/main
 
     """
     return [
@@ -459,7 +527,11 @@ def create_kubernetes_files() -> list[tuple[str, str]]:
     Create Kubernetes-related files.
 
     Returns:
+<<<<<<< HEAD
         list[tuple[str, str]]: List of (file_path, content) tuples
+=======
+        List[Tuple[str, str]]: List of (file_path, content) tuples
+>>>>>>> origin/main
 
     """
     return [
@@ -480,7 +552,11 @@ def setup_codemagic() -> dict[str, str]:
     Set up Codemagic environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -502,7 +578,11 @@ def setup_github_codespaces() -> dict[str, str]:
     Set up GitHub Codespaces environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -521,7 +601,11 @@ def setup_google_cloud_build() -> dict[str, str]:
     Set up Google Cloud Build environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -542,7 +626,11 @@ def setup_alibaba_cloud() -> dict[str, str]:
     Set up Alibaba Cloud DevOps environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -563,7 +651,11 @@ def setup_huawei_cloud() -> dict[str, str]:
     Set up Huawei Cloud DevCloud environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -583,7 +675,11 @@ def setup_tencent_cloud() -> dict[str, str]:
     Set up Tencent Cloud CODING environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -603,7 +699,11 @@ def setup_baidu_cloud() -> dict[str, str]:
     Set up Baidu Cloud CICD environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -623,7 +723,11 @@ def setup_sourcegraph() -> dict[str, str]:
     Set up Sourcegraph environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -641,7 +745,11 @@ def setup_gitpod() -> dict[str, str]:
     Set up Gitpod environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -658,7 +766,11 @@ def setup_replit() -> dict[str, str]:
     Set up Replit environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -676,7 +788,11 @@ def setup_stackblitz() -> dict[str, str]:
     Set up Stackblitz environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -693,7 +809,11 @@ def setup_glitch() -> dict[str, str]:
     Set up Glitch environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -714,7 +834,11 @@ def get_ci_env_vars(ci_type: str) -> dict[str, str]:  # noqa: C901, PLR0912, PLR
         ci_type: CI platform type
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     ci_type = ci_type.lower()
@@ -762,7 +886,11 @@ def setup_podman() -> dict[str, str]:
     Set up Podman environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -778,7 +906,11 @@ def setup_lxc() -> dict[str, str]:
     Set up LXC/LXD environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -795,7 +927,11 @@ def setup_containerd() -> dict[str, str]:
     Set up Containerd environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -811,7 +947,11 @@ def setup_crio() -> dict[str, str]:
     Set up CRI-O environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -830,7 +970,11 @@ def get_container_env_vars(container_type: str) -> dict[str, str]:  # noqa: PLR0
         container_type: Container environment type
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     container_type = container_type.lower()
@@ -858,7 +1002,11 @@ def setup_oci() -> dict[str, str]:
     Set up Oracle Cloud Infrastructure (OCI) environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -876,7 +1024,11 @@ def setup_ibm_cloud() -> dict[str, str]:
     Set up IBM Cloud environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -893,7 +1045,11 @@ def setup_digitalocean() -> dict[str, str]:
     Set up DigitalOcean environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -910,7 +1066,11 @@ def setup_linode() -> dict[str, str]:
     Set up Linode environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -927,7 +1087,11 @@ def setup_vultr() -> dict[str, str]:
     Set up Vultr environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -944,7 +1108,11 @@ def setup_cloudflare() -> dict[str, str]:
     Set up Cloudflare environment variables.
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     return {
@@ -965,7 +1133,11 @@ def get_cloud_env_vars(cloud_type: str) -> dict[str, str]:  # noqa: C901, PLR091
         cloud_type: Cloud environment type
 
     Returns:
+<<<<<<< HEAD
         dict[str, str]: Dictionary of environment variables
+=======
+        Dict[str, str]: Dictionary of environment variables
+>>>>>>> origin/main
 
     """
     cloud_type = cloud_type.lower()

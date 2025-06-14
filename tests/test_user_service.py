@@ -40,6 +40,73 @@ class TestableUserService(UserService):
         self.token_expiry = 3600
 
 
+# Add methods needed by the UserService
+def add(self, obj):
+    pass
+
+
+# Create patch for flask.models
+patch("users.models.User", MockUser).start()
+
+# Patch the db object itself since it's a session
+patch("users.models.db", MagicMock()).start()
+
+# Mock Flask app context
+patch("flask.has_app_context", MagicMock(return_value=True)).start()
+patch("flask.current_app", MagicMock()).start()
+
+
+@pytest.fixture
+def app():
+    """Create a Flask app for testing."""
+    app = Flask(__name__)
+    app.config["TESTING"] = True
+    return app
+
+
+@pytest.fixture
+def app_context(app):
+    """Create an application context for testing."""
+    with app.app_context():
+        yield
+
+
+@pytest.fixture
+def user_service():
+    """Create a UserService instance for testing."""
+    return UserService(token_secret="test_secret")  # noqa: S106 - Test data only
+
+
+@patch("users.services.hash_credential", return_value="hashed_credential")
+def test_create_user(mock_hash):
+    """Test creating a user."""
+    # Create a mock user instance
+    mock_user_instance = MockUser(
+        id=1,
+        username="testuser",
+        email="test@example.com",
+        created_at=datetime.now(tz=datetime.timezone.utc),
+        updated_at=datetime.now(tz=datetime.timezone.utc),
+    )
+
+    # Set up the mocks
+    with patch("users.services.UserModel", MockUser), patch(
+        "users.services.db_session"
+    ), patch.object(MockUser, "query") as mock_query:
+        # Create a mock filter that returns None for first() to indicate no existing user
+        mock_filter = MagicMock()
+        mock_filter.first.return_value = None
+        mock_query.filter.return_value = mock_filter
+
+        # Test user creation
+        service = TestableUserService()
+        service.create_user(
+            username="testuser",
+            email="test@example.com",
+            auth_credential="test_credential",
+        )
+
+
 def test_create_user_with_duplicate_email():
     """Test creating a user with duplicate email raises UserExistsError."""
     service = TestableUserService()

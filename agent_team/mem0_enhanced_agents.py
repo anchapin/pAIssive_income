@@ -255,6 +255,8 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             List of relevant memories and RAG results, merged and deduplicated.
 
         """
+        if self.memory is None:
+            return []
         # If no query provided, create one based on team information
         if query is None:
             agent_roles = [getattr(agent, "role", "unknown") for agent in self.agents]

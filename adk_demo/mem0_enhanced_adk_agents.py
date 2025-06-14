@@ -103,7 +103,7 @@ try:
         import_error = ImportError
         raise import_error
 except ImportError:
-
+    # Define placeholder skills if not available
     class DataGathererSkill(Skill):  # type: ignore[reportGeneralTypeIssues]
         """Placeholder for DataGathererSkill."""
 
@@ -169,9 +169,45 @@ class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
         # Store agent creation in memory
         self._store_memory(f"Agent {name} created with user ID: {user_id}")
 
-    def handle_message(self, message: object) -> None:
-        """Handle a message (placeholder)."""
-        _ = message
+    def handle_message(self, message: Message) -> Optional[Message]:
+        """
+        Handle a message with memory enhancement.
+
+        This method:
+        1. Retrieves relevant memories based on the message
+        2. Enhances the message with these memories
+        3. Processes the message with the enhanced context
+        4. Stores the interaction in memory
+
+        Args:
+            message: The message to handle
+
+        Returns:
+            The response message
+
+        """
+        # Skip memory enhancement if mem0 is not available
+        if self.memory is None:
+            return super().handle_message(message)
+
+        # Extract query from message payload
+        query = self._extract_query_from_message(message)
+
+        # Retrieve relevant memories
+        memories = self._retrieve_relevant_memories(query)
+        logger.debug(f"Retrieved {len(memories)} relevant memories")
+
+        # Enhance message with memories (in a real implementation, this would modify the message)
+        enhanced_message = self._enhance_message_with_memories(message, memories)
+
+        # Process the enhanced message
+        response = super().handle_message(enhanced_message)
+
+        # Store the interaction in memory
+        if response is not None:
+            self._store_interaction(message, response)
+
+        return response
 
     def _extract_query_from_message(self, message: Message) -> str:
         """

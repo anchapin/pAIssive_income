@@ -73,8 +73,8 @@ python_functions = "test_*"
 
 # Optimized Ruff configuration for comprehensive linting and formatting
 [tool.ruff]
-line-length = 88
-target-version = "py38"
+target-version = "py310"
+line-length = 100
 fix = true
 unsafe-fixes = false
 cache-dir = ".ruff_cache"

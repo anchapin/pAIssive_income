@@ -112,7 +112,11 @@ def safe_read_file(file_path: str) -> str | None:
     """
     try:
         if safe_file_exists(file_path):
+<<<<<<< HEAD
             with Path(file_path).open(encoding="utf-8") as f:
+=======
+            with open(file_path, encoding="utf-8") as f:
+>>>>>>> origin/main
                 return f.read()
         else:
             return None

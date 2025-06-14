@@ -30,7 +30,11 @@ def test_mem0_basic_operations() -> bool | None:
         # Search for the memory
         search_results = memory.search("test memory", user_id=user_id, limit=5)
 
-        return bool(search_results)
+        if search_results:
+            print(f"Memory search successful! Found results: {search_results}")
+            return True
+        print("Memory search returned no results.")
+        return False
 
     except (AttributeError, TypeError, ValueError, RuntimeError):
         # Catch common mem0 errors, but not all exceptions blindly
