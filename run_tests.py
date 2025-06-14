@@ -211,7 +211,7 @@ def count_tests(validated_args: list[str]) -> int:
         logger.warning("Error collecting tests: %s. Falling back to single worker.", e)
         return default_test_count if has_test_files else 0
 
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+    except FileNotFoundError as e:
         logger.warning(
             "Unexpected error collecting tests: %s. Falling back to single worker.", e
         )
