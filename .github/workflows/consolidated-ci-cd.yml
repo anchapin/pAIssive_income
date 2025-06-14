@@ -59,9 +59,6 @@ on:
     types:
       - completed
 
-permissions:
-  contents: read
-
 # Prevent concurrent runs to avoid memory issues
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -850,18 +847,7 @@ jobs:
             echo "Bandit did not generate a JSON file. Using the empty one created earlier."
           else
             # Check if the JSON file is valid
-            python -c "
-import json
-import sys
-try:
-    with open('security-reports/bandit-results.json', 'r') as f:
-        json.load(f)
-    print('JSON file is valid')
-except (json.JSONDecodeError, FileNotFoundError) as e:
-    print(f'Invalid JSON file detected: {e}. Replacing with empty JSON.')
-    with open('security-reports/bandit-results.json', 'w') as f:
-        json.dump({'results': [], 'errors': []}, f)
-" || echo "JSON validation failed, but continuing"
+            python -c "import json; import sys; exec('''try:\n    with open(\"security-reports/bandit-results.json\", \"r\") as f:\n        json.load(f)\n    print(\"JSON file is valid\")\nexcept (json.JSONDecodeError, FileNotFoundError) as e:\n    print(f\"Invalid JSON file detected: {e}. Replacing with empty JSON.\")\n    with open(\"security-reports/bandit-results.json\", \"w\") as f:\n        json.dump({\"results\": [], \"errors\": []}, f)''')" || echo "JSON validation failed, but continuing"
           fi
 
           # Run pip-audit with error handling
