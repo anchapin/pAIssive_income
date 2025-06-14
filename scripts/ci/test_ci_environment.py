@@ -35,25 +35,26 @@ def run_detect_script(env_vars=None, verbose=False):
 
     Returns:
         tuple: (return_code, stdout, stderr)
+
     """
     script_path = Path(__file__).parent / "detect_ci_environment.py"
-    
+
     if not script_path.exists():
         print(f"Error: {script_path} not found")
         return 1, "", f"Error: {script_path} not found"
-    
+
     # Create a copy of the current environment
     env = os.environ.copy()
-    
+
     # Add the specified environment variables
     if env_vars:
         env.update(env_vars)
-    
+
     # Build the command
     cmd = [sys.executable, str(script_path)]
     if verbose:
         cmd.append("--verbose")
-    
+
     # Run the command
     try:
         result = subprocess.run(
@@ -81,9 +82,9 @@ def test_github_actions():
         "GITHUB_SHA": "1234567890abcdef1234567890abcdef12345678",
         "GITHUB_EVENT_NAME": "push",
     }
-    
+
     return_code, stdout, stderr = run_detect_script(env_vars, verbose=True)
-    
+
     if return_code == 0:
         print("✅ GitHub Actions environment detection test passed")
         if "GitHub Actions" in stdout:
@@ -93,7 +94,7 @@ def test_github_actions():
     else:
         print("❌ GitHub Actions environment detection test failed")
         print(f"Error: {stderr}")
-    
+
     return return_code == 0 and "GitHub Actions" in stdout
 
 
@@ -108,9 +109,9 @@ def test_jenkins():
         "BUILD_URL": "http://jenkins.example.com/job/project/1234/",
         "JOB_NAME": "project",
     }
-    
+
     return_code, stdout, stderr = run_detect_script(env_vars, verbose=True)
-    
+
     if return_code == 0:
         print("✅ Jenkins environment detection test passed")
         if "Jenkins" in stdout:
@@ -120,7 +121,7 @@ def test_jenkins():
     else:
         print("❌ Jenkins environment detection test failed")
         print(f"Error: {stderr}")
-    
+
     return return_code == 0 and "Jenkins" in stdout
 
 
@@ -135,9 +136,9 @@ def test_gitlab_ci():
         "CI_PIPELINE_ID": "123456",
         "CI_COMMIT_SHA": "1234567890abcdef1234567890abcdef12345678",
     }
-    
+
     return_code, stdout, stderr = run_detect_script(env_vars, verbose=True)
-    
+
     if return_code == 0:
         print("✅ GitLab CI environment detection test passed")
         if "GitLab CI" in stdout:
@@ -147,7 +148,7 @@ def test_gitlab_ci():
     else:
         print("❌ GitLab CI environment detection test failed")
         print(f"Error: {stderr}")
-    
+
     return return_code == 0 and "GitLab CI" in stdout
 
 
@@ -158,24 +159,24 @@ def test_docker():
         "DOCKER_ENVIRONMENT": "true",
         "DOCKER": "true",
     }
-    
+
     # Create temporary files to simulate Docker environment
     with tempfile.TemporaryDirectory() as temp_dir:
         # Create .dockerenv file
         docker_env_path = Path(temp_dir) / ".dockerenv"
         docker_env_path.touch()
-        
+
         # Create cgroup file
         cgroup_dir = Path(temp_dir) / "proc" / "1" / "cgroup"
         cgroup_dir.parent.mkdir(parents=True, exist_ok=True)
         with open(cgroup_dir, "w") as f:
             f.write("12:memory:/docker/abcdef1234567890\n")
-        
+
         # Add the temporary directory to the environment variables
         env_vars["TEMP_DOCKER_DIR"] = str(temp_dir)
-        
+
         return_code, stdout, stderr = run_detect_script(env_vars, verbose=True)
-    
+
     if return_code == 0:
         print("✅ Docker environment detection test passed")
         if "Docker" in stdout:
@@ -185,7 +186,7 @@ def test_docker():
     else:
         print("❌ Docker environment detection test failed")
         print(f"Error: {stderr}")
-    
+
     return return_code == 0 and "Docker" in stdout
 
 
@@ -196,23 +197,23 @@ def test_kubernetes():
         "KUBERNETES_SERVICE_HOST": "10.0.0.1",
         "KUBERNETES_SERVICE_PORT": "443",
     }
-    
+
     # Create temporary files to simulate Kubernetes environment
     with tempfile.TemporaryDirectory() as temp_dir:
         # Create Kubernetes secrets directory
         k8s_dir = Path(temp_dir) / "var" / "run" / "secrets" / "kubernetes.io"
         k8s_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Create token file
         token_path = k8s_dir / "token"
         with open(token_path, "w") as f:
             f.write("eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9...")
-        
+
         # Add the temporary directory to the environment variables
         env_vars["TEMP_K8S_DIR"] = str(temp_dir)
-        
+
         return_code, stdout, stderr = run_detect_script(env_vars, verbose=True)
-    
+
     if return_code == 0:
         print("✅ Kubernetes environment detection test passed")
         if "Kubernetes" in stdout:
@@ -222,7 +223,7 @@ def test_kubernetes():
     else:
         print("❌ Kubernetes environment detection test failed")
         print(f"Error: {stderr}")
-    
+
     return return_code == 0 and "Kubernetes" in stdout
 
 
@@ -235,37 +236,37 @@ def main():
     parser.add_argument("--gitlab", action="store_true", help="Test GitLab CI environment")
     parser.add_argument("--docker", action="store_true", help="Test Docker environment")
     parser.add_argument("--kubernetes", action="store_true", help="Test Kubernetes environment")
-    
+
     args = parser.parse_args()
-    
+
     # If no specific tests are specified, test all
     if not (args.github or args.jenkins or args.gitlab or args.docker or args.kubernetes):
         args.all = True
-    
+
     # Run the specified tests
     results = {}
-    
+
     if args.all or args.github:
         results["GitHub Actions"] = test_github_actions()
-    
+
     if args.all or args.jenkins:
         results["Jenkins"] = test_jenkins()
-    
+
     if args.all or args.gitlab:
         results["GitLab CI"] = test_gitlab_ci()
-    
+
     if args.all or args.docker:
         results["Docker"] = test_docker()
-    
+
     if args.all or args.kubernetes:
         results["Kubernetes"] = test_kubernetes()
-    
+
     # Print summary
     print("\n=== Test Summary ===")
     for env, result in results.items():
         status = "✅ Passed" if result else "❌ Failed"
         print(f"{env}: {status}")
-    
+
     # Return success if all tests passed
     return 0 if all(results.values()) else 1
 

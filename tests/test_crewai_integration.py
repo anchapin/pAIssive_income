@@ -76,6 +76,58 @@ def test_crewai_agent_team_integration():
 
 
 @pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
+def test_crewai_agentic_reasoning_tool_selection_logging(caplog):
+    """
+    Demonstrates and tests CrewAIAgentTeam's agentic reasoning and autonomous tool selection.
+
+    This test:
+    - Creates a CrewAIAgentTeam, adds an agent and a task like 'Calculate 2 + 2'
+    - Runs the team (with crew mocked)
+    - Captures logs from the 'agentic_reasoning' logger
+    - Asserts that logs include:
+        (a) Reasoning about tool selection,
+        (b) Invocation of the calculator tool,
+        (c) The result of the tool call
+
+    Serves as both a test and a usage example for users.
+    """
+    if not CREWAI_AVAILABLE:
+        pytest.skip("CrewAI is not installed - skipping test")
+
+    # Import needed modules
+    from unittest.mock import MagicMock, patch
+
+    from agent_team.crewai_agents import CrewAIAgentTeam
+
+    agent_team = CrewAIAgentTeam()
+    agent = agent_team.add_agent(
+        role="CalculatorAgent",
+        goal="Solve math problems",
+        backstory="A math-savvy AI.",
+    )
+
+    # Add a task with a description that should trigger calculator tool selection
+    agent_team.add_task(description="Calculate 2 + 2", agent=agent)
+
+    with patch.object(agent_team, "_create_crew") as mock_create_crew, caplog.at_level("INFO", logger="agentic_reasoning"):
+        mock_crew = MagicMock()
+        mock_crew.kickoff.return_value = "Calculation complete"
+        mock_create_crew.return_value = mock_crew
+
+        result = agent_team.run()
+        assert result == "Calculation complete"
+
+    logs = caplog.text
+    # Check for tool selection reasoning
+    assert "Evaluating task: 'Calculate 2 + 2'" in logs
+    assert "Tool 'calculator' matched by keyword" in logs or "Tool 'calculator' matched by name" in logs
+    # Check for tool invocation and result (account for leading space as extracted by regex)
+    assert "Invoking tool 'calculator' with input: ' 2 + 2'" in logs
+    assert "Tool 'calculator' returned:" in logs
+    # Should see result '4' for 2 + 2
+    assert "Tool 'calculator' returned: 4" in logs
+
+@pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
 def test_crewai_agent_team_with_custom_agents():
     """Test the CrewAIAgentTeam with custom agents."""
     if not CREWAI_AVAILABLE:

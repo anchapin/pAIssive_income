@@ -11,7 +11,7 @@ import yaml
 
 def check_workflow_files():
     """Check all workflow files for YAML syntax errors"""
-    workflow_dir = '.github/workflows'
+    workflow_dir = ".github/workflows"
     errors = []
     successes = []
 
@@ -20,7 +20,7 @@ def check_workflow_files():
         return False
 
     # Get all YAML files in the workflows directory
-    workflow_files = [f for f in os.listdir(workflow_dir) if f.endswith(('.yml', '.yaml'))]
+    workflow_files = [f for f in os.listdir(workflow_dir) if f.endswith((".yml", ".yaml"))]
 
     if not workflow_files:
         print("ERROR: No workflow files found")
@@ -31,7 +31,7 @@ def check_workflow_files():
     for filename in sorted(workflow_files):
         filepath = os.path.join(workflow_dir, filename)
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, encoding="utf-8") as f:
                 yaml.safe_load(f)
             print(f"PASS: {filename}")
             successes.append(filename)
@@ -42,12 +42,12 @@ def check_workflow_files():
             print(f"FAIL: {filename}: {e}")
             errors.append((filename, str(e)))
 
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"   PASSED: {len(successes)} files")
     print(f"   FAILED: {len(errors)} files")
 
     if errors:
-        print(f"\nError Details:")
+        print("\nError Details:")
         for filename, error in errors:
             print(f"   {filename}: {error}")
         return False

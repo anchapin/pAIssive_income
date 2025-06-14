@@ -45,11 +45,9 @@ except ImportError:
     class Message:
         """Placeholder for Message class when ADK is not installed."""
 
-        def __init__(
-            self, message_type: str, payload: dict[str, Any], sender: str
-        ) -> None:
+        def __init__(self, type: str, payload: dict[str, Any], sender: str) -> None:
             """Initialize placeholder message."""
-            self.type = message_type
+            self.type = type
             self.payload = payload
             self.sender = sender
 
@@ -62,10 +60,9 @@ except ImportError:
     class Skill:
         """Placeholder for Skill class when ADK is not installed."""
 
-        def run(self, *args: object, **kwargs: object) -> object:  # noqa: ARG002
+        def run(self, *args: Any, **kwargs: Any) -> Any:
             """Run placeholder skill."""
             return None
-
 
 # Import mem0 components
 try:
@@ -107,7 +104,6 @@ if ADK_AVAILABLE:
     except ImportError:
         # Keep placeholder skills if import fails
         pass
-
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -233,6 +229,7 @@ class MemoryEnhancedAgent(Agent):
             with historical context for better decision making.
 
             For now, we simply return the original message unchanged.
+
 
         """
         return message

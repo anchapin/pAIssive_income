@@ -70,6 +70,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         Args:
             llm_provider: The LLM provider to use for agent interactions
             user_id: The user ID for memory storage and retrieval
+
         """
         super().__init__(llm_provider)
 
@@ -98,6 +99,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The created agent
+
         """
         # Create the agent using the parent method
         agent = super().add_agent(role, goal, backstory)
@@ -120,6 +122,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The created task
+
         """
         # Create the task using the parent method
         task = super().add_task(description, agent)
@@ -147,6 +150,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The result of the workflow
+
         """
         if not CREWAI_AVAILABLE:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
@@ -196,6 +200,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         Args:
             content: The content to store (string or conversation messages)
             metadata: Optional metadata for the memory
+
         """
         if self.memory is None:
             return
@@ -220,6 +225,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             List of relevant memories
+
         """
         if self.memory is None:
             return []
@@ -254,6 +260,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         Returns:
             The enhanced context with memories included
+
         """
         if self.memory is None:
             return context

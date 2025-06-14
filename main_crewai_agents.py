@@ -98,7 +98,8 @@ def create_team(
         )
 
         team.add_task(
-            description="Write a summary report based on analysis.", agent=writer
+            description="Write a summary report based on analysis.",
+            agent=writer
         )
 
         return team
@@ -133,7 +134,8 @@ def create_team(
         agent=analyzer,
     )
     task_report = Task(
-        description="Write a summary report based on analysis.", agent=writer
+        description="Write a summary report based on analysis.",
+        agent=writer
     )
 
     reporting_team = Crew(
