@@ -34,9 +34,8 @@ def test_mem0_basic_operations():
         if search_results:
             print(f"Memory search successful! Found results: {search_results}")
             return True
-        else:
-            print("Memory search returned no results.")
-            return False
+        print("Memory search returned no results.")
+        return False
 
     except Exception as e:
         print(f"Error testing mem0: {e}")

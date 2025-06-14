@@ -185,6 +185,7 @@ def create_agents(use_memory: bool = False, user_id: Optional[str] = None) -> tu
 
     Returns:
         A tuple containing (data_gatherer, summarizer) agents
+
     """
     if use_memory and MEM0_AVAILABLE:
         if not user_id:

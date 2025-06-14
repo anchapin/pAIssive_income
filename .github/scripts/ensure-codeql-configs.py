@@ -4,8 +4,9 @@ Script to ensure CodeQL configuration files exist.
 This script creates the necessary CodeQL configuration files for security scanning.
 """
 
-import os
 import json
+import os
+
 
 def ensure_directory(directory):
     """Ensure the directory exists."""
@@ -39,7 +40,7 @@ def create_codeql_config(filename, config_name, os_name=None):
     if os_name:
         config["os"] = os_name
 
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         json.dump(config, f, indent=2)
 
     print(f"Created CodeQL configuration file: {filename}")
