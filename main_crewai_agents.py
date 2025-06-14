@@ -25,7 +25,6 @@ class TeamProtocol(Protocol):
 
     def run(self) -> object:
         """Run the team workflow."""
-        pass
 
 
 # Import memory-enhanced agent team

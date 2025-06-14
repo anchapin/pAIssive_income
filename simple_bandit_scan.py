@@ -8,7 +8,6 @@ It's designed to be as simple as possible to avoid any issues with virtual envir
 
 from __future__ import annotations
 
-import contextlib
 import json
 import logging
 import subprocess
