@@ -277,9 +277,9 @@ def _process_pattern_matches(
     # Process all matches outside the loop to avoid try-except inside loop
     for match in matches:
         if isinstance(match, tuple) and len(match) > 1:
-            secret_value = match[1]
+            secret_value = str(match[1])
         else:
-            secret_value = match
+            secret_value = str(match)
         results.append((pattern_name, line_number, line, secret_value))
 
     return results

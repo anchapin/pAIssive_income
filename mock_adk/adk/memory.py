@@ -1,4 +1,5 @@
 """Mock memory class for ADK."""
+
 from typing import Any, Dict, List
 
 

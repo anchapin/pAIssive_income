@@ -216,7 +216,10 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
         self.memory_mock.add.assert_called_once_with(
             [
                 {"role": "user", "content": "gather: {'query': 'Test query'}"},
-                {"role": "assistant", "content": "gather_result: {'data': 'Test data'}"},
+                {
+                    "role": "assistant",
+                    "content": "gather_result: {'data': 'Test data'}",
+                },
             ],
             user_id="test-user",
             metadata={

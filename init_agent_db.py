@@ -43,7 +43,7 @@ def init_agent_db() -> bool:
                 WHERE table_name = 'agent'
             );
         """)
-        table_exists = cursor.fetchone()["exists"]
+        table_exists = cursor.fetchone()[0]
 
         if not table_exists:
             logger.info("Creating agent table...")
@@ -64,7 +64,7 @@ def init_agent_db() -> bool:
                 WHERE table_name = 'agent_action'
             );
         """)
-        action_table_exists = cursor.fetchone()["exists"]
+        action_table_exists = cursor.fetchone()[0]
 
         if not action_table_exists:
             logger.info("Creating agent_action table...")
@@ -81,7 +81,7 @@ def init_agent_db() -> bool:
 
         # Check if agent data exists
         cursor.execute("SELECT COUNT(*) FROM agent;")
-        agent_count = cursor.fetchone()["count"]
+        agent_count = cursor.fetchone()[0]
 
         if agent_count == 0:
             logger.info("Inserting test agent data...")

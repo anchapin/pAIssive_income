@@ -79,8 +79,8 @@ async def get_current_user(
 
     # Get the user ID from the token
     user_id = payload.get("sub")
-    if not user_id:
-        logger.warning("Token missing subject claim")
+    if not user_id or not isinstance(user_id, str):
+        logger.warning("Token missing or invalid subject claim")
         raise credentials_exception
 
     # Get the user from the repository
@@ -174,9 +174,11 @@ async def verify_api_key(
         )
 
     # Check if the API key is expired
+    expires_at = api_key_data.get("expires_at")
     if (
-        api_key_data.get("expires_at")
-        and api_key_data.get("expires_at") < datetime.now(tz=timezone.utc).isoformat()
+        expires_at
+        and isinstance(expires_at, str)
+        and expires_at < datetime.now(tz=timezone.utc).isoformat()
     ):
         logger.warning("Expired API key")
         raise HTTPException(

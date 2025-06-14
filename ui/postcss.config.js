@@ -5,7 +5,7 @@
  * It includes Tailwind CSS and other PostCSS plugins.
  */
 
-module.exports = {
+export default {
   plugins: {
     'tailwindcss': {},
     'autoprefixer': {},
