@@ -15,6 +15,7 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -22,7 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 # Helper for safe subprocess execution (addresses Ruff S603)
-def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+def _safe_subprocess_run(
+    cmd: list[str],
+    **kwargs: Any,  # noqa: ANN401
+) -> subprocess.CompletedProcess[str]:
     """Safely run a subprocess command, only allowing trusted binaries."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     allowed_binaries = {sys.executable}
@@ -44,7 +48,7 @@ def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProces
         "env",
     }
     filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
-    return subprocess.run(cmd, check=False, shell=False, **filtered_kwargs)  # noqa: S603
+    return subprocess.run(cmd, check=False, shell=False, **filtered_kwargs)  # nosec B603  # noqa: S603
 
 
 def check_security_reports_dir() -> bool:

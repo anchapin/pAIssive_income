@@ -1,14 +1,15 @@
 """Tests for API token management, validation, refresh, and error handling."""  # Test token only
 
 import pytest
-from fastapi.testclient import TestClient
 
 try:
-    from api.main import app  # Adjust if FastAPI app is elsewhere
+    from api.app import create_app
+
+    app = create_app()
+    client = app.test_client()
 except ImportError:
     app = None
-
-client = TestClient(app) if app else None
+    client = None
 
 
 @pytest.mark.skipif(app is None, reason="Main FastAPI app not found for testing")

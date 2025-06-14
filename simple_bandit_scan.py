@@ -14,6 +14,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 # Create security-reports directory
 Path("security-reports").mkdir(parents=True, exist_ok=True)
@@ -62,7 +63,10 @@ bandit_path = shutil.which("bandit") or "bandit"
 
 
 # Add a minimal _safe_subprocess_run if missing
-def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+def _safe_subprocess_run(
+    cmd: list[str],
+    **kwargs: Any,  # noqa: ANN401
+) -> subprocess.CompletedProcess[str]:
     """Safely run a subprocess command, only allowing trusted binaries."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
@@ -90,7 +94,7 @@ def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProces
     return subprocess.run(cmd, check=False, shell=False, **filtered_kwargs)  # noqa: S603
 
 
-def run_bandit_scan(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+def run_bandit_scan(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:  # noqa: ANN401
     """Run Bandit scan with trusted binaries only."""
     # Only allow valid subprocess.run kwargs
     allowed_keys = {

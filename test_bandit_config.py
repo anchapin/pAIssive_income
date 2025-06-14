@@ -226,7 +226,8 @@ def check_venv_exists() -> bool:
 
 
 def _safe_subprocess_run(
-    cmd: list[str], **kwargs: dict[str, object]
+    cmd: list[str],
+    **kwargs: Any,  # noqa: ANN401
 ) -> subprocess.CompletedProcess[Any]:
     """Run subprocess.run with filtered/normalized kwargs. Only for trusted commands, shell is always False."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
@@ -315,10 +316,11 @@ def _safe_subprocess_run(
             )
         ):
             filtered_kwargs[k] = v
-    return subprocess.run(cmd, check=False, **filtered_kwargs)  # noqa: S603 # type: ignore[call-arg]
+    # nosec S603 - cmd is validated, shell=False, no user input
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]  # noqa: S603
 
 
-def run_bandit(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:  # noqa: ANN401
+def run_bandit(cmd: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
     """Run Bandit with trusted binaries only."""
     # Convert any Path objects in cmd to str
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
@@ -384,7 +386,8 @@ def run_bandit(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str
             or (k == "pass_fds" and not isinstance(v, (list, tuple, set)))
         ):
             del filtered_kwargs[k]
-    return subprocess.run(cmd, check=False, **filtered_kwargs)  # noqa: S603 # type: ignore[call-arg]
+    # nosec S603 - cmd is validated against allowed_binaries, shell=False, no user input
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]  # noqa: S603
 
 
 if __name__ == "__main__":
@@ -415,7 +418,8 @@ if __name__ == "__main__":
         # sys.executable is the path to the current Python interpreter
         # nosec S603 - This is a safe subprocess call with no user input, shell=False, and validated arguments. Explicitly set check=False.
         try:
-            subprocess.run(  # nosec B603 # noqa: S603
+            # nosec S603 - sys.executable is trusted, shell=False, no user input
+            subprocess.run(  # nosec B603  # noqa: S603
                 [sys.executable, "-m", "pip", "install", "bandit"],
                 check=False,
                 shell=False,  # Explicitly set shell=False for security

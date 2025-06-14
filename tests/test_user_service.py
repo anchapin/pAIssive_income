@@ -7,6 +7,7 @@ import pytest
 from flask import Flask
 
 # Import at the top level
+from tests.constants import TEST_SECRET
 from users.models import db
 from users.services import AuthenticationError, UserExistsError, UserService
 
@@ -33,7 +34,7 @@ class MockUser:
 class TestableUserService(UserService):
     """Testable version of UserService that skips database requirements."""
 
-    def __init__(self, token_secret="test_secret"):  # noqa: S107 - Test data only
+    def __init__(self, token_secret: str = TEST_SECRET):
         """Initialize testable user service."""
         self.token_secret = token_secret
         self.token_expiry = 3600
@@ -129,7 +130,7 @@ class TestUserService:
         mock_user_model.query.return_value = mock_query
 
         # Create service and call method
-        service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
+        service = UserService(token_secret=TEST_SECRET)
 
         # Mock the database session
         with patch("users.services.db_session") as mock_session:
@@ -157,7 +158,7 @@ class TestUserService:
         mock_user_model.query.return_value = mock_query
 
         # Create service and call method
-        service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
+        service = UserService(token_secret=TEST_SECRET)
         success, result = service.authenticate_user(
             username_or_email="testuser", auth_credential="wrong_credential"
         )
@@ -182,7 +183,7 @@ def test_authenticate_user_not_found():
         mock_user_model.query.return_value = mock_query
 
         # Create service and call method
-        service = UserService(token_secret="test_secret")  # noqa: S106 - Test data only
+        service = UserService(token_secret=TEST_SECRET)
         success, result = service.authenticate_user(
             username_or_email="nonexistent", auth_credential="test_credential"
         )
@@ -201,7 +202,6 @@ def test_user_service_initialization_without_token_secret():
 def test_user_service_initialization_with_token_secret():
     """Test that UserService initializes correctly with token secret."""
     # The following test credentials are safe for use in test code only.
-    test_secret = "test_secret"  # noqa: S105 - Test data only
-    service = UserService(token_secret=test_secret)
-    assert service.token_secret == test_secret
+    service = UserService(token_secret=TEST_SECRET)
+    assert service.token_secret == TEST_SECRET
     assert service.token_expiry == 3600  # Default value

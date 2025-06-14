@@ -17,7 +17,10 @@ import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
+
+# Type alias for subprocess kwargs (for documentation purposes)
+SubprocessKwargs = dict[str, Any]
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -342,13 +345,14 @@ def check_venv_exists() -> bool:
 
 
 def _safe_subprocess_run(
-    cmd: list[str], **kwargs: object
-) -> subprocess.CompletedProcess:
+    cmd: list[str],
+    **kwargs: Any,  # noqa: ANN401
+) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])
     filtered_kwargs = {k: v for k, v in kwargs.items() if v is not None}
-    return subprocess.run(cmd, check=False, **filtered_kwargs)  # noqa: S603
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[return-value]  # noqa: S603
 
 
 def ensure_pytest_xdist_installed() -> None:
@@ -394,7 +398,7 @@ def ensure_pytest_xdist_installed() -> None:
             if install_result.stderr:
                 logger.debug(
                     "Installation error: %s",
-                    install_result.stderr.decode("utf-8", errors="replace"),
+                    install_result.stderr,
                 )
     except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
         logger.warning(

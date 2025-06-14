@@ -28,7 +28,7 @@ def is_git_tracked(path) -> bool:
         # --error-unmatch causes non-tracked files to raise an error
         git_exe = shutil.which("git") or "git"
         # The following subprocess call is static and used for git file tracking in test collection.
-        subprocess.check_output(  # noqa: S603 - Using git with proper arguments
+        subprocess.check_output(  # noqa: S603
             [git_exe, "ls-files", "--error-unmatch", os.path.relpath(path)],
             stderr=subprocess.DEVNULL,
         )
@@ -38,7 +38,7 @@ def is_git_tracked(path) -> bool:
         return True
 
 
-def pytest_collect_file(parent, file_path):  # noqa: ARG001 - parent is required by pytest
+def pytest_collect_file(parent, file_path):  # noqa: ARG001
     """
     Skip files that are not tracked by git (i.e., are git-ignored).
 

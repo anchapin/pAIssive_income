@@ -5,14 +5,15 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 import pytest
-from fastapi.testclient import TestClient
 
 try:
-    from api.main import app  # Update if API root is elsewhere
+    from api.app import create_app
+
+    app = create_app()
+    client = app.test_client()
 except ImportError:
     app = None
-
-client = TestClient(app) if app else None
+    client = None
 
 
 @pytest.mark.skipif(app is None, reason="Main FastAPI app not found for testing")

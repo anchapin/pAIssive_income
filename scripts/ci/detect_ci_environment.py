@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CI Environment Detection Script
+CI Environment Detection Script.
 
 This script detects the current CI environment and outputs detailed information about it.
 It supports a wide range of CI platforms including:
@@ -112,14 +112,15 @@ def safe_read_file(file_path: str) -> str | None:
     """
     try:
         if safe_file_exists(file_path):
-            with open(file_path, encoding="utf-8") as f:
+            with Path(file_path).open(encoding="utf-8") as f:
                 return f.read()
-        return None
-    except Exception:
+        else:
+            return None
+    except (OSError, UnicodeDecodeError):
         return None
 
 
-def detect_ci_environment() -> dict[str, Any]:
+def detect_ci_environment() -> dict[str, Any]:  # noqa: C901, PLR0912, PLR0915
     """
     Detect the current CI environment.
 
@@ -234,7 +235,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("JENKINS_") or key.startswith("BUILD_")
+            if key.startswith(("JENKINS_", "BUILD_"))
         }
     elif os.environ.get("GITLAB_CI"):
         ci_info["ci_type"] = "gitlab"
@@ -242,7 +243,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("CI_") or key.startswith("GITLAB_")
+            if key.startswith(("CI_", "GITLAB_"))
         }
     elif os.environ.get("CIRCLECI"):
         ci_info["ci_type"] = "circle"
@@ -262,9 +263,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("AGENT_")
-            or key.startswith("BUILD_")
-            or key.startswith("SYSTEM_")
+            if key.startswith(("AGENT_", "BUILD_", "SYSTEM_"))
         }
     elif os.environ.get("TEAMCITY_VERSION"):
         ci_info["ci_type"] = "teamcity"
@@ -324,7 +323,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("VERCEL_") or key.startswith("NOW_")
+            if key.startswith(("VERCEL_", "NOW_"))
         }
     elif os.environ.get("NETLIFY"):
         ci_info["ci_type"] = "netlify"
@@ -395,7 +394,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("CM_") or key.startswith("CODEMAGIC_")
+            if key.startswith(("CM_", "CODEMAGIC_"))
         }
     elif os.environ.get("CODESPACE_NAME") or os.environ.get("GITHUB_CODESPACE_NAME"):
         ci_info["ci_type"] = "github-codespaces"
@@ -403,7 +402,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("CODESPACE_") or key.startswith("GITHUB_CODESPACE_")
+            if key.startswith(("CODESPACE_", "GITHUB_CODESPACE_"))
         }
     elif os.environ.get("CLOUD_BUILD") or os.environ.get("CLOUD_BUILD_ID"):
         ci_info["ci_type"] = "google-cloud-build"
@@ -419,7 +418,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("ALIBABA_") or key.startswith("ALICLOUD_")
+            if key.startswith(("ALIBABA_", "ALICLOUD_"))
         }
     elif os.environ.get("DEVCLOUD_PIPELINE_ID") or os.environ.get(
         "HUAWEICLOUD_PIPELINE"
@@ -429,7 +428,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("DEVCLOUD_") or key.startswith("HUAWEICLOUD_")
+            if key.startswith(("DEVCLOUD_", "HUAWEICLOUD_"))
         }
     elif os.environ.get("CODING_PIPELINE_ID") or os.environ.get("TENCENT_CLOUD_CI"):
         ci_info["ci_type"] = "tencent-cloud"
@@ -437,7 +436,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("CODING_") or key.startswith("TENCENT_")
+            if key.startswith(("CODING_", "TENCENT_"))
         }
     elif os.environ.get("BAIDU_CLOUD_CI") or os.environ.get("BAIDU_PIPELINE_ID"):
         ci_info["ci_type"] = "baidu-cloud"
@@ -451,7 +450,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("SOURCEGRAPH_") or key.startswith("SRC_")
+            if key.startswith(("SOURCEGRAPH_", "SRC_"))
         }
     elif os.environ.get("GITPOD_WORKSPACE_ID") or os.environ.get(
         "GITPOD_WORKSPACE_URL"
@@ -481,7 +480,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("GLITCH_") or key.startswith("PROJECT_")
+            if key.startswith(("GLITCH_", "PROJECT_"))
         }
     elif ci_info["is_ci"]:
         ci_info["ci_type"] = "generic"
@@ -818,15 +817,15 @@ def create_ci_directories() -> list[dict[str, Any]]:
         try:
             Path(directory).mkdir(exist_ok=True)
             results.append({"directory": directory, "created": True, "error": None})
-        except Exception as e:
+        except (OSError, PermissionError) as e:  # noqa: PERF203
             results.append({"directory": directory, "created": False, "error": str(e)})
 
     return results
 
 
-def main() -> int:
+def main() -> int:  # noqa: PLR0915
     """
-    Main function.
+    Run the CI environment detection script.
 
     Returns:
         int: Exit code

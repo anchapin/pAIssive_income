@@ -39,10 +39,10 @@ def check_workflow_files() -> bool:
             logger.info("PASS: %s", filename)
             successes.append(filename)
         except yaml.YAMLError as e:
-            logger.error("FAIL: %s: %s", filename, e)
+            logger.exception("FAIL: %s", filename)
             errors.append((filename, str(e)))
         except OSError as e:
-            logger.error("FAIL: %s: %s", filename, e)
+            logger.exception("FAIL: %s", filename)
             errors.append((filename, str(e)))
 
     logger.info("Summary:")

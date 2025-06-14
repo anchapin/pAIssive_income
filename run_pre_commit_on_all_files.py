@@ -12,6 +12,10 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
+
+# Type alias for subprocess kwargs (for documentation purposes)
+SubprocessKwargs = dict[str, Any]
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -33,7 +37,10 @@ cmd = [sys.executable, str(target_script)] + sys.argv[1:]
 cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
 
 
-def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+def _safe_subprocess_run(
+    cmd: list[str],
+    **kwargs: Any,  # noqa: ANN401
+) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])

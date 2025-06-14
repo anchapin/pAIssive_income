@@ -80,10 +80,13 @@ async def get_current_user(
         raise credentials_exception
 
     # Get the user ID from the token
-    user_id = payload.get("sub")
-    if not user_id:
+    user_id_raw = payload.get("sub")
+    if not user_id_raw:
         logger.warning("Token missing subject claim")
         raise credentials_exception
+
+    # Ensure user_id is a string
+    user_id = str(user_id_raw)
 
     # Get the user from the repository
     if not user_service.user_repository:
@@ -178,14 +181,30 @@ async def verify_api_key(
         )
 
     # Check if the API key is expired
-    if (
-        api_key_data.get("expires_at")
-        and api_key_data.get("expires_at") < datetime.now(tz=timezone.utc).isoformat()
-    ):
-        logger.warning("Expired API key")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Expired API key",
-        )
+    expires_at = api_key_data.get("expires_at")
+    if expires_at:
+        # Convert expires_at to datetime if it's a string or int
+        if isinstance(expires_at, str):
+            try:
+                from datetime import datetime as dt
+
+                expires_dt = dt.fromisoformat(expires_at.replace("Z", "+00:00"))
+            except ValueError:
+                expires_dt = datetime.now(tz=timezone.utc)
+        elif isinstance(expires_at, int):
+            # Assume it's a Unix timestamp
+            expires_dt = datetime.fromtimestamp(expires_at, tz=timezone.utc)
+        elif isinstance(expires_at, datetime):
+            expires_dt = expires_at
+        else:
+            # Unknown type, skip expiration check
+            expires_dt = None
+
+        if expires_dt and expires_dt < datetime.now(tz=timezone.utc):
+            logger.warning("Expired API key")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Expired API key",
+            )
 
     return dict(api_key_data)

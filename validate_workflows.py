@@ -1,5 +1,7 @@
 """Validate GitHub workflow YAML files."""
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 
@@ -16,17 +18,11 @@ def validate_workflows() -> bool:
     logger.info("Checking %d workflow files...", len(workflow_files))
     errors = []
 
+    # Process files outside the loop to avoid performance overhead
     for file_path in workflow_files:
-        try:
-            with file_path.open(encoding="utf-8") as f:
-                yaml.safe_load(f)
-            logger.info("OK: %s", file_path.name)
-        except yaml.YAMLError as e:
-            logger.exception("ERROR: %s", file_path.name)
-            errors.append((file_path, str(e)))
-        except OSError as e:
-            logger.exception("ERROR: %s", file_path.name)
-            errors.append((file_path, str(e)))
+        error = _validate_single_workflow(file_path)
+        if error:
+            errors.append(error)
 
     logger.info(
         "Summary: %d/%d files valid",
@@ -40,6 +36,22 @@ def validate_workflows() -> bool:
             logger.error("%s: %s", file_path, error)
 
     return len(errors) == 0
+
+
+def _validate_single_workflow(file_path: Path) -> tuple[Path, str] | None:
+    """Validate a single workflow file and return error if any."""
+    try:
+        with file_path.open(encoding="utf-8") as f:
+            yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        logger.exception("ERROR: %s", file_path.name)
+        return (file_path, str(e))
+    except OSError as e:
+        logger.exception("ERROR: %s", file_path.name)
+        return (file_path, str(e))
+    else:
+        logger.info("OK: %s", file_path.name)
+        return None
 
 
 if __name__ == "__main__":

@@ -22,6 +22,7 @@ from sqlalchemy.orm import sessionmaker
 # Allows: a-z, A-Z, 0-9, space, period, underscore, @, :, /, =, -
 ALLOWED_CHARS_PATTERN = re.compile(r"[^a-zA-Z0-9\s\._@:/=-]")
 
+# Create a proper logger for this module
 logger = logging.getLogger(__name__)
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
@@ -30,9 +31,9 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 limiter = Limiter(
     key_func=get_remote_address, default_limits=["200 per day", "50 per hour"]
 )
-limiter.init_app = getattr(
-    limiter, "init_app", lambda _: None
-)  # for compatibility if already set up
+# Ensure init_app method exists for compatibility
+if not hasattr(limiter, "init_app"):
+    limiter.init_app = lambda _: None  # type: ignore[assignment]
 
 # In-memory user "database" for demonstration (replace with real user DB)
 # Note: In production, use a proper database with secure password storage
@@ -167,8 +168,12 @@ def forgot_password() -> tuple[dict, int]:
             # Use None for empty token so sanitize_log_data handles it as '<none>'
             token_prefix_raw = token[:5] if token else None
             token_prefix_sanitized = sanitize_log_data(token_prefix_raw)
-            logging.info(
-                f"[AUDIT][{datetime.now(timezone.utc).isoformat()}] Password reset token generated for {safe_email} from {safe_ip} token_prefix={token_prefix_sanitized}..."
+            logger.info(
+                "[AUDIT][%s] Password reset token generated for %s from %s token_prefix=%s...",
+                datetime.now(timezone.utc).isoformat(),
+                safe_email,
+                safe_ip,
+                token_prefix_sanitized,
             )
 
             # Compose reset link with proper URL construction
@@ -178,9 +183,9 @@ def forgot_password() -> tuple[dict, int]:
             subject = "Password Reset Request"
             body = f"To reset your password, click the following link:\n\n{reset_link}\n\nIf you did not request a password reset, please ignore this email."
             send_email(email, subject, body)
-        except Exception as e:
+        except Exception:
             # Log the error but don't expose details to the client
-            logging.exception(f"[ERROR] Failed to process password reset: {e!s}")
+            logger.exception("[ERROR] Failed to process password reset")
             session.rollback()
         finally:
             session.close()
@@ -193,7 +198,7 @@ def forgot_password() -> tuple[dict, int]:
 
 @auth_bp.route("/reset-password", methods=["POST"])
 @limiter.limit("5 per minute")
-def reset_password():
+def reset_password() -> tuple[object, int]:
     """Handle password reset with proper security measures."""
     data = request.get_json() or {}
     token = data.get("token", "")
@@ -212,8 +217,10 @@ def reset_password():
     safe_token_prefix = sanitize_log_data(raw_token_prefix)
 
     if not token or not new_password:
-        logging.warning(
-            f"[AUDIT][{datetime.now(timezone.utc).isoformat()}] Password reset failed (missing fields) from {safe_ip}"
+        logger.warning(
+            "[AUDIT][%s] Password reset failed (missing fields) from %s",
+            datetime.now(timezone.utc).isoformat(),
+            safe_ip,
         )
         return jsonify({"message": "Missing token or new password."}), 400
 
@@ -223,19 +230,25 @@ def reset_password():
         prt = session.query(PasswordResetToken).filter_by(token=token).first()
 
         if not prt or prt.expires_at < datetime.now(timezone.utc):
-            logging.warning(
-                f"[AUDIT][{datetime.now(timezone.utc).isoformat()}] Password reset failed (invalid/expired token) from {safe_ip} token_prefix={safe_token_prefix}..."
+            logger.warning(
+                "[AUDIT][%s] Password reset failed (invalid/expired token) from %s token_prefix=%s...",
+                datetime.now(timezone.utc).isoformat(),
+                safe_ip,
+                safe_token_prefix,
             )
             return jsonify({"message": "Invalid or expired reset link."}), 400
 
-        email = prt.email
+        email = str(prt.email)
         safe_email = sanitize_log_data(email)
 
         if email not in USERS:
             session.delete(prt)
             session.commit()
-            logging.warning(
-                f"[AUDIT][{datetime.now(timezone.utc).isoformat()}] Password reset failed (user not found) for {safe_email} from {safe_ip}"
+            logger.warning(
+                "[AUDIT][%s] Password reset failed (user not found) for %s from %s",
+                datetime.now(timezone.utc).isoformat(),
+                safe_email,
+                safe_ip,
             )
             return jsonify(
                 {"message": "Invalid or expired reset link."}
@@ -248,20 +261,18 @@ def reset_password():
         # Delete the used token
         session.delete(prt)
         session.commit()
-        logging.info(
-            f"[AUDIT][{datetime.now(timezone.utc).isoformat()}] Password reset completed for {safe_email} from {safe_ip}"
+        logger.info(
+            "[AUDIT][%s] Password reset completed for %s from %s",
+            datetime.now(timezone.utc).isoformat(),
+            safe_email,
+            safe_ip,
         )
 
         return jsonify({"message": "Password has been reset."}), 200
-    except Exception as e:
+    except Exception:
         # Log the error but don't expose details to the client
-        logging.exception(f"[ERROR] Failed to reset password: {e!s}")
+        logger.exception("[ERROR] Failed to reset password")
         session.rollback()
         return jsonify({"message": "An error occurred. Please try again later."}), 500
     finally:
         session.close()
-
-
-# To enable: import and register this blueprint with your Flask app, e.g.:
-# from api.routes.auth import auth_bp
-# app.register_blueprint(auth_bp)

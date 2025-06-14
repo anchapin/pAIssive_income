@@ -37,10 +37,13 @@ DEFAULT_LIMIT = 10
 TEST_USERNAME = "testuser"
 TEST_EMAIL = "test@example.com"
 # The following test credentials are safe for use in test code only.
-TEST_PASSWORD = "Test-password-123"  # noqa: S105 - Test credential only
+TEST_PASSWORD = "Test-password-123"  # noqa: S105
 TEST_ADMIN_USERNAME = "admin"
 TEST_ADMIN_EMAIL = "admin@example.com"
-TEST_ADMIN_PASSWORD = "Admin-password-123"  # noqa: S105 - Test credential only
+TEST_ADMIN_PASSWORD = "Admin-password-123"  # noqa: S105
+
+# Test secrets for testing purposes only
+TEST_SECRET = "test_secret"  # noqa: S105
 
 # Test model constants
 TEST_MODEL_NAME = "test-model"

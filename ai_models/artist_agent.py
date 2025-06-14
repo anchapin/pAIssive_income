@@ -70,6 +70,41 @@ class ArtistAgent:
             return ""
         return expression
 
+    def _extract_calculator_expression(self, prompt: str) -> str:
+        """Extract mathematical expression from prompt for calculator tool."""
+        # Simple extraction - look for mathematical expressions
+        import re
+
+        # Find mathematical expressions with numbers and operators
+        pattern = r"[\d\+\-\*/\(\)\.\s]+"
+        matches = re.findall(pattern, prompt)
+        if matches:
+            # Return the longest match that looks like a math expression
+            return max(matches, key=len).strip()
+        return prompt
+
+    def _extract_text_analyzer_expression(self, prompt: str) -> str:
+        """Extract text to analyze from prompt for text analyzer tool."""
+        # For text analysis, return the full prompt
+        return prompt
+
+    def _extract_code_executor_expression(self, prompt: str) -> str:
+        """Extract code to execute from prompt for code executor tool."""
+        # Look for code blocks or return the full prompt
+        import re
+
+        # Look for code blocks marked with ```
+        code_pattern = r"```(?:python|py)?\s*(.*?)```"
+        matches = re.findall(code_pattern, prompt, re.DOTALL)
+        if matches:
+            return matches[0].strip()
+        return prompt
+
+    def _extract_generic_expression(self, prompt: str) -> str:
+        """Extract generic expression from prompt for unknown tools."""
+        # For unknown tools, return the full prompt
+        return prompt
+
     def run(self, prompt: str) -> str:
         """
         Process a prompt, select a tool, and return the tool's output.

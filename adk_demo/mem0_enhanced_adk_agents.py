@@ -122,6 +122,10 @@ except ImportError:
 # Configure logging
 logger = logging.getLogger(__name__)
 
+# Export constants for tests
+ADK_AVAILABLE = adk_available
+MEM0_AVAILABLE = mem0_available
+
 
 class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
     """

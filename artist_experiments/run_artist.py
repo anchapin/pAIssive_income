@@ -93,5 +93,5 @@ if __name__ == "__main__":
     # Only enable debug and 0.0.0.0 binding if explicitly set for development
     debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
     # SECURITY WARNING: Binding to 0.0.0.0 is only enabled if FLASK_DEBUG=1 (development only).
-    host = "0.0.0.0" if debug_mode else "127.0.0.1"  # noqa: S104
+    host = "0.0.0.0" if debug_mode else "127.0.0.1"  # nosec B104
     app.run(host=host, port=port, debug=debug_mode)

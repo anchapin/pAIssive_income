@@ -37,12 +37,14 @@ from services.memory_rag_coordinator import MemoryRAGCoordinator
 
 crewai_available = False
 mem0_available = False
+Memory = None  # type: ignore[assignment]
+
 try:
     from mem0 import Memory
 
     mem0_available = True
 except ImportError:
-    Memory = None  # type: ignore[assignment]
+    pass
 
 MEM0_AVAILABLE = mem0_available
 
@@ -79,7 +81,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         super().__init__(llm_provider)
 
         # Initialize mem0 memory if available
-        if mem0_available:
+        if mem0_available and Memory is not None:
             self.memory = Memory()
             logger.info("mem0 memory initialized")
         else:
@@ -388,49 +390,3 @@ if __name__ == "__main__":
             logger.info("Workflow result: %s", result)
         except Exception:
             logger.exception("Error running workflow: %s")
-
-# Move the fallback logic to a try/except ImportError block for clean type handling
-try:
-    # Main implementation (already present above)
-    pass  # The main MemoryEnhancedCrewAIAgentTeam is defined above
-except ImportError:
-    # Only define the fallback if the main class cannot be defined
-    class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
-        """Memory-enhanced CrewAIAgentTeam stub for fallback."""
-
-        def __init__(
-            self, llm_provider: object = None, user_id: Optional[str] = None
-        ) -> None:
-            """Initialize the fallback memory-enhanced CrewAIAgentTeam stub."""
-            super().__init__(llm_provider)
-            self.agents = []
-            self.tasks = []
-            self.user_id = user_id or "default_user"
-
-        def add_agent(self, role: str, goal: str, backstory: str) -> AgentProtocol:
-            """Stub method for adding an agent. Not implemented in fallback."""
-            msg = "This is a stub method."
-            raise NotImplementedError(msg)
-
-        def add_task(
-            self, description: str, agent: Union[str, AgentProtocol]
-        ) -> TaskProtocol:
-            """Stub method for adding a task. Not implemented in fallback."""
-            msg = "This is a stub method."
-            raise NotImplementedError(msg)
-
-        def store_memory(
-            self,
-            content: Union[str, list[dict[str, str]]],
-            metadata: Optional[dict[str, str]] = None,
-        ) -> None:
-            """Stub method for storing memory. Not implemented in fallback."""
-            msg = "This is a stub method."
-            raise NotImplementedError(msg)
-
-        def retrieve_relevant_memories(
-            self, query: Optional[str] = None, limit: int = 5
-        ) -> list[dict[str, Any]]:
-            """Stub method for retrieving relevant memories. Not implemented in fallback."""
-            _ = query, limit  # Suppress unused argument warning
-            return []

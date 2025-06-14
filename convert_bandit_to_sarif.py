@@ -239,7 +239,8 @@ def _create_windows_junction(target_dir: Path, link_name: str) -> bool:
                     or (k == "pass_fds" and isinstance(v, (list, tuple, set)))
                 )
             }
-            return subprocess.run(cmd, check=False, **filtered_kwargs)  # noqa: S603 # type: ignore[call-arg]
+            # nosec S603 - cmd_path is validated via shutil.which, shell=False, no user input
+            return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]  # noqa: S603
 
         _safe_subprocess_run(cmd)  # Safe: cmd_path is from shutil.which, args are fixed
     except (OSError, PermissionError, subprocess.SubprocessError):

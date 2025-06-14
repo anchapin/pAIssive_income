@@ -97,7 +97,7 @@ def _safe_subprocess_run(
             )
         )
     }
-    return subprocess.run(cmd, check=False, **filtered_kwargs)  # noqa: S603 # type: ignore[call-arg]
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]  # noqa: S603
 
 
 def run_command(command: str) -> tuple[str, str, int]:

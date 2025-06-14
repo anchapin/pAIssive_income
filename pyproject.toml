@@ -119,6 +119,8 @@ select = [
     "PL",  # pylint
     "TRY", # tryceratops
     "FIX", # autofix
+    "S",   # bandit security rules
+    "PERF", # performance rules
 ]
 
 ignore = [
@@ -190,6 +192,11 @@ lines-between-types = 1
 "scripts/setup/regenerate_venv.py" = ["S603", "TRY300"]
 "scripts/setup/setup_pre_commit.py" = ["S603"]
 "scripts/setup/setup_dev_environment.py" = ["S603"]
+"run_basic_tests.py" = ["S603"]
+"simple_bandit_scan.py" = ["S603"]
+"tests/security/test_security_scan.py" = ["S603"]
+"scripts/ci/simulate_ci_environment.py" = ["S108"]
+"validate_workflows.py" = ["PERF203"]
 
 # Enhanced formatter settings
 [tool.ruff.format]

@@ -120,6 +120,8 @@ demo_documents = [
     {
         "id": "5",
         "content": "Retrieval-Augmented Generation (RAG) enhances LLMs with external knowledge.",
+        "user_id": "global",
+        "metadata": {"type": "fact", "source": "demo", "lang": "en"},
     },
 ]
 
@@ -144,25 +146,25 @@ def embed_and_insert_documents_with_dedup(
     Returns: (inserted_docs, skipped_duplicate_ids).
     """
     stored_hashes = set()
+    inserted_docs: list[dict] = []
+    skipped_ids: list[str] = []
+
     # Retrieve all existing documents' canonical hashes (if any)
     # (In production: index this efficiently. For demo, we keep it simple.)
     try:
         # Attempt to fetch all docs (if API allows)
         existing = collection.get(include=["documents", "metadatas"])
-        docs = existing.get("documents")
-        metas = existing.get("metadatas")
-        if docs is not None and metas is not None:
-            for i, doc_content in enumerate(docs):
-                meta = metas[i]
+        existing_docs = existing.get("documents")
+        existing_metas = existing.get("metadatas")
+        if existing_docs is not None and existing_metas is not None:
+            for i, doc_content in enumerate(existing_docs):
+                meta = existing_metas[i]
                 uid = meta.get("user_id", user_id_default)
-                meta.get("source", "demo")
                 content = doc_content
                 doc_hash = canonical_doc_hash(uid, content, meta)
                 stored_hashes.add(doc_hash)
     except (RuntimeError, ValueError, KeyError, TypeError) as e:
         logger.warning("Collection may be empty or error occurred: %s", e)
-
-    collection.add(ids=ids, documents=contents, embeddings=embeddings)
 
     for doc_in in docs:
         doc = prepare_document(doc_in, user_id=user_id_default)
@@ -239,7 +241,11 @@ def query_with_metadata_filter(
 
 # 6. Demo query
 query = "What city is the Eiffel Tower located in?"
+metadata_filter = {"type": "fact"}  # Filter for fact-type documents
 
+results = query_with_metadata_filter(
+    collection, query, user_id="global", metadata_filter=metadata_filter
+)
 logger.info("\nQuery: %s\nFilter: %s\nResults:", query, metadata_filter)
 docs = results.get("documents")
 metas = results.get("metadatas")

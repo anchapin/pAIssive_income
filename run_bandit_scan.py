@@ -17,6 +17,7 @@ import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -136,7 +137,7 @@ def find_bandit_executable() -> str:
     return "bandit"
 
 
-def run_bandit_scan(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+def run_bandit_scan(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:  # noqa: ANN401
     """Run Bandit scan with trusted binaries only."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
@@ -157,7 +158,10 @@ def run_bandit_scan(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  #
     return subprocess.run(cmd, check=False, shell=False, **filtered_kwargs)  # noqa: S603
 
 
-def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+def _safe_subprocess_run(
+    cmd: list[str],
+    **kwargs: Any,  # noqa: ANN401
+) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])
@@ -228,7 +232,7 @@ def install_bandit_if_needed(bandit_path: str) -> str:
         try:
             _safe_subprocess_run([sys.executable, "-m", "pip", "install", "bandit"])
             bandit_path = find_bandit_executable()
-        except Exception:  # noqa: BLE001
+        except (subprocess.SubprocessError, OSError, FileNotFoundError):
             logger.warning("Failed to install bandit")
     return bandit_path
 
@@ -253,7 +257,7 @@ def run_bandit_with_config(bandit_path: str) -> None:
                 ]
             )
             logger.info("Bandit scan completed with configuration file")
-        except Exception:  # noqa: BLE001
+        except (subprocess.SubprocessError, OSError, FileNotFoundError):
             logger.warning("Bandit scan with configuration file failed")
     else:
         logger.info(
@@ -272,7 +276,7 @@ def run_bandit_with_config(bandit_path: str) -> None:
                 ]
             )
             logger.info("Bandit scan completed with default configuration")
-        except Exception:  # noqa: BLE001
+        except (subprocess.SubprocessError, OSError, FileNotFoundError):
             logger.warning("Bandit scan with default configuration failed")
 
 
@@ -283,9 +287,9 @@ def convert_json_to_sarif() -> None:
             try:
                 _safe_subprocess_run([sys.executable, "convert_bandit_to_sarif.py"])
                 logger.info("Converted Bandit results to SARIF format")
-            except Exception:  # noqa: BLE001
+            except (subprocess.SubprocessError, OSError, FileNotFoundError):
                 logger.warning("Failed to convert Bandit results to SARIF format")
-    except Exception:
+    except (OSError, FileNotFoundError):
         logger.exception("Error converting to SARIF")
 
 

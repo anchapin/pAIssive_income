@@ -15,8 +15,6 @@ from app_flask.utils.logging_utils import sanitize_log_data, structured_log
 if TYPE_CHECKING:
     from flask import Flask, Response
     from werkzeug.wrappers import Response as WerkzeugResponse
-else:
-    from flask import Flask, Response
 
 logger = getLogger(__name__)
 

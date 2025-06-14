@@ -7,4 +7,4 @@ EXPECTED_SUM = 2
 def test_simple() -> None:
     """A simple test to verify that pytest works (assert is allowed in test files)."""
     # nosec B101 - This is a test file, assert is expected
-    assert EXPECTED_SUM == 1 + 1  # noqa: S101
+    assert EXPECTED_SUM == 1 + 1

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CI Environment Test Script
+CI Environment Test Script.
 
 This script tests the CI environment detection functionality by running the
 detect_ci_environment.py script in various simulated CI environments.
@@ -17,6 +17,8 @@ Options:
     --kubernetes    Test Kubernetes environment
 """
 
+from __future__ import annotations
+
 import argparse
 import os
 import subprocess
@@ -25,7 +27,7 @@ import tempfile
 from pathlib import Path
 
 
-def run_detect_script(env_vars=None, verbose=False):
+def run_detect_script(env_vars: dict[str, str] | None = None, verbose: bool = False):
     """
     Run the detect_ci_environment.py script with the specified environment variables.
 
@@ -60,9 +62,10 @@ def run_detect_script(env_vars=None, verbose=False):
         result = subprocess.run(
             cmd, env=env, capture_output=True, text=True, check=False
         )
-        return result.returncode, result.stdout, result.stderr
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError, FileNotFoundError) as e:
         return 1, "", str(e)
+    else:
+        return result.returncode, result.stdout, result.stderr
 
 
 def test_github_actions():
@@ -165,8 +168,7 @@ def test_docker():
         # Create cgroup file
         cgroup_dir = Path(temp_dir) / "proc" / "1" / "cgroup"
         cgroup_dir.parent.mkdir(parents=True, exist_ok=True)
-        with open(cgroup_dir, "w") as f:
-            f.write("12:memory:/docker/abcdef1234567890\n")
+        cgroup_dir.write_text("12:memory:/docker/abcdef1234567890\n")
 
         # Add the temporary directory to the environment variables
         env_vars["TEMP_DOCKER_DIR"] = str(temp_dir)
@@ -202,8 +204,7 @@ def test_kubernetes():
 
         # Create token file
         token_path = k8s_dir / "token"
-        with open(token_path, "w") as f:
-            f.write("eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9...")
+        token_path.write_text("eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9...")
 
         # Add the temporary directory to the environment variables
         env_vars["TEMP_K8S_DIR"] = str(temp_dir)
@@ -224,7 +225,7 @@ def test_kubernetes():
 
 
 def main():
-    """Main function."""
+    """Run the main function."""
     parser = argparse.ArgumentParser(description="Test CI environment detection")
     parser.add_argument("--all", action="store_true", help="Test all CI environments")
     parser.add_argument(

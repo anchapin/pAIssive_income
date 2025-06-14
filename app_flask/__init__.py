@@ -75,9 +75,7 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     # Import models so they're registered with SQLAlchemy
     # This must be done after db.init_app() to avoid circular imports
     with app.app_context(), contextlib.suppress(Exception):
-        from . import (
-            models,
-        )
+        from . import models
 
     # Register blueprints
     try:

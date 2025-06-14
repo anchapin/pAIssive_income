@@ -3,7 +3,6 @@
 
 import pytest
 from flask import Flask
-from flask.app import Flask  # Import actual Flask class
 from flask.testing import FlaskClient
 
 from app_flask import db
@@ -21,7 +20,7 @@ def test_user_model(app: Flask) -> None:
         user = User(
             username="testuser",
             email="test@example.com",
-            password_hash="hashed_password",  # noqa: S106 - Test data only
+            password_hash="hashed_password",  # noqa: S106
         )
         db.session.add(user)
         db.session.commit()
@@ -31,7 +30,7 @@ def test_user_model(app: Flask) -> None:
         assert queried_user is not None
         assert queried_user.username == "testuser"
         assert queried_user.email == "test@example.com"
-        assert queried_user.password_hash == "hashed_password"  # noqa: S105 - Test data only
+        assert queried_user.password_hash == "hashed_password"  # noqa: S105
 
         # Test string representation
         assert str(queried_user) == "<User testuser>"
@@ -160,7 +159,7 @@ def test_user_unique_constraints(app: Flask) -> None:
         user1 = User(
             username="unique_user",
             email="unique@example.com",
-            password_hash="password1",  # noqa: S106 - Test data only
+            password_hash="password1",  # noqa: S106
         )
         db.session.add(user1)
         db.session.commit()
@@ -170,7 +169,7 @@ def test_user_unique_constraints(app: Flask) -> None:
         user2 = User(
             username="unique_user",  # Same username
             email="different@example.com",
-            password_hash="password2",  # noqa: S106 - Test data only
+            password_hash="password2",  # noqa: S106
         )
         db.session.add(user2)
 
@@ -186,7 +185,7 @@ def test_user_unique_constraints(app: Flask) -> None:
         user3 = User(
             username="different_user",
             email="unique@example.com",  # Same email
-            password_hash="password3",  # noqa: S106 - Test data only
+            password_hash="password3",  # noqa: S106
         )
         db.session.add(user3)
 
