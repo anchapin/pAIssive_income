@@ -12,7 +12,7 @@ import secrets
 import string
 import time
 from datetime import datetime, timedelta, timezone
-from typing import TypeAlias
+from typing import Protocol, TypeAlias, runtime_checkable
 
 from common_utils.logging import get_logger
 from users.auth import hash_credential
@@ -20,6 +20,32 @@ from users.auth import hash_credential
 # Type aliases
 ResetResult: TypeAlias = tuple[bool, str | None]
 UserDict: TypeAlias = dict[str, str | None | int]
+
+
+# Protocol for user repository operations expected by UserService and auth.py
+@runtime_checkable
+class UserRepositoryProtocol(Protocol):
+    """Protocol for user repository operations used by UserService and auth.py."""
+
+    def find_by_id(self, user_id: str) -> UserDict | None:
+        """Find a user by their unique ID."""
+        ...
+
+    def find_api_key(self, api_key: str) -> UserDict | None:
+        """Find a user by their API key."""
+        ...
+
+    def find_by_email(self, email: str) -> UserDict | None:
+        """Find a user by their email address."""
+        ...
+
+    def find_by_reset_token(self, token: str) -> UserDict | None:
+        """Find a user by their reset token."""
+        ...
+
+    def update(self, user_id: int, data: dict) -> bool:
+        """Update a user's data by their ID."""
+        ...
 
 
 # Define a proper interface for UserRepository
@@ -187,10 +213,7 @@ class PasswordResetService:
             logger.warning("Reset code has no expiry", extra={"user_id": user["id"]})
             return False
 
-        expiry_str = user["auth_reset_expires"]
-        if not isinstance(expiry_str, str):
-            logger.warning("Invalid expiry format", extra={"user_id": user["id"]})
-            return False
+        expiry_str = str(user["auth_reset_expires"])
         expiry = datetime.fromisoformat(expiry_str)
         if expiry < datetime.now(tz=timezone.utc):
             logger.warning(

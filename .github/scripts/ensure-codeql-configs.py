@@ -16,6 +16,7 @@ def ensure_directory(directory):
     else:
         print(f"Directory already exists: {directory}")
 
+
 def create_codeql_config(filename, config_name, os_name=None):
     """Create a CodeQL configuration file with the given parameters."""
     config = {
@@ -23,7 +24,7 @@ def create_codeql_config(filename, config_name, os_name=None):
         "queries": [
             {"uses": "security-and-quality"},
             {"uses": "security-extended"},
-            {"uses": "security"}
+            {"uses": "security"},
         ],
         "disable-default-queries": False,
         "paths-ignore": [
@@ -33,8 +34,8 @@ def create_codeql_config(filename, config_name, os_name=None):
             "**/*.test.py",
             "**/*.spec.py",
             "tests/**",
-            "test_mem0_integration.py"
-        ]
+            "test_mem0_integration.py",
+        ],
     }
 
     if os_name:
@@ -45,6 +46,7 @@ def create_codeql_config(filename, config_name, os_name=None):
 
     print(f"Created CodeQL configuration file: {filename}")
 
+
 def main():
     """Main function to create CodeQL configuration files."""
     # Ensure the .github/codeql directory exists
@@ -53,7 +55,9 @@ def main():
 
     # Create the Ubuntu configuration
     ubuntu_config = os.path.join(codeql_dir, "security-os-ubuntu.yml")
-    create_codeql_config(ubuntu_config, "CodeQL Configuration for Ubuntu", "ubuntu-latest")
+    create_codeql_config(
+        ubuntu_config, "CodeQL Configuration for Ubuntu", "ubuntu-latest"
+    )
 
     # Create the macOS configuration
     macos_config = os.path.join(codeql_dir, "security-os-macos.yml")
@@ -64,6 +68,7 @@ def main():
     create_codeql_config(unified_config, "Unified CodeQL Configuration")
 
     print("All CodeQL configuration files created successfully.")
+
 
 if __name__ == "__main__":
     main()

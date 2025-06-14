@@ -23,6 +23,7 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "demo_vector_rag.py",  # Incomplete demo file
 ]
 
 # Same as Black
@@ -67,6 +68,12 @@ max-complexity = 10
 "tests/**/*.py" = ["S101", "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "ANN", "LOG015", "G004", "PTH", "F401", "N806", "PLR2004"]
 # Allow print statements in scripts and ignore subprocess security warnings
 "scripts/**/*.py" = ["T201", "S603"]
+# Allow test-style code in test files within scripts
+"scripts/**/test_*.py" = ["S101", "PT009", "ANN201"]
+# Allow invalid module names for scripts with hyphens
+"scripts/check-workflow-status.py" = ["N999"]
+# Allow assert in simple test file
+"simple_test.py" = ["S101"]
 # Ignore import issues in __init__.py files
 "__init__.py" = ["F401", "F403"]
 # Ignore subprocess security warnings in pre-commit scripts
@@ -81,6 +88,15 @@ max-complexity = 10
 "manage.py" = ["S603", "C901", "PLR0912", "PLR0915"]
 # Ignore type annotation issues in type stubs
 "type_stubs/**/*.pyi" = ["ANN401", "PYI001", "PYI018", "PYI021", "D204"]
+# Allow Any in logging functions where it's appropriate for *args/**kwargs
+"common_utils/logging/secure_logging.py" = ["ANN401"]
+# Allow binding to all interfaces in development/container contexts
+"artist_experiments/run_artist.py" = ["S104"]
+"run_ui.py" = ["S104"]
+# Allow demo placeholders in examples
+"common_utils/logging/examples.py" = ["S105"]
+# Allow subprocess calls in GitHub scripts
+".github/scripts/**/*.py" = ["S603"]
 
 [format]
 # Use double quotes for strings

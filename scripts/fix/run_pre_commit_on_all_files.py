@@ -65,7 +65,8 @@ def run_pre_commit(files: list[str]) -> int:
 
     # Run pre-commit on the files
     cmd = ["pre-commit", "run", "--files", *files]
-
+    # Convert any Path objects in cmd to str
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     # Use check=False to avoid raising an exception on non-zero exit code
     # nosec B603 S603 - We're only running pre-commit with Python files from the repo
     result = subprocess.run(

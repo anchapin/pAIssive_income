@@ -22,7 +22,6 @@ os.environ["SKIP_VENV_CHECK"] = "1"
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 def main() -> None:
     """Create empty SARIF files."""
     # Create security-reports directory if it doesn't exist

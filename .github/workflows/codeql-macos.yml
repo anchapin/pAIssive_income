@@ -26,6 +26,10 @@ on:
   schedule:
     - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 # Limit concurrent runs to conserve resources
 concurrency:
@@ -171,7 +175,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
+          # Remove cache: 'pip' to avoid cache folder path issues
 
       # Install dependencies if requirements.txt exists
       - name: Install dependencies
@@ -332,6 +336,38 @@ jobs:
           fi
         continue-on-error: true
 
+      # Ensure CodeQL configuration files exist
+      - name: Ensure CodeQL configuration files
+        shell: bash
+        run: |
+          if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
+            echo "Running ensure-codeql-configs.sh script..."
+            bash .github/scripts/ensure-codeql-configs.sh
+          else
+            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
+            mkdir -p .github/codeql
+            cat > .github/codeql/security-os-macos.yml << 'EOF'
+name: "CodeQL Configuration for macOS"
+os: macos-latest
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+            EOF
+            cat > .github/codeql/security-os-config.yml << 'EOF'
+name: "Unified CodeQL Configuration"
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+            EOF
+          fi
+
+      # Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:

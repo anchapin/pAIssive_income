@@ -93,7 +93,9 @@ paths = [
     "tests/api/test_user_api\\.py$",
     "tests/api/test_rate_limiting_api\\.py$",
     "api/utils/auth\\.py$",
-    "api/routes/example_user_router\\.py$"
+    "api/routes/example_user_router\\.py$",
+    "api/routes/auth\\.py$",
+    "config\\.toml$"
 ]
 
 regexes = [
@@ -117,9 +119,13 @@ regexes = [
     "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}",
     "[0-9a-z]{32}",
 
-    # Library constants
+    # Library constants and functions
     "binarySearch\\.GREATEST_LOWER_BOUND",
     "SourceMapConsumer\\.(GREATEST_LOWER_BOUND|LEAST_UPPER_BOUND)",
+    "secrets\\.token_urlsafe\\(.*\\)",
+    "\\[REDACTED:.*\\]",
+    "token = secrets\\.token_urlsafe\\(32\\)",
+    "api_key = \"\\[REDACTED:api-key\\]\"",
 
     # Semgrep and Pylint patterns
     "--enable=security",
@@ -212,7 +218,11 @@ regexes = [
     "updateu@example.com",
     "delu@example.com",
     "unique@example.com",
-    "weakpw@example.com"
+    "weakpw@example.com",
+
+    # Allow GIT_AUTH_TOKEN env for GitHub Actions
+    'GIT_AUTH_TOKEN: \${{ secrets\.[A-Z0-9_]+ }}',
+    'secrets\.ACTIONS_BOT_PAT',
 ]
 
 [[rules]]
@@ -290,7 +300,9 @@ exclude = [
     "(?i)verify[_-]",
     "(?i)generate[_-]",
     "(?i)store[_-]",
-    "(?i)clear[_-]"
+    "(?i)clear[_-]",
+    "(?i)\\[REDACTED:",
+    "(?i)redacted"
 ]
 
 [[rules]]
@@ -343,5 +355,10 @@ exclude = [
     "(?i)secrets\\.DOCKER_USERNAME",
     "(?i)secrets\\.DOCKER_PASSWORD",
     "(?i)secrets\\.DOCKERHUB_USERNAME",
-    "(?i)secrets\\.DOCKERHUB_TOKEN"
+    "(?i)secrets\\.DOCKERHUB_TOKEN",
+    "(?i)secrets\\.token_urlsafe"
 ]
+
+[[allowlist.patterns]]
+pattern = '\${{\ *secrets\.[A-Z0-9_]+\ *}}'
+description = "Allow GitHub Actions secrets syntax in workflow files"

@@ -1,1 +1,1 @@
-"""Examples package for pAIssive_income project."""
+"""Examples package for demonstrating various features."""

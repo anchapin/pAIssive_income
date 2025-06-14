@@ -2,7 +2,7 @@ name: "CodeQL Analysis"
 
 # This workflow performs CodeQL analysis for JavaScript/TypeScript and Python
 # It runs on push to main branches, pull requests to main branches, and on a weekly schedule
-# The workflow is designed to provide comprehensive security analysis with detailed configuration
+# The workflow is designed to provide comprehensive security analysis with optimized timeouts
 
 on:
   pull_request:
@@ -26,6 +26,10 @@ on:
   schedule:
     - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 # Limit concurrent runs to conserve resources
 concurrency:
@@ -40,10 +44,13 @@ permissions:
   contents: read
 
 jobs:
-  analyze-javascript:
-    name: Analyze JavaScript/TypeScript
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 90  # Increased timeout for larger codebases
+  analyze:
+    name: Analyze
+    # Use Ubuntu as the primary runner for this workflow
+    # Platform-specific analysis is handled by dedicated workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 45  # Reduced timeout to prevent long-running jobs
+
     strategy:
       fail-fast: false
       matrix:
@@ -55,9 +62,10 @@ jobs:
         with:
           fetch-depth: 0  # Full git history for better analysis
 
-      # Cache CodeQL database to speed up analysis
-      - name: Cache CodeQL database
-        uses: actions/cache@v4
+      # Set up pnpm first for JavaScript/TypeScript analysis
+      - name: Setup pnpm
+        if: matrix.language == 'javascript-typescript'
+        uses: pnpm/action-setup@v4
         with:
           path: ~/.codeql/databases
           key: codeql-javascript-${{ github.sha }}
@@ -114,89 +122,60 @@ jobs:
             echo "Installing dependencies with pnpm in root directory..."
             pnpm install
           else
-            echo "No package.json found in root directory, checking ui/react_frontend..."
-            # Check for package.json in ui/react_frontend
-            if [ -f ui/react_frontend/package.json ]; then
-              echo "Installing dependencies with pnpm in ui/react_frontend..."
-              cd ui/react_frontend && pnpm install
+            echo "pnpm not found, will use npm instead"
+          fi
+
+      # Set up Python for Python analysis
+      - name: Set up Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          # Remove cache: pip to avoid cache folder path issues
+
+      # Display disk space before analysis
+      - name: Check disk space
+        shell: bash
+        run: df -h
+
+      # Verify lock files exist before analysis
+      - name: Verify lock files
+        if: matrix.language == 'javascript-typescript'
+        shell: bash
+        run: |
+          echo "Verifying lock files exist before CodeQL analysis..."
+          LOCK_FILES=$(find . -name "package-lock.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml")
+
+          if [ -z "$LOCK_FILES" ]; then
+            echo "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
+
+            # Create a minimal valid package-lock.json with echo
+            echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
+
+            echo "Created minimal package-lock.json in the root directory."
+
+            # Verify the file was created
+            if [ -f "package-lock.json" ]; then
+              echo "Verification: package-lock.json exists and contains:"
+              cat package-lock.json
+
+              # Add to .gitignore if it exists
+              if [ -f ".gitignore" ]; then
+                if ! grep -q "package-lock.json" .gitignore; then
+                  echo -e "\n# Generated during CodeQL analysis\npackage-lock.json" >> .gitignore
+                  echo "Added package-lock.json to .gitignore"
+                fi
+              fi
             else
               echo "No package.json found in ui/react_frontend, skipping dependency installation."
             fi
           fi
         continue-on-error: true
 
-      # Removed automatic fix script execution to prevent auto-fixing CodeQL issues
-      # Instead, we'll just create a .codeqlignore file
-      - name: Create .codeqlignore file
-        shell: bash
-        run: |
-          echo "Creating .codeqlignore file instead of running fix script..."
-          cat > .codeqlignore << 'EOL'
-          .venv/**
-          venv/**
-          env/**
-          .env/**
-          **/virtualenv/**
-          **/site-packages/**
-          **/dist-packages/**
-          **/node_modules/**
-          **/dist/**
-          **/build/**
-          **/vendor/**
-          **/external/**
-          **/third_party/**
-          **/__pycache__/**
-          **/.pytest_cache/**
-          **/.mypy_cache/**
-          **/.ruff_cache/**
-          **/*.pyc
-          **/*.pyo
-          **/*.pyd
-          **/test/**
-          **/tests/**
-          **/__tests__/**
-          **/__mocks__/**
-          **/*.test.js
-          **/*.test.ts
-          **/*.test.jsx
-          **/*.test.tsx
-          **/*.spec.js
-          **/*.spec.ts
-          **/*.spec.jsx
-          **/*.spec.tsx
-          **/.github/**
-          **/.vscode/**
-          **/.idea/**
-          **/coverage/**
-          **/.git/**
-          **/docs/**
-          **/*.md
-          **/*.mdx
-          **/*.rst
-          **/sphinx/**
-          **/playwright-report/**
-          **/generated/**
-          **/sarif-results/**
-          **/*.sarif
-          **/*.sarif.json
-          ui/react_frontend/node_modules/**
-          sdk/javascript/node_modules/**
-          EOL
-
-          # List directories to verify
-          echo "Current directories:"
-          ls -la
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript-typescript
-          queries: security-and-quality
-          config-file: ./.github/codeql/security-os-config.yml
-
-      # Install Node.js dependencies before autobuild
+      # Install dependencies for JavaScript/TypeScript with timeout
       - name: Install Node.js dependencies
         shell: bash
+        timeout-minutes: 10  # Add timeout for dependency installation
         run: |
           # Function to install dependencies with fallback
           install_deps() {
@@ -212,9 +191,9 @@ jobs:
             # Try with pnpm first (preferred)
             if command -v pnpm &>/dev/null; then
               echo "Using pnpm to install dependencies..."
-              pnpm install || {
-                echo "pnpm install failed, trying with npm..."
-                npm install || {
+              timeout 8m pnpm install || {
+                echo "pnpm install failed or timed out, trying with npm..."
+                timeout 8m npm install || {
                   echo "Both pnpm and npm installation failed in $(pwd)"
                   cd "$original_dir"
                   return 1
@@ -222,10 +201,12 @@ jobs:
               }
             else
               # Fallback to npm if pnpm is not available
-              echo "pnpm not found, using npm to install dependencies..."
-              npm install || {
-                echo "npm installation failed in $(pwd)"
-                cd "$original_dir"
+              echo "pnpm not found, using npm..."
+              timeout 8m npm install || {
+                echo "npm install failed in $(pwd)"
+                if [ -n "$dir" ]; then
+                  cd "$original_dir"
+                fi
                 return 1
               }
             fi
@@ -254,10 +235,43 @@ jobs:
             echo "Found package.json in sdk/javascript"
             install_deps "sdk/javascript"
           fi
+        continue-on-error: true
 
-      # Autobuild attempts to build any compiled languages
+      # Clean up node_modules to save space
+      - name: Clean up node_modules
+        if: matrix.language == 'javascript-typescript'
+        shell: bash
+        run: |
+          echo "Cleaning up node_modules to save space..."
+          find . -name "node_modules" -type d -prune -exec rm -rf {} \; 2>/dev/null || true
+        continue-on-error: true
+
+      # Ensure CodeQL configuration files exist
+      - name: Ensure CodeQL configuration files
+        shell: bash
+        run: |
+          if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
+            echo "Running ensure-codeql-configs.sh script..."
+            timeout 5m bash .github/scripts/ensure-codeql-configs.sh
+          else
+            echo "ensure-codeql-configs.sh script not found. Skipping custom configuration..."
+            echo "CodeQL will use default configuration."
+          fi
+
+      # Initialize CodeQL with timeout
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+          debug: false  # Disable debug to reduce output and improve performance
+        timeout-minutes: 10
+
+      # Autobuild attempts to build any compiled languages with timeout
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
+        timeout-minutes: 15
+        continue-on-error: true
 
       # Display disk space before analysis
       - name: Check disk space (Linux/macOS)
@@ -307,15 +321,9 @@ jobs:
         with:
           category: "/language:javascript-typescript"
           upload: true
-          output: sarif-results/javascript-typescript-${{ runner.os }}.sarif
-
-      # Add language-specific configuration for JavaScript/TypeScript
-      - name: Upload language-specific CodeQL configuration
-        uses: github/codeql-action/upload-sarif@v3
-        continue-on-error: true
-        with:
-          sarif_file: sarif-results/javascript-typescript-${{ runner.os }}.sarif
-          category: "/language:javascript-typescript"
+          output: sarif-results/${{ matrix.language }}-${{ runner.os }}.sarif
+        timeout-minutes: 20  # Add timeout for analysis step
+        continue-on-error: false # Fail the workflow if CodeQL analysis fails
 
       # Upload SARIF results as an artifact
       - name: Upload SARIF results
@@ -563,3 +571,4 @@ jobs:
           name: python-${{ runner.os }}-sarif
           path: sarif-results/python-${{ runner.os }}.sarif
           retention-days: 7
+          if-no-files-found: warn # Warn but don't fail if no files are found

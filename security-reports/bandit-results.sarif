@@ -6,11 +6,121 @@
       "tool": {
         "driver": {
           "name": "Bandit",
-          "informationUri": "https://bandit.readthedocs.io/",
-          "rules": []
+          "informationUri": "https://github.com/PyCQA/bandit",
+          "version": "1.7.5",
+          "rules": [
+            {
+              "id": "BB110",
+              "shortDescription": {"text": "try_except_pass"},
+              "fullDescription": {"text": "Try, Except, Pass detected."},
+              "helpUri": "https://bandit.readthedocs.io/en/latest/",
+              "properties": {"tags": ["security", "python"]}
+            },
+            {
+              "id": "BB201",
+              "shortDescription": {"text": "flask_debug_true"},
+              "fullDescription": {"text": "A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code."},
+              "helpUri": "https://bandit.readthedocs.io/en/latest/",
+              "properties": {"tags": ["security", "python"]}
+            },
+            {
+              "id": "BB104",
+              "shortDescription": {"text": "hardcoded_bind_all_interfaces"},
+              "fullDescription": {"text": "Possible binding to all interfaces."},
+              "helpUri": "https://bandit.readthedocs.io/en/latest/",
+              "properties": {"tags": ["security", "python"]}
+            },
+            {
+              "id": "BB105",
+              "shortDescription": {"text": "hardcoded_password_string"},
+              "fullDescription": {"text": "Possible hardcoded password: 'DEMO_TOKEN_PLACEHOLDER'"},
+              "helpUri": "https://bandit.readthedocs.io/en/latest/",
+              "properties": {"tags": ["security", "python"]}
+            },
+            {
+              "id": "BB602",
+              "shortDescription": {"text": "subprocess_popen_with_shell_equals_true"},
+              "fullDescription": {"text": "subprocess call with shell=True identified, security issue."},
+              "helpUri": "https://bandit.readthedocs.io/en/latest/",
+              "properties": {"tags": ["security", "python"]}
+            }
+          ]
         }
       },
-      "results": []
+      "results": [
+        {
+          "ruleId": "BB110",
+          "level": "warning",
+          "message": {"text": "Try, Except, Pass detected."},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\app_flask\\__init__.py"}, "region": {"startLine": 65, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB110",
+          "level": "warning",
+          "message": {"text": "Try, Except, Pass detected."},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\app_flask\\__init__.py"}, "region": {"startLine": 83, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB110",
+          "level": "warning",
+          "message": {"text": "Try, Except, Pass detected."},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\app_flask\\__init__.py"}, "region": {"startLine": 93, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB201",
+          "level": "warning",
+          "message": {"text": "A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code."},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\artist_experiments\\run_artist.py"}, "region": {"startLine": 86, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB104",
+          "level": "warning",
+          "message": {"text": "Possible binding to all interfaces."},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\artist_experiments\\run_artist.py"}, "region": {"startLine": 86, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB105",
+          "level": "warning",
+          "message": {"text": "Possible hardcoded password: 'DEMO_TOKEN_PLACEHOLDER'"},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\common_utils\\logging\\examples.py"}, "region": {"startLine": 28, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB105",
+          "level": "warning",
+          "message": {"text": "Possible hardcoded password: 'DEMO_TOKEN_PLACEHOLDER'"},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\common_utils\\logging\\examples.py"}, "region": {"startLine": 55, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB105",
+          "level": "warning",
+          "message": {"text": "Possible hardcoded password: 'secret:'"},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\common_utils\\secrets\\config.py"}, "region": {"startLine": 29, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB110",
+          "level": "warning",
+          "message": {"text": "Try, Except, Pass detected."},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\demo_vector_rag.py"}, "region": {"startLine": 166, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB105",
+          "level": "warning",
+          "message": {"text": "Possible hardcoded password: ''"},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\init_db.py"}, "region": {"startLine": 39, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB104",
+          "level": "warning",
+          "message": {"text": "Possible binding to all interfaces."},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\run_ui.py"}, "region": {"startLine": 312, "startColumn": 1}}}]
+        },
+        {
+          "ruleId": "BB602",
+          "level": "warning",
+          "message": {"text": "subprocess call with shell=True identified, security issue."},
+          "locations": [{"physicalLocation": {"artifactLocation": {"uri": ".\\verify_pr243_fixes.py"}, "region": {"startLine": 20, "startColumn": 1}}}]
+        }
+      ]
     }
   ]
 }

@@ -4,6 +4,8 @@ Simple test script to verify mem0 installation and functionality.
 This script tests basic mem0 operations to ensure it's working correctly.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import sys

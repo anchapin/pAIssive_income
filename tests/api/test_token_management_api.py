@@ -1,17 +1,13 @@
 """Tests for API token management, validation, refresh, and error handling."""  # Test token only
 
 import pytest
+
 from fastapi.testclient import TestClient
 
 try:
-    from api.main import (
-        app,
-    )  # Adjust if FastAPI app is elsewhere  # type: ignore[import-untyped]
+    from api.app import app  # type: ignore[import-untyped]
 except ImportError:
-    try:
-        from api.app import app  # type: ignore[import-untyped]
-    except ImportError:
-        app = None
+    app = None
 
 client = TestClient(app) if app else None
 

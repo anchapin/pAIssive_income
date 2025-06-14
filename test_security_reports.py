@@ -12,13 +12,43 @@ from __future__ import annotations
 
 import json
 import logging
-import os
+import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
+
+
+# Helper for safe subprocess execution (addresses Ruff S603)
+def _safe_subprocess_run(
+    cmd: list[str],
+    **kwargs: Any,  # noqa: ANN401
+) -> subprocess.CompletedProcess[str]:
+    """Safely run a subprocess command, only allowing trusted binaries."""
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    allowed_binaries = {sys.executable}
+    if not cmd or (
+        cmd[0] not in allowed_binaries and not str(cmd[0]).endswith("pytest")
+    ):
+        msg = f"Untrusted or unsupported command: {cmd}"
+        raise ValueError(msg)
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, shell=False, **filtered_kwargs)  # nosec B603  # noqa: S603
 
 
 def check_security_reports_dir() -> bool:
@@ -75,57 +105,46 @@ def validate_json_files() -> bool:
     bandit_results_ini = Path("security-reports/bandit-results-ini.json")
 
     try:
-        with open(bandit_results) as f:
+        with bandit_results.open() as f:
             json.load(f)
         logger.info("bandit-results.json is valid JSON")
-    except (json.JSONDecodeError, Exception) as e:
-        logger.exception("bandit-results.json is not valid JSON: %s", e)
+    except (json.JSONDecodeError, Exception):
+        logger.exception("bandit-results.json is not valid JSON")
         return False
 
     try:
-        with open(bandit_results_ini) as f:
+        with bandit_results_ini.open() as f:
             json.load(f)
         logger.info("bandit-results-ini.json is valid JSON")
-    except (json.JSONDecodeError, Exception) as e:
-        logger.exception("bandit-results-ini.json is not valid JSON: %s", e)
+    except (json.JSONDecodeError, Exception):
+        logger.exception("bandit-results-ini.json is not valid JSON")
         return False
 
     return True
 
 
 def main() -> int:
-    """
-    Main entry point for the script.
-
-    Returns:
-        int: 0 if all checks pass, 1 otherwise
-
-    """
+    """Run all security report checks and return exit code."""
     # Check if the security-reports directory exists
     if not check_security_reports_dir():
         # Try to create the directory
         try:
-            os.makedirs("security-reports", exist_ok=True)
+            Path("security-reports").mkdir(parents=True, exist_ok=True)
             logger.info("Created security-reports directory")
-        except Exception as e:
-            logger.exception("Failed to create security-reports directory: %s", e)
+        except Exception:
+            logger.exception("Failed to create security-reports directory")
             return 1
 
     # Check if the JSON files exist
     if not check_json_files():
         # Try to run the test_bandit_config.py script
         try:
-            import subprocess
-
-            subprocess.run(
-                [sys.executable, "test_bandit_config.py"],
-                check=False,
-                shell=False,
-                timeout=300,
+            _safe_subprocess_run(
+                [str(Path("test_bandit_config.py"))], check=False, shell=False
             )
             logger.info("Ran test_bandit_config.py")
-        except Exception as e:
-            logger.exception("Failed to run test_bandit_config.py: %s", e)
+        except Exception:
+            logger.exception("Failed to run test_bandit_config.py")
             return 1
 
         # Check again

@@ -18,8 +18,10 @@ from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from pydantic import BaseModel
 
 from common_utils.logging import get_logger
+from users.password_reset import UserRepositoryProtocol
 
 if TYPE_CHECKING:
+    from users.password_reset import UserRepositoryProtocol
     from users.services import UserService
 
 # Initialize logger
@@ -91,7 +93,8 @@ async def get_current_user(
             detail="Internal server error",
         )
 
-    user = user_service.user_repository.find_by_id(user_id)
+    user_repo: UserRepositoryProtocol = user_service.user_repository  # type: ignore[assignment]
+    user = user_repo.find_by_id(user_id)
     if not user:
         logger.warning("User not found: %s", user_id)
         raise credentials_exception
@@ -165,7 +168,8 @@ async def verify_api_key(
         )
 
     # Find the API key
-    api_key_data = user_service.user_repository.find_api_key(api_key)
+    user_repo: UserRepositoryProtocol = user_service.user_repository  # type: ignore[assignment]
+    api_key_data = user_repo.find_api_key(api_key)
     if not api_key_data:
         logger.warning("Invalid API key")
         raise HTTPException(
@@ -175,15 +179,29 @@ async def verify_api_key(
 
     # Check if the API key is expired
     expires_at = api_key_data.get("expires_at")
-    if (
-        expires_at
-        and isinstance(expires_at, str)
-        and expires_at < datetime.now(tz=timezone.utc).isoformat()
-    ):
-        logger.warning("Expired API key")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Expired API key",
-        )
+    if expires_at:
+        # Convert expires_at to datetime if it's a string or int
+        if isinstance(expires_at, str):
+            try:
+                from datetime import datetime as dt
+
+                expires_dt = dt.fromisoformat(expires_at.replace("Z", "+00:00"))
+            except ValueError:
+                expires_dt = datetime.now(tz=timezone.utc)
+        elif isinstance(expires_at, int):
+            # Assume it's a Unix timestamp
+            expires_dt = datetime.fromtimestamp(expires_at, tz=timezone.utc)
+        elif isinstance(expires_at, datetime):
+            expires_dt = expires_at
+        else:
+            # Unknown type, skip expiration check
+            expires_dt = None
+
+        if expires_dt and expires_dt < datetime.now(tz=timezone.utc):
+            logger.warning("Expired API key")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Expired API key",
+            )
 
     return dict(api_key_data)

@@ -309,7 +309,7 @@ if __name__ == "__main__":
 
     # Default to localhost for security, only bind to all interfaces in container
     if is_container:
-        default_host = "0.0.0.0"  # noqa: S104 - Intentional for container environments
+        default_host = "0.0.0.0"  # nosec B104 - intentional binding in container environment
         if hasattr(app, "logger"):
             app.logger.warning(
                 "Binding to all network interfaces (0.0.0.0). "
