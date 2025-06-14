@@ -76,7 +76,15 @@ class MemoryRAGCoordinator:
         except Exception:
             logger.exception("Failed to initialize ChromaDB or embedder")
 
-        # mem0 Memory object is not persistent; instantiate per query for thread safety
+        # Initialize mem0 Memory object (reuse for performance)
+        self._mem0_memory = None
+        try:
+            from mem0 import Memory
+            self._mem0_memory = Memory()
+        except ImportError:
+            logger.warning("mem0ai package is not installed. Install with: uv pip install mem0ai")
+        except Exception:
+            logger.exception("Failed to initialize mem0 Memory")
 
     def query(self, query: str, user_id: str) -> dict[str, Any]:
         """
@@ -136,7 +144,7 @@ class MemoryRAGCoordinator:
         """
         Query the mem0 memory system for relevant memories given a query and user ID.
 
-        Instantiates a mem0 Memory object and calls its `search` method.
+        Uses the pre-initialized mem0 Memory object for better performance.
 
         Returns
         -------
@@ -144,11 +152,11 @@ class MemoryRAGCoordinator:
             A list of dictionaries representing relevant memories.
 
         """
-        try:
-            from mem0 import Memory
+        if self._mem0_memory is None:
+            return []
 
-            memory = Memory()
-            results = memory.search(query=query, user_id=user_id)
+        try:
+            results = self._mem0_memory.search(query=query, user_id=user_id)
             if not isinstance(results, list):
                 logger.error("mem0 Memory.search did not return a list.")
                 return []
@@ -219,22 +227,35 @@ class MemoryRAGCoordinator:
             timestamp = r.get("timestamp")
             original_score = r.get("score")
             original_relevance = r.get("relevance")
-            # Normalize: for Chroma, lower distance is better, so invert to "higher is better"
+
+            # Normalize scores to a consistent scale where 'higher is better' for all sources
             current_relevance_value = 0.0
             if source == "chroma":
-                # If score is None, treat as worst
-                chroma_score = (
-                    original_score if original_score is not None else float("inf")
-                )
-                # If distance is 0..2 (L2) or 0..1 (cosine), this will always map higher similarity to higher value
-                current_relevance_value = 1.0 / (1.0 + chroma_score)
+                # ChromaDB typically returns distance scores where lower is better
+                # Convert to relevance where higher is better
+                if original_score is not None:
+                    # For distance metrics (0 to ~2 for L2, 0 to 1 for cosine distance):
+                    # Use 1/(1+distance) to convert to relevance (0 to 1 scale)
+                    # This ensures that distance 0 -> relevance 1.0, and larger distances -> smaller relevance
+                    current_relevance_value = 1.0 / (1.0 + original_score)
+                else:
+                    # If no score available, assign lowest relevance
+                    current_relevance_value = 0.0
             elif source == "mem0":
-                # If score not present, fall back to relevance, then 0.0
+                # mem0 typically returns relevance/similarity scores where higher is better
+                # Use score first, then relevance, then default to 0.0
                 current_relevance_value = (
                     original_score
                     if original_score is not None
                     else (original_relevance if original_relevance is not None else 0.0)
                 )
+                # Ensure mem0 scores are in 0-1 range for consistency
+                # If score is already > 1, normalize it (some systems might use different scales)
+                if current_relevance_value > 1.0:
+                    current_relevance_value = min(current_relevance_value / 100.0, 1.0)  # Assume 0-100 scale
+            else:
+                # Unknown source, default to 0.0
+                current_relevance_value = 0.0
             return {
                 "text": text_content,
                 "source": source,

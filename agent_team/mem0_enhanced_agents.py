@@ -250,6 +250,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         This method now uses the MemoryRAGCoordinator to provide unified,
         deduplicated, and relevance-ranked results from both mem0 and ChromaDB.
+        It works even when mem0 is not available, using only ChromaDB in that case.
 
         Args:
             query: Optional query string (defaults to team and agent information)
@@ -259,8 +260,6 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             List of relevant memories and RAG results, merged and deduplicated.
 
         """
-        if self.memory is None:
-            return []
         # If no query provided, create one based on team information
         if query is None:
             agent_roles = [getattr(agent, "role", "unknown") for agent in self.agents]
@@ -268,6 +267,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         try:
             # Query the unified memory/RAG coordinator
+            # This works even when mem0 is not available (will use only ChromaDB)
             unified_response = self.rag_coordinator.query(query, self.user_id)
             memories = unified_response.get("merged_results", [])
             # Optionally apply a limit to the number of returned results
@@ -346,8 +346,7 @@ Original context:
             List of relevant memory dictionaries
 
         """
-        _ = query, limit  # Suppress unused argument warning
-        return []
+        return self._retrieve_relevant_memories(query, limit)
 
 
 # Example usage
