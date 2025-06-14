@@ -1,6 +1,6 @@
 name: Consolidated CI/CD
 
-# Consolidated CI/CD Pipeline - Fixed for PR #243
+# Consolidated CI/CD Pipeline
 # This workflow handles continuous integration and deployment across multiple platforms.
 #
 # Jobs:
@@ -54,50 +54,65 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Weekly, for regular security scans
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
-    types:
-      - completed
+
+permissions:
+  contents: read
 
 # Prevent concurrent runs to avoid memory issues
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-  pull-requests: read
+env:
+  # Enable debug logging for troubleshooting
+  ACTIONS_RUNNER_DEBUG: true
+  ACTIONS_STEP_DEBUG: true
+  # Enhanced environment detection
+  CI: true
+  CI_ENVIRONMENT: true
+  CI_TYPE: github
+  GITHUB_ACTIONS: true
 
 jobs:
   lint-test:
     name: Lint, Type Check, and Test
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30  # Increased timeout to handle dependency installation
+    timeout-minutes: 30
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
       fail-fast: false
     permissions:
       contents: read
-      pull-requests: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Setup Node.js and pnpm
+      # - name: Ensure fixed CodeQL workflow files
+      #   if: runner.os == 'Windows'
+      #   shell: pwsh
+      #   run: |
+      #     Write-Host "Ensuring fixed CodeQL workflow files are used..."
+      #     if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
+      #       Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
+      #       ./.github/scripts/ensure-fixed-codeql-workflows.ps1
+      #     } else {
+      #       Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
+      #     }
+
+      # Setup Node.js and pnpm for Tailwind CSS build
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.11.1' # Specify a patch version
-          cache: 'pnpm'
-          cache-dependency-path: ui/react_frontend/pnpm-lock.yaml
+          node-version: '20'
+          cache: 'npm'  # Use npm cache initially to avoid pnpm cache issues
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8.14.0
+          version: 8
           run_install: false
 
       - name: Get pnpm store directory
@@ -116,7 +131,6 @@ jobs:
       - name: Install Node.js dependencies and build Tailwind CSS
         working-directory: ui/react_frontend
         shell: bash
-        timeout-minutes: 15  # Increased timeout for Windows
         run: |
           set -e
           echo "Installing Node.js dependencies..."
@@ -127,71 +141,37 @@ jobs:
             exit 1
           fi
 
-          # Try pnpm first, fallback to npm if it fails
-          if command -v pnpm &> /dev/null; then
-            echo "Using pnpm for installation..."
-            pnpm install --frozen-lockfile --prefer-offline || {
-              echo "pnpm install failed, trying with npm..."
-              npm ci --prefer-offline --no-audit --no-fund
-            }
+          # Install dependencies
+          pnpm install --frozen-lockfile
 
-            # Build Tailwind CSS
-            echo "Building Tailwind CSS..."
-            if pnpm run tailwind:build; then
-              echo "Tailwind build successful with pnpm"
-            else
-              echo "Tailwind build with pnpm failed, trying with npm..."
-              npm run tailwind:build || echo "Tailwind build failed, continuing without it"
-            fi
-          else
-            echo "pnpm not available, using npm..."
-            npm ci --prefer-offline --no-audit --no-fund
-            npm run tailwind:build || echo "Tailwind build failed, continuing without it"
-          fi
+          # Build Tailwind CSS
+          echo "Building Tailwind CSS..."
+          pnpm tailwind:build
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Cache uv dependencies
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cache/pip
             ~/.cache/uv
             ~/.uv
-          key: ${{ runner.os }}-python-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/requirements*.txt') }}
           restore-keys: |
-            ${{ runner.os }}-python-
+            ${{ runner.os }}-uv-
 
-      - name: Install Python dependencies (Unix)
+      - name: Install uv (Unix)
         if: runner.os != 'Windows'
-        shell: bash
-        timeout-minutes: 15
         run: |
-          set -e
-          echo "Installing Python dependencies on Unix..."
+          mkdir -p ~/.cache/uv
+          mkdir -p ~/.uv
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          # Verify uv is installed and in PATH
+          which uv || echo "uv not found in PATH"
 
-          # Upgrade pip first
-          python -m pip install --upgrade pip
-
-          # Install essential testing tools
-          python -m pip install ruff pytest pytest-cov pytest-xdist pytest-asyncio
-
-          # Use CI requirements for faster installation
-          if [ -f requirements-ci.txt ]; then
-            echo "Installing CI requirements..."
-            python -m pip install -r requirements-ci.txt
-          elif [ -f requirements-dev.txt ]; then
-            echo "Installing dev requirements..."
-            python -m pip install -r requirements-dev.txt
-          elif [ -f requirements.txt ]; then
-            echo "Installing main requirements..."
-            python -m pip install -r requirements.txt
-          fi
-
-          echo "Python dependencies installed successfully"
       - name: Install uv (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -639,7 +619,6 @@ jobs:
       security-events: write
       contents: read
       actions: read
-      pull-requests: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -680,7 +659,6 @@ jobs:
 
       - name: Install uv (Unix)
         if: runner.os != 'Windows'
-        shell: bash
         run: |
           python -m pip install --upgrade pip
           pip install uv
@@ -694,7 +672,6 @@ jobs:
 
       - name: Install security tools (Unix)
         if: runner.os != 'Windows'
-        shell: bash
         run: |
           # Install security tools directly without creating a virtual environment
           # This avoids issues with virtual environment creation in the CI environment
@@ -738,7 +715,6 @@ jobs:
       - name: Run security scans (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
-        shell: bash
         run: |
           # Create security-reports directory if it doesn't exist
           mkdir -p security-reports
@@ -752,6 +728,9 @@ jobs:
             echo "Created empty-sarif.json in root directory"
           fi
 
+          # Generate Bandit configuration files
+          python generate_bandit_config.py ${{ github.run_id }}
+
           # Create empty JSON file as initial fallback
           echo '{"results": [], "errors": []}' > security-reports/bandit-results.json
           echo "Created empty JSON results file as initial fallback"
@@ -760,94 +739,54 @@ jobs:
           echo "Running safety check..."
           safety check || echo "Safety check failed, but continuing"
 
-          # Run Bandit with simplified configuration
-          echo "Running Bandit security scan..."
-          if [ -f "bandit.yaml" ]; then
-            echo "Using bandit.yaml configuration file"
-            bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates" --exit-zero || echo "Bandit scan failed, but continuing with fallback JSON file"
+          # Run Bandit using the shell script if available
+          if [ -f "run_bandit.sh" ]; then
+            echo "Using run_bandit.sh script to run bandit"
+            chmod +x run_bandit.sh
+            ./run_bandit.sh || echo "run_bandit.sh failed, but continuing with fallback JSON file"
+          elif [ -f "test_bandit_config.py" ]; then
+            echo "Using test_bandit_config.py script to run bandit"
+            python test_bandit_config.py || echo "test_bandit_config.py failed, but continuing with fallback JSON file"
           else
-            echo "bandit.yaml configuration file not found. Using default configuration."
-            bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" --exit-zero || echo "Bandit scan failed, but continuing with fallback JSON file"
-          fi
-
-          # Create SARIF file
-          echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}' > security-reports/bandit-results.sarif
-          cp security-reports/bandit-results.sarif security-reports/bandit-results-ini.sarif
-
-          # Verify JSON file exists and is valid
-          if [ ! -f "security-reports/bandit-results.json" ]; then
-            echo "Bandit did not generate a JSON file. Using the empty one created earlier."
-          else
-            # Check if the JSON file is valid
-            if ! python -c "import json; json.load(open('security-reports/bandit-results.json'))" 2>/dev/null; then
-              echo "Invalid JSON file detected. Replacing with empty JSON."
-              echo '{"results": [], "errors": []}' > security-reports/bandit-results.json
+            echo "No bandit script found. Using direct bandit command."
+            # Run Bandit with the bandit.yaml configuration
+            if [ -f "bandit.yaml" ]; then
+              echo "Using bandit.yaml configuration file"
+              # Add --exclude flag to ensure directories are properly excluded
+              bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates" --exit-zero
+            else
+              echo "bandit.yaml configuration file not found. Using default configuration."
+              bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" --exit-zero
             fi
           fi
 
-          # Run pip-audit with error handling
-          echo "Running pip-audit..."
-          pip-audit || echo "pip-audit failed, but continuing"
-
-          # Run semgrep with error handling
-          echo "Running semgrep..."
-          semgrep scan --config auto || echo "semgrep scan failed, but continuing"
-
-      - name: Run security scans (Windows)
-        if: runner.os == 'Windows'
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          # Create security-reports directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path security-reports
-          # Create .github/bandit directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path .github/bandit
-
-          # Create empty-sarif.json if it doesn't exist
-          if (-not (Test-Path "empty-sarif.json")) {
-            $emptySarifContent = '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}'
-            Set-Content -Path "empty-sarif.json" -Value $emptySarifContent
-            Write-Host "Created empty-sarif.json in root directory"
-          }
-
-          # Create empty JSON file as initial fallback
-          $emptyJsonContent = '{"results": [], "errors": []}'
-          Set-Content -Path "security-reports/bandit-results.json" -Value $emptyJsonContent
-          Write-Host "Created empty JSON results file as initial fallback"
-
-          # Run safety check with error handling
-          Write-Host "Running safety check..."
-          try {
-            safety check
-          } catch {
-            Write-Host "Safety check failed, but continuing: $_"
-          }
-
-          # Run Bandit with simplified configuration
-          Write-Host "Running Bandit security scan..."
-          try {
-            if (Test-Path "bandit.yaml") {
-              Write-Host "Using bandit.yaml configuration file"
-              bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates" --exit-zero
-            } else {
-              Write-Host "bandit.yaml configuration file not found. Using default configuration."
-              bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" --exit-zero
-            }
-          } catch {
-            Write-Host "Bandit scan failed, but continuing with fallback JSON file: $_"
-          }
-
-          # Create SARIF file
-          $emptySarifContent = '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}'
-          Set-Content -Path "security-reports/bandit-results.sarif" -Value $emptySarifContent
-          Copy-Item -Path "security-reports/bandit-results.sarif" -Destination "security-reports/bandit-results-ini.sarif"
+          # Convert JSON to SARIF format for GitHub Advanced Security
+          if [ -f "convert_bandit_to_sarif.py" ]; then
+            echo "Converting Bandit JSON results to SARIF format"
+            python convert_bandit_to_sarif.py
+          else
+            echo "convert_bandit_to_sarif.py not found. Creating empty SARIF file."
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}' > security-reports/bandit-results.sarif
+            cp security-reports/bandit-results.sarif security-reports/bandit-results-ini.sarif
+          fi
 
           # Verify JSON file exists and is valid
           if [ ! -f "security-reports/bandit-results.json" ]; then
             echo "Bandit did not generate a JSON file. Using the empty one created earlier."
           else
             # Check if the JSON file is valid
-            python -c "import json; import sys; exec('''try:\n    with open(\"security-reports/bandit-results.json\", \"r\") as f:\n        json.load(f)\n    print(\"JSON file is valid\")\nexcept (json.JSONDecodeError, FileNotFoundError) as e:\n    print(f\"Invalid JSON file detected: {e}. Replacing with empty JSON.\")\n    with open(\"security-reports/bandit-results.json\", \"w\") as f:\n        json.dump({\"results\": [], \"errors\": []}, f)''')" || echo "JSON validation failed, but continuing"
+            python -c "
+import json
+import sys
+try:
+    with open('security-reports/bandit-results.json', 'r') as f:
+        json.load(f)
+    print('JSON file is valid')
+except (json.JSONDecodeError, FileNotFoundError) as e:
+    print(f'Invalid JSON file detected: {e}. Replacing with empty JSON.')
+    with open('security-reports/bandit-results.json', 'w') as f:
+        json.dump({'results': [], 'errors': []}, f)
+" || echo "JSON validation failed, but continuing"
           fi
 
           # Run pip-audit with error handling
@@ -994,7 +933,6 @@ jobs:
 
       - name: Set Docker image tag
         id: set-docker-tag
-        shell: bash
         run: |
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             echo "docker_tag=${{ secrets.DOCKERHUB_USERNAME }}/paissiveincome-app:${{ github.ref_name }}" >> $GITHUB_OUTPUT
@@ -1045,7 +983,6 @@ jobs:
           provenance: mode=max
 
       - name: Move Docker cache
-        shell: bash
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
