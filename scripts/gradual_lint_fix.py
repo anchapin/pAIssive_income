@@ -135,8 +135,6 @@ def get_baseline_errors() -> dict[str, int]:
     except subprocess.CalledProcessError:
         print("Warning: Could not get baseline error counts")
         return {}
-    else:
-        return file_counts
 
 
 def save_baseline(

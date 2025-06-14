@@ -8,7 +8,6 @@ to ensure it handles edge cases correctly.
 
 import json
 import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path

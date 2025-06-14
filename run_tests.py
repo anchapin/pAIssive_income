@@ -141,6 +141,7 @@ def _parse_test_collection_output(output: str, has_test_files: bool) -> int:
                     test_count = collected_count
                     break
             except (ValueError, IndexError):
+                # Ignore parsing errors and continue to next line
                 pass
     if test_count == 0 and has_test_files:
         logger.warning(

@@ -357,8 +357,10 @@ if __name__ == "__main__":
     # Check if dependencies are available
     if not crewai_available:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
+        sys.exit(1)
     elif not mem0_available:
         logger.error("mem0 is not installed. Install with: pip install mem0ai")
+        sys.exit(1)
     else:
         # Create a memory-enhanced agent team
         team = MemoryEnhancedCrewAIAgentTeam(user_id="example_user")

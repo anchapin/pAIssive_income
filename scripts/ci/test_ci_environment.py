@@ -168,12 +168,7 @@ def test_docker():
         # Create cgroup file
         cgroup_dir = Path(temp_dir) / "proc" / "1" / "cgroup"
         cgroup_dir.parent.mkdir(parents=True, exist_ok=True)
-<<<<<<< HEAD
         cgroup_dir.write_text("12:memory:/docker/abcdef1234567890\n")
-=======
-        with open(cgroup_dir, "w") as f:
-            f.write("12:memory:/docker/abcdef1234567890\n")
->>>>>>> origin/main
 
         # Add the temporary directory to the environment variables
         env_vars["TEMP_DOCKER_DIR"] = str(temp_dir)
@@ -209,12 +204,7 @@ def test_kubernetes():
 
         # Create token file
         token_path = k8s_dir / "token"
-<<<<<<< HEAD
         token_path.write_text("eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9...")
-=======
-        with open(token_path, "w") as f:
-            f.write("eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9...")
->>>>>>> origin/main
 
         # Add the temporary directory to the environment variables
         env_vars["TEMP_K8S_DIR"] = str(temp_dir)
@@ -248,13 +238,9 @@ def main():
         "--gitlab", action="store_true", help="Test GitLab CI environment"
     )
     parser.add_argument("--docker", action="store_true", help="Test Docker environment")
-<<<<<<< HEAD
     parser.add_argument(
         "--kubernetes", action="store_true", help="Test Kubernetes environment"
     )
-=======
-    parser.add_argument("--kubernetes", action="store_true", help="Test Kubernetes environment")
->>>>>>> origin/main
 
     args = parser.parse_args()
 

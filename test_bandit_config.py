@@ -103,7 +103,6 @@ def _validate_json_file(path: Path) -> bool:
         return False
     else:
         return True
-    return False
 
 
 def create_empty_json_files() -> bool:

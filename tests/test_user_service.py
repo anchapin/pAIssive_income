@@ -36,8 +36,8 @@ class TestableUserService(UserService):
 
     def __init__(self, token_secret: str = TEST_SECRET):
         """Initialize testable user service."""
-        self.token_secret = token_secret
-        self.token_expiry = 3600
+        super().__init__(token_secret=token_secret)
+        # Additional test-specific initialization can go here
 
 
 # Add methods needed by the UserService
@@ -82,11 +82,9 @@ def test_create_user(mock_hash):
     """Test creating a user."""
     # Create a mock user instance
     mock_user_instance = MockUser(
-        id=1,
+        user_id=1,
         username="testuser",
         email="test@example.com",
-        created_at=datetime.now(tz=datetime.timezone.utc),
-        updated_at=datetime.now(tz=datetime.timezone.utc),
     )
 
     # Set up the mocks
