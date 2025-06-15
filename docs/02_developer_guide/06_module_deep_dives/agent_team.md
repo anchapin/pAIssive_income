@@ -84,6 +84,7 @@ Memory-enhanced agents can remember information across conversations and session
 The memory enhancement is implemented in `agent_team/mem0_enhanced_agents.py`, which provides:
 
 - `MemoryEnhancedCrewAIAgentTeam`: A CrewAI agent team with memory capabilities
+- Integration with `MemoryRAGCoordinator`: Unified memory and vector search coordination
 
 ### Usage
 

@@ -53,12 +53,8 @@ class MathTool:
             # Handle equations with equals sign
             if "=" in equation_str:
                 parts = equation_str.split("=")
-<<<<<<< HEAD
-                if len(parts) == TWO_PARTS:
-=======
                 expected_parts = 2
                 if len(parts) == expected_parts:
->>>>>>> origin/main
                     left = parse_expr(parts[0])
                     right = parse_expr(parts[1])
                     equation = sp.Eq(left, right)
@@ -75,11 +71,7 @@ class MathTool:
             # If no equals sign, just evaluate the expression
             expr = parse_expr(equation_str)
             return str(expr.evalf())
-<<<<<<< HEAD
-        except Exception as e:
-=======
         except (ValueError, TypeError, sp.SympifyError) as e:
->>>>>>> origin/main
             logger.exception("Error solving equation")
             return f"Error: {e!s}"
 
@@ -99,11 +91,7 @@ class MathTool:
             expr = parse_expr(expr_str)
             factored = sp.factor(expr)
             return str(factored)
-<<<<<<< HEAD
-        except Exception as e:
-=======
         except (ValueError, TypeError, sp.SympifyError) as e:
->>>>>>> origin/main
             logger.exception("Error factoring expression")
             return f"Error: {e!s}"
 
@@ -123,11 +111,7 @@ class MathTool:
             expr = parse_expr(expr_str)
             expanded = sp.expand(expr)
             return str(expanded)
-<<<<<<< HEAD
-        except Exception as e:
-=======
         except (ValueError, TypeError, sp.SympifyError) as e:
->>>>>>> origin/main
             logger.exception("Error expanding expression")
             return f"Error: {e!s}"
 

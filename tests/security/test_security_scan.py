@@ -136,9 +136,7 @@ def ensure_directory(directory: str) -> None:
 
 
 def test_safety_scan() -> None:
-    """
-    Test the Safety scan functionality.
-    """
+    """Test the Safety scan functionality."""
     logger.info("\n=== Testing Safety Scan ===")
     ensure_directory("security-reports")
 
@@ -183,16 +181,14 @@ def test_safety_scan() -> None:
 
     if return_code != 0:
         logger.error("Error converting Safety results to SARIF: %s", stderr)
-        assert False, f"Failed to convert Safety results to SARIF: {stderr}"
+        raise AssertionError(f"Failed to convert Safety results to SARIF: {stderr}")
 
     logger.info("Safety scan test completed")
     assert True
 
 
 def test_bandit_scan() -> None:
-    """
-    Test the Bandit scan functionality.
-    """
+    """Test the Bandit scan functionality."""
     logger.info("\n=== Testing Bandit Scan ===")
     ensure_directory("security-reports")
 
@@ -237,16 +233,14 @@ def test_bandit_scan() -> None:
 
     if return_code != 0:
         logger.error("Error converting Bandit results to SARIF: %s", stderr)
-        assert False, f"Failed to convert Bandit results to SARIF: {stderr}"
+        raise AssertionError(f"Failed to convert Bandit results to SARIF: {stderr}")
 
     logger.info("Bandit scan test completed")
     assert True
 
 
 def test_sarif_file_handling() -> None:
-    """
-    Test SARIF file handling functionality.
-    """
+    """Test SARIF file handling functionality."""
     logger.info("\n=== Testing SARIF File Handling ===")
     ensure_directory("security-reports")
     ensure_directory("security-reports/compressed")
@@ -264,7 +258,7 @@ def test_sarif_file_handling() -> None:
 
         if return_code != 0:
             logger.error("Error creating test SARIF file: %s", stderr)
-            assert False, f"Failed to create test SARIF file: {stderr}"
+            raise AssertionError(f"Failed to create test SARIF file: {stderr}")
 
         sarif_files = list(Path("security-reports").glob("*.sarif"))
 
@@ -289,7 +283,7 @@ def test_sarif_file_handling() -> None:
 
             if return_code != 0:
                 logger.exception("Error creating fallback SARIF file")
-                assert False, "Failed to create fallback SARIF file"
+                raise AssertionError("Failed to create fallback SARIF file")
 
         # Create compressed version
         compressed_file_name = f"{sarif_file.name}.gz"
@@ -302,7 +296,7 @@ def test_sarif_file_handling() -> None:
 
         if return_code != 0:
             logger.error("Error creating compressed version: %s", stderr)
-            assert False, f"Failed to create compressed version: {stderr}"
+            raise AssertionError(f"Failed to create compressed version: {stderr}")
 
         logger.info("Created compressed version: %s", compressed_file)
 

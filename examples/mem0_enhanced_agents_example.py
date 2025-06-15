@@ -97,11 +97,11 @@ def create_research_team(user_id: str) -> MemoryEnhancedCrewAIAgentTeam:
         agent=researcher,
     )
 
-    development_task = team.add_task(
+    team.add_task(
         description="Design an AI tool based on the market research", agent=developer
     )
 
-    monetization_task = team.add_task(
+    team.add_task(
         description="Create a monetization strategy for the AI tool", agent=monetization
     )
 

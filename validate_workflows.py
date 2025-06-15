@@ -9,7 +9,6 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
-<<<<<<< HEAD
 
 def validate_workflows() -> bool:
     """Validate all GitHub workflow YAML files."""
@@ -17,18 +16,10 @@ def validate_workflows() -> bool:
     workflow_files = list(workflow_dir.glob("*.yml"))
 
     logger.info("Checking %d workflow files...", len(workflow_files))
-=======
-def validate_workflows():
-    workflow_dir = ".github/workflows"
-    workflow_files = glob.glob(os.path.join(workflow_dir, "*.yml"))
-
-    print(f"Checking {len(workflow_files)} workflow files...")
->>>>>>> origin/main
     errors = []
 
     # Process files outside the loop to avoid performance overhead
     for file_path in workflow_files:
-<<<<<<< HEAD
         error = _validate_single_workflow(file_path)
         if error:
             errors.append(error)
@@ -63,26 +54,5 @@ def _validate_single_workflow(file_path: Path) -> tuple[Path, str] | None:
         return None
 
 
-=======
-        try:
-            with open(file_path, encoding="utf-8") as f:
-                yaml.safe_load(f)
-            print(f"OK: {os.path.basename(file_path)}")
-        except Exception as e:
-            error_msg = f"ERROR: {os.path.basename(file_path)}: {e!s}"
-            print(error_msg)
-            errors.append((file_path, str(e)))
-
-    print(f"\nSummary: {len(workflow_files) - len(errors)}/{len(workflow_files)} files valid")
-
-    if errors:
-        print("\nDetailed errors:")
-        for file_path, error in errors:
-            print(f"\n{file_path}:")
-            print(f"  {error}")
-
-    return len(errors) == 0
-
->>>>>>> origin/main
 if __name__ == "__main__":
     validate_workflows()

@@ -27,15 +27,16 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+import sys
+from typing import Any, Optional, Union
 
 # Import CrewAI components
 try:
-    from crewai import Agent, Crew, Task
+    # Check if CrewAI is available without importing unused components
+    import crewai  # noqa: F401
     CREWAI_AVAILABLE = True
 except ImportError:
     CREWAI_AVAILABLE = False
-    # Use placeholder classes from crewai_agents.py
 
 # Import mem0 components
 try:
@@ -43,26 +44,13 @@ try:
     MEM0_AVAILABLE = True
 except ImportError:
     MEM0_AVAILABLE = False
-    Memory = None  # type: ignore
+    Memory = None  # type: ignore[assignment]
 
 # Import base CrewAI agent team
 from agent_team.crewai_agents import AgentProtocol, CrewAIAgentTeam, TaskProtocol
 
 # Import MemoryRAGCoordinator for unified memory/RAG retrieval
 from services.memory_rag_coordinator import MemoryRAGCoordinator
-
-crewai_available = False
-mem0_available = False
-Memory = None  # type: ignore[assignment]
-
-try:
-    from mem0 import Memory
-
-    mem0_available = True
-except ImportError:
-    pass
-
-MEM0_AVAILABLE = mem0_available
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -173,7 +161,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             The result of the workflow
 
         """
-        if not crewai_available:
+        if not CREWAI_AVAILABLE:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
 
@@ -222,7 +210,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         else:
             return result
 
-    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Optional[Dict[str, str]] = None) -> None:
+    def _store_memory(self, content: Union[str, list[dict[str, str]]], metadata: Optional[dict[str, str]] = None) -> None:
         """
         Store a memory using mem0.
 
@@ -244,7 +232,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         except Exception:
             logger.exception("Error storing memory")
 
-    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> List[Dict[str, Any]]:
+    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories and RAG results for the current context.
 
@@ -358,10 +346,10 @@ if __name__ == "__main__":
     )
 
     # Check if dependencies are available
-    if not crewai_available:
+    if not CREWAI_AVAILABLE:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
         sys.exit(1)
-    elif not mem0_available:
+    elif not MEM0_AVAILABLE:
         logger.error("mem0 is not installed. Install with: pip install mem0ai")
         sys.exit(1)
     else:

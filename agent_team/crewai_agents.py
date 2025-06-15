@@ -71,14 +71,14 @@ try:
     from crewai import Task as RealTask
 
     crewai_available = True
-    # The type: ignore is required for conditional import patterns and dynamic assignment to Protocol types.
-    # This is safe because the variable is always set to a valid implementation or placeholder.
+    # type: ignore required for conditional import patterns and Protocol assignment
+    # This is safe because the variable is always set to a valid implementation
     Agent: type[AgentProtocol] = RealAgent  # type: ignore[assignment]
-    # The type: ignore is required for conditional import patterns and dynamic assignment to Protocol types.
-    # This is safe because the variable is always set to a valid implementation or placeholder.
+    # type: ignore required for conditional import patterns and Protocol assignment
+    # This is safe because the variable is always set to a valid implementation
     Task: type[TaskProtocol] = RealTask  # type: ignore[assignment]
-    # The type: ignore is required for conditional import patterns and dynamic assignment to Protocol types.
-    # This is safe because the variable is always set to a valid implementation or placeholder.
+    # type: ignore required for conditional import patterns and Protocol assignment
+    # This is safe because the variable is always set to a valid implementation
     Crew: type[CrewProtocol] = RealCrew  # type: ignore[assignment]
 except ImportError:
 
@@ -130,7 +130,8 @@ except ImportError:
     import warnings
 
     warnings.warn(
-        "CrewAI is not installed. This module will not function properly. Install with: pip install '.[agents]'",
+        "CrewAI is not installed. This module will not function properly. "
+        "Install with: pip install '.[agents]'",
         stacklevel=2,
     )
 
@@ -199,11 +200,14 @@ class CrewAIAgentTeam:
     and detailed logging.
 
     **Autonomous Tool Selection and Agentic Reasoning:**
-    - The agent/team can access all registered tools via the tool registry in `common_utils.tooling`.
-    - When running a task, CrewAIAgentTeam will analyze the task description and, using simple heuristics,
-      will attempt to select a tool to use. If a tool name or relevant keyword matches the task description,
-      that tool is selected and invoked with inferred parameters (for demo, the description itself).
-    - All reasoning steps, tool considerations, selection, invocations, and results are logged via a dedicated logger ('agentic_reasoning').
+    - The agent/team can access all registered tools via the tool registry in
+      `common_utils.tooling`.
+    - When running a task, CrewAIAgentTeam will analyze the task description and,
+      using simple heuristics, will attempt to select a tool to use. If a tool
+      name or relevant keyword matches the task description, that tool is selected
+      and invoked with inferred parameters (for demo, the description itself).
+    - All reasoning steps, tool considerations, selection, invocations, and results
+      are logged via a dedicated logger ('agentic_reasoning').
     - If no tool is selected, a fallback is logged and normal workflow is followed.
     - See tests for examples of this autonomous tool use and logging.
 
@@ -352,9 +356,10 @@ class CrewAIAgentTeam:
                     # Fallback: try to extract expression for calculator-like tools
                     tool_input = description
                     if tool_name == "calculator":
-                        # NOTE: This regex is intentionally simple for demonstration and will match
-                        # the first contiguous block of math-like characters, which may include extra spaces.
-                        # For more robust extraction in production, consider improving this to handle
+                        # NOTE: This regex is intentionally simple for demonstration
+                        # and will match the first contiguous block of math-like
+                        # characters, which may include extra spaces. For more robust
+                        # extraction in production, consider improving this to handle
                         # more complex/natural language task descriptions.
                         match = re.search(r"([0-9\+\-\*\/\.\s\%\(\)]+)", description)
                         if match:

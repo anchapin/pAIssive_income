@@ -278,5 +278,5 @@ def reset_password() -> tuple[object, int]:
 
 
 # To enable: import and register this blueprint with your Flask app, e.g.:
-# from api.routes.auth import auth_bp
-# app.register_blueprint(auth_bp)
+# from api.routes.auth import auth_bp  # noqa: ERA001
+# app.register_blueprint(auth_bp)  # noqa: ERA001

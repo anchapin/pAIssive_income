@@ -267,6 +267,7 @@ For more details on the mem0 integration, see:
 - [README_mem0_integration.md](README_mem0_integration.md) - Main integration guide
 - [docs/README_mem0.md](docs/README_mem0.md) - Overview of mem0 investigation
 - [docs/mem0_core_apis.md](docs/mem0_core_apis.md) - Documentation of mem0's core APIs
+- [docs/memory_rag_coordinator.md](docs/memory_rag_coordinator.md) - MemoryRAGCoordinator documentation
 
 - [docs/05_sdk_and_integrations/mem0_integration.md](docs/05_sdk_and_integrations/mem0_integration.md) – Main integration guide (now includes best practices for mem0 + RAG)
 - [docs/mem0_rag_best_practices.md](docs/mem0_rag_best_practices.md) – Detailed guide on when and how to use mem0 and RAG, with examples

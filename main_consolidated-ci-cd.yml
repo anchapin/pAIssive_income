@@ -91,11 +91,7 @@ jobs:
           which uv || python -m pip install uv
 
           # Install testing tools
-<<<<<<< HEAD
-          python -m pip install ruff pytest pytest-cov pytest-xdist pytest-asyncio
-=======
           python -m pip install ruff pyright pytest pytest-cov pytest-xdist pytest-asyncio
->>>>>>> origin/main
 
           # Install requirements
           if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
@@ -113,11 +109,7 @@ jobs:
           python -m pip install --upgrade pip
 
           # Install testing tools
-<<<<<<< HEAD
-          python -m pip install ruff pytest pytest-cov pytest-xdist pytest-asyncio
-=======
           python -m pip install ruff pyright pytest pytest-cov pytest-xdist pytest-asyncio
->>>>>>> origin/main
 
           # Install requirements (excluding MCP-related packages)
           if (Test-Path requirements-dev.txt) {
