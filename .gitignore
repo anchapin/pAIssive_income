@@ -50,6 +50,7 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+.nyc_output/
 
 # Translations
 *.mo
@@ -181,3 +182,11 @@ credentials.json
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# OpenHands
+.openhands/
+.openhands_instructions
+org_openhands_anchapin/
+
+# Project copy
+pAIssive_income/
