@@ -17,8 +17,8 @@ from .secure_logging import (
     SENSITIVE_FIELDS,
     SecureLogger,
     get_secure_logger,
-    mask_sensitive_data,
     is_sensitive_key,
+    mask_sensitive_data,
 )
 
 __all__ = [
@@ -26,8 +26,8 @@ __all__ = [
     "SecureLogger",
     "get_logger",
     "get_secure_logger",
-    "mask_sensitive_data",
     "is_sensitive_key",
+    "mask_sensitive_data",
 ]
 
 

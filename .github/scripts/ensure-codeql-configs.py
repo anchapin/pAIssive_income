@@ -8,15 +8,14 @@ import json
 import os
 
 
-def ensure_directory(directory):
+def ensure_directory(directory) -> None:
     """Ensure the directory exists."""
     if not os.path.exists(directory):
         os.makedirs(directory)
-        print(f"Created directory: {directory}")
     else:
-        print(f"Directory already exists: {directory}")
+        pass
 
-def create_codeql_config(filename, config_name, os_name=None):
+def create_codeql_config(filename, config_name, os_name=None) -> None:
     """Create a CodeQL configuration file with the given parameters."""
     config = {
         "name": config_name,
@@ -43,9 +42,8 @@ def create_codeql_config(filename, config_name, os_name=None):
     with open(filename, "w") as f:
         json.dump(config, f, indent=2)
 
-    print(f"Created CodeQL configuration file: {filename}")
 
-def main():
+def main() -> None:
     """Main function to create CodeQL configuration files."""
     # Ensure the .github/codeql directory exists
     codeql_dir = os.path.join(".github", "codeql")
@@ -63,7 +61,6 @@ def main():
     unified_config = os.path.join(codeql_dir, "security-os-config.yml")
     create_codeql_config(unified_config, "Unified CodeQL Configuration")
 
-    print("All CodeQL configuration files created successfully.")
 
 if __name__ == "__main__":
     main()

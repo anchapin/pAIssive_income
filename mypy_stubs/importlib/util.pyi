@@ -1,13 +1,10 @@
-"""
-Type stubs for importlib.util
-"""
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
-import sys
+"""Type stubs for importlib.util."""
 import types
+from typing import Any, Callable, Optional, Union
 
 class _Finder:
     """Abstract base class for import finders."""
-    def find_module(self, fullname: str, path: Optional[List[str]] = None) -> Optional[types.ModuleType]: ...
+    def find_module(self, fullname: str, path: Optional[list[str]] = None) -> Optional[types.ModuleType]: ...
 
 class _Loader:
     """Abstract base class for import loaders."""
@@ -18,7 +15,7 @@ class _ModuleSpec:
     name: str
     loader: Optional[_Loader]
     origin: Optional[str]
-    submodule_search_locations: Optional[List[str]]
+    submodule_search_locations: Optional[list[str]]
     loader_state: Any
     cached: Optional[str]
     parent: Optional[str]
@@ -48,7 +45,7 @@ def spec_from_file_location(
     location: Union[str, bytes, int, types.ModuleType],
     *,
     loader: Optional[_Loader] = None,
-    submodule_search_locations: Optional[List[str]] = None,
+    submodule_search_locations: Optional[list[str]] = None,
 ) -> Optional[_ModuleSpec]: ...
 
 def module_from_spec(spec: _ModuleSpec) -> types.ModuleType: ...
@@ -56,7 +53,7 @@ def module_from_spec(spec: _ModuleSpec) -> types.ModuleType: ...
 def find_spec(
     name: str,
     package: Optional[str] = None,
-    path: Optional[List[str]] = None,
+    path: Optional[list[str]] = None,
     target: Optional[types.ModuleType] = None,
 ) -> Optional[_ModuleSpec]: ...
 
@@ -76,6 +73,6 @@ def set_loader(fxn: Callable[..., Any]) -> Callable[..., Any]: ...
 
 def module_for_loader(fxn: Callable[..., Any]) -> Callable[..., Any]: ...
 
-def find_loader(name: str, path: Optional[List[str]] = None) -> Tuple[Optional[_Loader], List[str]]: ...
+def find_loader(name: str, path: Optional[list[str]] = None) -> tuple[Optional[_Loader], list[str]]: ...
 
 def LazyLoader(loader: _Loader) -> _Loader: ...

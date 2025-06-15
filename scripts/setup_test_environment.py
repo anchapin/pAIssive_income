@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """Set up the test environment for CI/CD."""
 
-import os
-import sys
 import json
+import os
 import platform
 import subprocess
 from pathlib import Path
 
-def create_directory(path):
+
+def create_directory(path) -> None:
     """Create a directory if it doesn't exist."""
     Path(path).mkdir(parents=True, exist_ok=True)
     print(f"Created directory: {path}")
 
-def create_dummy_file(path, content=""):
+def create_dummy_file(path, content="") -> None:
     """Create a dummy file if it doesn't exist."""
     if not Path(path).exists():
         Path(path).write_text(content)
         print(f"Created dummy file: {path}")
 
-def setup_test_environment():
+def setup_test_environment() -> None:
     """Set up the test environment."""
     # Create necessary directories
     directories = [

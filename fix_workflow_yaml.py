@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-import re
 import os
+import re
 
 # Path to the workflow file
 workflow_file = os.path.join(os.getcwd(), ".github", "workflows", "archive", "test-setup-script-simplified.yml")
 
 # Read the file
-with open(workflow_file, 'r', encoding='utf-8') as file:
+with open(workflow_file, encoding="utf-8") as file:
     content = file.read()
 
 # Fix Ubuntu job
@@ -43,7 +43,6 @@ content = re.sub(macos_python_pattern, macos_python_replacement, content)
 # This is more complex and would need specific patterns for each job
 
 # Write the fixed content back to the file
-with open(workflow_file, 'w', encoding='utf-8') as file:
+with open(workflow_file, "w", encoding="utf-8") as file:
     file.write(content)
 
-print(f"Fixed workflow file: {workflow_file}")

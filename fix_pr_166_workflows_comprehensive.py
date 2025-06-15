@@ -4,30 +4,30 @@ Comprehensive workflow fix script for PR #166
 Addresses all major workflow issues including syntax errors, missing files, and configuration problems.
 """
 
-import os
-import sys
-import yaml
 import json
 import subprocess
+import sys
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Optional
 
-def log(message: str, level: str = "INFO"):
-    """Log messages with level"""
-    print(f"[{level}] {message}")
+import yaml
 
-def run_command(cmd: str, cwd: str = None) -> tuple:
-    """Run a command and return (success, output, error)"""
+
+def log(message: str, level: str = "INFO") -> None:
+    """Log messages with level."""
+
+def run_command(cmd: str, cwd: Optional[str] = None) -> tuple:
+    """Run a command and return (success, output, error)."""
     try:
         result = subprocess.run(
-            cmd, shell=True, capture_output=True, text=True, cwd=cwd
+            cmd, shell=True, capture_output=True, text=True, cwd=cwd, check=False
         )
         return result.returncode == 0, result.stdout, result.stderr
     except Exception as e:
         return False, "", str(e)
 
 def fix_yaml_syntax_errors():
-    """Fix common YAML syntax errors in workflow files"""
+    """Fix common YAML syntax errors in workflow files."""
     log("Fixing YAML syntax errors...")
 
     workflow_dir = Path(".github/workflows")
@@ -39,7 +39,7 @@ def fix_yaml_syntax_errors():
 
     for yaml_file in workflow_dir.glob("*.yml"):
         try:
-            content = yaml_file.read_text(encoding='utf-8')
+            content = yaml_file.read_text(encoding="utf-8")
             original_content = content
 
             # Fix common syntax issues
@@ -50,7 +50,7 @@ def fix_yaml_syntax_errors():
                 log(f"Fixed 'true:' -> 'on:' in {yaml_file.name}")
 
             # 2. Remove duplicate 'on:' sections at the end
-            lines = content.split('\n')
+            lines = content.split("\n")
             cleaned_lines = []
             in_duplicate_on = False
 
@@ -63,21 +63,21 @@ def fix_yaml_syntax_errors():
 
                 if in_duplicate_on:
                     # Skip lines that are part of the duplicate on: section
-                    if line.strip() and not line.startswith(' ') and not line.startswith('\t'):
+                    if line.strip() and not line.startswith(" ") and not line.startswith("\t"):
                         in_duplicate_on = False
                         cleaned_lines.append(line)
                     continue
 
                 cleaned_lines.append(line)
 
-            content = '\n'.join(cleaned_lines)
+            content = "\n".join(cleaned_lines)
 
             # 3. Fix escaped characters in multiline strings
-            content = content.replace('\\n', '\n')
+            content = content.replace("\\n", "\n")
             content = content.replace('\\"', '"')
 
             if content != original_content:
-                yaml_file.write_text(content, encoding='utf-8')
+                yaml_file.write_text(content, encoding="utf-8")
                 log(f"Fixed syntax errors in {yaml_file.name}")
                 fixes_made += 1
 
@@ -88,7 +88,7 @@ def fix_yaml_syntax_errors():
     return fixes_made > 0
 
 def create_missing_directories():
-    """Create missing directories that workflows expect"""
+    """Create missing directories that workflows expect."""
     log("Creating missing directories...")
 
     directories = [
@@ -116,7 +116,7 @@ def create_missing_directories():
     return created > 0
 
 def create_missing_files():
-    """Create missing files that workflows expect"""
+    """Create missing files that workflows expect."""
     log("Creating missing files...")
 
     files_created = 0
@@ -277,9 +277,9 @@ docs/**
     for report_file in security_reports:
         report_path = Path(report_file)
         if not report_path.exists():
-            if report_file.endswith('.json'):
+            if report_file.endswith(".json"):
                 report_path.write_text('{"results": [], "errors": []}')
-            elif report_file.endswith('.sarif'):
+            elif report_file.endswith(".sarif"):
                 sarif_content = {
                     "version": "2.1.0",
                     "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.0.json",
@@ -302,8 +302,8 @@ docs/**
     log(f"Created {files_created} missing files")
     return files_created > 0
 
-def create_simplified_workflow():
-    """Create a simplified, working workflow for PR 166"""
+def create_simplified_workflow() -> bool:
+    """Create a simplified, working workflow for PR 166."""
     log("Creating simplified workflow...")
 
     workflow_content = """name: PR #166 Simplified Fix
@@ -481,12 +481,12 @@ jobs:
 """
 
     workflow_path = Path(".github/workflows/pr-166-simplified-working.yml")
-    workflow_path.write_text(workflow_content, encoding='utf-8')
+    workflow_path.write_text(workflow_content, encoding="utf-8")
     log(f"Created simplified workflow: {workflow_path}")
     return True
 
 def validate_workflows():
-    """Validate workflow files for syntax errors"""
+    """Validate workflow files for syntax errors."""
     log("Validating workflow files...")
 
     workflow_dir = Path(".github/workflows")
@@ -495,7 +495,7 @@ def validate_workflows():
 
     for yaml_file in workflow_dir.glob("*.yml"):
         try:
-            with open(yaml_file, 'r', encoding='utf-8') as f:
+            with open(yaml_file, encoding="utf-8") as f:
                 yaml.safe_load(f)
             log(f"Valid: {yaml_file.name}")
             valid_count += 1
@@ -509,8 +509,8 @@ def validate_workflows():
     log(f"Validation complete: {valid_count} valid, {invalid_count} invalid")
     return invalid_count == 0
 
-def main():
-    """Main function to run all fixes"""
+def main() -> None:
+    """Main function to run all fixes."""
     log("Starting comprehensive PR #166 workflow fixes...")
 
     success = True

@@ -1,11 +1,9 @@
-"""
-Type stubs for mock_crewai.crew
-"""
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union, TypeVar
+"""Type stubs for mock_crewai.crew."""
+from typing import Any, TypeVar
 
 # Define forward references
-class Agent: pass
-class Task: pass
+class Agent: ...
+class Task: ...
 AgentType = TypeVar("AgentType", bound=Agent)
 TaskType = TypeVar("TaskType", bound=Task)
 
@@ -14,8 +12,8 @@ class Crew:
 
     def __init__(
         self,
-        agents: List[AgentType],
-        tasks: List[TaskType],
+        agents: list[AgentType],
+        tasks: list[TaskType],
         verbose: bool = False,
         process: str = "sequential",
         memory: bool = False,
@@ -27,7 +25,7 @@ class Crew:
 
     def run(self) -> str: ...
 
-    def to_dict(self) -> Dict[str, Any]: ...
+    def to_dict(self) -> dict[str, Any]: ...
 
     @classmethod
-    def from_dict(cls, crew_dict: Dict[str, Any]) -> 'Crew': ...
+    def from_dict(cls, crew_dict: dict[str, Any]) -> Crew: ...

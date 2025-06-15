@@ -150,12 +150,11 @@ jobs:
 try:
     # Create directory structure if needed
     os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    
+
     # Write the fixed content
-    with open(target_path, 'w') as f:
+    with open(target_path, "w") as f:
         f.write(content)
-    
-    print(f"Successfully fixed and wrote to {target_path}")
-    
-except Exception as e:
-    print(f"Error: {e}")
+
+
+except Exception:
+    pass

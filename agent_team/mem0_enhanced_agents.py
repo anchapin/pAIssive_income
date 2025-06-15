@@ -27,7 +27,7 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 # Import CrewAI components
 try:
@@ -193,7 +193,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         return result
 
-    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Optional[Dict[str, str]] = None) -> None:
+    def _store_memory(self, content: Union[str, list[dict[str, str]]], metadata: Optional[dict[str, str]] = None) -> None:
         """
         Store a memory using mem0.
 
@@ -213,9 +213,9 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             )
             logger.debug(f"Memory stored: {content[:50]}..." if isinstance(content, str) else "Conversation stored")
         except Exception as e:
-            logger.error(f"Error storing memory: {e}")
+            logger.exception(f"Error storing memory: {e}")
 
-    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> List[Dict[str, Any]]:
+    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories for the current context.
 
@@ -237,14 +237,13 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         try:
             # Search for relevant memories
-            memories = self.memory.search(
+            return self.memory.search(
                 query=query,
                 user_id=self.user_id,
                 limit=limit
             )
-            return memories
         except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+            logger.exception(f"Error retrieving memories: {e}")
             return []
 
     def _enhance_context_with_memories(self, context: str) -> str:
@@ -278,7 +277,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         ])
 
         # Combine memories with original context
-        enhanced_context = f"""
+        return f"""
 Relevant memories:
 {memory_text}
 
@@ -286,7 +285,6 @@ Original context:
 {context}
 """
 
-        return enhanced_context
 
 
 # Example usage
@@ -335,4 +333,4 @@ if __name__ == "__main__":
             result = team.run()
             logger.info(f"Workflow result: {result}")
         except Exception as e:
-            logger.error(f"Error running workflow: {e}")
+            logger.exception(f"Error running workflow: {e}")

@@ -49,7 +49,7 @@ class PasswordResetToken(Base):
 
 Base.metadata.create_all(bind=engine)
 
-def send_email(to_addr, subject, body):
+def send_email(to_addr, subject, body) -> None:
     """Send email with proper security measures."""
     # SMTP config from env vars or defaults
     SMTP_HOST = os.environ.get("SMTP_HOST", "localhost")
@@ -89,10 +89,9 @@ def sanitize_log_data(data):
         sanitized = ALLOWED_CHARS_PATTERN.sub("_", sanitized)
 
         # Truncate
-        sanitized = sanitized[:MAX_LOG_LENGTH]
+        return sanitized[:MAX_LOG_LENGTH]
 
         # Removed html.escape from the return
-        return sanitized
     # For non-strings, convert to string, then apply basic sanitization (length and newlines)
     s_data = str(data).replace("\n", " ").replace("\r", " ")
     # Also apply the strict character filter to the string representation of non-string data

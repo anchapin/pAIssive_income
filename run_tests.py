@@ -12,7 +12,6 @@ from __future__ import annotations
 import logging
 import os
 import os.path  # Used for os.path.normpath and os.sep
-import platform
 import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
@@ -366,13 +365,13 @@ def main() -> None:
                         )
                     sys.exit(1)  # Exit on failure to install pytest-xdist with uv
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
-            logger.error(
+            logger.exception(
                 "Error checking for or installing pytest-xdist with uv: %s. Cannot proceed.",
                 e,
             )
             sys.exit(1)
     except Exception as e:
-        logger.error(
+        logger.exception(
             "Unexpected error installing pytest-xdist with uv: %s. Cannot proceed.",
             e,
         )

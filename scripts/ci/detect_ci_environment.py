@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CI Environment Detection Script
+CI Environment Detection Script.
 
 This script detects the current CI environment and outputs detailed information about it.
 It supports a wide range of CI platforms including:
@@ -69,6 +69,7 @@ Options:
     --json      Output in JSON format
     --verbose   Include verbose output
 """
+from __future__ import annotations
 
 import argparse
 import json
@@ -234,7 +235,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("JENKINS_") or key.startswith("BUILD_")
+            if key.startswith(("JENKINS_", "BUILD_"))
         }
     elif os.environ.get("GITLAB_CI"):
         ci_info["ci_type"] = "gitlab"
@@ -242,7 +243,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("CI_") or key.startswith("GITLAB_")
+            if key.startswith(("CI_", "GITLAB_"))
         }
     elif os.environ.get("CIRCLECI"):
         ci_info["ci_type"] = "circle"
@@ -266,7 +267,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("AGENT_") or key.startswith("BUILD_") or key.startswith("SYSTEM_")
+            if key.startswith(("AGENT_", "BUILD_", "SYSTEM_"))
         }
     elif os.environ.get("TEAMCITY_VERSION"):
         ci_info["ci_type"] = "teamcity"
@@ -330,7 +331,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("VERCEL_") or key.startswith("NOW_")
+            if key.startswith(("VERCEL_", "NOW_"))
         }
     elif os.environ.get("NETLIFY"):
         ci_info["ci_type"] = "netlify"
@@ -411,7 +412,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("CM_") or key.startswith("CODEMAGIC_")
+            if key.startswith(("CM_", "CODEMAGIC_"))
         }
     elif os.environ.get("CODESPACE_NAME") or os.environ.get("GITHUB_CODESPACE_NAME"):
         ci_info["ci_type"] = "github-codespaces"
@@ -419,7 +420,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("CODESPACE_") or key.startswith("GITHUB_CODESPACE_")
+            if key.startswith(("CODESPACE_", "GITHUB_CODESPACE_"))
         }
     elif os.environ.get("CLOUD_BUILD") or os.environ.get("CLOUD_BUILD_ID"):
         ci_info["ci_type"] = "google-cloud-build"
@@ -435,7 +436,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("ALIBABA_") or key.startswith("ALICLOUD_")
+            if key.startswith(("ALIBABA_", "ALICLOUD_"))
         }
     elif os.environ.get("DEVCLOUD_PIPELINE_ID") or os.environ.get("HUAWEICLOUD_PIPELINE"):
         ci_info["ci_type"] = "huawei-cloud"
@@ -443,7 +444,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("DEVCLOUD_") or key.startswith("HUAWEICLOUD_")
+            if key.startswith(("DEVCLOUD_", "HUAWEICLOUD_"))
         }
     elif os.environ.get("CODING_PIPELINE_ID") or os.environ.get("TENCENT_CLOUD_CI"):
         ci_info["ci_type"] = "tencent-cloud"
@@ -451,7 +452,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("CODING_") or key.startswith("TENCENT_")
+            if key.startswith(("CODING_", "TENCENT_"))
         }
     elif os.environ.get("BAIDU_CLOUD_CI") or os.environ.get("BAIDU_PIPELINE_ID"):
         ci_info["ci_type"] = "baidu-cloud"
@@ -467,7 +468,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("SOURCEGRAPH_") or key.startswith("SRC_")
+            if key.startswith(("SOURCEGRAPH_", "SRC_"))
         }
     elif os.environ.get("GITPOD_WORKSPACE_ID") or os.environ.get("GITPOD_WORKSPACE_URL"):
         ci_info["ci_type"] = "gitpod"
@@ -499,7 +500,7 @@ def detect_ci_environment() -> dict[str, Any]:
         ci_info["ci_environment_variables"] = {
             key: value
             for key, value in os.environ.items()
-            if key.startswith("GLITCH_") or key.startswith("PROJECT_")
+            if key.startswith(("GLITCH_", "PROJECT_"))
         }
     elif ci_info["is_ci"]:
         ci_info["ci_type"] = "generic"

@@ -5,31 +5,30 @@ Addresses all remaining syntax issues and structural problems.
 """
 
 import re
-import yaml
 from pathlib import Path
+from typing import Optional
 
-def fix_consolidated_workflow():
-    """Fix all remaining issues in consolidated-ci-cd.yml"""
+import yaml
 
+
+def fix_consolidated_workflow() -> bool:
+    """Fix all remaining issues in consolidated-ci-cd.yml."""
     workflow_file = Path(".github/workflows/consolidated-ci-cd.yml")
     if not workflow_file.exists():
-        print("❌ consolidated-ci-cd.yml not found")
         return False
 
-    print("🔧 Fixing consolidated-ci-cd.yml workflow...")
 
     # Read the file
-    content = workflow_file.read_text(encoding='utf-8')
+    content = workflow_file.read_text(encoding="utf-8")
 
     # Fix 1: Replace pyrefly with pyright (pyrefly doesn't exist)
-    content = re.sub(r'pyrefly', 'pyright', content)
-    print("✅ Fixed pyrefly -> pyright")
+    content = re.sub(r"pyrefly", "pyright", content)
 
     # Fix 2: Remove duplicate and misplaced steps in build-deploy jobs
     # Remove duplicate QEMU/Buildx setups and fix the structure
 
     # Fix the build-deploy job structure
-    build_deploy_pattern = r'(  build-deploy:.*?)(  build-deploy-arm64:)'
+    build_deploy_pattern = r"(  build-deploy:.*?)(  build-deploy-arm64:)"
     match = re.search(build_deploy_pattern, content, re.DOTALL)
 
     if match:
@@ -117,10 +116,9 @@ def fix_consolidated_workflow():
 """
 
         content = content.replace(build_deploy_section, fixed_build_deploy)
-        print("✅ Fixed build-deploy job structure")
 
     # Fix 3: Clean up the build-deploy-arm64 job (remove duplicates and fix structure)
-    arm64_pattern = r'(  build-deploy-arm64:.*?)(\n  \w+:|$)'
+    arm64_pattern = r"(  build-deploy-arm64:.*?)(\n  \w+:|$)"
     match = re.search(arm64_pattern, content, re.DOTALL)
 
     if match:
@@ -204,56 +202,39 @@ def fix_consolidated_workflow():
 """
 
         # Replace the entire ARM64 section
-        content = re.sub(arm64_pattern, fixed_arm64_build + '\n', content, flags=re.DOTALL)
-        print("✅ Fixed build-deploy-arm64 job structure")
+        content = re.sub(arm64_pattern, fixed_arm64_build + "\n", content, flags=re.DOTALL)
 
     # Fix 4: Remove any stray quotes and malformed multiline strings
-    content = re.sub(r'\n\s*"\s*\n', '\n', content)
-    print("✅ Removed stray quotes")
+    content = re.sub(r'\n\s*"\s*\n', "\n", content)
 
     # Fix 5: Fix any remaining malformed run commands
-    content = re.sub(r'(\s+run:\s*\|[^\n]*\n(?:\s+[^\n]*\n)*)\s*"\s*\n', r'\1', content)
-    print("✅ Fixed malformed run commands")
+    content = re.sub(r'(\s+run:\s*\|[^\n]*\n(?:\s+[^\n]*\n)*)\s*"\s*\n', r"\1", content)
 
     # Write the fixed content
-    workflow_file.write_text(content, encoding='utf-8')
-    print("✅ Wrote fixed workflow file")
+    workflow_file.write_text(content, encoding="utf-8")
 
     return True
 
-def validate_workflow():
-    """Validate the fixed workflow"""
+def validate_workflow() -> Optional[bool]:
+    """Validate the fixed workflow."""
     try:
-        with open('.github/workflows/consolidated-ci-cd.yml', 'r', encoding='utf-8') as f:
+        with open(".github/workflows/consolidated-ci-cd.yml", encoding="utf-8") as f:
             yaml.safe_load(f)
-        print("✅ Workflow YAML is valid!")
         return True
-    except yaml.YAMLError as e:
-        print(f"❌ YAML validation failed: {e}")
+    except yaml.YAMLError:
         return False
-    except Exception as e:
-        print(f"❌ Validation error: {e}")
+    except Exception:
         return False
 
-def main():
-    print("🚀 Starting final consolidated workflow fix...")
+def main() -> None:
 
     if fix_consolidated_workflow():
-        print("\n🔍 Validating fixed workflow...")
         if validate_workflow():
-            print("\n🎉 SUCCESS! consolidated-ci-cd.yml has been fixed and validated!")
-            print("\n📋 Summary of fixes applied:")
-            print("   ✅ Fixed pyrefly -> pyright")
-            print("   ✅ Cleaned up build-deploy job structure")
-            print("   ✅ Fixed build-deploy-arm64 job")
-            print("   ✅ Removed stray quotes and malformed strings")
-            print("   ✅ Fixed Docker action configurations")
-            print("   ✅ Removed duplicate steps")
-            print("\n🚀 The workflow should now pass validation!")
+            pass
         else:
-            print("\n⚠️  Workflow was fixed but validation failed. Manual review needed.")
+            pass
     else:
-        print("\n❌ Failed to fix workflow file")
+        pass
 
 if __name__ == "__main__":
     main()

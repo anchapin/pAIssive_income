@@ -11,18 +11,18 @@ This script addresses all major workflow issues:
 """
 
 import json
-import yaml
 from pathlib import Path
-from typing import Dict, Any
+
+import yaml
 
 
-def create_required_directories():
+def create_required_directories() -> None:
     """Create all required directories for workflows."""
     directories = [
         "security-reports",
         "coverage",
         "junit",
-        "ci-reports", 
+        "ci-reports",
         "playwright-report",
         "test-results",
         "src",
@@ -34,15 +34,13 @@ def create_required_directories():
         "logs",
         ".github/codeql/custom-queries",
     ]
-    
+
     for directory in directories:
         Path(directory).mkdir(parents=True, exist_ok=True)
-        print(f"✅ Created directory: {directory}")
 
 
-def create_required_files():
+def create_required_files() -> None:
     """Create all required files that workflows expect."""
-    
     # Create basic math module
     math_js = Path("src/math.js")
     if not math_js.exists():
@@ -66,8 +64,7 @@ export function divide(a, b) {
   return a / b;
 }
 """)
-        print("✅ Created src/math.js")
-    
+
     # Create test file
     math_test_js = Path("src/math.test.js")
     if not math_test_js.exists():
@@ -79,37 +76,36 @@ describe('Math functions', () => {
     it('should add two positive numbers', () => {
       expect(add(2, 3)).toBe(5);
     });
-    
+
     it('should add negative numbers', () => {
       expect(add(-2, -3)).toBe(-5);
     });
   });
-  
+
   describe('subtract', () => {
     it('should subtract two numbers', () => {
       expect(subtract(5, 3)).toBe(2);
     });
   });
-  
+
   describe('multiply', () => {
     it('should multiply two numbers', () => {
       expect(multiply(3, 4)).toBe(12);
     });
   });
-  
+
   describe('divide', () => {
     it('should divide two numbers', () => {
       expect(divide(10, 2)).toBe(5);
     });
-    
+
     it('should throw error for division by zero', () => {
       expect(() => divide(10, 0)).toThrow('Division by zero');
     });
   });
 });
 """)
-        print("✅ Created src/math.test.js")
-    
+
     # Create Tailwind CSS input file
     tailwind_css = Path("ui/static/css/tailwind.css")
     if not tailwind_css.exists():
@@ -119,8 +115,7 @@ describe('Math functions', () => {
 
 /* Custom styles can be added here */
 """)
-        print("✅ Created ui/static/css/tailwind.css")
-    
+
     # Create Tailwind config
     tailwind_config = Path("tailwind.config.js")
     if not tailwind_config.exists():
@@ -136,8 +131,7 @@ module.exports = {
   plugins: [],
 }
 """)
-        print("✅ Created tailwind.config.js")
-    
+
     # Create CodeQL config
     codeql_config = Path(".github/codeql/security-os-config.yml")
     if not codeql_config.exists():
@@ -163,8 +157,7 @@ paths-ignore:
   - '**/__pycache__/**'
   - '**/playwright-report/**'
 """)
-        print("✅ Created .github/codeql/security-os-config.yml")
-    
+
     # Create .codeqlignore
     codeqlignore = Path(".codeqlignore")
     if not codeqlignore.exists():
@@ -190,10 +183,9 @@ docs/**
 *.md
 *.rst
 """)
-        print("✅ Created .codeqlignore")
 
 
-def create_security_reports():
+def create_security_reports() -> None:
     """Create empty security report files."""
     security_reports = {
         "security-reports/bandit-results.json": {"results": [], "errors": []},
@@ -216,13 +208,12 @@ def create_security_reports():
             ],
         },
     }
-    
+
     for file_path, content in security_reports.items():
         Path(file_path).write_text(json.dumps(content, indent=2))
-        print(f"✅ Created {file_path}")
 
 
-def create_coverage_reports():
+def create_coverage_reports() -> None:
     """Create minimal coverage reports."""
     coverage_summary = {
         "total": {
@@ -232,9 +223,9 @@ def create_coverage_reports():
             "branches": {"total": 20, "covered": 16, "skipped": 0, "pct": 80},
         }
     }
-    
+
     Path("coverage/coverage-summary.json").write_text(json.dumps(coverage_summary, indent=2))
-    
+
     html_content = """<!DOCTYPE html>
 <html>
 <head>
@@ -256,15 +247,14 @@ def create_coverage_reports():
     <div class="metric good">Branches: 16/20 (80%)</div>
 </body>
 </html>"""
-    
+
     Path("coverage/index.html").write_text(html_content)
-    print("✅ Created coverage reports")
 
 
-def fix_workflow_triggers():
+def fix_workflow_triggers() -> None:
     """Add missing triggers to workflow files that need them."""
     workflows_dir = Path(".github/workflows")
-    
+
     # Default trigger configuration for different types of workflows
     default_triggers = {
         "on": {
@@ -277,11 +267,11 @@ def fix_workflow_triggers():
             "workflow_dispatch": {}
         }
     }
-    
+
     # Files that should have triggers
     files_needing_triggers = [
         "auto-fix.yml",
-        "check-documentation.yml", 
+        "check-documentation.yml",
         "codeql-fixed.yml",
         "codeql-simplified.yml",
         "consolidated-ci-cd-simplified.yml",
@@ -295,98 +285,76 @@ def fix_workflow_triggers():
         "security-testing-updated.yml",
         "test.yml",
     ]
-    
+
     for filename in files_needing_triggers:
         file_path = workflows_dir / filename
         if file_path.exists():
             try:
-                with file_path.open('r', encoding='utf-8') as f:
+                with file_path.open("r", encoding="utf-8") as f:
                     content = f.read()
-                
+
                 # Parse YAML
                 workflow = yaml.safe_load(content)
-                
-                if isinstance(workflow, dict) and 'on' not in workflow:
+
+                if isinstance(workflow, dict) and "on" not in workflow:
                     # Add triggers
-                    workflow['on'] = default_triggers['on']
-                    
+                    workflow["on"] = default_triggers["on"]
+
                     # Write back
-                    with file_path.open('w', encoding='utf-8') as f:
+                    with file_path.open("w", encoding="utf-8") as f:
                         yaml.dump(workflow, f, default_flow_style=False, sort_keys=False)
-                    
-                    print(f"✅ Added triggers to {filename}")
-                    
-            except Exception as e:
-                print(f"❌ Error fixing {filename}: {e}")
 
 
-def fix_package_json():
+            except Exception:
+                pass
+
+
+def fix_package_json() -> None:
     """Fix package.json issues."""
     package_json = Path("package.json")
     if package_json.exists():
         try:
             with package_json.open() as f:
                 data = json.load(f)
-            
+
             # Ensure scripts exist
             if "scripts" not in data:
                 data["scripts"] = {}
-            
+
             # Add missing scripts
             if "test" not in data["scripts"]:
-                data["scripts"]["test"] = "pnpm install && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests"
-            
+                data["scripts"]["test"] = 'pnpm install && pnpm tailwind:build && nyc mocha "src/**/*.test.js" --passWithNoTests'
+
             if "tailwind:build" not in data["scripts"]:
                 data["scripts"]["tailwind:build"] = "tailwindcss -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify"
-            
+
             # Ensure engines are specified
             if "engines" not in data:
                 data["engines"] = {"node": ">=18"}
-            
+
             with package_json.open("w") as f:
                 json.dump(data, f, indent=2)
-            
-            print("✅ Fixed package.json")
-            
-        except Exception as e:
-            print(f"❌ Error fixing package.json: {e}")
 
 
-def main():
+        except Exception:
+            pass
+
+
+def main() -> None:
     """Run all workflow fixes."""
-    print("🔧 Starting comprehensive workflow fixes for PR #166...")
-    
-    print("\n📁 Creating required directories...")
     create_required_directories()
-    
-    print("\n📄 Creating required files...")
+
     create_required_files()
-    
-    print("\n🔒 Creating security reports...")
+
     create_security_reports()
-    
-    print("\n📊 Creating coverage reports...")
+
     create_coverage_reports()
-    
-    print("\n⚙️ Fixing workflow triggers...")
+
     fix_workflow_triggers()
-    
-    print("\n📦 Fixing package.json...")
+
     fix_package_json()
-    
-    print("\n✅ All workflow fixes completed!")
-    print("\n📋 Summary of fixes:")
-    print("  • Created all required directories")
-    print("  • Created missing test files")
-    print("  • Created configuration files")
-    print("  • Created security and coverage reports")
-    print("  • Added missing workflow triggers")
-    print("  • Fixed package.json configuration")
-    print("\n🎯 Next steps:")
-    print("  1. Use simplified workflow files (*-simplified.yml, *-fixed.yml)")
-    print("  2. Test workflows with: git push or create a PR")
-    print("  3. Monitor workflow runs for any remaining issues")
+
 
 
 if __name__ == "__main__":
-    main() 
+    main()

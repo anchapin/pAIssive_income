@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Run tests and generate reports."""
 
-import os
-import sys
 import json
-import time
+import os
 import subprocess
-from pathlib import Path
+import sys
+import time
 from datetime import datetime
+from pathlib import Path
+
 
 def run_command(command, cwd=None):
     """Run a command and return its output."""

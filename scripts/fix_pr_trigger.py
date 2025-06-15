@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Fix the PR trigger for GitHub Actions."""
 
-import os
-import sys
 import json
+import os
 import subprocess
+import sys
 from pathlib import Path
+
 
 def run_command(command, cwd=None):
     """Run a command and return its output."""
@@ -23,7 +24,7 @@ def run_command(command, cwd=None):
         print(f"Error output: {e.stderr}")
         raise
 
-def fix_pr_trigger():
+def fix_pr_trigger() -> None:
     """Fix the PR trigger for GitHub Actions."""
     # Get PR information
     pr_number = os.environ.get("GITHUB_PR_NUMBER")
@@ -36,7 +37,7 @@ def fix_pr_trigger():
         "gh", "api",
         f"/repos/{os.environ['GITHUB_REPOSITORY']}/pulls/{pr_number}"
     ])
-    pr_data = json.loads(pr_details)
+    json.loads(pr_details)
 
     # Update PR trigger
     trigger_config = {

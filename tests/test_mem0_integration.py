@@ -106,8 +106,8 @@ def test_mem0_import():
         logger.info(f"Successfully imported mem0ai version {mem0ai.__version__}")
         assert True
     except ImportError as e:
-        logger.error(f"Failed to import mem0ai: {e}")
-        assert False
+        logger.exception(f"Failed to import mem0ai: {e}")
+        raise AssertionError
 
 
 def test_mem0_dependencies():
@@ -122,7 +122,7 @@ def test_mem0_dependencies():
             importlib.import_module(dep)
             logger.info(f"Successfully imported {dep}")
         except ImportError as e:
-            logger.error(f"Failed to import {dep}: {e}")
+            logger.exception(f"Failed to import {dep}: {e}")
             all_installed = False
 
     assert all_installed, "Not all required dependencies are installed"

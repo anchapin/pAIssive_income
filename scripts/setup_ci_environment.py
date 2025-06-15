@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Set up the CI environment."""
 
-import os
-import sys
 import json
+import os
 import platform
 import subprocess
 from pathlib import Path
+
 
 def run_command(command, cwd=None):
     """Run a command and return its output."""
@@ -24,7 +24,7 @@ def run_command(command, cwd=None):
         print(f"Error output: {e.stderr}")
         raise
 
-def setup_ci_environment():
+def setup_ci_environment() -> None:
     """Set up the CI environment."""
     # Create necessary directories
     directories = [

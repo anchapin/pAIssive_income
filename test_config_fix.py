@@ -23,5 +23,5 @@ try:
     logger.info("DEBUG: %s", Config.DEBUG)
     sys.exit(0)
 except (ImportError, ValueError, AttributeError) as e:
-    logger.error("❌ Config failed to load: %s", e)
+    logger.exception("❌ Config failed to load: %s", e)
     sys.exit(1)
