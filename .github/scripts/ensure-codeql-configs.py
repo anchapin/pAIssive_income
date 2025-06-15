@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
+# ruff: noqa: N999
 """
 Script to ensure CodeQL configuration files exist.
+
 This script creates the necessary CodeQL configuration files for security scanning.
 """
 
+from __future__ import annotations
+
 import json
-import os
+from pathlib import Path
 
 
-def ensure_directory(directory) -> None:
+def ensure_directory(directory: str) -> None:
     """Ensure the directory exists."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    else:
-        pass
+    path = Path(directory)
+    if not path.exists():
+        path.mkdir(parents=True)
 
-def create_codeql_config(filename, config_name, os_name=None) -> None:
+
+def create_codeql_config(filename: str, config_name: str, os_name: str | None = None) -> None:
     """Create a CodeQL configuration file with the given parameters."""
     config = {
         "name": config_name,
@@ -39,27 +43,28 @@ def create_codeql_config(filename, config_name, os_name=None) -> None:
     if os_name:
         config["os"] = os_name
 
-    with open(filename, "w") as f:
+    path = Path(filename)
+    with path.open("w") as f:
         json.dump(config, f, indent=2)
 
 
 def main() -> None:
-    """Main function to create CodeQL configuration files."""
+    """Create CodeQL configuration files."""
     # Ensure the .github/codeql directory exists
-    codeql_dir = os.path.join(".github", "codeql")
-    ensure_directory(codeql_dir)
+    codeql_dir = Path(".github") / "codeql"
+    ensure_directory(str(codeql_dir))
 
     # Create the Ubuntu configuration
-    ubuntu_config = os.path.join(codeql_dir, "security-os-ubuntu.yml")
-    create_codeql_config(ubuntu_config, "CodeQL Configuration for Ubuntu", "ubuntu-latest")
+    ubuntu_config = codeql_dir / "security-os-ubuntu.yml"
+    create_codeql_config(str(ubuntu_config), "CodeQL Configuration for Ubuntu", "ubuntu-latest")
 
     # Create the macOS configuration
-    macos_config = os.path.join(codeql_dir, "security-os-macos.yml")
-    create_codeql_config(macos_config, "CodeQL Configuration for macOS", "macos-latest")
+    macos_config = codeql_dir / "security-os-macos.yml"
+    create_codeql_config(str(macos_config), "CodeQL Configuration for macOS", "macos-latest")
 
     # Create the unified configuration
-    unified_config = os.path.join(codeql_dir, "security-os-config.yml")
-    create_codeql_config(unified_config, "Unified CodeQL Configuration")
+    unified_config = codeql_dir / "security-os-config.yml"
+    create_codeql_config(str(unified_config), "Unified CodeQL Configuration")
 
 
 if __name__ == "__main__":
