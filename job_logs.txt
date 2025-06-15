@@ -1,0 +1,281 @@
+﻿2025-06-06T04:02:21.6818334Z Current runner version: '2.325.0'
+2025-06-06T04:02:21.6854150Z ##[group]Runner Image Provisioner
+2025-06-06T04:02:21.6855401Z Hosted Compute Agent
+2025-06-06T04:02:21.6856746Z Version: 20250508.323
+2025-06-06T04:02:21.6857727Z Commit: 81b259f29879f73b4213d199e42d8c3465dae986
+2025-06-06T04:02:21.6859003Z Build Date: 2025-05-08T19:40:08Z
+2025-06-06T04:02:21.6860132Z ##[endgroup]
+2025-06-06T04:02:21.6861009Z ##[group]Operating System
+2025-06-06T04:02:21.6862086Z Ubuntu
+2025-06-06T04:02:21.6862849Z 24.04.2
+2025-06-06T04:02:21.6863610Z LTS
+2025-06-06T04:02:21.6864356Z ##[endgroup]
+2025-06-06T04:02:21.6865169Z ##[group]Runner Image
+2025-06-06T04:02:21.6866277Z Image: ubuntu-24.04
+2025-06-06T04:02:21.6867238Z Version: 20250511.1.0
+2025-06-06T04:02:21.6868929Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250511.1/images/ubuntu/Ubuntu2404-Readme.md
+2025-06-06T04:02:21.6871625Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250511.1
+2025-06-06T04:02:21.6873282Z ##[endgroup]
+2025-06-06T04:02:21.6875166Z ##[group]GITHUB_TOKEN Permissions
+2025-06-06T04:02:21.6878033Z Contents: read
+2025-06-06T04:02:21.6878870Z Metadata: read
+2025-06-06T04:02:21.6879813Z Packages: read
+2025-06-06T04:02:21.6880698Z ##[endgroup]
+2025-06-06T04:02:21.6883733Z Secret source: Actions
+2025-06-06T04:02:21.6884971Z Prepare workflow directory
+2025-06-06T04:02:21.7479682Z Prepare all required actions
+2025-06-06T04:02:21.7538545Z Getting action download info
+2025-06-06T04:02:21.9978489Z ##[group]Download immutable action package 'actions/checkout@v4'
+2025-06-06T04:02:21.9979604Z Version: 4.2.2
+2025-06-06T04:02:21.9980663Z Digest: sha256:ccb2698953eaebd21c7bf6268a94f9c26518a7e38e27e0b83c1fe1ad049819b1
+2025-06-06T04:02:21.9981789Z Source commit SHA: 11bd71901bbe5b1630ceea73d27597364c9af683
+2025-06-06T04:02:21.9982581Z ##[endgroup]
+2025-06-06T04:02:22.0765067Z Download action repository 'pnpm/action-setup@v4' (SHA:a7487c7e89a18df4991f7f222e4898a00d66ddda)
+2025-06-06T04:02:22.3336879Z ##[group]Download immutable action package 'actions/setup-node@v4'
+2025-06-06T04:02:22.3337731Z Version: 4.4.0
+2025-06-06T04:02:22.3338587Z Digest: sha256:9427cefe82346e992fb5b949e3569b39d537ae41aa3086483b14eceebfc16bc1
+2025-06-06T04:02:22.3339653Z Source commit SHA: 49933ea5288caeca8642d1e84afbd3f7d6820020
+2025-06-06T04:02:22.3340413Z ##[endgroup]
+2025-06-06T04:02:22.4318179Z ##[group]Download immutable action package 'actions/upload-artifact@v4'
+2025-06-06T04:02:22.4318958Z Version: 4.6.2
+2025-06-06T04:02:22.4319615Z Digest: sha256:290722aa3281d5caf23d0acdc3dbeb3424786a1a01a9cc97e72f147225e37c38
+2025-06-06T04:02:22.4320510Z Source commit SHA: ea165f8d65b6e75b540449e92b4886f43607fa02
+2025-06-06T04:02:22.4321130Z ##[endgroup]
+2025-06-06T04:02:22.6324305Z Complete job name: e2e
+2025-06-06T04:02:22.7118907Z ##[group]Run actions/checkout@v4
+2025-06-06T04:02:22.7119971Z with:
+2025-06-06T04:02:22.7120492Z   repository: anchapin/pAIssive_income
+2025-06-06T04:02:22.7121437Z   token: ***
+2025-06-06T04:02:22.7121962Z   ssh-strict: true
+2025-06-06T04:02:22.7122515Z   ssh-user: git
+2025-06-06T04:02:22.7123104Z   persist-credentials: true
+2025-06-06T04:02:22.7123650Z   clean: true
+2025-06-06T04:02:22.7124175Z   sparse-checkout-cone-mode: true
+2025-06-06T04:02:22.7124779Z   fetch-depth: 1
+2025-06-06T04:02:22.7125296Z   fetch-tags: false
+2025-06-06T04:02:22.7126049Z   show-progress: true
+2025-06-06T04:02:22.7126643Z   lfs: false
+2025-06-06T04:02:22.7127147Z   submodules: false
+2025-06-06T04:02:22.7127633Z   set-safe-directory: true
+2025-06-06T04:02:22.7128576Z ##[endgroup]
+2025-06-06T04:02:22.8231020Z Syncing repository: anchapin/pAIssive_income
+2025-06-06T04:02:22.8233537Z ##[group]Getting Git version info
+2025-06-06T04:02:22.8234669Z Working directory is '/home/runner/work/pAIssive_income/pAIssive_income'
+2025-06-06T04:02:22.8236310Z [command]/usr/bin/git version
+2025-06-06T04:02:22.8322149Z git version 2.49.0
+2025-06-06T04:02:22.8349138Z ##[endgroup]
+2025-06-06T04:02:22.8364205Z Temporarily overriding HOME='/home/runner/work/_temp/ea8e6d1c-50fb-4e9a-9a2b-96bf5d0fdedc' before making global git config changes
+2025-06-06T04:02:22.8366806Z Adding repository directory to the temporary git global config as a safe directory
+2025-06-06T04:02:22.8369758Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/pAIssive_income/pAIssive_income
+2025-06-06T04:02:22.8407992Z Deleting the contents of '/home/runner/work/pAIssive_income/pAIssive_income'
+2025-06-06T04:02:22.8411678Z ##[group]Initializing the repository
+2025-06-06T04:02:22.8415927Z [command]/usr/bin/git init /home/runner/work/pAIssive_income/pAIssive_income
+2025-06-06T04:02:22.8482262Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-06-06T04:02:22.8484186Z hint: is subject to change. To configure the initial branch name to use in all
+2025-06-06T04:02:22.8485471Z hint: of your new repositories, which will suppress this warning, call:
+2025-06-06T04:02:22.8486818Z hint:
+2025-06-06T04:02:22.8487648Z hint: 	git config --global init.defaultBranch <name>
+2025-06-06T04:02:22.8489193Z hint:
+2025-06-06T04:02:22.8490413Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-06-06T04:02:22.8492641Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-06-06T04:02:22.8494322Z hint:
+2025-06-06T04:02:22.8495314Z hint: 	git branch -m <name>
+2025-06-06T04:02:22.8497592Z Initialized empty Git repository in /home/runner/work/pAIssive_income/pAIssive_income/.git/
+2025-06-06T04:02:22.8504310Z [command]/usr/bin/git remote add origin https://github.com/anchapin/pAIssive_income
+2025-06-06T04:02:22.8541783Z ##[endgroup]
+2025-06-06T04:02:22.8542736Z ##[group]Disabling automatic garbage collection
+2025-06-06T04:02:22.8546081Z [command]/usr/bin/git config --local gc.auto 0
+2025-06-06T04:02:22.8576405Z ##[endgroup]
+2025-06-06T04:02:22.8577283Z ##[group]Setting up auth
+2025-06-06T04:02:22.8583110Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-06-06T04:02:22.8612848Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-06-06T04:02:22.8915541Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-06-06T04:02:22.8950803Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-06-06T04:02:22.9181594Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-06-06T04:02:22.9220510Z ##[endgroup]
+2025-06-06T04:02:22.9222893Z ##[group]Fetching the repository
+2025-06-06T04:02:22.9231343Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +be74f3686fb9b34b3b2a961e56d8ac921585c5cd:refs/remotes/pull/248/merge
+2025-06-06T04:02:23.6697190Z From https://github.com/anchapin/pAIssive_income
+2025-06-06T04:02:23.6699219Z  * [new ref]         be74f3686fb9b34b3b2a961e56d8ac921585c5cd -> pull/248/merge
+2025-06-06T04:02:23.6731685Z ##[endgroup]
+2025-06-06T04:02:23.6733802Z ##[group]Determining the checkout info
+2025-06-06T04:02:23.6736466Z ##[endgroup]
+2025-06-06T04:02:23.6739777Z [command]/usr/bin/git sparse-checkout disable
+2025-06-06T04:02:23.6785247Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-06-06T04:02:23.6817737Z ##[group]Checking out the ref
+2025-06-06T04:02:23.6821457Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/248/merge
+2025-06-06T04:02:23.8710324Z Note: switching to 'refs/remotes/pull/248/merge'.
+2025-06-06T04:02:23.8711677Z 
+2025-06-06T04:02:23.8712812Z You are in 'detached HEAD' state. You can look around, make experimental
+2025-06-06T04:02:23.8715953Z changes and commit them, and you can discard any commits you make in this
+2025-06-06T04:02:23.8718955Z state without impacting any branches by switching back to a branch.
+2025-06-06T04:02:23.8721096Z 
+2025-06-06T04:02:23.8722152Z If you want to create a new branch to retain commits you create, you may
+2025-06-06T04:02:23.8724564Z do so (now or later) by using -c with the switch command. Example:
+2025-06-06T04:02:23.8725909Z 
+2025-06-06T04:02:23.8726324Z   git switch -c <new-branch-name>
+2025-06-06T04:02:23.8727194Z 
+2025-06-06T04:02:23.8727730Z Or undo this operation with:
+2025-06-06T04:02:23.8728805Z 
+2025-06-06T04:02:23.8729240Z   git switch -
+2025-06-06T04:02:23.8729849Z 
+2025-06-06T04:02:23.8730917Z Turn off this advice by setting config variable advice.detachedHead to false
+2025-06-06T04:02:23.8732370Z 
+2025-06-06T04:02:23.8734269Z HEAD is now at be74f36 Merge df8ddaea69a2eca4c294e4b2049dd1885319c744 into 2c43a7493182407c5f3589a4673eed67f7d932b4
+2025-06-06T04:02:23.8739616Z ##[endgroup]
+2025-06-06T04:02:23.8770132Z [command]/usr/bin/git log -1 --format=%H
+2025-06-06T04:02:23.8791998Z be74f3686fb9b34b3b2a961e56d8ac921585c5cd
+2025-06-06T04:02:23.9129103Z ##[group]Run pnpm/action-setup@v4
+2025-06-06T04:02:23.9130134Z with:
+2025-06-06T04:02:23.9130828Z   version: 8
+2025-06-06T04:02:23.9131572Z   dest: ~/setup-pnpm
+2025-06-06T04:02:23.9132405Z   run_install: null
+2025-06-06T04:02:23.9133245Z   package_json_file: package.json
+2025-06-06T04:02:23.9134242Z   standalone: false
+2025-06-06T04:02:23.9135037Z ##[endgroup]
+2025-06-06T04:02:23.9694492Z ##[group]Running self-installer...
+2025-06-06T04:02:24.5310001Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2025-06-06T04:02:24.5554854Z Packages: +1
+2025-06-06T04:02:24.5557394Z +
+2025-06-06T04:02:24.8962116Z Progress: resolved 1, reused 0, downloaded 1, added 1, done
+2025-06-06T04:02:24.9233466Z 
+2025-06-06T04:02:24.9233927Z dependencies:
+2025-06-06T04:02:24.9234279Z + pnpm 8.15.9 (10.11.1 is available)
+2025-06-06T04:02:24.9234541Z 
+2025-06-06T04:02:24.9266255Z Done in 786ms
+2025-06-06T04:02:24.9462718Z ##[endgroup]
+2025-06-06T04:02:24.9466793Z Installation Completed!
+2025-06-06T04:02:24.9598085Z ##[group]Run actions/setup-node@v4
+2025-06-06T04:02:24.9598387Z with:
+2025-06-06T04:02:24.9598568Z   node-version: 24
+2025-06-06T04:02:24.9598767Z   cache: pnpm
+2025-06-06T04:02:24.9598966Z   always-auth: false
+2025-06-06T04:02:24.9599168Z   check-latest: false
+2025-06-06T04:02:24.9599501Z   token: ***
+2025-06-06T04:02:24.9599675Z env:
+2025-06-06T04:02:24.9599919Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2025-06-06T04:02:24.9600197Z ##[endgroup]
+2025-06-06T04:02:25.1408278Z Attempting to download 24...
+2025-06-06T04:02:25.3659145Z Acquiring 24.1.0 - x64 from https://github.com/actions/node-versions/releases/download/24.1.0-15177436545/node-24.1.0-linux-x64.tar.gz
+2025-06-06T04:02:25.8021291Z Extracting ...
+2025-06-06T04:02:25.8133822Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/c6e30049-d8ab-450e-b3fd-c3bd66ffb097 -f /home/runner/work/_temp/47be8708-a8ab-47fc-b2d0-d9b139313867
+2025-06-06T04:02:26.9962919Z Adding to the cache ...
+2025-06-06T04:02:28.8458163Z ##[group]Environment details
+2025-06-06T04:02:29.0884425Z node: v24.1.0
+2025-06-06T04:02:29.0885093Z npm: 11.3.0
+2025-06-06T04:02:29.0886055Z yarn: 1.22.22
+2025-06-06T04:02:29.0886811Z ##[endgroup]
+2025-06-06T04:02:29.0913292Z [command]/home/runner/setup-pnpm/node_modules/.bin/pnpm store path --silent
+2025-06-06T04:02:29.4836793Z /home/runner/setup-pnpm/node_modules/.bin/store/v3
+2025-06-06T04:02:29.5400713Z Cache hit for: node-cache-Linux-x64-pnpm-2f29e6d69fa75be118bad9ea83d6269c44db57e75411128873150036cca75307
+2025-06-06T04:02:30.1527489Z Received 94076464 of 94076464 (100.0%), 167.1 MBs/sec
+2025-06-06T04:02:30.1528876Z Cache Size: ~90 MB (94076464 B)
+2025-06-06T04:02:30.1645880Z [command]/usr/bin/tar -xf /home/runner/work/_temp/fb43935c-933c-463d-b474-8204141dcc93/cache.tzst -P -C /home/runner/work/pAIssive_income/pAIssive_income --use-compress-program unzstd
+2025-06-06T04:02:32.8064538Z Cache restored successfully
+2025-06-06T04:02:32.8263276Z Cache restored from key: node-cache-Linux-x64-pnpm-2f29e6d69fa75be118bad9ea83d6269c44db57e75411128873150036cca75307
+2025-06-06T04:02:32.8445009Z ##[group]Run pnpm install
+2025-06-06T04:02:32.8445357Z [36;1mpnpm install[0m
+2025-06-06T04:02:32.8635432Z shell: /usr/bin/bash -e {0}
+2025-06-06T04:02:32.8635982Z env:
+2025-06-06T04:02:32.8636297Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2025-06-06T04:02:32.8636697Z ##[endgroup]
+2025-06-06T04:02:33.3327409Z  WARN  Ignoring not compatible lockfile at /home/runner/work/pAIssive_income/pAIssive_income/ui/react_frontend/pnpm-lock.yaml
+2025-06-06T04:02:33.4854937Z  ERR_PNPM_FETCH_404  GET https://registry.npmjs.org/@ag-ui-protocol%2Fag-ui-mock: Not Found - 404
+2025-06-06T04:02:33.4855903Z 
+2025-06-06T04:02:33.4856917Z This error happened while installing a direct dependency of /home/runner/work/pAIssive_income/pAIssive_income/ui/react_frontend
+2025-06-06T04:02:33.4857770Z 
+2025-06-06T04:02:33.4858444Z @ag-ui-protocol/ag-ui-mock is not in the npm registry, or you have no permission to fetch it.
+2025-06-06T04:02:33.4859082Z 
+2025-06-06T04:02:33.4859521Z No authorization header was set for the request.
+2025-06-06T04:02:33.5201666Z ##[error]Process completed with exit code 1.
+2025-06-06T04:02:33.5276186Z ##[group]Run # Ensure the directory exists
+2025-06-06T04:02:33.5276565Z [36;1m# Ensure the directory exists[0m
+2025-06-06T04:02:33.5276851Z [36;1mmkdir -p playwright-report/[0m
+2025-06-06T04:02:33.5277136Z [36;1mmkdir -p playwright-report/html/[0m
+2025-06-06T04:02:33.5277389Z [36;1m[0m
+2025-06-06T04:02:33.5277683Z [36;1m# Create a dummy file if the directory is empty to prevent upload issues[0m
+2025-06-06T04:02:33.5278083Z [36;1mif [ -z "$(ls -A playwright-report/)" ]; then[0m
+2025-06-06T04:02:33.5278449Z [36;1m  echo "Creating dummy files in empty playwright-report directory"[0m
+2025-06-06T04:02:33.5278897Z [36;1m  echo "Test run completed at $(date)" > playwright-report/test-summary.txt[0m
+2025-06-06T04:02:33.5279389Z [36;1m  echo "<html><body><h1>Test Results</h1></body></html>" > playwright-report/index.html[0m
+2025-06-06T04:02:33.5279929Z [36;1m  echo "<html><body><h1>Detailed Results</h1></body></html>" > playwright-report/html/index.html[0m
+2025-06-06T04:02:33.5280339Z [36;1m[0m
+2025-06-06T04:02:33.5280534Z [36;1m  # Create a simple junit-results.xml[0m
+2025-06-06T04:02:33.5281604Z [36;1m  echo '<?xml version="1.0" encoding="UTF-8"?><testsuites name="AgentUI CI Tests" tests="1" failures="0" errors="0" time="0.1"><testsuite name="AgentUI CI Tests" tests="1" failures="0" errors="0" time="0.1"><testcase name="simple test" classname="simple_test.spec.ts" time="0.1"></testcase></testsuite></testsuites>' > playwright-report/junit-results.xml[0m
+2025-06-06T04:02:33.5282634Z [36;1mfi[0m
+2025-06-06T04:02:33.5282797Z [36;1m[0m
+2025-06-06T04:02:33.5282968Z [36;1m# List directory contents[0m
+2025-06-06T04:02:33.5283257Z [36;1mecho "Contents of playwright-report directory:"[0m
+2025-06-06T04:02:33.5283734Z [36;1mls -la playwright-report/ || echo "playwright-report directory is empty or doesn't exist"[0m
+2025-06-06T04:02:33.5284143Z [36;1m[0m
+2025-06-06T04:02:33.5284374Z [36;1mecho "Contents of playwright-report/html directory:"[0m
+2025-06-06T04:02:33.5284892Z [36;1mls -la playwright-report/html/ || echo "playwright-report/html directory is empty or doesn't exist"[0m
+2025-06-06T04:02:33.5337941Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2025-06-06T04:02:33.5338269Z env:
+2025-06-06T04:02:33.5338503Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2025-06-06T04:02:33.5338793Z ##[endgroup]
+2025-06-06T04:02:33.5447917Z Contents of playwright-report directory:
+2025-06-06T04:02:33.5460269Z total 16
+2025-06-06T04:02:33.5460859Z drwxr-xr-x  3 runner docker 4096 Jun  6 04:02 .
+2025-06-06T04:02:33.5461462Z drwxr-xr-x 10 runner docker 4096 Jun  6 04:02 ..
+2025-06-06T04:02:33.5462038Z drwxr-xr-x  2 runner docker 4096 Jun  6 04:02 html
+2025-06-06T04:02:33.5462840Z -rw-r--r--  1 runner docker  219 Jun  6 04:02 index.html
+2025-06-06T04:02:33.5463615Z Contents of playwright-report/html directory:
+2025-06-06T04:02:33.5473782Z total 8
+2025-06-06T04:02:33.5474441Z drwxr-xr-x 2 runner docker 4096 Jun  6 04:02 .
+2025-06-06T04:02:33.5475046Z drwxr-xr-x 3 runner docker 4096 Jun  6 04:02 ..
+2025-06-06T04:02:33.5540109Z ##[group]Run actions/upload-artifact@v4
+2025-06-06T04:02:33.5540383Z with:
+2025-06-06T04:02:33.5540598Z   name: playwright-report-Linux-15482528940
+2025-06-06T04:02:33.5540880Z   path: playwright-report/
+logs/
+
+2025-06-06T04:02:33.5541126Z   if-no-files-found: warn
+2025-06-06T04:02:33.5541335Z   retention-days: 30
+2025-06-06T04:02:33.5541523Z   compression-level: 6
+2025-06-06T04:02:33.5541714Z   overwrite: false
+2025-06-06T04:02:33.5541902Z   include-hidden-files: false
+2025-06-06T04:02:33.5542100Z env:
+2025-06-06T04:02:33.5542316Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2025-06-06T04:02:33.5542605Z ##[endgroup]
+2025-06-06T04:02:33.7784031Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2025-06-06T04:02:33.7787136Z The least common ancestor is /home/runner/work/pAIssive_income/pAIssive_income. This will be the root directory of the artifact
+2025-06-06T04:02:33.7788411Z With the provided path, there will be 1 file uploaded
+2025-06-06T04:02:33.7794205Z Artifact name is valid!
+2025-06-06T04:02:33.7795462Z Root directory input is valid!
+2025-06-06T04:02:33.8555133Z Beginning upload of artifact content to blob storage
+2025-06-06T04:02:33.9025316Z Uploaded bytes 592
+2025-06-06T04:02:33.9187006Z Finished uploading artifact content to blob storage!
+2025-06-06T04:02:33.9190519Z SHA256 digest of uploaded artifact zip is 5ffbfe167595c3304ea0669f83eec3fbb86de4097cfd38cbe3e595543d6651f2
+2025-06-06T04:02:33.9191749Z Finalizing artifact upload
+2025-06-06T04:02:33.9908130Z Artifact playwright-report-Linux-15482528940.zip successfully finalized. Artifact ID 3273014934
+2025-06-06T04:02:33.9911046Z Artifact playwright-report-Linux-15482528940 has been successfully uploaded! Final size is 592 bytes. Artifact ID is 3273014934
+2025-06-06T04:02:33.9918861Z Artifact download URL: https://github.com/anchapin/pAIssive_income/actions/runs/15482528940/artifacts/3273014934
+2025-06-06T04:02:34.0042220Z ##[group]Run actions/upload-artifact@v4
+2025-06-06T04:02:34.0042524Z with:
+2025-06-06T04:02:34.0042723Z   name: test-results-Linux-15482528940
+2025-06-06T04:02:34.0043024Z   path: test-results/
+2025-06-06T04:02:34.0043237Z   if-no-files-found: ignore
+2025-06-06T04:02:34.0043456Z   retention-days: 30
+2025-06-06T04:02:34.0043652Z   compression-level: 6
+2025-06-06T04:02:34.0043842Z   overwrite: false
+2025-06-06T04:02:34.0044038Z   include-hidden-files: false
+2025-06-06T04:02:34.0044253Z env:
+2025-06-06T04:02:34.0044472Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2025-06-06T04:02:34.0044752Z ##[endgroup]
+2025-06-06T04:02:34.2206604Z No files were found with the provided path: test-results/. No artifacts will be uploaded.
+2025-06-06T04:02:34.2351189Z Post job cleanup.
+2025-06-06T04:02:34.2921399Z Pruning is unnecessary.
+2025-06-06T04:02:34.3025897Z Post job cleanup.
+2025-06-06T04:02:34.4030786Z [command]/usr/bin/git version
+2025-06-06T04:02:34.4071189Z git version 2.49.0
+2025-06-06T04:02:34.4125863Z Temporarily overriding HOME='/home/runner/work/_temp/3913a745-ee29-4ee4-907f-d11a202c19a9' before making global git config changes
+2025-06-06T04:02:34.4127724Z Adding repository directory to the temporary git global config as a safe directory
+2025-06-06T04:02:34.4132568Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/pAIssive_income/pAIssive_income
+2025-06-06T04:02:34.4171734Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-06-06T04:02:34.4206651Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-06-06T04:02:34.4447543Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-06-06T04:02:34.4470701Z http.https://github.com/.extraheader
+2025-06-06T04:02:34.4484184Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2025-06-06T04:02:34.4517104Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-06-06T04:02:34.4858909Z Cleaning up orphan processes

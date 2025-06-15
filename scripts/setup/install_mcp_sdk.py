@@ -55,8 +55,10 @@ def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str
 
     try:
         # Use absolute path for the executable when possible
-        if command and shutil.which(command[0]):
-            command[0] = shutil.which(command[0])
+        if command:
+            absolute_path = shutil.which(command[0])
+            if absolute_path:
+                command[0] = absolute_path
 
         # nosec comment below tells Bandit to ignore this line since we've added proper validation
         # We've validated the command above to ensure it's safe to execute

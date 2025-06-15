@@ -12,6 +12,7 @@ import json
 import logging
 import shutil
 import subprocess  # nosec B404 - subprocess is used with secure parameters and never with shell=True
+import sys
 from pathlib import Path
 
 # Set up logging
@@ -20,6 +21,10 @@ logger = logging.getLogger(__name__)
 
 # Create security-reports directory
 Path("security-reports").mkdir(exist_ok=True)
+<<<<<<< HEAD
+=======
+logger.info("Created security-reports directory")
+>>>>>>> origin/main
 
 # Create empty JSON files
 empty_json = {
@@ -29,11 +34,23 @@ empty_json = {
     "results": [],
 }
 
+<<<<<<< HEAD
 with Path("security-reports/bandit-results.json").open("w") as f:
     json.dump(empty_json, f, indent=2)
 
 with Path("security-reports/bandit-results-ini.json").open("w") as f:
     json.dump(empty_json, f, indent=2)
+=======
+bandit_results_path = Path("security-reports/bandit-results.json")
+with bandit_results_path.open("w") as f:
+    json.dump(empty_json, f, indent=2)
+logger.info("Created empty bandit-results.json")
+
+bandit_results_ini_path = Path("security-reports/bandit-results-ini.json")
+with bandit_results_ini_path.open("w") as f:
+    json.dump(empty_json, f, indent=2)
+logger.info("Created empty bandit-results-ini.json")
+>>>>>>> origin/main
 
 # Create empty SARIF files
 empty_sarif = {
@@ -54,9 +71,21 @@ empty_sarif = {
     ],
 }
 
+<<<<<<< HEAD
 with Path("security-reports/bandit-results.sarif").open("w") as f:
     json.dump(empty_sarif, f, indent=2)
 
+=======
+bandit_sarif_path = Path("security-reports/bandit-results.sarif")
+with bandit_sarif_path.open("w") as f:
+    json.dump(empty_sarif, f, indent=2)
+logger.info("Created empty bandit-results.sarif")
+
+bandit_sarif_ini_path = Path("security-reports/bandit-results-ini.sarif")
+with bandit_sarif_ini_path.open("w") as f:
+    json.dump(empty_sarif, f, indent=2)
+logger.info("Created empty bandit-results-ini.sarif")
+>>>>>>> origin/main
 
 # Try to run Bandit
 def run_secure_command(
@@ -84,6 +113,7 @@ def run_secure_command(
 bandit_path = shutil.which("bandit") or "bandit"
 
 try:
+<<<<<<< HEAD
     # Try to run a simple bandit version check
     bandit_version = run_secure_command([bandit_path, "--version"])
 
@@ -130,3 +160,29 @@ try:
         logger.warning("Bandit version check failed")
 except (subprocess.SubprocessError, OSError) as e:
     logger.warning("Error running Bandit: %s", e)
+=======
+    subprocess.run(  # nosec B603 B607  # noqa: S603
+        [  # noqa: S607
+            "bandit",
+            "-r",
+            ".",
+            "-f",
+            "json",
+            "-o",
+            "security-reports/bandit-results.json",
+            "--exclude",
+            ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
+            "--exit-zero",
+        ],
+        check=False,
+        shell=False,
+        timeout=600,
+    )
+    logger.info("Bandit scan completed")
+except subprocess.SubprocessError:
+    logger.exception("Error running bandit")
+    logger.info("Using empty result files")
+
+logger.info("Bandit scan script completed successfully")
+sys.exit(0)
+>>>>>>> origin/main

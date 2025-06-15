@@ -116,10 +116,11 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: ui/react_frontend/pnpm-lock.yaml
 
-      # - name: Install Node.js dependencies and build Tailwind CSS
-      #   run: |
-      #     pnpm install
-      #     pnpm tailwind:build
+      - name: Install Node.js dependencies and build Tailwind CSS
+        working-directory: ui/react_frontend
+        run: |
+          pnpm install
+          pnpm tailwind:build
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -602,14 +603,14 @@ jobs:
       - name: Ensure fixed CodeQL workflow files
         if: runner.os == 'Windows'
         shell: pwsh
-      #   run: |
-      #     Write-Host "Ensuring fixed CodeQL workflow files are used..."
-      #     if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
-      #       Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
-      #       ./.github/scripts/ensure-fixed-codeql-workflows.ps1
-      #     } else {
-      #       Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
-      #     }
+        run: |
+          Write-Host "Ensuring fixed CodeQL workflow files are used..."
+          if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
+            Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
+            ./.github/scripts/ensure-fixed-codeql-workflows.ps1
+          } else {
+            Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
+          }
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -744,34 +745,31 @@ jobs:
           fi
 
           # Verify JSON file exists and is valid
-          if (-not (Test-Path "security-reports/bandit-results.json")) {
-            Write-Host "Bandit did not generate a JSON file. Using the empty one created earlier."
-          } else {
+          if [ ! -f "security-reports/bandit-results.json" ]; then
+            echo "Bandit did not generate a JSON file. Using the empty one created earlier."
+          else
             # Check if the JSON file is valid
-            try {
-              $null = Get-Content -Path "security-reports/bandit-results.json" | ConvertFrom-Json
-            } catch {
-              Write-Host "Invalid JSON file detected. Replacing with empty JSON."
-              $emptyJsonContent = '{"results": [], "errors": []}'
-              Set-Content -Path "security-reports/bandit-results.json" -Value $emptyJsonContent
-            }
-          }
+            python -c "
+import json
+import sys
+try:
+    with open('security-reports/bandit-results.json', 'r') as f:
+        json.load(f)
+    print('JSON file is valid')
+except (json.JSONDecodeError, FileNotFoundError) as e:
+    print(f'Invalid JSON file detected: {e}. Replacing with empty JSON.')
+    with open('security-reports/bandit-results.json', 'w') as f:
+        json.dump({'results': [], 'errors': []}, f)
+" || echo "JSON validation failed, but continuing"
+          fi
 
           # Run pip-audit with error handling
-          Write-Host "Running pip-audit..."
-          try {
-            pip-audit
-          } catch {
-            Write-Host "pip-audit failed, but continuing: $_"
-          }
+          echo "Running pip-audit..."
+          pip-audit || echo "pip-audit failed, but continuing"
 
           # Run semgrep with error handling
-          Write-Host "Running semgrep..."
-          try {
-            semgrep scan --config auto
-          } catch {
-            Write-Host "semgrep scan failed, but continuing: $_"
-          }
+          echo "Running semgrep..."
+          semgrep scan --config auto || echo "semgrep scan failed, but continuing"
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master

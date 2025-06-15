@@ -210,7 +210,7 @@ def count_tests(validated_args: list[str]) -> int:
         logger.warning("Error collecting tests: %s. Falling back to single worker.", e)
         return default_test_count if has_test_files else 0
 
-    except Exception as e:
+    except FileNotFoundError as e:
         logger.warning(
             "Unexpected error collecting tests: %s. Falling back to single worker.", e
         )
@@ -227,105 +227,19 @@ def ensure_security_reports_dir() -> None:
     """
     reports_dir = Path("security-reports")
 
-    # Check if directory already exists
     if reports_dir.exists() and reports_dir.is_dir():
         logger.debug("security-reports directory already exists")
         return
 
-    # Try to create the directory
     try:
         reports_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Created security-reports directory")
-        return
     except (PermissionError, OSError) as e:
-        logger.warning("Failed to create security-reports directory: %s", e)
-
-    # First fallback: Try to create in current directory with different name
-    try:
-        alt_reports_dir = Path("security_reports")  # Use underscore instead of hyphen
-        if not alt_reports_dir.exists():
-            alt_reports_dir.mkdir(parents=True, exist_ok=True)
-            logger.info("Created alternative security_reports directory")
-
-            # Create a symlink to the alternative directory
-            try:
-                if platform.system() == "Windows":
-                    # Use directory junction on Windows
-                    cmd_path = shutil.which("cmd.exe")
-                    if cmd_path:
-                        # nosec B603 - subprocess call is used with shell=False and validated arguments
-                        # nosec B607 - subprocess call is used with a fixed executable path
-                        subprocess.run(  # nosec B603 # nosec B607
-                            [
-                                cmd_path,
-                                "/c",
-                                "mklink",
-                                "/J",
-                                "security-reports",
-                                str(alt_reports_dir),
-                            ],
-                            check=False,
-                            shell=False,
-                            capture_output=True,
-                        )
-                else:
-                    # Use symlink on Unix
-                    os.symlink(alt_reports_dir, "security-reports")
-                return
-            except Exception as symlink_error:
-                logger.warning(
-                    "Failed to create symlink to alternative directory: %s",
-                    symlink_error,
-                )
-    except Exception as alt_dir_error:
         logger.warning(
-            "Failed to create alternative security_reports directory: %s", alt_dir_error
+            "Failed to create security-reports directory: %s. "
+            "Security reports may not be saved.",
+            e,
         )
-
-    # Second fallback: Try to create in temp directory
-    try:
-        import tempfile
-
-        temp_dir = Path(tempfile.gettempdir()) / "security-reports"
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        logger.info("Created security-reports directory in temp location: %s", temp_dir)
-
-        # Try to create a symlink or junction to the temp directory
-        try:
-            if platform.system() == "Windows":
-                # Use directory junction on Windows
-                cmd_path = shutil.which("cmd.exe")
-                if cmd_path:
-                    # nosec B603 - subprocess call is used with shell=False and validated arguments
-                    # nosec B607 - subprocess call is used with a fixed executable path
-                    subprocess.run(  # nosec B603 # nosec B607
-                        [
-                            cmd_path,
-                            "/c",
-                            "mklink",
-                            "/J",
-                            "security-reports",
-                            str(temp_dir),
-                        ],
-                        check=False,
-                        shell=False,
-                        capture_output=True,
-                    )
-            else:
-                # Use symlink on Unix
-                os.symlink(temp_dir, "security-reports")
-        except Exception as symlink_error:
-            logger.warning(
-                "Failed to create symlink to temp directory: %s", symlink_error
-            )
-    except Exception as temp_dir_error:
-        logger.warning(
-            "Failed to create security-reports directory in temp location: %s",
-            temp_dir_error,
-        )
-
-    # Final fallback: Just continue without the directory
-    # The security tools should handle this gracefully or we'll catch their exceptions
 
 
 def check_venv_exists() -> bool:
@@ -558,7 +472,7 @@ def main() -> None:
             if result.stdout:
                 logger.info("Pytest stdout: %s", result.stdout)
             if result.stderr:
-                logger.error("Pytest stderr: %s", result.stderr)
+                logger.warning("Pytest stderr: %s", result.stderr)
     except subprocess.TimeoutExpired as timeout_error:
         logger.exception("Pytest execution timed out after 1 hour: %s", timeout_error)
         sys.exit(2)

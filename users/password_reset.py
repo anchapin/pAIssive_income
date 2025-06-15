@@ -112,8 +112,8 @@ class PasswordResetService:
             # Return success to avoid leaking user existence
             return True, None
 
-        # Generate reset code
-        reset_code: str = generate_reset_code()
+        # Generate a secure reset code with high entropy
+        reset_code: str = generate_reset_code(48)  # Use longer code for better security
         reset_token: str = hashlib.sha256(reset_code.encode()).hexdigest()
         reset_expires: datetime = datetime.now(tz=timezone.utc) + timedelta(
             seconds=self.code_expiry

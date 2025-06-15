@@ -65,6 +65,8 @@ This ensures a consistent development environment across all OpenHands instances
 - Exclude files by adding patterns to `.lintignore`.
 - Parallel processing is supported (`--jobs` flag).
 
+> **Note:** All up-to-date linting, formatting, and pre-commit standards are maintained in this document. Code quality utility scripts (including `fix_linting_issues.py`) are in the `scripts/fix/` directory. Update all references and CI/CD examples to use `scripts/fix/fix_linting_issues.py` instead of any old root path.
+
 ### Formatting
 
 - Use `python scripts/fix/fix_formatting.py` to auto-fix formatting.

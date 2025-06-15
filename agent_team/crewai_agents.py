@@ -46,7 +46,7 @@ except ImportError:
         """Placeholder for Task class when crewai is not installed."""
 
         def __init__(
-            self, description: str = "", agent: AgentPlaceholder = None
+            self, description: str = "", agent: AgentPlaceholder | None = None
         ) -> None:
             """
             Initialize Task placeholder.
@@ -122,19 +122,21 @@ writer = Agent(
 # Example: Define tasks
 task_collect = Task(
     description="Gather all relevant data from internal and external sources.",
-    agent=data_gatherer,
+    agent=data_gatherer,  # type: ignore[arg-type]
 )
 task_analyze = Task(
-    description="Analyze gathered data for trends and anomalies.", agent=analyzer
+    description="Analyze gathered data for trends and anomalies.",
+    agent=analyzer,  # type: ignore[arg-type]
 )
 task_report = Task(
-    description="Write a summary report based on analysis.", agent=writer
+    description="Write a summary report based on analysis.",
+    agent=writer,  # type: ignore[arg-type]
 )
 
 # Example: Assemble into a Crew (team)
 reporting_team = Crew(
-    agents=[data_gatherer, analyzer, writer],
-    tasks=[task_collect, task_analyze, task_report],
+    agents=[data_gatherer, analyzer, writer],  # type: ignore[arg-type]
+    tasks=[task_collect, task_analyze, task_report],  # type: ignore[arg-type]
 )
 
 if __name__ == "__main__":
@@ -195,7 +197,7 @@ class CrewAIAgentTeam:
         self.llm_provider = llm_provider
         self.agents: list[object] = []
         self.tasks: list[object] = []
-        self.api_client = None
+        self.api_client: object | None = None
 
         # Dedicated logger for agentic reasoning
         # Note: Logger configuration is deferred to the application

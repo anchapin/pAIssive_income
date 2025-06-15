@@ -196,7 +196,7 @@ def create_agents(
             user_id = "default_user"
             logger.warning("No user_id provided, using 'default_user'")
 
-        logger.info("Creating memory-enhanced agents with user_id: %s", user_id)
+        logger.info(f"Creating memory-enhanced agents with user_id: {user_id}")
         data_gatherer = MemoryEnhancedDataGathererAgent(
             name="data_gatherer", user_id=user_id
         )

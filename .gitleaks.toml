@@ -10,7 +10,7 @@ paths = [
     "conftest\\.py$",
 
     # Cache and virtual environment
-    ".mypy_cache/.*",
+    ".pyright_cache/.*",
     ".ruff_cache/.*",
     ".venv/.*",
     ".*\\.pyc$",

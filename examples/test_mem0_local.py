@@ -21,9 +21,11 @@ except ImportError:
     print("mem0ai package not installed. Please install it with: uv pip install mem0ai")
     sys.exit(1)
 
+
 def print_json(data: Any) -> None:
     """Print data as formatted JSON."""
     print(json.dumps(data, indent=2))
+
 
 def test_basic_memory_operations() -> None:
     """Test basic memory operations: add, search, get_all."""
@@ -38,7 +40,7 @@ def test_basic_memory_operations() -> None:
     result = memory.add(
         "I prefer dark mode in my applications and use VSCode as my primary editor.",
         user_id=user_id,
-        metadata={"category": "preferences"}
+        metadata={"category": "preferences"},
     )
     print("Result:")
     print_json(result)
@@ -47,7 +49,10 @@ def test_basic_memory_operations() -> None:
     print("\nAdding conversation messages...")
     messages = [
         {"role": "user", "content": "I'm allergic to shellfish."},
-        {"role": "assistant", "content": "I'll remember that you have a shellfish allergy."}
+        {
+            "role": "assistant",
+            "content": "I'll remember that you have a shellfish allergy.",
+        },
     ]
     result = memory.add(messages, user_id=user_id)
     print("Result:")
@@ -68,6 +73,7 @@ def test_basic_memory_operations() -> None:
     # Return the memory ID for further testing
     return all_memories.get("results", [{}])[0].get("id")
 
+
 def test_memory_updates(memory_id: Optional[str]) -> None:
     """Test memory update and history operations."""
     if not memory_id:
@@ -83,7 +89,7 @@ def test_memory_updates(memory_id: Optional[str]) -> None:
     print(f"Updating memory {memory_id}...")
     update_result = memory.update(
         memory_id=memory_id,
-        data="I prefer dark mode in all applications and use VSCode and PyCharm as my editors."
+        data="I prefer dark mode in all applications and use VSCode and PyCharm as my editors.",
     )
     print("Update result:")
     print_json(update_result)
@@ -93,6 +99,7 @@ def test_memory_updates(memory_id: Optional[str]) -> None:
     history_result = memory.history(memory_id=memory_id)
     print("History result:")
     print_json(history_result)
+
 
 def test_memory_deletion(user_id: str) -> None:
     """Test memory deletion operations."""
@@ -106,7 +113,7 @@ def test_memory_deletion(user_id: str) -> None:
     result = memory.add(
         "This is a temporary memory that will be deleted.",
         user_id=user_id,
-        metadata={"category": "temporary"}
+        metadata={"category": "temporary"},
     )
     memory_id = result.get("id")
 
@@ -127,6 +134,7 @@ def test_memory_deletion(user_id: str) -> None:
     # print("Delete all result:")
     # print_json(delete_all_result)
 
+
 def main() -> None:
     """Main function to run all tests."""
     # Check if OpenAI API key is set
@@ -143,6 +151,7 @@ def main() -> None:
     test_memory_deletion(user_id)
 
     print("\n=== All Tests Completed ===\n")
+
 
 if __name__ == "__main__":
     main()

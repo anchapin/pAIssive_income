@@ -5,7 +5,7 @@ health_check.py.
 Orchestrates repository quality checks:
 - Linting (ruff, replacing flake8)
 - Formatting (ruff format)
-- Static typing (mypy)
+- Static typing (pyright)
 - Security (bandit)
 - Dependency audit (uv pip audit)
 - Documentation build (Sphinx, if configured).
@@ -14,7 +14,7 @@ Usage:
     python dev_tools/health_check.py [--all | --lint | --type |
     --security | --deps | --docs]
 
-Requires tools: ruff, mypy, bandit, uv (with pip audit functionality),
+Requires tools: ruff, pyright, bandit, uv (with pip audit functionality),
 sphinx-build (optional).
 """
 
