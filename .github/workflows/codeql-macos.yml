@@ -130,7 +130,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/security/os:macOS-latest"
+          category: "/security/os:macos-latest"
           upload: true
           output: sarif-results/javascript-typescript-macos.sarif
 
@@ -140,7 +140,7 @@ jobs:
         continue-on-error: true
         with:
           sarif_file: sarif-results/javascript-typescript-macos.sarif
-          category: "/security/os:macOS-latest"
+          category: "/security/os:macos-latest"
 
       # Upload SARIF results as an artifact
       - name: Upload SARIF results
@@ -386,7 +386,7 @@ trap-for-errors: true
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/security/os:macOS-latest"
+          category: "/security/os:macos-latest"
           upload: true
           output: sarif-results/python-macos.sarif
 
@@ -396,7 +396,7 @@ trap-for-errors: true
         continue-on-error: true
         with:
           sarif_file: sarif-results/python-macos.sarif
-          category: "/security/os:macOS-latest"
+          category: "/security/os:macos-latest"
 
       # Upload SARIF results as an artifact
       - name: Upload SARIF results
