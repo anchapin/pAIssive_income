@@ -11,6 +11,7 @@ python -m pAIssive_income
    overview
    getting_started
    examples
+   artist_experiments
    api/index
    contributing
    changelog
