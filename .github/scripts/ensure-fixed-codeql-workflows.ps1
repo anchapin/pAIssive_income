@@ -30,11 +30,7 @@ function Replace-Workflow {
 
     if (Test-Path $fixedFile) {
         Log "Fixed $description workflow file exists: $fixedFile"
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> origin/main
         if (Test-Path $originalFile) {
             Log "Replacing $originalFile with $fixedFile"
             Copy-Item -Path $fixedFile -Destination $originalFile -Force
