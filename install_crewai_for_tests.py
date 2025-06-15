@@ -275,7 +275,10 @@ from typing import TYPE_CHECKING, Optional, List
 __version__ = "0.120.0"
 
 class Task:
-    def __init__(self, description: str = "", agent: Optional["Agent"] = None, **kwargs):
+    def __init__(self,
+    description: str = "",
+    agent: Optional["Agent"] = None,
+    **kwargs):
         self.description = description
         self.agent = agent
         self.kwargs = kwargs

@@ -201,7 +201,16 @@ def main() -> int:
                         "-c",
                         "bandit.yaml",
                         "--exclude",
-                        ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
+                        ".venv,"
+                        "node_modules,"
+                        "tests,"
+                        "docs,"
+                        "docs_source,"
+                        "junit,"
+                        "bin,"
+                        "dev_tools,"
+                        "scripts,"
+                        "tool_templates",
                         "--exit-zero",
                     ],
                     check=False,
@@ -228,7 +237,16 @@ def main() -> int:
                         "-o",
                         "security-reports/bandit-results.json",
                         "--exclude",
-                        ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
+                        ".venv,"
+                        "node_modules,"
+                        "tests,"
+                        "docs,"
+                        "docs_source,"
+                        "junit,"
+                        "bin,"
+                        "dev_tools,"
+                        "scripts,"
+                        "tool_templates",
                         "--exit-zero",
                     ],
                     check=False,

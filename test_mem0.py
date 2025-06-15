@@ -41,7 +41,7 @@ def test_mem0_basic_operations() -> bool:
         if search_results:
             logger.info("Memory search successful! Found results: %s", search_results)
             return True
-        
+
         logger.warning("Memory search returned no results.")
         return False
 

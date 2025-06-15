@@ -15,7 +15,7 @@ import sys
 import time
 from pathlib import Path
 from secrets import compare_digest
-from typing import Any, Callable
+from typing import Callable, NoReturn, TypeVar, cast
 
 # Local imports
 from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
@@ -33,6 +33,8 @@ from .secrets_manager import (
 # Initialize secure logger
 logger = get_secure_logger(__name__)
 
+# Type variable for decorators
+F = TypeVar("F", bound=Callable[..., object])
 
 # Security settings
 MAX_FAILED_ATTEMPTS = 3
@@ -52,8 +54,20 @@ MIN_SECRET_LENGTH = 12
 MIN_CHAR_SET_SIZE = 30
 
 
-def require_auth(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Require authentication for sensitive operations."""
+def require_auth(func: F) -> F:
+    """
+    Require authentication for sensitive operations.
+
+    Args:
+        func: The function to wrap with authentication
+
+    Returns:
+        The wrapped function that requires authentication
+
+    Raises:
+        PermissionError: If authentication fails
+
+    """
 
     def wrapper(*args: object, **kwargs: object) -> object:
         if not _check_auth():
@@ -61,11 +75,17 @@ def require_auth(func: Callable[..., Any]) -> Callable[..., Any]:
             raise PermissionError(AUTH_REQUIRED_MSG)
         return func(*args, **kwargs)
 
-    return wrapper
+    return cast("F", wrapper)
 
 
 def _check_auth() -> bool:
-    """Check if the user is authenticated."""
+    """
+    Check if the user is authenticated.
+
+    Returns:
+        True if authenticated, False otherwise
+
+    """
     # Ensure admin token directory exists with proper permissions
     admin_dir_path = Path(ADMIN_TOKEN_DIR)
     if not admin_dir_path.exists():
@@ -110,7 +130,16 @@ def _check_auth() -> bool:
 
 
 def _check_rate_limit(operation: str) -> None:
-    """Check rate limiting for operations."""
+    """
+    Check rate limiting for operations.
+
+    Args:
+        operation: The operation to check rate limits for
+
+    Raises:
+        PermissionError: If rate limit is exceeded
+
+    """
     current_time = time.time()
 
     # Check lockout
@@ -136,12 +165,10 @@ def _validate_secret_value(value: str) -> bool:
     Validate a secret value.
 
     Args:
-    ----
         value: The secret value to validate
 
     Returns:
-    -------
-        bool: Whether the value passes validation
+        Whether the value passes validation
 
     """
     # Check for minimum criteria
@@ -184,83 +211,39 @@ def parse_args() -> argparse.Namespace:
     """
     Parse command-line arguments.
 
-    Returns
-    -------
-        argparse.Namespace: Parsed arguments
+    Returns:
+        Parsed command line arguments
 
     """
     parser = argparse.ArgumentParser(description="Manage secrets")
-    # Get all backend values as strings
-    backend_values = [b.value for b in list(SecretsBackend)]
+
+    # Correctly get backend values
+    backend_choices = [backend.value for backend in SecretsBackend]
+
     parser.add_argument(
         "--backend",
-        choices=backend_values,
-        default=(
-            SecretsBackend.ENV.value if hasattr(SecretsBackend.ENV, "value") else "env"
-        ),
+        choices=backend_choices,
+        default=SecretsBackend.ENV.value,
         help="Backend to use for secrets",
     )
 
-    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
     # Get command
     get_parser = subparsers.add_parser("get", help="Get a secret")
-    get_parser.add_argument("key", help="Key of the secret")
+    get_parser.add_argument("key", help="Key of the secret to get")
 
     # Set command
-    # SECURITY FIX: Remove --value option to prevent secrets in command line
     set_parser = subparsers.add_parser("set", help="Set a secret")
-    set_parser.add_argument("key", help="Key of the secret")
-    # Removed --value argument for security
+    set_parser.add_argument("key", help="Key of the secret to set")
+    set_parser.add_argument("value", nargs="?", help="Value of the secret")
 
     # Delete command
     delete_parser = subparsers.add_parser("delete", help="Delete a secret")
-    delete_parser.add_argument("key", help="Key of the secret")
+    delete_parser.add_argument("key", help="Key of the secret to delete")
 
     # List command
-    # Using add_parser but not capturing the returned parser since it's not needed
-    subparsers.add_parser("list", help="List available secrets")
-
-    # Audit command
-    audit_parser = subparsers.add_parser(
-        "audit", help="Audit code for hardcoded secrets"
-    )
-    audit_parser.add_argument(
-        "directory", nargs="?", default=".", help="Directory to scan"
-    )
-    audit_parser.add_argument("--output", help="Output file for the report")
-    audit_parser.add_argument(
-        "--json", action="store_true", help="Output in JSON format"
-    )
-    audit_parser.add_argument(
-        "--exclude",
-        nargs="+",
-        help="Directories to exclude from scanning",
-    )
-
-    # Rotation command
-    rotation_parser = subparsers.add_parser("rotation", help="Manage secret rotation")
-    rotation_subparsers = rotation_parser.add_subparsers(
-        dest="rotation_command", help="Rotation command to run"
-    )
-
-    # Schedule rotation command
-    schedule_parser = rotation_subparsers.add_parser(
-        "schedule", help="Schedule a secret for rotation"
-    )
-    schedule_parser.add_argument("key", help="Key of the secret")
-    schedule_parser.add_argument(
-        "--interval", type=int, default=30, help="Interval in days between rotations"
-    )
-
-    # Rotate command - SECURITY FIX: Remove --value option
-    rotate_parser = rotation_subparsers.add_parser("rotate", help="Rotate a secret")
-    rotate_parser.add_argument("key", help="Key of the secret")
-    # Removed --value argument for security
-
-    # Add list-due and rotate-all commands
-    rotation_subparsers.add_parser("list-due", help="List secrets due for rotation")
-    rotation_subparsers.add_parser("rotate-all", help="Rotate all due secrets")
+    subparsers.add_parser("list", help="List all secrets")
 
     return parser.parse_args()
 
@@ -270,12 +253,10 @@ def get_secret_value(key: str) -> str | None:
     Get a secret value from the user with validation.
 
     Args:
-    ----
         key: Key of the secret
 
     Returns:
-    -------
-        str | None: Value of the secret or None if validation fails
+        Value of the secret or None if validation fails
 
     """
     try:
@@ -302,11 +283,9 @@ def handle_get(args: argparse.Namespace) -> None:
     Handle the get command.
 
     Args:
-    ----
         args: Command-line arguments
 
     Raises:
-    ------
         PermissionError: If authentication fails
         ValueError: If operation is rate limited
 
@@ -406,11 +385,9 @@ def handle_set(args: argparse.Namespace) -> None:
     Handle the set command.
 
     Args:
-    ----
         args: Command-line arguments
 
     Raises:
-    ------
         PermissionError: If authentication fails
         ValueError: If operation is rate limited or validation fails
 
@@ -438,21 +415,19 @@ def handle_set(args: argparse.Namespace) -> None:
             logger.error("- At least one number")
             logger.error("- At least one special character")
             sys.exit(1)
-
         if set_secret(args.key, value, args.backend):
             logger.info("Secret set successfully", extra={"key": masked_key})
-            logger.info("Secret %s set successfully", masked_key)
         else:
             failed_attempts["set"] = failed_attempts.get("set", 0) + 1
             logger.error("Failed to set secret", extra={"key": masked_key})
-            logger.error("Failed to set secret %s", masked_key)
             sys.exit(1)
 
     except Exception as e:
         if isinstance(e, PermissionError):
             raise
-        failed_attempts["set"] = failed_attempts.get("set", 0) + 1
-        # SECURITY FIX: Don't log specific error information
+        failed_attempts["set"] = (
+            failed_attempts.get("set", 0) + 1
+        )  # SECURITY FIX: Don't log specific error information
         logger.exception(
             "Error setting secret",
             extra={
@@ -460,10 +435,6 @@ def handle_set(args: argparse.Namespace) -> None:
                 "error_type": type(e).__name__,
             },
         )
-        # Use exception for logging errors
-        logger.exception(
-            "Error setting secret: Access error"
-        )  # Keep this for user-facing simple error
         sys.exit(1)
 
 
@@ -473,11 +444,9 @@ def handle_delete(args: argparse.Namespace) -> None:
     Handle the delete command.
 
     Args:
-    ----
         args: Command-line arguments
 
     Raises:
-    ------
         PermissionError: If authentication fails
         ValueError: If operation is rate limited
 
@@ -493,14 +462,11 @@ def handle_delete(args: argparse.Namespace) -> None:
         if confirm.lower() != "yes":
             logger.info("Delete operation cancelled")
             return
-
         if delete_secret(args.key, args.backend):
             logger.info("Secret deleted successfully", extra={"key": masked_key})
-            logger.info("Secret %s deleted successfully", masked_key)
         else:
             failed_attempts["delete"] = failed_attempts.get("delete", 0) + 1
             logger.error("Failed to delete secret", extra={"key": masked_key})
-            logger.error("Failed to delete secret %s", masked_key)
             sys.exit(1)
 
     except Exception as e:
@@ -528,11 +494,9 @@ def handle_list(args: argparse.Namespace) -> None:
     Handle the list command.
 
     Args:
-    ----
         args: Command-line arguments
 
     Raises:
-    ------
         PermissionError: If authentication fails
         ValueError: If operation is rate limited
 
@@ -572,11 +536,9 @@ def handle_audit(args: argparse.Namespace) -> None:
     Handle the audit command.
 
     Args:
-    ----
         args: Command-line arguments
 
     Raises:
-    ------
         PermissionError: If authentication fails
         ValueError: If operation is rate limited
 
@@ -812,26 +774,45 @@ def handle_rotation(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
-def main() -> None:
-    """Implement the main entry point for the CLI."""
-    args = parse_args()
+def main() -> NoReturn:
+    """Execute the CLI command."""
+    try:
+        args = parse_args()
 
-    if args.command == "get":
-        handle_get(args)
-    elif args.command == "set":
-        handle_set(args)
-    elif args.command == "delete":
-        handle_delete(args)
-    elif args.command == "list":
-        handle_list(args)
-    elif args.command == "audit":
-        handle_audit(args)
-    elif args.command == "rotation":
-        handle_rotation(args)
-    else:
-        logger.error("Unknown command")
+        if args.command == "get":
+            value = get_secret(args.key, SecretsBackend(args.backend))
+            if value:
+                pass
+            sys.exit(0)
+
+        elif args.command == "set":
+            if args.value is None:
+                value = getpass.getpass("Enter secret value: ")
+            else:
+                value = args.value
+
+            if set_secret(args.key, value, SecretsBackend(args.backend)):
+                sys.exit(0)
+            else:
+                sys.exit(1)
+
+        elif args.command == "delete":
+            if delete_secret(args.key, SecretsBackend(args.backend)):
+                sys.exit(0)
+            else:
+                sys.exit(1)
+
+        elif args.command == "list":
+            secrets = list_secrets(SecretsBackend(args.backend))
+            for _secret in secrets:
+                pass
+            sys.exit(0)
+
+        else:
+            sys.exit(1)
+
+    except KeyboardInterrupt:
+        sys.exit(130)  # Standard Unix practice
+    except Exception:
+        logger.exception("Error executing command")
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()

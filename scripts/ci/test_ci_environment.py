@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CI Environment Test Script
+CI Environment Test Script.
 
 This script tests the CI environment detection functionality by running the
 detect_ci_environment.py script in various simulated CI environments.

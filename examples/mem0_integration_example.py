@@ -16,14 +16,13 @@ from typing import Dict, Optional
 try:
     from mem0 import Memory
 except ImportError:
-    print("mem0ai package not installed. Please install it with: uv pip install mem0ai")
     Memory = None  # type: ignore
 
 # Mock our existing agent class for demonstration purposes
 class MockAgent:
     """Mock agent class to simulate our existing agent implementation."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
 
     def process_message(self, message: str, additional_context: Optional[str] = None) -> str:
@@ -36,10 +35,10 @@ class MockAgent:
 class MemoryEnhancedAgent(MockAgent):
     """Agent enhanced with mem0 memory capabilities."""
 
-    def __init__(self, name: str, user_id: str):
+    def __init__(self, name: str, user_id: str) -> None:
         """
         Initialize a memory-enhanced agent.
-        
+
         Args:
             name: The name of the agent
             user_id: The ID of the user interacting with the agent
@@ -53,23 +52,22 @@ class MemoryEnhancedAgent(MockAgent):
         else:
             # Fallback if mem0 is not installed
             self.memory = None
-            print("Warning: mem0 not available, running without memory capabilities")
 
         self.user_id = user_id
 
     def process_message(self, message: str) -> str:
         """
         Process a message with memory enhancement.
-        
+
         This method:
         1. Retrieves relevant memories based on the message
         2. Enhances the context with these memories
         3. Processes the message with the enhanced context
         4. Stores the interaction in memory
-        
+
         Args:
             message: The user message to process
-            
+
         Returns:
             The agent's response
 
@@ -105,10 +103,10 @@ class MemoryEnhancedAgent(MockAgent):
     def _build_context_from_memories(self, memories: Optional[Dict]) -> str:
         """
         Convert memories to a format usable by the agent.
-        
+
         Args:
             memories: The memories retrieved from mem0
-            
+
         Returns:
             A string representation of the memories
 
@@ -122,13 +120,11 @@ class MemoryEnhancedAgent(MockAgent):
         return f"Relevant user information:\n{memory_str}"
 
 
-def main():
+def main() -> None:
     """Main function to demonstrate mem0 integration."""
     # Check if OpenAI API key is available (required by mem0)
     if "OPENAI_API_KEY" not in os.environ:
-        print("Warning: OPENAI_API_KEY environment variable not set.")
-        print("mem0 requires an OpenAI API key to function properly.")
-        print("Set it with: export OPENAI_API_KEY='your-api-key'")
+        pass
 
     # Create a memory-enhanced agent
     agent = MemoryEnhancedAgent(name="MemoryBot", user_id="demo_user")
@@ -145,9 +141,7 @@ def main():
 
     # Process each message and print the response
     for message in messages:
-        print(f"\nUser: {message}")
-        response = agent.process_message(message)
-        print(f"Agent: {response}")
+        agent.process_message(message)
 
 
 if __name__ == "__main__":

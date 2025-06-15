@@ -10,6 +10,12 @@ import os
 import shutil
 import subprocess
 
+# Set environment variables before importing app modules
+os.environ.setdefault("DATABASE_URL", "sqlite:///test.db")
+os.environ.setdefault("SECRET_KEY", "test-secret-key-for-development-only")
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ.setdefault("TOOL_API_KEY", "dummy-test-api-key-local-dev-only")
+
 import pytest
 from sqlalchemy import text
 
@@ -25,7 +31,7 @@ def is_git_tracked(path) -> bool:
         # Use git ls-files to check if the file is tracked (not ignored)
         # --error-unmatch causes non-tracked files to raise an error
         git_exe = shutil.which("git") or "git"
-        subprocess.check_output(  # noqa: S603 - Using git with proper arguments
+        subprocess.check_output(
             [git_exe, "ls-files", "--error-unmatch", os.path.relpath(path)],
             stderr=subprocess.DEVNULL,
         )

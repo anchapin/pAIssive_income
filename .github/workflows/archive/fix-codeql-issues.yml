@@ -1,0 +1,148 @@
+name: Fix CodeQL Issues (Manual Mode)
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  pull-requests: read
+  security-events: write
+jobs:
+  analyze-codeql-issues:
+    name: Analyze CodeQL Issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: ${{ github.head_ref || github.ref_name }}
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: npm
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: '~/.cache/pip
+
+          ~/.cache/uv
+
+          .pytest_cache'
+        key: ${{ runner.os }}-deps-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: ${{ runner.os }}-deps-
+    - name: Install dependencies
+      run: 'python -m pip install --upgrade pip
+
+        pip install flake8 pytest
+
+        '
+    - name: Create .codeqlignore
+      run: 'cat > .codeqlignore << ''EOL''
+
+        .venv/**
+
+        venv/**
+
+        env/**
+
+        .env/**
+
+        **/virtualenv/**
+
+        **/site-packages/**
+
+        **/dist-packages/**
+
+        **/node_modules/**
+
+        **/dist/**
+
+        **/build/**
+
+        **/vendor/**
+
+        **/external/**
+
+        **/third_party/**
+
+        **/__pycache__/**
+
+        **/.pytest_cache/**
+
+        **/.mypy_cache/**
+
+        **/.ruff_cache/**
+
+        **/*.pyc
+
+        **/*.pyo
+
+        **/*.pyd
+
+        **/test/**
+
+        **/tests/**
+
+        **/__tests__/**
+
+        **/__mocks__/**
+
+        **/*.test.js
+
+        **/*.test.ts
+
+        **/*.test.jsx
+
+        **/*.test.tsx
+
+        **/*.spec.js
+
+        **/*.spec.ts
+
+        **/*.spec.jsx
+
+        **/*.spec.tsx
+
+        **/.github/**
+
+        **/.vscode/**
+
+        **/.idea/**
+
+        **/coverage/**
+
+        **/.git/**
+
+        **/docs/**
+
+        **/*.md
+
+        **/*.mdx
+
+        **/*.rst
+
+        **/sphinx/**
+
+        **/playwright-report/**
+
+        **/generated/**
+
+        **/sarif-results/**
+
+        **/*.sarif
+
+        **/*.sarif.json
+
+        ui/react_frontend/node_modules/**
+
+        sdk/javascript/node_modules/**
+
+        EOL
+
+        '

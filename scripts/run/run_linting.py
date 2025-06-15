@@ -8,10 +8,10 @@ Intended for use in CI and pre-commit to enforce standards.
 from __future__ import annotations
 
 import logging
-import shutil
-import subprocess
 import sys
 from typing import Union
+
+from common_utils.security import SecurityError, run_command_securely
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -30,22 +30,24 @@ def run(cmd: Union[str, list[str]], description: str) -> None:
 
     """
     logger.info("Running: %s ...", description)
-    # Convert string commands to list for security (avoid shell=True)
+
+    # Convert string commands to list for security
     cmd_list = cmd if isinstance(cmd, list) else cmd.split()
 
-    # Get full path to executable for security
-    executable = shutil.which(cmd_list[0])
-    if not executable:
-        logger.error("❌ Command not found: %s", cmd_list[0])
+    try:
+        result = run_command_securely(cmd_list, timeout=300)
+        if result.returncode != 0:
+            logger.error("❌ %s failed.", description)
+            if result.stderr:
+                logger.error("Error: %s", result.stderr)
+            sys.exit(result.returncode)
+        logger.info("✅ %s completed successfully.", description)
+    except SecurityError:
+        logger.exception("❌ Security error running %s", description)
         sys.exit(1)
-
-    cmd_list[0] = executable
-    # nosec comment below tells security scanners this is safe as we control the input
-    result = subprocess.run(cmd_list, shell=False, check=False)  # nosec B603 S603
-    if result.returncode != 0:
-        logger.error("❌ %s failed.", description)
-        sys.exit(result.returncode)
-    logger.info("✅ %s passed.", description)
+    except Exception:
+        logger.exception("❌ Error running %s", description)
+        sys.exit(1)
 
 
 def main() -> None:

@@ -1,77 +1,36 @@
-name: Auto Fix (Linting Only)
-
+name: Auto-fix
 on:
-  workflow_dispatch:
-    inputs:
-      fix_type:
-        description: 'Type of fix to apply'
-        required: true
-        default: 'lint'
-        type: choice
-        options:
-          - lint
-          # Removed codeql and both options to prevent auto-fixing CodeQL issues
-
-permissions:
-  contents: write
-  pull-requests: write
+  pull_request:
+    paths:
+      - "**.py"
+      - "**.js"
+      - "**.ts"
+      - "**.tsx"
+      - "**.jsx"
+      - "**.json"
+      - "**.yml"
+      - "**.yaml"
 
 jobs:
-  fix-linting-issues:
-    if: ${{ github.event.inputs.fix_type == 'lint' || github.event.inputs.fix_type == 'both' }}
-    name: Fix Linting Issues
+  auto-fix:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-          fetch-depth: 0
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install uv and dependencies
+      - name: Fix Python code
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          uv venv .venv || python -m venv .venv
-          source .venv/bin/activate
-          uv pip install setuptools wheel ruff || python -m pip install ruff
-          uv pip install -e ".[dev]" || pip install -e ".[dev]"
+          pip install ruff
+          ruff --fix .
 
-      - name: Run fix_linting_issues.py if present, else fallback to Ruff
+      - name: Fix JavaScript/TypeScript code
         run: |
-          source .venv/bin/activate
-          if [ -f "fix_linting_issues.py" ]; then
-            python fix_linting_issues.py --verbose
-          else
-            echo "fix_linting_issues.py not found, running Ruff fix on all Python files"
-            ruff check --fix .
-            ruff format .
-          fi
+          npm install -g prettier
+          prettier --write .
 
-      - name: Check for changes
-        id: lint-git-check
+      - name: Commit changes
         run: |
-          if [[ -n "$(git status --porcelain)" ]]; then
-            echo "changes=true" >> $GITHUB_OUTPUT
-            git status --porcelain
-          else
-            echo "No changes detected"
-          fi
-
-      - name: Commit linting fixes
-        if: steps.lint-git-check.outputs.changes == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add .
-          git commit -m "Auto-fix linting issues"
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git commit -am "Auto-fix: Apply ruff and prettier fixes"
           git push
-
-# CodeQL auto-fix job has been removed to prevent automatic fixing of CodeQL issues
-# If you need to fix CodeQL issues, please do so manually

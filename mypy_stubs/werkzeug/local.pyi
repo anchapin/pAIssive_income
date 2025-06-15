@@ -1,12 +1,10 @@
-"""
-Type stubs for werkzeug.local
-"""
-from typing import Any, TypeVar, Generic, Optional, Callable, Dict, List, Type, Union
+"""Type stubs for werkzeug.local."""
+from typing import Any, Callable, Generic, Optional, TypeVar, Union
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 class Local:
-    """Local objects similar to threading.local"""
+    """Local objects similar to threading.local."""
     def __init__(self) -> None: ...
     def __getattr__(self, name: str) -> Any: ...
     def __setattr__(self, name: str, value: Any) -> None: ...

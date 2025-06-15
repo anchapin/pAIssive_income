@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 # Standard library imports
 from typing import Any
 
@@ -14,6 +17,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
 from .mcp_servers import mcp_servers_api
+from .middleware.logging_middleware import setup_request_logging
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -35,22 +39,41 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
 
     """
     app = FlaskApp(__name__)
-    app.config.from_object(Config)
 
-    # Override config with test config if provided
-    if test_config:
+    # Load config
+    if test_config is None:
+        app.config.from_object(Config)
+    else:
         app.config.update(test_config)
+
+    # Enable security middleware
+    from .middleware.security import setup_security_middleware
+
+    setup_security_middleware(app)
+
+    # Setup logging middleware
+    setup_request_logging(app)
 
     # Initialize database and migration
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Import models so they're registered with SQLAlchemy
     # Register blueprints
-    from api.routes.user_router import user_bp
+    app.register_blueprint(mcp_servers_api)
 
-    from . import models
+    # Import models so they're registered with SQLAlchemy
+    from . import models  # Ensure instance folder exists
 
-    app.register_blueprint(user_bp)
+    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+
+    # Disable Flask debug mode in production
+    if (
+        not app.debug
+        and not app.testing
+        and os.environ.get("FLASK_ENV") == "production"
+    ):
+        app.config["DEBUG"] = False
+        app.config["TESTING"] = False
+        app.config["PROPAGATE_EXCEPTIONS"] = False
 
     return app

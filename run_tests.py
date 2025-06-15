@@ -12,7 +12,6 @@ from __future__ import annotations
 import logging
 import os
 import os.path  # Used for os.path.normpath and os.sep
-import platform
 import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
@@ -25,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 # Set to DEBUG for more verbose output
 logging.getLogger().setLevel(logging.INFO)
-
 
 # Maximum number of workers
 MAX_WORKERS = 12
@@ -189,11 +187,11 @@ def count_tests(validated_args: list[str]) -> int:
                     # If parsing fails, continue with our manual count
                     pass
 
-        # If we somehow didn't find any tests but pytest is going to run tests,
-        # default to at least 1 test
+        # If we somehow didn't find any tests but pytest is going to run tests,        # default to at least 1 test
         if test_count == 0 and has_test_files:
             logger.warning(
-                "No tests found in collection output, but test files specified. Using default count."
+                "No tests found in collection output, "
+                "but test files specified. Using default count."
             )
             test_count = default_test_count
 
@@ -367,13 +365,13 @@ def main() -> None:
                         )
                     sys.exit(1)  # Exit on failure to install pytest-xdist with uv
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
-            logger.error(
+            logger.exception(
                 "Error checking for or installing pytest-xdist with uv: %s. Cannot proceed.",
                 e,
             )
             sys.exit(1)
     except Exception as e:
-        logger.error(
+        logger.exception(
             "Unexpected error installing pytest-xdist with uv: %s. Cannot proceed.",
             e,
         )
@@ -409,8 +407,7 @@ def main() -> None:
                 [sys.executable, "-c", "import pytest_xdist"],
                 check=False,
                 capture_output=True,
-                shell=False,  # Explicitly set shell=False for security
-                env=get_sanitized_env(),
+                shell=False,  # Explicitly set shell=False for security                env=get_sanitized_env(),
                 timeout=30,  # Short timeout for import check
             )
             xdist_available = xdist_check.returncode == 0
@@ -418,7 +415,8 @@ def main() -> None:
                 logger.info("pytest-xdist is available, parallel testing is enabled")
             else:
                 logger.warning(
-                    "pytest-xdist import check failed, will run tests without parallelization"
+                    "pytest-xdist import check failed, "
+                    "will run tests without parallelization"
                 )
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
             logger.warning(

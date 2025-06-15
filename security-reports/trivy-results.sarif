@@ -1,12 +1,13 @@
 {
   "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.0.json",
   "runs": [
     {
       "tool": {
         "driver": {
           "name": "Trivy",
           "informationUri": "https://github.com/aquasecurity/trivy",
+          "version": "0.18.3",
           "rules": []
         }
       },

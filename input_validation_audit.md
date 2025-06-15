@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document provides a comprehensive audit of the input validation mechanisms currently implemented in the pAIssive_income project. The audit identifies strengths, weaknesses, and areas for improvement in the current validation approach.
+This document provides a comprehensive audit of the input validation mechanisms currently implemented in the pAIssive_income project. The audit identifies strengths,
+weaknesses,
+and areas for improvement in the current validation approach.
 
 ## Current Validation Mechanisms
 
@@ -17,7 +19,10 @@ The UI module uses Pydantic models for validating user input:
 - **MonetizationStrategyRequest**: Validates solution ID for monetization strategy
 - **MarketingCampaignRequest**: Validates solution ID for marketing campaign
 - **TaskRequest**: Validates task ID for task operations
-- **ApiQueryParams**: Validates common API query parameters (limit, offset, sort_by, sort_order)
+- **ApiQueryParams**: Validates common API query parameters (limit,
+offset,
+sort_by,
+sort_order)
 
 These schemas include:
 - Required field validation

@@ -162,7 +162,7 @@ def create_empty_json_files() -> bool:
             with results_ini_file.open("w") as f:
                 json.dump(simple_json, f)
 
-        return True
+            return True
     except (PermissionError, OSError):
         logger.exception("Failed to create empty JSON files")
 
@@ -234,14 +234,13 @@ def check_venv_exists() -> bool:
 
         # Method 4: Check for common virtual environment directories
         for venv_dir in [".venv", "venv", "env", ".env"]:
-            if os.path.isdir(venv_dir) and os.path.isfile(
-                os.path.join(venv_dir, "pyvenv.cfg")
-            ):
+            venv_path = Path(venv_dir)
+            if venv_path.is_dir() and (venv_path / "pyvenv.cfg").is_file():
                 return True
 
         # Not in a virtual environment
         return False
-    except Exception as e:
+    except OSError as e:
         # If any error occurs, log it but assume we're not in a virtual environment
         logger.warning("Error checking for virtual environment: %s", e)
         return False
@@ -265,7 +264,7 @@ if __name__ == "__main__":
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         # bandit_path is either a full path from shutil.which or the string "bandit"
         # nosec S603 - This is a safe subprocess call with no user input
-        subprocess.run(  # nosec B603 # noqa: S603
+        subprocess.run(  # nosec B603
             [bandit_path, "--version"],
             check=False,
             capture_output=True,
@@ -278,7 +277,7 @@ if __name__ == "__main__":
         # sys.executable is the path to the current Python interpreter
         # nosec S603 - This is a safe subprocess call with no user input
         try:
-            subprocess.run(  # nosec B603 # noqa: S603
+            subprocess.run(  # nosec B603
                 [sys.executable, "-m", "pip", "install", "bandit"],
                 check=False,
                 shell=False,  # Explicitly set shell=False for security
@@ -300,7 +299,7 @@ if __name__ == "__main__":
             try:
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
                 # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
+                subprocess.run(  # nosec B603
                     [
                         bandit_path,
                         "-r",
@@ -312,8 +311,18 @@ if __name__ == "__main__":
                         "-c",
                         "bandit.yaml",
                         "--exclude",
-                        ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
-                        "--exit-zero",  # Always exit with 0 to prevent CI failures
+                        ".venv,"
+                        "node_modules,"
+                        "tests,"
+                        "docs,"
+                        "docs_source,"
+                        "junit,"
+                        "bin,"
+                        "dev_tools,"
+                        "scripts,"
+                        "tool_templates",
+                        "--exit-zero",
+                        # Always exit with 0 to prevent CI failures
                     ],
                     check=False,
                     shell=False,  # Explicitly set shell=False for security
@@ -335,7 +344,7 @@ if __name__ == "__main__":
             try:
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
                 # nosec S603 - This is a safe subprocess call with no user input
-                subprocess.run(  # nosec B603 # noqa: S603
+                subprocess.run(  # nosec B603
                     [
                         bandit_path,
                         "-r",
@@ -345,8 +354,18 @@ if __name__ == "__main__":
                         "-o",
                         "security-reports/bandit-results.json",
                         "--exclude",
-                        ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
-                        "--exit-zero",  # Always exit with 0 to prevent CI failures
+                        ".venv,"
+                        "node_modules,"
+                        "tests,"
+                        "docs,"
+                        "docs_source,"
+                        "junit,"
+                        "bin,"
+                        "dev_tools,"
+                        "scripts,"
+                        "tool_templates",
+                        "--exit-zero",
+                        # Always exit with 0 to prevent CI failures
                     ],
                     check=False,
                     shell=False,  # Explicitly set shell=False for security

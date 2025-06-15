@@ -62,7 +62,8 @@ logger.debug(f"Getting secret from {backend.value} backend")
 ```python
 if backend == SecretsBackend.ENV:
     # Return a copy of the environment variables with sensitive values masked
-    from common_utils.logging.secure_logging import SENSITIVE_FIELDS, mask_sensitive_data
+    from common_utils.logging.secure_logging import SENSITIVE_FIELDS,
+    mask_sensitive_data
 
     # Create a copy of environment variables
     env_vars = dict(os.environ)
@@ -103,7 +104,8 @@ These changes ensure that:
 
 1. No sensitive information is logged in clear text
 2. All logging uses the secure logger that automatically masks sensitive data
-3. When listing secrets or configuration values, sensitive information is properly masked
+3. When listing secrets or configuration values,
+sensitive information is properly masked
 
 ## Next Steps
 

@@ -1,58 +1,63 @@
-import assert from 'assert';
-import { add, subtract, multiply, divide } from './math.js';
+/**
+ * Unit tests for math utility functions.
+ *
+ * Tests basic arithmetic operations including edge cases
+ * and error conditions.
+ */
 
-describe('Math functions', function () {
-  describe('add', function () {
-    it('should add two positive numbers correctly', function () {
+import assert from 'assert';
+import { add, divide, multiply, subtract } from './math.js';
+
+describe('Math functions', () => {
+  describe('add', () => {
+    it('should add two positive numbers correctly', () => {
       assert.strictEqual(add(2, 3), 5);
     });
 
-    it('should add a positive and a negative number correctly', function () {
+    it('should add a positive and a negative number correctly', () => {
       assert.strictEqual(add(2, -3), -1);
     });
 
-    it('should add two negative numbers correctly', function () {
+    it('should add two negative numbers correctly', () => {
       assert.strictEqual(add(-2, -3), -5);
     });
   });
 
-  describe('subtract', function () {
-    it('should subtract two numbers correctly', function () {
+  describe('subtract', () => {
+    it('should subtract two numbers correctly', () => {
       assert.strictEqual(subtract(5, 3), 2);
     });
 
-    it('should handle negative results', function () {
+    it('should handle negative results', () => {
       assert.strictEqual(subtract(3, 5), -2);
     });
   });
 
-  describe('multiply', function () {
-    it('should multiply two positive numbers correctly', function () {
+  describe('multiply', () => {
+    it('should multiply two positive numbers correctly', () => {
       assert.strictEqual(multiply(2, 3), 6);
     });
 
-    it('should multiply a positive and a negative number correctly', function () {
+    it('should multiply a positive and a negative number correctly', () => {
       assert.strictEqual(multiply(2, -3), -6);
     });
 
-    it('should multiply two negative numbers correctly', function () {
+    it('should multiply two negative numbers correctly', () => {
       assert.strictEqual(multiply(-2, -3), 6);
     });
   });
 
-  describe('divide', function () {
-    it('should divide two numbers correctly', function () {
+  describe('divide', () => {
+    it('should divide two numbers correctly', () => {
       assert.strictEqual(divide(6, 3), 2);
     });
 
-    it('should handle decimal results', function () {
+    it('should handle decimal results', () => {
       assert.strictEqual(divide(5, 2), 2.5);
     });
 
-    it('should throw an error when dividing by zero', function () {
-      assert.throws(() => {
-        divide(5, 0);
-      }, /Division by zero is not allowed/);
+    it('should throw error when dividing by zero', () => {
+      assert.throws(() => divide(5, 0), Error('Cannot divide by zero'));
     });
   });
 });

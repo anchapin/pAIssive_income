@@ -272,20 +272,20 @@ class CrewAIAgentTeam:
         available_tools = list_tools()
         description_lower = description.lower()
         self.logger.info("Considering tools for task: '%s'", description)
-        
+
         # Enhanced heuristic: Use tool metadata for better matching
         for tool_name, tool_metadata in available_tools.items():
             # Check if tool name appears in description
             if tool_name.lower() in description_lower:
                 self.logger.info("Tool '%s' matched by name in description.", tool_name)
                 return tool_name, tool_metadata
-            
+
             # Check keywords if available in tool metadata
             keywords = tool_metadata.get("keywords", [])
             if keywords and any(keyword.lower() in description_lower for keyword in keywords):
                 self.logger.info("Tool '%s' matched by keyword in description.", tool_name)
                 return tool_name, tool_metadata
-        
+
         self.logger.info("No tool matched by heuristic.")
         return None, None
 
@@ -327,7 +327,7 @@ class CrewAIAgentTeam:
                         match = re.search(r"([0-9\+\-\*\/\.\s\%\(\)]+)", description)
                         if match:
                             tool_input = match.group(1)
-                
+
                 self.logger.info("Invoking tool '%s' with input: %r", tool_name, tool_input)
                 try:
                     # Get the actual function from the tool metadata

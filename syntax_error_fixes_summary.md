@@ -50,11 +50,15 @@ The fixes were verified using the following methods:
 2. Flake8 linting tool to check for syntax and style issues
 3. Manual review of the code structure and indentation
 
-All files now compile successfully and pass basic linting checks, which should resolve the GitHub Actions workflow failures.
+All files now compile successfully and pass basic linting checks,
+which should resolve the GitHub Actions workflow failures.
 
 ## Root Cause Analysis
 
-The syntax errors appear to have been introduced by a file duplication issue, possibly during a merge or copy operation. Each line in the affected files was duplicated, leading to invalid Python syntax, particularly in control structures like try-except blocks and if statements.
+The syntax errors appear to have been introduced by a file duplication issue,
+possibly during a merge or copy operation. Each line in the affected files was duplicated,
+leading to invalid Python syntax,
+particularly in control structures like try-except blocks and if statements.
 
 ## Recommendations
 

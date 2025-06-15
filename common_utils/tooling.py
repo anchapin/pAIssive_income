@@ -58,8 +58,8 @@ def calculator_input_preprocessor(description: str) -> str:
         return match.group(1)
     return description
 
-# Example tool: simple calculator (unchanged)
-MAX_EXPONENT_VALUE = 100
+# Example tool: simple calculator
+MAX_EXPONENT_VALUE = 100  # Maximum allowed value for exponentiation
 
 def calculator(expression: str) -> object:
     """

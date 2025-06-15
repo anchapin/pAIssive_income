@@ -17,6 +17,8 @@ import subprocess
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
+from subprocess import CompletedProcess
+from typing import Optional, Sequence, cast
 
 # Configure logging
 logging.basicConfig(
@@ -52,7 +54,7 @@ def get_git_root() -> Path:
     Get the root directory of the git repository.
 
     Returns:
-        Path: The root directory of the git repository.
+        The root directory of the git repository.
 
     Raises:
         SystemExit: If the git command fails.
@@ -60,11 +62,14 @@ def get_git_root() -> Path:
     """
     git_exe = get_executable_path("git")
     try:
-        result = subprocess.run(
-            [git_exe, "rev-parse", "--show-toplevel"],
-            capture_output=True,
-            text=True,
-            check=True,
+        result = cast(
+            "CompletedProcess[str]",
+            subprocess.run(
+                [git_exe, "rev-parse", "--show-toplevel"],
+                capture_output=True,
+                text=True,
+                check=True,
+            ),
         )
         return Path(result.stdout.strip())
     except subprocess.CalledProcessError:
@@ -74,200 +79,113 @@ def get_git_root() -> Path:
         sys.exit(1)
 
 
-def should_ignore(file_path: Path, exclude_patterns: list[str]) -> bool:
+def should_ignore(
+    file_path: Path, exclude_patterns: Optional[Sequence[str]] = None
+) -> bool:
     """
     Check if a file should be ignored based on exclude patterns.
 
     Args:
         file_path: The path to the file to check.
-        exclude_patterns: List of patterns to exclude.
+        exclude_patterns: List of patterns to exclude, or None to exclude nothing.
 
     Returns:
         True if the file should be ignored, False otherwise.
 
     """
+    if not exclude_patterns:
+        return False
     str_path = str(file_path)
     return any(pattern in str_path for pattern in exclude_patterns)
 
 
 def _process_specific_files(
-    specific_files: list[str], exclude_patterns: list[str]
+    specific_files: Sequence[str], exclude_patterns: Optional[Sequence[str]] = None
 ) -> list[Path]:
     """
     Process a list of specific files.
 
     Args:
         specific_files: List of specific files to process.
-        exclude_patterns: List of patterns to exclude.
+        exclude_patterns: List of patterns to exclude, or None to exclude nothing.
 
     Returns:
-        List of Python files to process.
+        List of valid file paths to process.
+
+    Raises:
+        SystemExit: If any file does not exist or is not a Python file.
 
     """
-    files = []
-    for file_path in specific_files:
-        path = Path(file_path)
-        if path.exists() and path.is_file() and path.suffix == ".py":
-            if not should_ignore(path, exclude_patterns):
-                files.append(path)
-        else:
-            logger.warning(
-                "Skipping %s (not a Python file or doesn't exist)", file_path
-            )
+    files: list[Path] = []
+    for file_str in specific_files:
+        path = Path(file_str)
+        if not path.exists():
+            logger.error("File not found: %s", path)
+            sys.exit(1)
+        if path.suffix != ".py":
+            logger.error("Not a Python file: %s", path)
+            sys.exit(1)
+        if not should_ignore(path, exclude_patterns):
+            files.append(path)
     return files
 
 
-def _find_all_python_files(git_root: Path, exclude_patterns: list[str]) -> list[Path]:
+def fix_file(file_path: Path) -> tuple[Path, bool]:
+    """
+    Fix linting issues in a single file.
+
+    Args:
+        file_path: Path to the file to fix.
+
+    Returns:
+        Tuple of (file_path, success_status).
+
+    """
+    ruff_exe = get_executable_path("ruff")
+    try:
+        cast(
+            "CompletedProcess[str]",
+            subprocess.run(
+                [ruff_exe, "check", "--fix", str(file_path)],
+                capture_output=True,
+                text=True,
+                check=True,
+            ),
+        )
+        return file_path, True
+    except subprocess.CalledProcessError as e:
+        logger.exception("Failed to fix %s: %s", file_path, e.stderr)
+        return file_path, False
+
+
+def find_python_files(
+    root_dir: Path, exclude_patterns: Optional[Sequence[str]] = None
+) -> list[Path]:
     """
     Find all Python files in the repository.
 
     Args:
-        git_root: Git repository root directory.
-        exclude_patterns: List of patterns to exclude.
+        root_dir: Root directory to search from.
+        exclude_patterns: List of patterns to exclude, or None to exclude nothing.
 
     Returns:
-        List of Python files to process.
+        List of Python file paths.
 
     """
-    python_files = []
-
-    for root, _, files in os.walk(git_root):
-        root_path = Path(root)
-        if any(pattern in str(root_path) for pattern in exclude_patterns):
-            continue
-
-        for file in files:
-            if file.endswith(".py"):
-                file_path = root_path / file
-                if not should_ignore(file_path, exclude_patterns):
-                    python_files.append(file_path)
-
+    python_files: list[Path] = []
+    for path in root_dir.rglob("*.py"):
+        rel_path = path.relative_to(root_dir)
+        if not should_ignore(rel_path, exclude_patterns):
+            python_files.append(path)
     return python_files
 
 
-def find_python_files(
-    specific_files: list[str] | None = None,
-    exclude_patterns: list[str] | None = None,
-) -> list[Path]:
-    """
-    Find Python files to process.
-
-    Args:
-        specific_files: Optional list of specific files to process.
-        exclude_patterns: Optional list of patterns to exclude.
-
-    Returns:
-        List of Python files to process.
-
-    """
-    if exclude_patterns is None:
-        exclude_patterns = []
-
-    # Add common directories to exclude
-    exclude_patterns.extend(
-        [
-            ".git/",
-            "__pycache__/",
-            ".venv/",
-            "venv/",
-            "env/",
-            "node_modules/",
-            "build/",
-            "dist/",
-            ".pytest_cache/",
-        ]
-    )
-
-    if specific_files:
-        return _process_specific_files(specific_files, exclude_patterns)
-
-    # Find all Python files in the repository
-    git_root = get_git_root()
-    return _find_all_python_files(git_root, exclude_patterns)
-
-
-def process_file(
-    file_path: Path, check_only: bool, use_ruff: bool, verbose: bool
-) -> tuple[Path, bool, str | None]:
-    """
-    Process a single file with linting tools.
-
-    Args:
-        file_path: Path to the file to process.
-        check_only: Whether to only check for issues without fixing them.
-        use_ruff: Whether to use Ruff for linting.
-        verbose: Whether to show verbose output.
-
-    Returns:
-        Tuple of (file_path, success, error_message).
-
-    """
-    if verbose:
-        logger.info("Processing %s", file_path)
-
-    success = True
-    error_message = None
-
-    try:
-        if use_ruff:
-            # Run Ruff for linting and formatting
-            ruff_cmd = ["ruff", "check"]
-            if not check_only:
-                ruff_cmd.append("--fix")
-            ruff_cmd.append(str(file_path))
-
-            # Use absolute path for ruff command
-            ruff_path = get_executable_path("ruff")
-            full_cmd = [ruff_path] + ruff_cmd[1:]
-            result = subprocess.run(
-                full_cmd,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-
-            if result.returncode != 0:
-                success = False
-                error_message = f"Ruff errors:\n{result.stderr or result.stdout}"
-                if verbose:
-                    logger.error(error_message)
-
-            # Run Ruff formatter if not in check-only mode
-            if not check_only:
-                # Use absolute path for ruff command
-                ruff_path = get_executable_path("ruff")
-                format_result = subprocess.run(
-                    [ruff_path, "format", str(file_path)],
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-
-                if format_result.returncode != 0:
-                    success = False
-                    format_error = f"Ruff format errors:\n{format_result.stderr or format_result.stdout}"
-                    error_message = (
-                        error_message + "\n" + format_error
-                        if error_message
-                        else format_error
-                    )
-                    if verbose:
-                        logger.error(format_error)
-
-    except (subprocess.SubprocessError, OSError) as e:
-        success = False
-        error_message = f"Error processing {file_path}: {e!s}"
-        logger.exception(error_message)
-
-    return file_path, success, error_message
-
-
-def _parse_arguments() -> argparse.Namespace:
+def parse_args() -> argparse.Namespace:
     """
     Parse command line arguments.
 
     Returns:
-        Parsed arguments.
+        Parsed command line arguments.
 
     """
     parser = argparse.ArgumentParser(
@@ -298,110 +216,43 @@ def _parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _load_exclude_patterns(args: argparse.Namespace) -> list[str]:
+def main() -> int:
     """
-    Load exclude patterns from arguments and exclude file.
-
-    Args:
-        args: Parsed arguments.
+    Run the main entry point for the script.
 
     Returns:
-        List of exclude patterns.
+        Exit code: 0 for success, 1 for failure
 
     """
-    # Create a new list to ensure we return list[str] and not Any
-    exclude_patterns: list[str] = list(args.exclude)
+    args = parse_args()
 
-    if args.exclude_file:
-        exclude_file_path = Path(args.exclude_file)
-        if exclude_file_path.exists():
-            with exclude_file_path.open() as f:
-                for line in f:
-                    line_content = line.strip()
-                    if line_content and not line_content.startswith("#"):
-                        exclude_patterns.append(line_content)
+    # Get exclude patterns
+    exclude_patterns = args.exclude if args.exclude else []
 
-    return exclude_patterns
+    # Determine files to process
+    files_to_process: list[Path] = []
+    if args.files:
+        files_to_process = _process_specific_files(args.files, exclude_patterns)
+    else:
+        root_dir = get_git_root()
+        files_to_process = find_python_files(root_dir, exclude_patterns)
 
-
-def _process_files_in_parallel(
-    files: list[Path], args: argparse.Namespace
-) -> tuple[set[Path], dict[Path, str]]:
-    """
-    Process files in parallel.
-
-    Args:
-        files: List of files to process.
-        args: Parsed arguments.
-
-    Returns:
-        Tuple of (failed_files, error_messages).
-
-    """
-    max_workers = args.jobs if args.jobs > 0 else None
-    successful_files: set[Path] = set()
-    failed_files: set[Path] = set()
-    error_messages: dict[Path, str] = {}
-
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(
-                process_file,
-                file_path,
-                args.check,
-                not args.no_ruff,
-                args.verbose,
-            ): file_path
-            for file_path in files
-        }
-
-        for future in as_completed(futures):
-            file_path, success, error_message = future.result()
-            if success:
-                successful_files.add(file_path)
-            else:
-                failed_files.add(file_path)
-                if error_message:
-                    error_messages[file_path] = error_message
-
-    # Print summary
-    logger.info("Successfully processed %d files.", len(successful_files))
-
-    return failed_files, error_messages
-
-
-def main() -> None:
-    """Run the script."""
-    args = _parse_arguments()
-
-    # Process exclude patterns
-    exclude_patterns = _load_exclude_patterns(args)
-
-    # Find Python files to process
-    files = find_python_files(
-        specific_files=args.files if args.files else None,
-        exclude_patterns=exclude_patterns,
-    )
-
-    if not files:
-        logger.info("No Python files found to process.")
-        return
-
-    logger.info("Found %d Python files to process.", len(files))
+    if not files_to_process:
+        logger.warning("No Python files found to process")
+        return 0
 
     # Process files in parallel
-    failed_files, error_messages = _process_files_in_parallel(files, args)
+    with ProcessPoolExecutor() as executor:
+        futures = {executor.submit(fix_file, path): path for path in files_to_process}
+        success = True
+        for future in as_completed(futures):
+            file_path, result = future.result()
+            if not result:
+                success = False
+                logger.error("Failed to fix %s", file_path)
 
-    # Print errors
-    if failed_files:
-        logger.error("Failed to process %d files:", len(failed_files))
-        for file_path in failed_files:
-            logger.error("  - %s", file_path)
-            if args.verbose and file_path in error_messages:
-                logger.error("    Error: %s", error_messages[file_path])
-
-    sys.exit(1 if failed_files else 0)
+    return 0 if success else 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

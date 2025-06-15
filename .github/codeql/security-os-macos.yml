@@ -1,52 +1,25 @@
-name: "CodeQL Configuration for macOS"
-
-# This configuration file customizes the CodeQL analysis for macOS
-# It inherits settings from the unified configuration and adds macOS-specific settings
-
-# Inherit from the unified configuration
-extends: security-os-config.yml
-
-# macOS-specific settings
-os: macos-latest
-
-# Additional macOS-specific paths to exclude
-paths-ignore:
-  # macOS specific files
-  - '**/.DS_Store'
-  - '**/.AppleDouble'
-  - '**/.LSOverride'
-  # Using '?' instead of '\r' to avoid backslash issues in CodeQL filters
-  - '**/Icon?'
-  - '**/*.app/**'
-  - '**/*.pkg'
-  - '**/*.dmg'
-  - '**/._*'
-  - '**/.Spotlight-V100/**'
-  - '**/.Trashes/**'
-  - '**/ehthumbs.db'
-  - '**/Thumbs.db'
-
-# Query filters
-queries:
-  # Include the standard security and quality queries
-  - uses: security-and-quality
-
-  # Include additional security queries
-  - uses: security-extended
-
-  # Use standard security queries
-  - uses: security
-
-# Disable noisy alerts
-disable-default-queries: false
-
-# Query suite definitions
-query-filters:
-  - exclude:
-      tags contain: test
-  - exclude:
-      tags contain: maintainability
-      precision below: high
-
-# Trap errors during extraction
-trap-for-errors: true
+{
+  "name": "CodeQL Configuration for macOS",
+  "queries": [
+    {
+      "uses": "security-and-quality"
+    },
+    {
+      "uses": "security-extended"
+    },
+    {
+      "uses": "security"
+    }
+  ],
+  "disable-default-queries": false,
+  "paths-ignore": [
+    "node_modules",
+    "**/*.test.js",
+    "**/*.spec.js",
+    "**/*.test.py",
+    "**/*.spec.py",
+    "tests/**",
+    "test_mem0_integration.py"
+  ],
+  "os": "macos-latest"
+}

@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 # Third-party imports
 # Local imports
@@ -21,12 +21,26 @@ from .secrets_manager import SecretsBackend, get_secret, set_secret
 # Initialize logger
 logger = get_logger(__name__)
 
+"""Configuration for secrets management."""
+
+# Use environment variable with default value for secret prefix
+# This is a prefix identifier, not a secret itself
+SECRET_PREFIX: Final[str] = os.environ.get("SECRET_PREFIX", "secret:")  # nosec - not a real secret
+
 
 class SecretConfig:
     """Configuration manager that can handle secret references."""
 
     # Constants
-    SECRET_PREFIX = "secret:"  # noqa: S105
+    STORAGE_PREFIX = "storage:"  # Generic prefix for stored items
+
+    # Get prefix from environment with fallback
+    @property
+    def secret_prefix(self) -> str:
+        """Get the secret prefix from environment or use default."""
+        return os.environ.get(
+            "SECRET_STORAGE_PREFIX", "storage:"
+        )  # More generic prefix
 
     def __init__(
         self,

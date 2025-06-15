@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CI Environment Simulation Script
+CI Environment Simulation Script.
 
 This script simulates different CI environments for testing purposes.
 It sets environment variables and creates necessary files to mimic various CI platforms.

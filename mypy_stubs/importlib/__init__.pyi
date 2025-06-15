@@ -1,15 +1,12 @@
-"""
-Type stubs for importlib
-"""
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
-import sys
+"""Type stubs for importlib."""
 import types
+from typing import Any, Optional
 
 # Define util module
 class _util:
-    def find_spec(name: str, package: Optional[str] = None) -> Any: ...
-    def module_from_spec(spec: Any) -> types.ModuleType: ...
-    def spec_from_file_location(name: str, location: str) -> Any: ...
+    def find_spec(self: str, package: Optional[str] = None) -> Any: ...
+    def module_from_spec(self: Any) -> types.ModuleType: ...
+    def spec_from_file_location(self: str, location: str) -> Any: ...
 
 util = _util()
 
@@ -21,8 +18,8 @@ def reload(module: types.ModuleType) -> types.ModuleType: ...
 
 def __import__(
     name: str,
-    globals: Optional[Dict[str, Any]] = None,
-    locals: Optional[Dict[str, Any]] = None,
-    fromlist: Tuple[str, ...] = (),
+    globals: Optional[dict[str, Any]] = None,
+    locals: Optional[dict[str, Any]] = None,
+    fromlist: tuple[str, ...] = (),
     level: int = 0,
 ) -> types.ModuleType: ...

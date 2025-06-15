@@ -1,12 +1,15 @@
 # CodeQL Configuration
 
-This directory contains configuration files for GitHub's CodeQL analysis tool, which is part of GitHub Advanced Security.
+This directory contains configuration files for GitHub's CodeQL analysis tool,
+which is part of GitHub Advanced Security.
 
 ## Files
 
 - `codeql-javascript-config.yml`: Configuration for JavaScript/TypeScript analysis
 - `codeql-python-config.yml`: Configuration for Python analysis
-- `security-os-config.yml`: Unified configuration for all platforms (Windows, macOS, Linux)
+- `security-os-config.yml`: Unified configuration for all platforms (Windows,
+macOS,
+Linux)
 - `javascript-security-queries.qls`: Custom query suite for JavaScript/TypeScript security analysis
 - `python-security-queries.qls`: Custom query suite for Python security analysis
 
@@ -33,7 +36,9 @@ The CodeQL analysis is configured in the following workflow files:
 
 These workflows:
 
-1. Runs on push to main branches, pull requests to main branches, and on a weekly schedule (Monday at 4 AM UTC)
+1. Runs on push to main branches,
+pull requests to main branches,
+and on a weekly schedule (Monday at 4 AM UTC)
 2. Performs separate analysis for JavaScript/TypeScript and Python
 3. Uses the configuration files in this directory to customize the analysis
 4. Caches CodeQL databases to speed up subsequent analyses
@@ -57,14 +62,19 @@ The configuration files include:
 The CodeQL configuration includes several performance optimizations:
 
 1. **Caching**: CodeQL databases are cached to speed up subsequent analyses
-2. **Path exclusions**: Generated files, tests, and other non-essential code are excluded
+2. **Path exclusions**: Generated files,
+tests,
+and other non-essential code are excluded
 3. **Query filtering**: Low-precision queries are excluded to reduce noise
 4. **Concurrency limits**: Prevents multiple CodeQL analyses from running simultaneously
-5. **Resource limits**: Sets limits on file size, lines of code, and AST nodes to analyze
+5. **Resource limits**: Sets limits on file size,
+lines of code,
+and AST nodes to analyze
 
 ## Security Focus
 
-The custom query suites (`javascript-security-queries.qls` and `python-security-queries.qls`) focus on high-impact security vulnerabilities, including:
+The custom query suites (`javascript-security-queries.qls` and `python-security-queries.qls`) focus on high-impact security vulnerabilities,
+including:
 
 - Injection vulnerabilities (SQL, command, code, etc.)
 - Cross-site scripting (XSS)

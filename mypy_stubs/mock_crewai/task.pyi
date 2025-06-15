@@ -1,10 +1,8 @@
-"""
-Type stubs for mock_crewai.task
-"""
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union, TypeVar
+"""Type stubs for mock_crewai.task."""
+from typing import Any, Callable, Optional, TypeVar
 
 # Define forward references
-class Agent: pass
+class Agent: ...
 AgentType = TypeVar("AgentType", bound=Agent)
 
 class Task:
@@ -15,7 +13,7 @@ class Task:
         description: str,
         expected_output: str = "",
         agent: Optional[AgentType] = None,
-        tools: Optional[List[Any]] = None,
+        tools: Optional[list[Any]] = None,
         async_execution: bool = False,
         output: Optional[str] = None,
         context: Optional[str] = None,
@@ -25,7 +23,7 @@ class Task:
 
     def execute(self, agent: Optional[AgentType] = None, context: Optional[str] = None) -> str: ...
 
-    def to_dict(self) -> Dict[str, Any]: ...
+    def to_dict(self) -> dict[str, Any]: ...
 
     @classmethod
-    def from_dict(cls, task_dict: Dict[str, Any]) -> 'Task': ...
+    def from_dict(cls, task_dict: dict[str, Any]) -> Task: ...

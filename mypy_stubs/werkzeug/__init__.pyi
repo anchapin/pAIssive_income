@@ -1,6 +1,2 @@
-"""
-Type stubs for werkzeug
-"""
-from typing import Any
+"""Type stubs for werkzeug."""
 
-from . import local

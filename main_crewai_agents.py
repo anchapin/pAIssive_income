@@ -9,21 +9,14 @@ Adapt and extend these scaffolds to fit your use-case.
 - mem0 Docs: https://mem0.ai
 """
 
+from __future__ import annotations
+
 import logging
 import os
-from typing import Optional, Protocol
+import sys
 
 # Import standard CrewAI components
 from crewai import Agent, Crew, Task
-
-
-class TeamProtocol(Protocol):
-    """Protocol for team objects that can run workflows."""
-
-    def run(self) -> object:
-        """Run the team workflow."""
-        pass
-
 
 # Import memory-enhanced agent team
 try:
@@ -45,9 +38,7 @@ logger = logging.getLogger(__name__)
 # Example: Assemble into a Crew (team)
 
 
-def create_team(
-    use_memory: bool = False, user_id: Optional[str] = None
-) -> TeamProtocol:
+def create_team(use_memory: bool = False, user_id: str | None = None) -> object:
     """
     Create and return a CrewAI team, optionally using memory enhancement.
 
@@ -64,7 +55,7 @@ def create_team(
             user_id = "default_user"
             logger.warning("No user_id provided, using 'default_user'")
 
-        logger.info(f"Creating memory-enhanced team with user_id: {user_id}")
+        logger.info("Creating memory-enhanced team with user_id: %s", user_id)
         team = MemoryEnhancedCrewAIAgentTeam(user_id=user_id)
 
         # Add agents with memory capabilities
@@ -130,19 +121,16 @@ def create_team(
         agent=data_gatherer,
     )
     task_analyze = Task(
-        description="Analyze gathered data for trends and anomalies.",
-        agent=analyzer,
+        description="Analyze gathered data for trends and anomalies.", agent=analyzer
     )
     task_report = Task(
-        description="Write a summary report based on analysis.",
-        agent=writer
+        description="Write a summary report based on analysis.", agent=writer
     )
 
-    reporting_team = Crew(
+    return Crew(
         agents=[data_gatherer, analyzer, writer],
         tasks=[task_collect, task_analyze, task_report],
     )
-    return reporting_team
 
 
 if __name__ == "__main__":
@@ -153,8 +141,8 @@ if __name__ == "__main__":
 
     # Check if dependencies are available
     if not CREWAI_AVAILABLE:
-        logger.critical("CrewAI is not installed. Install with: pip install '.[agents]'")
-        exit(1)
+        logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
+        sys.exit(1)
 
     if not MEM0_AVAILABLE:
         logger.warning("mem0 is not installed. Install with: pip install mem0ai")
@@ -169,9 +157,9 @@ if __name__ == "__main__":
     try:
         result = team.run()
         logger.info("CrewAI workflow completed successfully")
-        logger.info(f"Result: {result}")
-    except Exception as e:
-        logger.exception(f"Error running CrewAI workflow: {e}")
+        logger.info("Result: %s", result)
+    except Exception:
+        logger.exception("Error running CrewAI workflow")
 
 # Next steps:
 # - Replace example agents, goals, and tasks with project-specific logic.

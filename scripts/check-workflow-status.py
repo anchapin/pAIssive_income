@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Workflow Status Checker
+Workflow Status Checker.
 
 This script analyzes GitHub Actions workflows to identify potential issues
 and provide troubleshooting recommendations.
@@ -8,13 +8,14 @@ and provide troubleshooting recommendations.
 
 import glob
 import os
+import sys
 from typing import Any, Dict, List
 
 import yaml
 
 
 class WorkflowAnalyzer:
-    def __init__(self, workflows_dir: str = ".github/workflows"):
+    def __init__(self, workflows_dir: str = ".github/workflows") -> None:
         self.workflows_dir = workflows_dir
         self.issues = []
         self.warnings = []
@@ -139,7 +140,7 @@ class WorkflowAnalyzer:
 
         return structure
 
-    def check_action_version(self, action: str, file_path: str):
+    def check_action_version(self, action: str, file_path: str) -> None:
         """Check if action versions are up to date."""
         version_recommendations = {
             "actions/checkout": "v4",
@@ -160,7 +161,7 @@ class WorkflowAnalyzer:
                         f"{file_path}: Consider updating {action_name} from {version} to {recommended}"
                     )
 
-    def analyze_workflow_conflicts(self, workflow_files: List[str]):
+    def analyze_workflow_conflicts(self, workflow_files: List[str]) -> None:
         """Analyze potential conflicts between workflows."""
         workflow_names = []
         trigger_analysis = {"push": [], "pull_request": [], "schedule": []}
@@ -175,7 +176,7 @@ class WorkflowAnalyzer:
 
                 if content and "on" in content:
                     triggers = content["on"]
-                    if isinstance(triggers, dict) or isinstance(triggers, list):
+                    if isinstance(triggers, (dict, list)):
                         for trigger in triggers:
                             if trigger in trigger_analysis:
                                 trigger_analysis[trigger].append(file_path)
@@ -278,7 +279,7 @@ class WorkflowAnalyzer:
         from datetime import datetime
         return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-def main():
+def main() -> int:
     """Main function to run workflow analysis."""
     analyzer = WorkflowAnalyzer()
     results = analyzer.analyze_all_workflows()
@@ -320,4 +321,4 @@ def main():
     return 1
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

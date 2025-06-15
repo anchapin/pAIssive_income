@@ -44,7 +44,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 # Import the existing security tools if possible
 try:
-    from fix_potential_secrets import scan_directory  # type: ignore[import-untyped]
+    from fix_potential_secrets import scan_directory
 
     IMPORTED_SECRET_SCANNER = True
 except ImportError:
@@ -59,7 +59,6 @@ except ImportError:
     # Define a fallback function to avoid unbound variable errors
     def scan_directory(
         directory: str,  # Match the signature of the imported function
-        patterns: dict[str, Any],  # Match the expected signature
         exclude_dirs: set[str]
         | None = None,  # Match the signature of the imported function
     ) -> dict[str, list[tuple[str, int, int]]]:
@@ -68,7 +67,6 @@ except ImportError:
 
         Args:
             directory: Directory to scan (unused in fallback)
-            patterns: Patterns to use for scanning (unused in fallback)
             exclude_dirs: Directories to exclude from scanning (unused in fallback)
 
         Returns:
@@ -278,10 +276,12 @@ def _run_scan_with_imported_function(
 
     # Import the SECRET_PATTERNS from fix_potential_secrets to match the function signature
     try:
-        from fix_potential_secrets import SECRET_PATTERNS
+        from fix_potential_secrets import (
+            SECRET_PATTERNS,
+        )  # Note: scan_directory() only takes directory and patterns (excludes are defined inside it)
 
         results: dict[str, list[tuple[str, int, int]]] = scan_directory(
-            directory, SECRET_PATTERNS, exclude_dirs
+            directory, SECRET_PATTERNS
         )
     except ImportError:
         logger.warning("Could not import SECRET_PATTERNS from fix_potential_secrets")

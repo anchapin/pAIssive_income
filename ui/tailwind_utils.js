@@ -515,7 +515,7 @@ async function buildAllTailwind(options = {}) {
 
   try {
     const {
-      staticOptions = defaults.static || {},
+      static: staticConfig = defaults.static || {},
       react = defaults.react || {},
       watch = false,
       parallel = config?.performance?.concurrentBuilds > 1,
@@ -530,18 +530,18 @@ async function buildAllTailwind(options = {}) {
 
     // If using webpack or vite, use the integrated build process
     if (useWebpack) {
-      return buildWithWebpack(options);
+      return await buildWithWebpack(options);
     } else if (useVite) {
-      return buildWithVite(options);
+      return await buildWithVite(options);
     }
 
     // Use multiple file build approach for better performance and flexibility
     const files = [
       {
-        configPath: staticOptions.configPath || defaults.static?.configPath || './tailwind.config.js',
-        inputPath: staticOptions.inputPath || defaults.static?.inputPath || './ui/static/css/tailwind.css',
-        outputPath: staticOptions.outputPath || defaults.static?.outputPath || './ui/static/css/tailwind.output.css',
-        minify: staticOptions.minify !== undefined ? staticOptions.minify : (defaults.static?.minify !== undefined ? defaults.static.minify : true),
+        configPath: staticConfig.configPath || defaults.static?.configPath || './tailwind.config.js',
+        inputPath: staticConfig.inputPath || defaults.static?.inputPath || './ui/static/css/tailwind.css',
+        outputPath: staticConfig.outputPath || defaults.static?.outputPath || './ui/static/css/tailwind.output.css',
+        minify: staticConfig.minify !== undefined ? staticConfig.minify : (defaults.static?.minify !== undefined ? defaults.static.minify : true),
         type: 'static'
       },
       {
@@ -582,7 +582,7 @@ async function buildAllTailwind(options = {}) {
  * @param {Object} options - Build options
  * @returns {boolean} - Whether the build was successful
  */
-function buildWithWebpack(options = {}) {
+async function buildWithWebpack(options = {}) {
   const config = getConfig();
   const webpackConfig = options.buildTools?.webpack || config?.buildTools?.webpack || {};
 
@@ -593,7 +593,7 @@ function buildWithWebpack(options = {}) {
 
     // Check if webpack is installed
     try {
-      require.resolve('webpack');
+      await import('webpack');
     } catch (error) {
       log('Webpack is not installed. Please install webpack to use this feature.', 'error');
       return false;
@@ -607,8 +607,8 @@ function buildWithWebpack(options = {}) {
     }
 
     // Run webpack build
-    const webpack = require('webpack');
-    const webpackConfigFile = require(path.resolve(webpackConfigPath));
+    const webpack = (await import('webpack')).default;
+    const webpackConfigFile = (await import(path.resolve(webpackConfigPath))).default;
 
     // Add PostCSS plugins for Tailwind if not already present
     if (!webpackConfigFile.module?.rules) {
@@ -636,13 +636,16 @@ function buildWithWebpack(options = {}) {
             rule.use = [];
           }
 
+          const tailwindcss = (await import('tailwindcss')).default;
+          const autoprefixer = (await import('autoprefixer')).default;
+
           rule.use.push({
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
                 plugins: [
-                  require('tailwindcss'),
-                  require('autoprefixer')
+                  tailwindcss,
+                  autoprefixer
                 ]
               }
             }
@@ -681,7 +684,7 @@ function buildWithWebpack(options = {}) {
  * @param {Object} options - Build options
  * @returns {boolean} - Whether the build was successful
  */
-function buildWithVite(options = {}) {
+async function buildWithVite(options = {}) {
   const config = getConfig();
   const viteConfig = options.buildTools?.vite || config?.buildTools?.vite || {};
 
@@ -692,7 +695,7 @@ function buildWithVite(options = {}) {
 
     // Check if vite is installed
     try {
-      require.resolve('vite');
+      await import('vite');
     } catch (error) {
       log('Vite is not installed. Please install vite to use this feature.', 'error');
       return false;
@@ -706,7 +709,7 @@ function buildWithVite(options = {}) {
     }
 
     // Run vite build
-    const { build } = require('vite');
+    const { build } = await import('vite');
 
     return build({
       configFile: viteConfigPath,
@@ -877,16 +880,13 @@ Build Tool Integration:
  *
  * @param {Object} options - PostCSS options
  * @param {Array} options.plugins - Array of plugin configurations
- * @returns {Array} - Array of instantiated PostCSS plugins
+ * @returns {Array} - Array of plugin names for PostCSS configuration
  */
 function loadPostCSSPlugins(options = {}) {
   const plugins = [];
 
   if (!options.plugins || !Array.isArray(options.plugins)) {
-    return [
-      require('tailwindcss'),
-      require('autoprefixer')
-    ];
+    return ['tailwindcss', 'autoprefixer'];
   }
 
   for (const plugin of options.plugins) {
@@ -896,19 +896,12 @@ function loadPostCSSPlugins(options = {}) {
         continue;
       }
 
-      // Try to require the plugin
-      const pluginModule = require(plugin.name);
+      // Add plugin name to the list
+      plugins.push(plugin.name);
 
-      // Initialize the plugin with options
-      if (plugin.options) {
-        plugins.push(pluginModule(plugin.options));
-      } else {
-        plugins.push(pluginModule);
-      }
-
-      log(`Loaded PostCSS plugin: ${plugin.name}`, 'debug');
+      log(`Added PostCSS plugin: ${plugin.name}`, 'debug');
     } catch (error) {
-      log(`Failed to load PostCSS plugin ${plugin.name}: ${error.message}`, 'error', { error });
+      log(`Failed to add PostCSS plugin ${plugin.name}: ${error.message}`, 'error', { error });
     }
   }
 
@@ -917,11 +910,11 @@ function loadPostCSSPlugins(options = {}) {
   const hasAutoprefixer = options.plugins.some(p => p.name === 'autoprefixer');
 
   if (!hasTailwind) {
-    plugins.unshift(require('tailwindcss'));
+    plugins.unshift('tailwindcss');
   }
 
   if (!hasAutoprefixer) {
-    plugins.push(require('autoprefixer'));
+    plugins.push('autoprefixer');
   }
 
   return plugins;
@@ -992,7 +985,7 @@ async function main() {
 }
 
 // Run the main function if this file is executed directly
-if (import.meta.url.startsWith('file://') && process.argv[1] === import.meta.url.substring(7)) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   // Handle the Promise returned by main()
   main().catch(error => {
     console.error(`Fatal error in main function: ${error.message}`);

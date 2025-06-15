@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 def check_dependencies() -> bool:
     """
     Check if required dependencies are installed.
-    
+
     Returns:
         bool: True if all dependencies are available, False otherwise
 
@@ -59,10 +59,10 @@ def check_dependencies() -> bool:
 def create_research_team(user_id: str) -> MemoryEnhancedCrewAIAgentTeam:
     """
     Create a research team with memory-enhanced agents.
-    
+
     Args:
         user_id: The user ID for memory storage and retrieval
-        
+
     Returns:
         A memory-enhanced agent team
 
@@ -90,17 +90,17 @@ def create_research_team(user_id: str) -> MemoryEnhancedCrewAIAgentTeam:
     )
 
     # Add tasks
-    research_task = team.add_task(
+    team.add_task(
         description="Research the market for AI-powered productivity tools",
         agent=researcher
     )
 
-    development_task = team.add_task(
+    team.add_task(
         description="Design an AI tool based on the market research",
         agent=developer
     )
 
-    monetization_task = team.add_task(
+    team.add_task(
         description="Create a monetization strategy for the AI tool",
         agent=monetization
     )
@@ -128,7 +128,7 @@ def run_example() -> None:
         logger.info("Workflow completed successfully")
         logger.info(f"Result: {result}")
     except Exception as e:
-        logger.error(f"Error running workflow: {e}")
+        logger.exception(f"Error running workflow: {e}")
 
     # Demonstrate memory retrieval
     if team.memory is not None:
@@ -144,7 +144,7 @@ def run_example() -> None:
             for i, memory in enumerate(memories):
                 logger.info(f"Memory {i+1}: {memory.get('text', 'No text')[:100]}...")
         except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+            logger.exception(f"Error retrieving memories: {e}")
 
 
 def main() -> None:

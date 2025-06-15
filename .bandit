@@ -2,7 +2,23 @@
 # Bandit configuration file for GitHub Advanced Security
 
 # Exclude directories from security scans
-exclude_dirs = tests,venv,.venv,env,.env,__pycache__,custom_stubs,node_modules,build,dist,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates
+exclude_dirs = tests,
+venv,
+.venv,
+env,
+.env,
+__pycache__,
+custom_stubs,
+node_modules,
+build,
+dist,
+docs,
+docs_source,
+junit,
+bin,
+dev_tools,
+scripts,
+tool_templates
 
 # Skip specific test IDs
 # B101: Use of assert detected

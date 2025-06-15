@@ -4,7 +4,8 @@ ARCHIVED: Security fixes are now consolidated in docs/04_security_and_compliance
 
 # Security Fixes
 
-See [Security Overview](docs/04_security_and_compliance/01_security_overview.md) and [Security Fixes & Case Studies](docs/09_archive_and_notes/security_fixes_summaries.md) for the full, up-to-date record. for CodeQL Issues
+See [Security Overview](docs/04_security_and_compliance/01_security_overview.md) and [Security Fixes & Case Studies](docs/09_archive_and_notes/security_fixes_summaries.md) for the full,
+up-to-date record. for CodeQL Issues
 
 ## Issues Identified
 
@@ -155,7 +156,8 @@ logger.warning(
 # After
 # Don't log any information about the key, even masked versions
 # Use generic logging without exposing any sensitive information
-logger.warning("Memory backend not yet implemented", extra={"operation": "delete_secret"})
+logger.warning("Memory backend not yet implemented",
+extra={"operation": "delete_secret"})
 ```
 
 ### 5. In `fix_security_code_issues.py`:
