@@ -5,17 +5,23 @@ from __future__ import annotations
 import logging
 import os
 from logging.config import fileConfig
+from typing import Any
 
 from alembic import context
+from alembic.operations.ops import UpgradeOps
+from alembic.script.revision import MigrationScript
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config: Any = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-if config.config_file_name:
+if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+else:
+    msg = "Alembic config_file_name is None. Check your alembic.ini setup."
+    raise RuntimeError(msg)
 logger = logging.getLogger("alembic.env")
 
 # Get database URL from environment or use default
@@ -40,6 +46,9 @@ def run_migrations_offline() -> None:
 
     """
     url = config.get_main_option("sqlalchemy.url")
+    if url is None:
+        msg = "sqlalchemy.url is not set in Alembic config."
+        raise RuntimeError(msg)
     context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
 
     with context.begin_transaction():
@@ -58,9 +67,7 @@ def run_migrations_online() -> None:
     # This callback prevents auto-migration when there are no changes
     # See: https://alembic.sqlalchemy.org/en/latest/cookbook.html
     def process_revision_directives(
-        _context: object,
-        _revision: object,
-        directives: list[object],
+        _context: object, _revision: object, directives: list[MigrationScript]
     ) -> None:
         """
         Process migration directives to detect empty migrations.
@@ -68,22 +75,26 @@ def run_migrations_online() -> None:
         Args:
             _context: Alembic context (unused)
             _revision: Revision object (unused)
-            directives: List of revision directives
+            directives: List of MigrationScript objects (migration scripts)
 
         """
         if getattr(config.cmd_opts, "autogenerate", False):
-            script = directives[0]
-            if script.upgrade_ops.is_empty():  # type: ignore[attr-defined]
-                directives[:] = []
-            logger.info("No changes in schema detected.")
+            script = directives[0]  # type: ignore[index]
+            # Only proceed if script is a MigrationScript and has upgrade_ops
+            if isinstance(script, MigrationScript) and isinstance(
+                script.upgrade_ops, UpgradeOps
+            ):
+                if script.upgrade_ops.is_empty():
+                    directives[:] = []
+                logger.info("No changes in schema detected.")
 
     from sqlalchemy import create_engine
 
-    db_url = config.get_main_option("sqlalchemy.url")
-    if not db_url:
-        msg = "Database URL not configured"
-        raise ValueError(msg)
-    engine = create_engine(db_url)
+    url = config.get_main_option("sqlalchemy.url")
+    if url is None:
+        msg = "sqlalchemy.url is not set in Alembic config."
+        raise RuntimeError(msg)
+    engine = create_engine(url)
 
     with engine.connect() as connection:
         context.configure(

@@ -4,6 +4,8 @@ Simple test script to verify mem0 installation and functionality.
 This script tests basic mem0 operations to ensure it's working correctly.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import sys
@@ -41,7 +43,7 @@ def test_mem0_basic_operations() -> bool:
         if search_results:
             logger.info("Memory search successful! Found results: %s", search_results)
             return True
-        
+
         logger.warning("Memory search returned no results.")
         return False
 

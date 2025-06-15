@@ -25,6 +25,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -45,17 +46,23 @@ def run(cmd: str, desc: str) -> None:
     cmd_list = cmd.split()
 
     # Validate command for security - only allow specific commands
-    allowed_commands = {"ruff", "mypy", "bandit", "uv", "sphinx-build"}
+    allowed_commands = {"ruff", "pyright", "bandit", "uv", "sphinx-build"}
 
     if cmd_list[0] not in allowed_commands:
         logger.error("Security: Command '%s' not in allowed list", cmd_list[0])
         sys.exit(1)
 
-    # Use a list of validated commands for security
-    # Command has been validated against allowed_commands list
-    res = subprocess.run(  # noqa: S603
-        cmd_list, shell=False, check=False, capture_output=True, text=True
-    )
+    # Use a helper to validate and run the command safely (addresses Ruff S603)
+    def _safe_subprocess_run(
+        cmd: list[str],
+        **kwargs: Any,  # noqa: ANN401
+    ) -> subprocess.CompletedProcess:
+        cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+        if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+            kwargs["cwd"] = str(kwargs["cwd"])
+        return subprocess.run(cmd, check=False, **kwargs)  # noqa: S603
+
+    res = _safe_subprocess_run(cmd_list)  # Safe: command is validated and shell=False
     if res.returncode != 0:
         logger.error("FAILED: %s", desc)
         if res.stderr:

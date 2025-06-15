@@ -47,7 +47,7 @@ def run_command(command: list[str], check: bool = True) -> tuple[int, str, str]:
 
         # Always use shell=False for security
         # nosec comment below tells security scanners this is safe as we control the input
-        result = subprocess.run(  # nosec B603
+        result = subprocess.run(  # nosec S603
             command,
             capture_output=True,
             text=True,
@@ -101,7 +101,7 @@ def install_pre_commit() -> bool:
     """
     logger.info("Installing pre-commit using uv...")
     # Use uv for installation
-    exit_code, stdout, stderr = run_command(
+    exit_code, _, stderr = run_command(
         ["uv", "pip", "install", "pre-commit"], check=False
     )
 
@@ -127,7 +127,7 @@ def setup_hooks() -> bool:
     logger.info("Setting up pre-commit hooks...")
 
     # Install the hooks
-    exit_code, stdout, stderr = run_command(["pre-commit", "install"], check=False)
+    exit_code, _, stderr = run_command(["pre-commit", "install"], check=False)
 
     if exit_code != 0:
         logger.error("Failed to install pre-commit hooks: %s", stderr)
@@ -137,7 +137,7 @@ def setup_hooks() -> bool:
 
     # Update the hooks to the latest versions
     logger.info("Updating pre-commit hooks...")
-    exit_code, stdout, stderr = run_command(["pre-commit", "autoupdate"], check=False)
+    exit_code, _, stderr = run_command(["pre-commit", "autoupdate"], check=False)
 
     if exit_code != 0:
         logger.error("Failed to update pre-commit hooks: %s", stderr)

@@ -7,7 +7,7 @@ This is a scaffold for further expansion.
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any
 
 from common_utils import tooling
 
@@ -52,24 +52,58 @@ class ArtistAgent:
         return ""
 
     def extract_relevant_expression(self, prompt: str, tool_name: str) -> str:
-        """
-        Extract the relevant expression from the prompt based on the tool.
-
-        This is a naive implementation for the calculator tool.
-
-        Args:
-            prompt (str): The user's input or problem description.
-            tool_name (str): The name of the selected tool.
-
-        Returns:
-            str: The extracted relevant expression.
-
-        """
+        """Extract the relevant expression from the prompt based on the tool."""
+        min_expression_length = 3
+        # Refactored to reduce return statements and complexity
+        if not prompt or not tool_name:
+            return ""
+        expression = ""
         if tool_name == "calculator":
-            # Naive extraction: assume the entire prompt is the expression
-            # This should be improved for more complex prompts
-            return prompt
-        return prompt  # Default to returning the whole prompt if extraction logic is not defined
+            expression = self._extract_calculator_expression(prompt)
+        elif tool_name == "text_analyzer":
+            expression = self._extract_text_analyzer_expression(prompt)
+        elif tool_name == "code_executor":
+            expression = self._extract_code_executor_expression(prompt)
+        else:
+            expression = self._extract_generic_expression(prompt)
+        if len(expression) < min_expression_length:
+            return ""
+        return expression
+
+    def _extract_calculator_expression(self, prompt: str) -> str:
+        """Extract mathematical expression from prompt for calculator tool."""
+        # Simple extraction - look for mathematical expressions
+        import re
+
+        # Find mathematical expressions with numbers and operators
+        pattern = r"[\d\+\-\*/\(\)\.\s]+"
+        matches = re.findall(pattern, prompt)
+        if matches:
+            # Return the longest match that looks like a math expression
+            return max(matches, key=len).strip()
+        return prompt
+
+    def _extract_text_analyzer_expression(self, prompt: str) -> str:
+        """Extract text to analyze from prompt for text analyzer tool."""
+        # For text analysis, return the full prompt
+        return prompt
+
+    def _extract_code_executor_expression(self, prompt: str) -> str:
+        """Extract code to execute from prompt for code executor tool."""
+        # Look for code blocks or return the full prompt
+        import re
+
+        # Look for code blocks marked with ```
+        code_pattern = r"```(?:python|py)?\s*(.*?)```"
+        matches = re.findall(code_pattern, prompt, re.DOTALL)
+        if matches:
+            return matches[0].strip()
+        return prompt
+
+    def _extract_generic_expression(self, prompt: str) -> str:
+        """Extract generic expression from prompt for unknown tools."""
+        # For unknown tools, return the full prompt
+        return prompt
 
     def run(self, prompt: str) -> str:
         """

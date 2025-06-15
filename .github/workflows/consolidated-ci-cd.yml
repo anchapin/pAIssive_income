@@ -102,24 +102,50 @@ jobs:
       #       Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
       #     }
 
-      # Setup pnpm and Node.js for Tailwind CSS build
+      # Setup Node.js and pnpm for Tailwind CSS build
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'  # Use npm cache initially to avoid pnpm cache issues
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 8
-          run_install: false # pnpm install is run in a separate step
+          run_install: false
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
         with:
-          node-version: '20.11.1' # Specify a patch version
-          cache: 'pnpm'
-          cache-dependency-path: ui/react_frontend/pnpm-lock.yaml
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install Node.js dependencies and build Tailwind CSS
         working-directory: ui/react_frontend
+        shell: bash
         run: |
-          pnpm install
+          set -e
+          echo "Installing Node.js dependencies..."
+
+          # Ensure package.json exists
+          if [ ! -f "package.json" ]; then
+            echo "Error: package.json not found"
+            exit 1
+          fi
+
+          # Install dependencies
+          pnpm install --frozen-lockfile
+
+          # Build Tailwind CSS
+          echo "Building Tailwind CSS..."
           pnpm tailwind:build
 
       - name: Set up Python

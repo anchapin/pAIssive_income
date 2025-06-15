@@ -27,15 +27,16 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+import sys
+from typing import Any, Optional, Union
 
 # Import CrewAI components
 try:
-    from crewai import Agent, Crew, Task
+    # Check if CrewAI is available without importing unused components
+    import crewai  # noqa: F401
     CREWAI_AVAILABLE = True
 except ImportError:
     CREWAI_AVAILABLE = False
-    # Use placeholder classes from crewai_agents.py
 
 # Import mem0 components
 try:
@@ -43,10 +44,13 @@ try:
     MEM0_AVAILABLE = True
 except ImportError:
     MEM0_AVAILABLE = False
-    Memory = None  # type: ignore
+    Memory = None  # type: ignore[assignment]
 
 # Import base CrewAI agent team
-from agent_team.crewai_agents import CrewAIAgentTeam
+from agent_team.crewai_agents import AgentProtocol, CrewAIAgentTeam, TaskProtocol
+
+# Import MemoryRAGCoordinator for unified memory/RAG retrieval
+from services.memory_rag_coordinator import MemoryRAGCoordinator
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -85,10 +89,13 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         # Set user ID for memory operations
         self.user_id = user_id or "default_user"
 
+        # Initialize the MemoryRAGCoordinator for unified memory & RAG retrieval
+        self.rag_coordinator = MemoryRAGCoordinator()
+
         # Store team creation in memory
         self._store_memory(f"Agent team created with user ID: {self.user_id}")
 
-    def add_agent(self, role: str, goal: str, backstory: str) -> object:
+    def add_agent(self, role: str, goal: str, backstory: str) -> AgentProtocol:
         """
         Add an agent to the team with memory enhancement.
 
@@ -107,18 +114,20 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         # Store agent information in memory
         self._store_memory(
             f"Agent '{role}' added to team with goal: {goal}",
-            metadata={"agent_role": role, "agent_goal": goal}
+            metadata={"agent_role": role, "agent_goal": goal},
         )
 
         return agent
 
-    def add_task(self, description: str, agent: object) -> object:
+    def add_task(
+        self, description: str, agent: Union[str, AgentProtocol]
+    ) -> TaskProtocol:
         """
         Add a task to the team with memory enhancement.
 
         Args:
             description: The task description
-            agent: The agent assigned to the task
+            agent: The agent assigned to the task (role or AgentProtocol)
 
         Returns:
             The created task
@@ -128,12 +137,12 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         task = super().add_task(description, agent)
 
         # Get agent role for metadata
-        agent_role = getattr(agent, "role", "unknown")
+        agent_role = getattr(task.agent, "role", "unknown") if task.agent else "unknown"
 
         # Store task information in memory
         self._store_memory(
             f"Task assigned to agent '{agent_role}': {description}",
-            metadata={"task_description": description, "agent_role": agent_role}
+            metadata={"task_description": description, "agent_role": agent_role},
         )
 
         return task
@@ -159,7 +168,9 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         # Retrieve relevant memories for context enhancement
         context_query = f"Information about team with {len(self.agents)} agents and {len(self.tasks)} tasks"
         memories = self._retrieve_relevant_memories(query=context_query)
-        logger.info(f"Retrieved {len(memories)} relevant memories for context enhancement")
+        logger.info(
+            "Retrieved %d relevant memories for context enhancement", len(memories)
+        )
 
         # Log the start of the workflow
         workflow_description = f"Starting memory-enhanced workflow with {len(self.agents)} agents and {len(self.tasks)} tasks"
@@ -174,26 +185,32 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         # Currently, CrewAI doesn't provide a direct way to inject context
         # into all agents, but we can use this for future extensions
         enhanced_context = self._enhance_context_with_memories(workflow_description)
-        logger.debug(f"Enhanced context: {enhanced_context[:100]}...")
+        logger.debug("Enhanced context: %s...", enhanced_context[:100])
 
         # Run the workflow
-        result = crew.kickoff()  # type: ignore[attr-defined]
+        try:
+            result = crew.kickoff()  # type: ignore[attr-defined]
 
-        # Store the result in memory
-        if isinstance(result, str):
-            self._store_memory(
-                f"Workflow completed with result: {result[:100]}...",  # Store truncated result
-                metadata={"workflow_result": "success"}
-            )
+            # Store the result in memory
+            if isinstance(result, str):
+                self._store_memory(
+                    f"Workflow completed with result: {result[:100]}...",  # Store truncated result
+                    metadata={"workflow_result": "success"},
+                )
+            else:
+                self._store_memory(
+                    "Workflow completed with non-string result",
+                    metadata={"workflow_result": "success"},
+                )
+
+            logger.info("Workflow result: %s", result)
+        except Exception:
+            logger.exception("Error running workflow: %s")
+            return None
         else:
-            self._store_memory(
-                "Workflow completed with non-string result",
-                metadata={"workflow_result": "success"}
-            )
+            return result
 
-        return result
-
-    def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Optional[Dict[str, str]] = None) -> None:
+    def _store_memory(self, content: Union[str, list[dict[str, str]]], metadata: Optional[dict[str, str]] = None) -> None:
         """
         Store a memory using mem0.
 
@@ -206,45 +223,45 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             return
 
         try:
-            self.memory.add(
-                content,
-                user_id=self.user_id,
-                metadata=metadata or {}
+            self.memory.add(content, user_id=self.user_id, metadata=metadata or {})
+            logger.debug(
+                f"Memory stored: {content[:50]}..."
+                if isinstance(content, str)
+                else "Conversation stored"
             )
-            logger.debug(f"Memory stored: {content[:50]}..." if isinstance(content, str) else "Conversation stored")
-        except Exception as e:
-            logger.error(f"Error storing memory: {e}")
+        except Exception:
+            logger.exception("Error storing memory")
 
-    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> List[Dict[str, Any]]:
+    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> list[dict[str, Any]]:
         """
-        Retrieve relevant memories for the current context.
+        Retrieve relevant memories and RAG results for the current context.
+
+        This method now uses the MemoryRAGCoordinator to provide unified,
+        deduplicated, and relevance-ranked results from both mem0 and ChromaDB.
+        It works even when mem0 is not available, using only ChromaDB in that case.
 
         Args:
             query: Optional query string (defaults to team and agent information)
-            limit: Maximum number of memories to retrieve
+            limit: Maximum number of memories to retrieve (applied after merge)
 
         Returns:
-            List of relevant memories
+            List of relevant memories and RAG results, merged and deduplicated.
 
         """
-        if self.memory is None:
-            return []
-
         # If no query provided, create one based on team information
         if query is None:
             agent_roles = [getattr(agent, "role", "unknown") for agent in self.agents]
             query = f"Information about agents with roles: {', '.join(agent_roles)}"
 
         try:
-            # Search for relevant memories
-            memories = self.memory.search(
-                query=query,
-                user_id=self.user_id,
-                limit=limit
-            )
-            return memories
-        except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+            # Query the unified memory/RAG coordinator
+            # This works even when mem0 is not available (will use only ChromaDB)
+            unified_response = self.rag_coordinator.query(query, self.user_id)
+            memories = unified_response.get("merged_results", [])
+            # Optionally apply a limit to the number of returned results
+            return memories[:limit] if limit else memories
+        except Exception:
+            logger.exception("Error retrieving unified memories")
             return []
 
     def _enhance_context_with_memories(self, context: str) -> str:
@@ -272,13 +289,15 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             return context
 
         # Format memories as a string
-        memory_text = "\n".join([
-            f"- {memory.get('text', memory.get('memory', str(memory)))}"
-            for memory in memories
-        ])
+        memory_text = "\n".join(
+            [
+                f"- {memory.get('text', memory.get('memory', str(memory)))}"
+                for memory in memories
+            ]
+        )
 
         # Combine memories with original context
-        enhanced_context = f"""
+        return f"""
 Relevant memories:
 {memory_text}
 
@@ -286,7 +305,36 @@ Original context:
 {context}
 """
 
-        return enhanced_context
+    def store_memory(
+        self,
+        content: Union[str, list[dict[str, str]]],
+        metadata: Optional[dict[str, str]] = None,
+    ) -> None:
+        """
+        Store memory content with optional metadata.
+
+        Args:
+            content: The content to store (string or list of dicts)
+            metadata: Optional metadata dictionary
+
+        """
+        self._store_memory(content, metadata)
+
+    def retrieve_relevant_memories(
+        self, query: Optional[str] = None, limit: int = 5
+    ) -> list[dict[str, Any]]:
+        """
+        Retrieve relevant memories based on a query and limit.
+
+        Args:
+            query: Optional query string to filter memories
+            limit: Maximum number of memories to retrieve
+
+        Returns:
+            List of relevant memory dictionaries
+
+        """
+        return self._retrieve_relevant_memories(query, limit)
 
 
 # Example usage
@@ -294,14 +342,16 @@ if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     # Check if dependencies are available
     if not CREWAI_AVAILABLE:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
+        sys.exit(1)
     elif not MEM0_AVAILABLE:
         logger.error("mem0 is not installed. Install with: pip install mem0ai")
+        sys.exit(1)
     else:
         # Create a memory-enhanced agent team
         team = MemoryEnhancedCrewAIAgentTeam(user_id="example_user")
@@ -310,29 +360,28 @@ if __name__ == "__main__":
         researcher = team.add_agent(
             role="Researcher",
             goal="Find relevant information about the topic",
-            backstory="Expert at gathering and analyzing data from various sources"
+            backstory="Expert at gathering and analyzing data from various sources",
         )
 
         writer = team.add_agent(
             role="Writer",
             goal="Create engaging content based on research",
-            backstory="Skilled content creator with expertise in clear communication"
+            backstory="Skilled content creator with expertise in clear communication",
         )
 
         # Add tasks
         research_task = team.add_task(
             description="Research the latest trends in AI memory systems",
-            agent=researcher
+            agent=researcher,
         )
 
         writing_task = team.add_task(
-            description="Write a summary of the research findings",
-            agent=writer
+            description="Write a summary of the research findings", agent=writer
         )
 
         # Run the team
         try:
             result = team.run()
-            logger.info(f"Workflow result: {result}")
-        except Exception as e:
-            logger.error(f"Error running workflow: {e}")
+            logger.info("Workflow result: %s", result)
+        except Exception:
+            logger.exception("Error running workflow: %s")

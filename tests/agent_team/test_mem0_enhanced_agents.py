@@ -1,3 +1,4 @@
+
 import logging
 import unittest
 from unittest.mock import MagicMock, patch
@@ -154,7 +155,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             goal="Find information",
             backstory="Expert researcher",
         )
-        task = self.team.add_task(
+        self.team.add_task(
             description="Research AI memory systems",
             agent=agent,
         )

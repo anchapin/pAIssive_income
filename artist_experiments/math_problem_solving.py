@@ -22,6 +22,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+TWO_PARTS = 2
+
 
 class MathTool:
     """Mathematical tool for ARTIST experiments."""

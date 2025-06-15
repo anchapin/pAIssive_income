@@ -1,15 +1,13 @@
-"""
-Integration tests for mem0 functionality.
+"""Integration tests for mem0 functionality."""
 
-These tests verify the end-to-end functionality of mem0 integration
-with ADK agents. They require mem0ai to be installed and configured
-with an OpenAI API key.
-"""
+from __future__ import annotations
 
+# type: ignore[import]
 import logging
 import os
 import sys
 import unittest
+from typing import Any, Optional
 from unittest.mock import patch
 
 import pytest
@@ -26,69 +24,68 @@ mem0 = None
 Memory = None
 try:
     import mem0ai
+
     mem0 = mem0ai
     Memory = mem0ai.Memory
 except ImportError as e:  # mem0 or agent frameworks not available, skip test
     logger.warning(f"mem0ai not available: {e}")
     # mem0 and Memory remain None, which is the desired fallback.
 
+
 # Import ADK components
-try:
-    from adk.agent import Agent
-    # SimpleMemory is not used, so we don't import it
-    # from adk.memory import SimpleMemory
-except ImportError as e:
-    # Mock ADK if not available
-    logger.warning(f"ADK not available: {e}, using mock implementation")
-    from mock_adk.adk.agent import Agent
-
-
-class MemoryEnhancedAgent(Agent):
-    """ADK agent enhanced with mem0 memory capabilities."""
-
-    def __init__(self, name: str, user_id: str) -> None:
-        """Initialize the agent."""
-        super().__init__(name)
-
-        # Initialize mem0 memory
-        if Memory is not None:
-            self.memory = Memory()
-        else:
-            self.memory = None
-
-        self.user_id = user_id
-
-    def _store_memory(self, content: str) -> None:
-        """Store a memory."""
-        if self.memory:
-            self.memory.add(content, user_id=self.user_id)
-
-    def _retrieve_relevant_memories(self, query: str) -> list:
-        """Retrieve relevant memories."""
-        if self.memory:
-            result = self.memory.search(query, user_id=self.user_id, limit=5)
-            return result.get("results", [])
-        return []
+class _FallbackAgent:
+    def __init__(self, name: str):
+        self.name = name
 
     def process_message(self, message: str) -> str:
-        """Process an incoming message."""
-        # Retrieve relevant memories
-        relevant_memories = self._retrieve_relevant_memories(message)
+        return f"Processed: {message}"
 
-        # Add memory context if available
-        context = ""
-        if relevant_memories:
-            memory_str = "\n".join(
-                [f"- {m.get('content', '')}" for m in relevant_memories]
-            )
-            if memory_str:
-                context = f"Relevant memories:\n{memory_str}\n\n"
 
-        # Process message with context and store result
-        response = super().process_message(context + message)
-        self._store_memory(f"User: {message}\nAssistant: {response}")
+try:
+    from adk.agent import Agent
+except ImportError as e:
+    logger.warning(f"ADK not available: {e}, using mock implementation")
+    Agent = _FallbackAgent
 
-        return response
+
+# Helper for formatting relevant memories
+def _format_relevant_memories(self, message):
+    relevant_memories = self.retrieve_relevant_memories(message)
+    if relevant_memories:
+        memory_str = "\n".join([f"- {m.get('content', '')}" for m in relevant_memories])
+        return f"Relevant memories:\n{memory_str}\n\n"
+    return ""
+
+
+# Dynamically create MemoryEnhancedAgent with Agent as base
+MemoryEnhancedAgent = type(
+    "MemoryEnhancedAgent",
+    (Agent,),
+    {
+        "__init__": lambda self, name, user_id: (
+            Agent.__init__(self, name),
+            setattr(self, "memory", Memory() if Memory is not None else None),
+            setattr(self, "user_id", user_id),
+        ),
+        "store_memory": lambda self, content: self.memory.add(
+            content, user_id=self.user_id
+        )
+        if self.memory
+        else None,
+        "retrieve_relevant_memories": lambda self, query: self.memory.search(
+            query, user_id=self.user_id, limit=5
+        ).get("results", [])
+        if self.memory
+        else [],
+        "_format_relevant_memories": _format_relevant_memories,
+        "process_message": lambda self, message: (
+            self._format_relevant_memories(message)
+            + Agent.process_message(self, message)
+            if hasattr(Agent, "process_message")
+            else ""
+        ),
+    },
+)
 
 
 def get_api_key():
@@ -105,32 +102,41 @@ def test_mem0_import():
 
         logger.info(f"Successfully imported mem0ai version {mem0ai.__version__}")
         assert True
-    except ImportError as e:
-        logger.error(f"Failed to import mem0ai: {e}")
-        assert False
+    except ImportError as err:
+        logger.exception("Failed to import mem0ai")
+        raise AssertionError from err
 
 
 def test_mem0_dependencies():
     """Test that mem0 dependencies are installed."""
     dependencies = ["qdrant_client", "openai", "pytz"]
-    all_installed = True
+    import importlib
 
-    for dep in dependencies:
-        try:
-            import importlib
+    failed_deps = [dep for dep in dependencies if not _is_module_available(dep)]
+    if failed_deps:
+        for dep in failed_deps:
+            logger.exception(f"Failed to import {dep}")
+    assert not failed_deps, (
+        f"Not all required dependencies are installed: {failed_deps}"
+    )
 
-            importlib.import_module(dep)
-            logger.info(f"Successfully imported {dep}")
-        except ImportError as e:
-            logger.error(f"Failed to import {dep}: {e}")
-            all_installed = False
 
-    assert all_installed, "Not all required dependencies are installed"
+def _is_module_available(module_name: str) -> bool:
+    try:
+        __import__(module_name)
+    except ImportError:
+        return False
+    else:
+        return True
 
 
 @pytest.mark.skipif(mem0 is None, reason="mem0ai not installed")
 class TestMem0Integration(unittest.TestCase):
     """Test suite for mem0 integration."""
+
+    patcher: Optional[Any] = None
+    user_id: Optional[str] = None
+    agent: Optional[MemoryEnhancedAgent] = None
 
     @classmethod
     def setUpClass(cls):
@@ -140,43 +146,29 @@ class TestMem0Integration(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        # Set up API key environment
         self.patcher = patch.dict("os.environ", {"OPENAI_API_KEY": self.api_key})
         self.patcher.start()
-
-        # Create a unique user ID for testing
         self.user_id = f"test_user_{os.urandom(4).hex()}"
-
-        # Create an enhanced agent for testing
         self.agent = MemoryEnhancedAgent("TestAgent", self.user_id)
-
-        # Store some test memories
-        self.agent._store_memory("User prefers light mode")
-        self.agent._store_memory("User is allergic to peanuts")
+        self.agent.store_memory("User prefers light mode")
+        self.agent.store_memory("User is allergic to peanuts")
 
     def tearDown(self):
         """Tear down test fixtures."""
-        self.patcher.stop()
+        if self.patcher:
+            self.patcher.stop()
 
     def test_agent_memory_storage(self):
         """Test that the agent can store memories."""
-        # Store a new memory
         test_content = f"Test memory {os.urandom(4).hex()}"
-        self.agent._store_memory(test_content)
-
-        # Retrieve the memory
-        memories = self.agent._retrieve_relevant_memories(test_content[:10])
-
-        # Check that the memory was stored and retrieved
+        self.agent.store_memory(test_content)
+        memories = self.agent.retrieve_relevant_memories(test_content[:10])
         assert len(memories) > 0
         assert any(test_content in str(memory) for memory in memories)
 
     def test_agent_memory_retrieval(self):
         """Test that the agent can retrieve memories."""
-        # Test memory retrieval
-        memories = self.agent._retrieve_relevant_memories("allergies")
-
-        # Check that memories were retrieved
+        memories = self.agent.retrieve_relevant_memories("allergies")
         assert len(memories) > 0
         assert any("peanuts" in str(memory) for memory in memories)
 
@@ -193,6 +185,7 @@ def test_mem0_basic_functionality():
     """Placeholder for basic mem0 functionality test."""
     logger.info("Running basic mem0 functionality test (placeholder).")
     assert True
+
 
 if __name__ == "__main__":
     test_mem0_import()

@@ -75,7 +75,6 @@ repos:
             ^scripts/__init__.py$|
             ^.github/scripts/__init__.py$
           )
-
   # Optimized local hooks for incremental checks
   - repo: local
     hooks:

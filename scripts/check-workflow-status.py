@@ -1,30 +1,44 @@
 #!/usr/bin/env python3
 """
-Workflow Status Checker
+Workflow Status Checker.
 
 This script analyzes GitHub Actions workflows to identify potential issues
 and provide troubleshooting recommendations.
 """
 
-import glob
-import os
-from typing import Any, Dict, List
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+from typing import Any
 
 import yaml
 
+# Constants
+MAX_CONCURRENT_TRIGGERS = 5
+MAX_ISSUES_TO_DISPLAY = 5
 
 class WorkflowAnalyzer:
-    def __init__(self, workflows_dir: str = ".github/workflows"):
+    """Analyze GitHub Actions workflows for issues and recommendations."""
+
+    def __init__(self, workflows_dir: str = ".github/workflows") -> None:
+        """
+        Initialize the workflow analyzer.
+
+        Args:
+            workflows_dir: Directory containing workflow files
+
+        """
         self.workflows_dir = workflows_dir
         self.issues = []
         self.warnings = []
         self.recommendations = []
 
-    def analyze_all_workflows(self) -> Dict[str, Any]:
+    def analyze_all_workflows(self) -> dict[str, Any]:
         """Analyze all workflow files and return comprehensive report."""
         print("🔍 Analyzing GitHub Actions workflows...")
 
-        workflow_files = glob.glob(f"{self.workflows_dir}/*.yml")
+        workflow_files = list(Path(self.workflows_dir).glob("*.yml"))
 
         results = {
             "total_files": len(workflow_files),
@@ -33,12 +47,12 @@ class WorkflowAnalyzer:
             "issues": [],
             "warnings": [],
             "recommendations": [],
-            "file_analysis": {}
+            "file_analysis": {},
         }
 
         for workflow_file in workflow_files:
-            file_result = self.analyze_workflow_file(workflow_file)
-            results["file_analysis"][workflow_file] = file_result
+            file_result = self.analyze_workflow_file(str(workflow_file))
+            results["file_analysis"][str(workflow_file)] = file_result
 
             if file_result["valid"]:
                 results["valid_files"] += 1
@@ -46,7 +60,7 @@ class WorkflowAnalyzer:
                 results["invalid_files"] += 1
 
         # Perform cross-workflow analysis
-        self.analyze_workflow_conflicts(workflow_files)
+        self.analyze_workflow_conflicts([str(f) for f in workflow_files])
 
         results["issues"] = self.issues
         results["warnings"] = self.warnings
@@ -54,14 +68,14 @@ class WorkflowAnalyzer:
 
         return results
 
-    def analyze_workflow_file(self, file_path: str) -> Dict[str, Any]:
+    def analyze_workflow_file(self, file_path: str) -> dict[str, Any]:
         """Analyze a single workflow file."""
         result = {
             "valid": False,
             "issues": [],
             "warnings": [],
             "recommendations": [],
-            "structure": {}
+            "structure": {},
         }
 
         try:
@@ -77,12 +91,14 @@ class WorkflowAnalyzer:
 
         except yaml.YAMLError as e:
             result["issues"].append(f"YAML syntax error: {e}")
-        except Exception as e:
+        except (OSError, UnicodeDecodeError) as e:
             result["issues"].append(f"Error reading file: {e}")
 
         return result
 
-    def analyze_workflow_structure(self, workflow: Dict[str, Any], file_path: str) -> Dict[str, Any]:
+    def analyze_workflow_structure(  # noqa: C901, PLR0912
+        self, workflow: dict[str, Any], file_path: str
+    ) -> dict[str, Any]:
         """Analyze the structure of a workflow."""
         structure = {
             "has_name": "name" in workflow,
@@ -92,7 +108,7 @@ class WorkflowAnalyzer:
             "uses_timeouts": False,
             "uses_concurrency": False,
             "uses_continue_on_error": False,
-            "action_versions": []
+            "action_versions": [],
         }
 
         # Check required fields
@@ -113,12 +129,16 @@ class WorkflowAnalyzer:
                 if "timeout-minutes" in job_config:
                     structure["uses_timeouts"] = True
                 else:
-                    self.warnings.append(f"{file_path}: Job '{job_name}' missing timeout")
+                    self.warnings.append(
+                        f"{file_path}: Job '{job_name}' missing timeout"
+                    )
 
                 # Check for continue-on-error usage
                 if "continue-on-error" in job_config:
                     structure["uses_continue_on_error"] = True
-                    self.warnings.append(f"{file_path}: Job '{job_name}' uses continue-on-error")
+                    self.warnings.append(
+                        f"{file_path}: Job '{job_name}' uses continue-on-error"
+                    )
 
                 # Analyze steps
                 if "steps" in job_config:
@@ -135,11 +155,13 @@ class WorkflowAnalyzer:
         if "concurrency" in workflow:
             structure["uses_concurrency"] = True
         else:
-            self.recommendations.append(f"{file_path}: Consider adding concurrency control")
+            self.recommendations.append(
+                f"{file_path}: Consider adding concurrency control"
+            )
 
         return structure
 
-    def check_action_version(self, action: str, file_path: str):
+    def check_action_version(self, action: str, file_path: str) -> None:
         """Check if action versions are up to date."""
         version_recommendations = {
             "actions/checkout": "v4",
@@ -147,7 +169,7 @@ class WorkflowAnalyzer:
             "actions/setup-python": "v5",
             "actions/cache": "v4",
             "actions/upload-artifact": "v4",
-            "actions/download-artifact": "v4"
+            "actions/download-artifact": "v4",
         }
 
         if "@" in action:
@@ -160,7 +182,7 @@ class WorkflowAnalyzer:
                         f"{file_path}: Consider updating {action_name} from {version} to {recommended}"
                     )
 
-    def analyze_workflow_conflicts(self, workflow_files: List[str]):
+    def analyze_workflow_conflicts(self, workflow_files: list[str]) -> None:  # noqa: C901
         """Analyze potential conflicts between workflows."""
         workflow_names = []
         trigger_analysis = {"push": [], "pull_request": [], "schedule": []}
@@ -175,12 +197,14 @@ class WorkflowAnalyzer:
 
                 if content and "on" in content:
                     triggers = content["on"]
-                    if isinstance(triggers, dict) or isinstance(triggers, list):
+                    if isinstance(triggers, (dict, list)):
                         for trigger in triggers:
                             if trigger in trigger_analysis:
                                 trigger_analysis[trigger].append(file_path)
 
-            except Exception:
+            except (OSError, UnicodeDecodeError, yaml.YAMLError) as e:  # noqa: PERF203
+                # Log the exception for debugging but continue processing
+                print(f"Warning: Error processing {file_path}: {e}")
                 continue
 
         # Check for duplicate names
@@ -192,12 +216,12 @@ class WorkflowAnalyzer:
 
         # Check for too many concurrent triggers
         for trigger, files in trigger_analysis.items():
-            if len(files) > 5:
+            if len(files) > MAX_CONCURRENT_TRIGGERS:
                 self.warnings.append(
                     f"Many workflows ({len(files)}) trigger on '{trigger}' - may cause resource conflicts"
                 )
 
-    def generate_report(self, results: Dict[str, Any]) -> str:
+    def generate_report(self, results: dict[str, Any]) -> str:  # noqa: PLR0915
         """Generate a comprehensive report."""
         report = []
         report.append("# GitHub Actions Workflow Analysis Report")
@@ -217,22 +241,19 @@ class WorkflowAnalyzer:
         # Issues
         if results["issues"]:
             report.append("## 🚨 Issues (Must Fix)")
-            for issue in results["issues"]:
-                report.append(f"- ❌ {issue}")
+            report.extend(f"- ❌ {issue}" for issue in results["issues"])
             report.append("")
 
         # Warnings
         if results["warnings"]:
             report.append("## ⚠️ Warnings")
-            for warning in results["warnings"]:
-                report.append(f"- ⚠️ {warning}")
+            report.extend(f"- ⚠️ {warning}" for warning in results["warnings"])
             report.append("")
 
         # Recommendations
         if results["recommendations"]:
             report.append("## 💡 Recommendations")
-            for rec in results["recommendations"]:
-                report.append(f"- 💡 {rec}")
+            report.extend(f"- 💡 {rec}" for rec in results["recommendations"])
             report.append("")
 
         # Troubleshooting guide
@@ -275,11 +296,13 @@ class WorkflowAnalyzer:
 
     def get_timestamp(self) -> str:
         """Get current timestamp in ISO format."""
-        from datetime import datetime
-        return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        from datetime import datetime, timezone
 
-def main():
-    """Main function to run workflow analysis."""
+        return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+def main() -> int:
+    """Run workflow analysis and return exit code."""
     analyzer = WorkflowAnalyzer()
     results = analyzer.analyze_all_workflows()
 
@@ -287,8 +310,8 @@ def main():
     report = analyzer.generate_report(results)
 
     # Save to file
-    os.makedirs("ci-reports", exist_ok=True)
-    report_file = "ci-reports/workflow-analysis-report.md"
+    Path("ci-reports").mkdir(exist_ok=True)
+    report_file = Path("ci-reports/workflow-analysis-report.md")
 
     with open(report_file, "w", encoding="utf-8") as f:
         f.write(report)
@@ -296,9 +319,9 @@ def main():
     print(f"📊 Analysis complete! Report saved to: {report_file}")
 
     # Print summary to console
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("WORKFLOW ANALYSIS SUMMARY")
-    print("="*50)
+    print("=" * 50)
     print(f"Total files: {results['total_files']}")
     print(f"Valid files: {results['valid_files']}")
     print(f"Invalid files: {results['invalid_files']}")
@@ -308,10 +331,10 @@ def main():
 
     if results["issues"]:
         print("\n🚨 CRITICAL ISSUES FOUND:")
-        for issue in results["issues"][:5]:  # Show first 5
+        for issue in results["issues"][:MAX_ISSUES_TO_DISPLAY]:  # Show first 5
             print(f"  ❌ {issue}")
-        if len(results["issues"]) > 5:
-            print(f"  ... and {len(results['issues']) - 5} more")
+        if len(results["issues"]) > MAX_ISSUES_TO_DISPLAY:
+            print(f"  ... and {len(results['issues']) - MAX_ISSUES_TO_DISPLAY} more")
 
     if results["invalid_files"] == 0 and len(results["issues"]) == 0:
         print("\n✅ All workflow files are valid!")
@@ -320,4 +343,4 @@ def main():
     return 1
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

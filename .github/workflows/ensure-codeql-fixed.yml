@@ -9,4 +9,49 @@ on:
       - '.github/workflows/ensure-codeql-fixed.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
 
+jobs:
+  ensure-fixed-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Make script executable
+        run: chmod +x .github/scripts/ensure-fixed-codeql-workflows.sh
+
+      - name: Run script to ensure fixed CodeQL workflows
+        run: .github/scripts/ensure-fixed-codeql-workflows.sh
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          git add .github/workflows/codeql*.yml || true
+          if git diff --cached --exit-code; then
+            echo "No changes detected"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check-changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Auto-fix: Replace CodeQL workflows with fixed versions" || {
+            echo "Commit failed, possibly no changes to commit"
+            exit 0
+          }
+          git push || {
+            echo "Push failed, possibly due to branch protection or permissions"
+            echo "Changes were made but could not be pushed automatically"
+            exit 0
+          }

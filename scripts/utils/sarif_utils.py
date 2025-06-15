@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import logging
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Optional
@@ -169,6 +170,20 @@ def add_result(
     return sarif_data
 
 
+def safe_int(x: object) -> int:
+    """Safely convert an int or str to int if possible, otherwise raise a TypeError."""
+    if isinstance(x, int):
+        return x
+    if isinstance(x, str):
+        try:
+            return int(x)
+        except ValueError:
+            msg = f"Cannot convert {x!r} to int"
+            raise TypeError(msg) from None
+    msg = f"Unsupported type for safe_int: {type(x)}"
+    raise TypeError(msg)
+
+
 def convert_json_to_sarif(
     json_data: dict[str, object] | list[dict[str, object]] | None,
     tool_name: str,
@@ -221,10 +236,7 @@ def convert_json_to_sarif(
 
             # Handle line number which might be an int or string
             line_raw = result.get(result_mapping.get("line_number", "line"), 1)
-            try:
-                line_number = int(line_raw) if line_raw is not None else 1  # type: ignore[arg-type]
-            except (ValueError, TypeError):
-                line_number = 1
+            line_number = safe_int(line_raw) if line_raw else 1
 
             level = str(
                 result.get(result_mapping.get("level", "severity"), "warning")
@@ -319,6 +331,26 @@ def convert_file(
             return False
         else:
             return True  # Return success since we created a valid SARIF file
+
+
+def _safe_subprocess_run(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess:  # noqa: ANN401
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)
 
 
 if __name__ == "__main__":

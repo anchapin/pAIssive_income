@@ -21,6 +21,26 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
+def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)
+
+
 def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str, str]:
     """
     Run a command and return the exit code, stdout, and stderr.
@@ -60,10 +80,13 @@ def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str
             if absolute_path:
                 command[0] = absolute_path
 
+        # Convert any Path objects in command to str
+        command = [str(c) if isinstance(c, Path) else c for c in command]
+
         # nosec comment below tells Bandit to ignore this line since we've added proper validation
         # We've validated the command above to ensure it's safe to execute
         # ruff: noqa: S603
-        result = subprocess.run(  # nosec B603 S603
+        result = _safe_subprocess_run(
             command,
             cwd=cwd,
             capture_output=True,
@@ -241,7 +264,7 @@ def _verify_module_importability() -> bool:
             logger.info("Verified modelcontextprotocol module is now importable")
             # Try to actually import it
             try:
-                import modelcontextprotocol
+                import modelcontextprotocol  # type: ignore[import]
 
                 logger.info("Successfully imported modelcontextprotocol module")
                 if hasattr(modelcontextprotocol, "Client"):
@@ -371,9 +394,8 @@ def _setup_environment() -> bool:
     logger.info("Running in CI environment: %s", in_ci)
 
     # Set CI environment variables to ensure proper behavior in all environments
-    os.environ["CI"] = "true"
-    os.environ["GITHUB_ACTIONS"] = "true"
-    os.environ["MCP_TESTS_CI"] = "1"
+    os.environ["GITHUB_ACTIONS"] = "true"  # type: ignore[assignment]
+    os.environ["MCP_TESTS_CI"] = "1"  # type: ignore[assignment]
 
     return in_ci
 
@@ -398,7 +420,7 @@ def _check_existing_installation() -> bool:
 
         # Verify the module can actually be imported and has the expected attributes
         try:
-            import modelcontextprotocol
+            import modelcontextprotocol  # type: ignore[import]
 
             logger.info("Successfully imported modelcontextprotocol module")
 
@@ -467,7 +489,7 @@ def _verify_final_installation(in_ci: bool) -> bool:
             logger.info("Verified modelcontextprotocol module is now importable")
             # Try to actually import it
             try:
-                import modelcontextprotocol
+                import modelcontextprotocol  # type: ignore[import]
 
                 logger.info("Successfully imported modelcontextprotocol module")
                 if hasattr(modelcontextprotocol, "Client"):

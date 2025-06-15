@@ -257,3 +257,24 @@ mypy_stubs/psycopg2/
 .nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json
+
+# ARTIST experiment outputs – exclude from version control
+artist_experiments/data/
+artist_experiments/models/
+artist_experiments/logs/
+
+# Environment reports that may contain sensitive information
+**/environment-report.json
+**/ci-reports/**/environment-report.json
+
+# New entries added by Cline
+paissive_income.egg-info/
+test-artifacts/
+test-results/
+requirements_logs/
+bandit_results.txt
+mypy_errors_summary.txt
+mypy_typing_report.txt
+ruff_typing_report.json
+ruff-baseline.txt
+pnpm-lock.yaml

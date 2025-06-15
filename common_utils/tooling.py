@@ -14,6 +14,7 @@ from typing import Any, Callable, Optional
 # Tool registry: maps tool name to dict with 'func', optional 'keywords', optional 'input_preprocessor'
 _TOOL_REGISTRY: dict[str, dict[str, Any]] = {}
 
+
 def register_tool(
     name: str,
     func: Callable[..., Any],
@@ -37,13 +38,16 @@ def register_tool(
         "input_preprocessor": input_preprocessor,
     }
 
+
 def get_tool(name: str) -> Callable[..., Any]:
     """Retrieve a registered tool's main callable by name."""
     return _TOOL_REGISTRY[name]["func"]
 
+
 def list_tools() -> dict[str, dict[str, Any]]:
     """List all registered tools and their metadata."""
     return dict(_TOOL_REGISTRY)
+
 
 # Example input preprocessor for calculator
 def calculator_input_preprocessor(description: str) -> str:
@@ -53,13 +57,16 @@ def calculator_input_preprocessor(description: str) -> str:
     For demo: use a simple regex, as before.
     """
     import re
+
     match = re.search(r"([0-9\+\-\*\/\.\s\%\(\)]+)", description)
     if match:
         return match.group(1)
     return description
 
+
 # Example tool: simple calculator (unchanged)
 MAX_EXPONENT_VALUE = 100
+
 
 def calculator(expression: str) -> object:
     """
@@ -99,6 +106,7 @@ def calculator(expression: str) -> object:
         try:
             return ast.literal_eval(expression)
         except (ValueError, SyntaxError):
+
             class SafeExpressionEvaluator(ast.NodeVisitor):
                 def visit_BinOp(self, node: ast.BinOp) -> object:
                     left = self.visit(node.left)
@@ -117,6 +125,7 @@ def calculator(expression: str) -> object:
                         return operators["%"](left, right)
                     error_msg = f"Unsupported operator: {type(node.op).__name__}"
                     raise ValueError(error_msg)
+
                 def visit_UnaryOp(self, node: ast.UnaryOp) -> object:
                     operand = self.visit(node.operand)
                     if isinstance(node.op, ast.USub):
@@ -125,27 +134,43 @@ def calculator(expression: str) -> object:
                         return operand
                     error_msg = f"Unsupported unary operator: {type(node.op).__name__}"
                     raise ValueError(error_msg)
+
                 def visit_Num(self, node: ast.Num) -> object:
                     return node.n
+
                 def visit_Constant(self, node: ast.Constant) -> object:
                     return node.value
+
                 def generic_visit(self, node: ast.AST) -> None:
                     error_msg = f"Unsupported node type: {type(node).__name__}"
                     raise ValueError(error_msg)
+
             parsed_expr = ast.parse(expression, mode="eval")
             evaluator = SafeExpressionEvaluator()
             return evaluator.visit(parsed_expr.body)
     except (ValueError, SyntaxError, TypeError, ZeroDivisionError, OverflowError) as e:
         return f"Error: {e}"
 
+
 # Register the calculator tool with keywords and input preprocessor
 register_tool(
     "calculator",
     calculator,
-    keywords=["calculate", "math", "add", "subtract", "multiply", "divide", "+", "-", "*", "/", "%"],
+    keywords=[
+        "calculate",
+        "math",
+        "add",
+        "subtract",
+        "multiply",
+        "divide",
+        "+",
+        "-",
+        "*",
+        "/",
+        "%",
+    ],
     input_preprocessor=calculator_input_preprocessor,
 )
-
 
 
 def text_analyzer(text: str) -> str:
@@ -160,8 +185,29 @@ def text_analyzer(text: str) -> str:
 
     """
     # Basic sentiment analysis using simple keyword matching
-    positive_words = ["good", "great", "excellent", "fantastic", "amazing", "wonderful", "love", "like", "happy", "positive"]
-    negative_words = ["bad", "terrible", "awful", "hate", "dislike", "sad", "negative", "horrible", "worst"]
+    positive_words = [
+        "good",
+        "great",
+        "excellent",
+        "fantastic",
+        "amazing",
+        "wonderful",
+        "love",
+        "like",
+        "happy",
+        "positive",
+    ]
+    negative_words = [
+        "bad",
+        "terrible",
+        "awful",
+        "hate",
+        "dislike",
+        "sad",
+        "negative",
+        "horrible",
+        "worst",
+    ]
 
     try:
         text_lower = text.lower()
@@ -179,10 +225,12 @@ def text_analyzer(text: str) -> str:
         # Basic metrics
         word_count = len(text.split())
         char_count = len(text)
-    except ValueError as e:
+
+        result = f"Sentiment: {sentiment} | Words: {word_count} | Characters: {char_count} | Positive indicators: {positive_count} | Negative indicators: {negative_count}"
+    except ValueError as e:  # Replace with the most likely specific exception
         return f"Error analyzing text: {e}"
     else:
-        return f"Sentiment: {sentiment} | Words: {word_count} | Characters: {char_count} | Positive indicators: {positive_count} | Negative indicators: {negative_count}"
+        return result
 
 
 # Register the text analyzer tool

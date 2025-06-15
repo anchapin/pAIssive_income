@@ -24,6 +24,26 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
+def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)
+
+
 def get_git_tracked_files() -> set[str]:
     """Return a set of all Python files tracked by git."""
     try:
@@ -34,7 +54,7 @@ def get_git_tracked_files() -> set[str]:
             sys.exit(1)
 
         # nosec comment below tells security scanners this is safe as we control the input
-        result = subprocess.run(  # nosec B603 S603
+        result = _safe_subprocess_run(  # nosec B603 S603
             [git_executable, "ls-files", "*.py"],
             capture_output=True,
             text=True,

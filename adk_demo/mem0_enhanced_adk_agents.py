@@ -24,6 +24,8 @@ import logging
 from typing import Any
 
 # Import ADK components
+mem0_available = False  # Initialize mem0_available here
+adk_available = False
 try:
     from adk.agent import Agent
     from adk.communication import Message
@@ -42,7 +44,14 @@ except ImportError:
             """Initialize placeholder agent."""
             self.name = name
 
-    class Message:
+        def handle_message(self, message: object) -> None:
+            """Handle a message (placeholder)."""
+            _ = message
+
+        def add_skill(self, name: str, skill: object) -> None:
+            """Add a skill to the agent (placeholder)."""
+
+    class Message:  # Inherit from object explicitly
         """Placeholder for Message class when ADK is not installed."""
 
         def __init__(self, type: str, payload: dict[str, Any], sender: str) -> None:
@@ -51,14 +60,14 @@ except ImportError:
             self.payload = payload
             self.sender = sender
 
-    class SimpleMemory:
+    class SimpleMemory:  # Inherit from object explicitly
         """Placeholder for SimpleMemory class when ADK is not installed."""
 
         def __init__(self) -> None:
             """Initialize placeholder memory."""
 
-    class Skill:
-        """Placeholder for Skill class when ADK is not installed."""
+    class Skill:  # Inherit from object explicitly
+        """Run the skill (placeholder)."""
 
         def run(self, *args: Any, **kwargs: Any) -> Any:
             """Run placeholder skill."""
@@ -105,11 +114,15 @@ if ADK_AVAILABLE:
         # Keep placeholder skills if import fails
         pass
 
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
+# Export constants for tests
+# Note: ADK_AVAILABLE and MEM0_AVAILABLE are already defined above
 
-class MemoryEnhancedAgent(Agent):
+
+class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
     """
     Base class for memory-enhanced ADK agents.
 
@@ -130,6 +143,9 @@ class MemoryEnhancedAgent(Agent):
 
         """
         super().__init__(name)
+        self.user_id = user_id
+        self.simple_memory = None
+        self.memory = None
 
         # Initialize ADK SimpleMemory for compatibility
         self.simple_memory = SimpleMemory()
@@ -384,10 +400,10 @@ if __name__ == "__main__":
     )
 
     # Check if dependencies are available
-    if not ADK_AVAILABLE:
-        logger.error("ADK is not installed. Install with: uv pip install adk")
-    elif not MEM0_AVAILABLE:
-        logger.error("mem0 is not installed. Install with: uv pip install mem0ai")
+    if not adk_available:
+        logger.error("ADK is not installed. Install with: pip install adk")
+    elif not mem0_available:
+        logger.error("mem0 is not installed. Install with: pip install mem0ai")
     else:
         # Create memory-enhanced agents
         gatherer = MemoryEnhancedDataGathererAgent(

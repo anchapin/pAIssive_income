@@ -52,7 +52,8 @@ def run(cmd: str, desc: str) -> None:
             sys.exit(1)
 
         # Run the command with the full path to the executable
-        res = subprocess.run([executable] + cmd_parts[1:], check=False)  # noqa: S603 - Using full path to executable
+        # nosec S603 - executable is validated via shutil.which, shell=False, no user input
+        res = subprocess.run([executable] + cmd_parts[1:], check=False)  # noqa: S603
 
         if res.returncode != 0:
             message = f"FAILED: {desc}"
@@ -91,11 +92,11 @@ def lint() -> None:
 
 
 def type_check() -> None:
-    """Run mypy static type checks."""
-    if shutil.which("mypy"):
-        run("mypy .", "Mypy static type checking")
+    """Run pyright static type checks."""
+    if shutil.which("pyright"):
+        run("pyright .", "Pyright static type checking")
     else:
-        logger.warning("mypy not found, skipping type checks.")
+        logger.warning("pyright not found, skipping type checks.")
 
 
 def security() -> None:
