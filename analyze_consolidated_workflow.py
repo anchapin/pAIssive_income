@@ -1,53 +1,84 @@
 #!/usr/bin/env python3
 """Analyze consolidated-ci-cd.yml for problematic multiline string patterns."""
 
+from __future__ import annotations
 
-def analyze_workflow():
+from pathlib import Path
+
+
+def analyze_workflow() -> list[tuple[int, int, str]]:
+    """Analyze workflow file for problematic multiline string patterns."""
     # Read the file
-    with open(".github/workflows/consolidated-ci-cd.yml", encoding="utf-8") as f:
+    workflow_path = Path(".github/workflows/consolidated-ci-cd.yml")
+    with workflow_path.open(encoding="utf-8") as f:
         content = f.read()
 
-    # Find all problematic multiline strings that start with quotes and have backslash continuations
+    return _find_problematic_patterns(content)
+
+
+def _find_problematic_patterns(content: str) -> list[tuple[int, int, str]]:
+    """Find problematic multiline string patterns in workflow content."""
     problematic_patterns = []
     lines = content.split("\n")
 
     for i, line in enumerate(lines, 1):
-        # Look for run: followed by quoted strings with backslash continuations
-        if "run:" in line and ('"' in line or "'" in line):
-            # Check if this line and following lines have backslash continuations
-            j = i
-            has_backslash = False
-            end_line = i
-            while j < len(lines) and j < i + 50:  # Check next 50 lines max
-                if "\\" in lines[j-1] and (r"\ " in lines[j-1] or "\\\r" in lines[j-1]):
-                    has_backslash = True
-                    end_line = j
-                if lines[j-1].strip() and not lines[j-1].startswith(" ") and j > i and not has_backslash:
-                    break
-                if j > i and lines[j-1].strip() and lines[j-1].startswith("    - name:"):
-                    break
-                j += 1
-
-            if has_backslash:
-                problematic_patterns.append((i, end_line, line.strip()))
-
-    for _line_start, _line_end, _line_content in problematic_patterns:
-        pass
-
-    # Also find specific error patterns
-
-    # Look for unescaped quotes in run blocks
-    in_run_block = False
-    for i, line in enumerate(lines, 1):
-        if "run:" in line and '"' in line:
-            in_run_block = True
-            # Check for immediate quote issues
-            if line.count('"') % 2 != 0:
-                pass
-        elif in_run_block and line.strip() and not line.startswith(" "):
-            in_run_block = False
+        pattern = _check_run_line_for_issues(line, lines, i)
+        if pattern:
+            problematic_patterns.append(pattern)
 
     return problematic_patterns
+
+
+def _check_run_line_for_issues(
+    line: str, lines: list[str], line_num: int
+) -> tuple[int, int, str] | None:
+    """Check if a run line has problematic patterns."""
+    if not ("run:" in line and ('"' in line or "'" in line)):
+        return None
+
+    # Check for backslash continuations
+    has_backslash, end_line = _find_backslash_continuations(lines, line_num)
+    
+    if has_backslash:
+        return (line_num, end_line, line.strip())
+    
+    return None
+
+
+def _find_backslash_continuations(lines: list[str], start_line: int) -> tuple[bool, int]:
+    """Find backslash continuations in workflow lines."""
+    j = start_line
+    has_backslash = False
+    end_line = start_line
+    max_check_lines = min(len(lines), start_line + 50)
+    
+    while j < max_check_lines:
+        current_line = lines[j-1]
+        
+        if "\\" in current_line and (r"\ " in current_line or "\\\r" in current_line):
+            has_backslash = True
+            end_line = j
+            
+        if _should_stop_checking(current_line, j, start_line, has_backslash):
+            break
+            
+        j += 1
+    
+    return has_backslash, end_line
+
+
+def _should_stop_checking(line: str, current_pos: int, start_pos: int, has_backslash: bool) -> bool:
+    """Determine if we should stop checking for continuations."""
+    if current_pos <= start_pos:
+        return False
+        
+    if line.strip() and not line.startswith(" ") and not has_backslash:
+        return True
+        
+    if line.strip() and line.startswith("    - name:"):
+        return True
+        
+    return False
 
 if __name__ == "__main__":
     analyze_workflow()

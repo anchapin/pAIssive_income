@@ -10,6 +10,12 @@ import os
 import shutil
 import subprocess
 
+# Set environment variables before importing app modules
+os.environ.setdefault("DATABASE_URL", "sqlite:///test.db")
+os.environ.setdefault("SECRET_KEY", "test-secret-key-for-development-only")
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ.setdefault("TOOL_API_KEY", "dummy-test-api-key-local-dev-only")
+
 import pytest
 from sqlalchemy import text
 
