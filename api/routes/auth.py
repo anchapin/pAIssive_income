@@ -1,3 +1,7 @@
+"""Authentication routes for password reset functionality with security measures."""
+
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -22,7 +26,7 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 # Flask-Limiter instance (for demo; in prod, usually set up in main app)
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
-limiter.init_app = getattr(limiter, "init_app", lambda app: None)  # for compatibility if already set up
+limiter.init_app = getattr(limiter, "init_app", lambda _app: None)  # for compatibility if already set up
 
 # In-memory user "database" for demonstration (replace with real user DB)
 # Note: In production, use a proper database with secure password storage
@@ -41,6 +45,8 @@ engine = create_engine(db_url)
 SessionLocal = sessionmaker(bind=engine)
 
 class PasswordResetToken(Base):
+    """Database model for password reset tokens."""
+    
     __tablename__ = "password_reset_tokens"
     id = Column(Integer, primary_key=True)
     email = Column(String, index=True, nullable=False)
@@ -49,33 +55,33 @@ class PasswordResetToken(Base):
 
 Base.metadata.create_all(bind=engine)
 
-def send_email(to_addr, subject, body) -> None:
+def send_email(to_addr: str, subject: str, body: str) -> None:
     """Send email with proper security measures."""
     # SMTP config from env vars or defaults
-    SMTP_HOST = os.environ.get("SMTP_HOST", "localhost")
-    SMTP_PORT = int(os.environ.get("SMTP_PORT", 1025))
-    SMTP_USER = os.environ.get("SMTP_USER", "")
-    SMTP_PASS = os.environ.get("SMTP_PASS", "")
-    FROM_ADDR = os.environ.get("SMTP_FROM", "no-reply@example.com")
+    smtp_host = os.environ.get("SMTP_HOST", "localhost")
+    smtp_port = int(os.environ.get("SMTP_PORT", "1025"))
+    smtp_user = os.environ.get("SMTP_USER", "")
+    smtp_pass = os.environ.get("SMTP_PASS", "")
+    from_addr = os.environ.get("SMTP_FROM", "no-reply@example.com")
 
     # Create email with proper encoding
     msg = MIMEText(body)
     msg["Subject"] = subject
-    msg["From"] = FROM_ADDR
+    msg["From"] = from_addr
     msg["To"] = to_addr
 
     try:
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            if SMTP_USER and SMTP_PASS:
+        with smtplib.SMTP(smtp_host, smtp_port) as server:
+            if smtp_user and smtp_pass:
                 # Always use TLS for security
                 server.starttls()
-                server.login(SMTP_USER, SMTP_PASS)
-            server.sendmail(FROM_ADDR, [to_addr], msg.as_string())
+                server.login(smtp_user, smtp_pass)
+            server.sendmail(from_addr, [to_addr], msg.as_string())
         logging.info(f"[Password Reset] Sent email to {sanitize_log_data(to_addr)}")
     except Exception as e:
         logging.exception(f"[Password Reset] Failed to send email: {e!s}")
 
-def sanitize_log_data(data):
+def sanitize_log_data(data: str | None) -> str:
     if data is None:
         return "<none>"
 

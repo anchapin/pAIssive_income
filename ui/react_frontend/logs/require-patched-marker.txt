@@ -1,0 +1,11 @@
+Require function patched for path-to-regexp at 2025-06-15T16:38:30.271Z
+This file indicates that the require function was patched to handle path-to-regexp imports.
+Environment Detection Module: Available
+Node.js version: v22.16.0
+Platform: linux
+Working directory: /home/anchapin/pAIssive_income_main/pAIssive_income/ui/react_frontend
+CI environment: Yes
+Docker environment: No
+GitHub Actions: Yes
+Kubernetes: No
+Detection method: Unified Environment Module

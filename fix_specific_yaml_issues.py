@@ -19,7 +19,7 @@ def fix_multiline_strings(content: str) -> str:
     # Fix escaped newlines and quotes in run commands
     content = re.sub(
         r'run:\s*"([^"]*(?:\\n|\\"|\\:|\\\s)[^"]*)"',
-        lambda m: "run: |\n        " + m.group(1).replace("\\n", "\n        ").replace('\\"', '"').replace("\\:", ":").replace("\\\\s", " "),
+        lambda m: "run: |\n        " + m.group(1).replace("\\n", "\n        ").replace('\\"', '"').replace("\\:", ":").replace(r"\\s", " "),
         content,
         flags=re.MULTILINE | re.DOTALL
     )

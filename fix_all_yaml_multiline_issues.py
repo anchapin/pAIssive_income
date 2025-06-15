@@ -26,7 +26,7 @@ def fix_multiline_run_commands(content: str) -> str:
     # Example: run: "command1\ncommand2"
     return re.sub(
         r'run:\s*"([^"]*(?:\\n|\\"|\\\s)[^"]*)"',
-        lambda m: "run: |\n        " + m.group(1).replace("\\n", "\n        ").replace('\\"', '"').replace("\\\\s", " "),
+        lambda m: "run: |\n        " + m.group(1).replace("\\n", "\n        ").replace('\\"', '"').replace(r"\\s", " "),
         content,
         flags=re.MULTILINE
     )
