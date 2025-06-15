@@ -398,7 +398,7 @@ class SecureLogger:
     # Standard logging compatibility aliases
     findCaller = find_caller  # noqa: N815
 
-    def debug(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+    def debug(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log a debug message with sensitive information masked.
 
@@ -413,7 +413,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
         self.logger.debug(masked_msg, *args, **kwargs)
 
-    def info(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+    def info(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log an info message with sensitive information masked.
 
@@ -428,7 +428,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
         self.logger.info(masked_msg, *args, **kwargs)
 
-    def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+    def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log a warning message with sensitive information masked.
 
@@ -446,7 +446,7 @@ class SecureLogger:
     # Alias for warning
     warn = warning
 
-    def error(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+    def error(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log an error message with sensitive information masked.
 
@@ -461,7 +461,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
         self.logger.error(masked_msg, *args, **kwargs)
 
-    def critical(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+    def critical(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log a critical message with sensitive information masked.
 
@@ -479,7 +479,7 @@ class SecureLogger:
     # Alias for critical
     fatal = critical
 
-    def exception(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+    def exception(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log an exception message with sensitive information masked.
 
@@ -494,7 +494,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
         self.logger.exception(masked_msg, *args, **kwargs)
 
-    def log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+    def log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log with specified level.
 

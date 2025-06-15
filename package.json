@@ -16,9 +16,9 @@
     "tailwind:build:postcss": "node ui/tailwind_utils.js --postcss-config ./ui/postcss.config.js",
     "tailwind:build:multi": "node ui/tailwind_utils.js --add-file ./tailwind.config.js ./ui/static/css/tailwind.css ./ui/static/css/tailwind.output.css --add-file ./ui/react_frontend/tailwind.config.js ./ui/react_frontend/src/index.css ./ui/react_frontend/src/tailwind.output.css",
     "tailwind:config": "node ui/tailwind_utils.js --config-file ./ui/tailwind.config.json",
-    "test": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
-    "test:ci": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
-    "test:parallel": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --parallel --passWithNoTests",
+    "test": "pnpm install && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
+    "test:ci": "pnpm install --frozen-lockfile && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
+    "test:parallel": "pnpm install --frozen-lockfile && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --parallel --passWithNoTests",
     "coverage": "nyc report --reporter=text-lcov",
     "lint": "eslint \"**/*.js\""
   },
@@ -26,8 +26,9 @@
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
+  "type": "module",
   "dependencies": {
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
@@ -37,24 +38,29 @@
     "recharts": "^2.12.0"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.1",
-    "postcss": "^8.4.32",
-    "autoprefixer": "^10.4.16",
-    "postcss-preset-env": "^9.5.0",
-    "cssnano": "^6.1.0",
     "@babel/core": "^7.27.1",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-react": "^7.26.3",
+    "@babel/register": "^7.27.1",
+    "@sinonjs/referee-sinon": "^11.0.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "autoprefixer": "^10.4.16",
     "babel-loader": "^10.0.0",
     "css-loader": "^7.1.2",
+    "cssnano": "^6.1.0",
+    "eslint": "^9.0.0",
     "html-webpack-plugin": "^5.6.3",
-    "style-loader": "^4.0.0",
-    "webpack": "^5.99.8",
-    "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.1",
+    "jsdom": "^26.1.0",
     "mocha": "^11.3.0",
     "nyc": "^17.1.0",
-    "eslint": "^9.0.0"
+    "postcss": "^8.4.32",
+    "postcss-preset-env": "^9.5.0",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^3.4.1",
+    "webpack": "^5.99.8",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.1"
   },
   "nyc": {
     "all": true,
@@ -77,7 +83,13 @@
       "**/testUtils.js",
       "**/test_utils.js",
       "**/test-utils.js",
-      "**/setupTests.js"
+      "**/setupTests.js",
+      ".venv*/**",
+      "venv*/**",
+      "__pycache__/**",
+      "*.pyc",
+      "node_modules/**",
+      ".git/**"
     ],
     "statements": 1,
     "branches": 1,

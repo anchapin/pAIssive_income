@@ -1,27 +1,26 @@
 # Pre-commit configuration optimized for speed and parallel execution
 default_language_version:
-    python: python3
+  python: python3
 
 # Optimized exclude patterns
-exclude:
-  (?x)(
-    ^\.venv/.*|
-    ^venv/.*|
-    ^env/.*|
-    \.venv/.*|
-    venv/.*|
-    env/.*|
-    \.git/.*|
-    node_modules/.*|
-    .*__pycache__/.*|
-    .*\.pytest_cache/.*|
-    .*\.mypy_cache/.*|
-    .*\.ruff_cache/.*|
-    build/.*|
-    dist/.*|
-    .*\.egg-info/.*|
-    ui/react_frontend/node_modules/.*|
-    sdk/javascript/node_modules/.*
+exclude: (?x)(
+  ^\.venv/.*|
+  ^venv/.*|
+  ^env/.*|
+  \.venv/.*|
+  venv/.*|
+  env/.*|
+  \.git/.*|
+  node_modules/.*|
+  .*__pycache__/.*|
+  .*\.pytest_cache/.*|
+  .*\.pyright_cache/.*|
+  .*\.ruff_cache/.*|
+  build/.*|
+  dist/.*|
+  .*\.egg-info/.*|
+  ui/react_frontend/node_modules/.*|
+  sdk/javascript/node_modules/.*
   )
 
 default_stages: [pre-commit]
@@ -35,7 +34,7 @@ repos:
       - id: check-merge-conflict
       - id: check-case-conflict
       - id: check-added-large-files
-        args: ['--maxkb=1024']
+        args: ["--maxkb=1024"]
 
   # Security checks (run early to fail fast)
   - repo: https://github.com/gitleaks/gitleaks
@@ -65,9 +64,9 @@ repos:
   # Type checking (run after formatting/linting)
   - repo: local
     hooks:
-      - id: pyrefly
-        name: Type check with Pyrefly
-        entry: python -m pyrefly
+      - id: pyright
+        name: Type check with Pyright
+        entry: python -m pyright
         language: system
         types: [python]
         require_serial: true
@@ -76,7 +75,6 @@ repos:
             ^scripts/__init__.py$|
             ^.github/scripts/__init__.py$
           )
-
   # Optimized local hooks for incremental checks
   - repo: local
     hooks:

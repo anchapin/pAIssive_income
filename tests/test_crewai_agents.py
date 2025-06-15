@@ -1,8 +1,10 @@
+# type: ignore[import]
 """Test scaffold for CrewAI agent integration."""
 
 import logging
 import os
 import sys
+from typing import Protocol
 
 import pytest
 
@@ -11,16 +13,14 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# Check if crewai is installed
+crewai_available = False
 try:
     import crewai
 
-    CREWAI_AVAILABLE = True
+    crewai_available = True
     logging.info(f"CrewAI is available (version: {crewai.__version__})")
 except ImportError as e:
-    CREWAI_AVAILABLE = False
     logging.warning(f"CrewAI is not available: {e}")
-
     # Try to add the mock_crewai directory to sys.path
     mock_dir = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "mock_crewai"
@@ -28,23 +28,25 @@ except ImportError as e:
     if os.path.exists(mock_dir):
         logging.info(f"Found mock_crewai directory at {mock_dir}, adding to sys.path")
         sys.path.insert(0, os.path.dirname(mock_dir))
-
     # Try to add the current directory to sys.path
     sys.path.insert(0, os.getcwd())
 
 
-@pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
+@pytest.mark.skipif(not crewai_available, reason="CrewAI is not available")
 def test_crewai_import_and_agent():
     """Test that CrewAI Agent can be imported and instantiated."""
-    if not CREWAI_AVAILABLE:
+    if not crewai_available:
         pytest.skip("CrewAI is not installed - skipping test")
     try:
         from crewai import Agent
 
         # Minimal agent instantiation check
         agent = Agent(role="Test Agent", goal="Test goal", backstory="Test backstory")
+        assert hasattr(agent, "role")
         assert agent.role == "Test Agent"
+        assert hasattr(agent, "goal")
         assert agent.goal == "Test goal"
+        assert hasattr(agent, "backstory")
         assert agent.backstory == "Test backstory"
 
         logging.info("CrewAI Agent test passed")
@@ -53,10 +55,10 @@ def test_crewai_import_and_agent():
         pytest.skip("CrewAI is not installed or cannot be imported.")
 
 
-@pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
+@pytest.mark.skipif(not crewai_available, reason="CrewAI is not available")
 def test_crewai_task_and_crew():
     """Test that CrewAI Task and Crew can be imported and instantiated."""
-    if not CREWAI_AVAILABLE:
+    if not crewai_available:
         pytest.skip("CrewAI is not installed - skipping test")
     try:
         from unittest.mock import MagicMock
@@ -76,8 +78,8 @@ def test_crewai_task_and_crew():
 
         # Minimal Crew instantiation and execution check
         crew = Crew(agents=[mock_agent], tasks=[task])
-        # Mock the crew's kick off method
-        crew.kickoff = MagicMock(return_value="Mock crew output")  # type: ignore[attr-defined, method-assign]
+        # Mock the crew's kick off method using spec to avoid type ignore
+        crew.kickoff = MagicMock(return_value="Mock crew output", spec=crew.kickoff)
         result = crew.kickoff()
 
         assert result == "Mock crew output"
@@ -88,8 +90,16 @@ def test_crewai_task_and_crew():
         pytest.skip("CrewAI is not installed or cannot be imported.")
 
 
+class AgentProtocol(Protocol):
+    role: str
+    goal: str
+    backstory: str
+
+
 def test_crewai_mock_fallback():
     """Test that works even if CrewAI is not available."""
+    agent_class = None
+    MockAgent = None
     try:
         # Try to import from crewai or mock_crewai
         try:
@@ -99,7 +109,7 @@ def test_crewai_mock_fallback():
         except ImportError:
             try:
                 # Import with a different name to avoid conflicts
-                from mock_crewai import Agent as MockAgent  # type: ignore[import]
+                from mock_crewai import Agent as MockAgent
 
                 source = "mock_crewai"
             except ImportError:
@@ -108,25 +118,28 @@ def test_crewai_mock_fallback():
 
                 agent_class = crewai.Agent
                 source = "fallback crewai"
-
+            Agent = None  # type: ignore[assignment]
         logging.info(f"Using {source} for Agent")
 
         # Create a simple agent
-        if "agent_class" in locals():
+        agent: AgentProtocol
+        if agent_class is not None:
             agent = agent_class(
                 role="Test Agent", goal="Test goal", backstory="Test backstory"
             )
-        elif source == "mock_crewai":
-            # Use type ignore to handle the type mismatch between mock and real Agent
-            agent = MockAgent(  # type: ignore[assignment]
+        elif source == "mock_crewai" and MockAgent is not None:
+            agent = MockAgent(
                 role="Test Agent", goal="Test goal", backstory="Test backstory"
             )
         else:
             agent = Agent(
                 role="Test Agent", goal="Test goal", backstory="Test backstory"
-            )
+            )  # type: ignore[assignment]
+        assert hasattr(agent, "role")
         assert agent.role == "Test Agent"
+        assert hasattr(agent, "goal")
         assert agent.goal == "Test goal"
+        assert hasattr(agent, "backstory")
         assert agent.backstory == "Test backstory"
 
         logging.info("CrewAI mock fallback test passed")

@@ -15,6 +15,10 @@ on:
       - "tailwind.config.js"
       - "package.json"
       - ".github/workflows/tailwind-build.yml"
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 jobs:
   build:
@@ -29,7 +33,7 @@ jobs:
           node-version: '20'
 
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: npm install -g pnpm@8.15.4
 
       - name: Install dependencies
         run: pnpm install

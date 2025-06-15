@@ -19,7 +19,6 @@ from adk_demo.mem0_enhanced_adk_agents import (
     MemoryEnhancedSummarizerAgent,
 )
 
-
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(
     not ADK_AVAILABLE or not MEM0_AVAILABLE,
@@ -157,28 +156,28 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
     def test_extract_query_from_message(self):
         """Test extracting a query from a message."""
         # Extract query from gather message
-        query = self.gatherer._extract_query_from_message(self.message_mock)
+        query = self.gatherer.extract_query_from_message_for_test(self.message_mock)
         assert query == "Test query"
 
         # Extract query from summarize message
         summarize_message = MagicMock()
         summarize_message.type = "summarize"
         summarize_message.payload = {"data": "Test data"}
-        query = self.gatherer._extract_query_from_message(summarize_message)
+        query = self.gatherer.extract_query_from_message_for_test(summarize_message)
         assert query == "Test data"
 
         # Extract query from unknown message type
         unknown_message = MagicMock()
         unknown_message.type = "unknown"
         unknown_message.sender = "test-sender"
-        query = self.gatherer._extract_query_from_message(unknown_message)
+        query = self.gatherer.extract_query_from_message_for_test(unknown_message)
         assert "unknown" in query
         assert "test-sender" in query
 
     def test_store_memory(self):
         """Test storing a memory."""
         # Store a memory
-        self.gatherer._store_memory(
+        self.gatherer.store_memory_for_test(
             "Test memory content",
             metadata={"test_key": "test_value"},
         )
@@ -193,7 +192,7 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
     def test_retrieve_relevant_memories(self):
         """Test retrieving relevant memories."""
         # Retrieve memories
-        memories = self.gatherer._retrieve_relevant_memories(
+        memories = self.gatherer.retrieve_relevant_memories_for_test(
             query="Test query",
             limit=5,
         )
@@ -211,13 +210,16 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
     def test_store_interaction(self):
         """Test storing an interaction."""
         # Store an interaction
-        self.gatherer._store_interaction(self.message_mock, self.response_mock)
+        self.gatherer.store_interaction_for_test(self.message_mock, self.response_mock)
 
         # Check that the interaction was stored
         self.memory_mock.add.assert_called_once_with(
             [
                 {"role": "user", "content": "gather: {'query': 'Test query'}"},
-                {"role": "assistant", "content": "gather_result: {'data': 'Test data'}"},
+                {
+                    "role": "assistant",
+                    "content": "gather_result: {'data': 'Test data'}",
+                },
             ],
             user_id="test-user",
             metadata={

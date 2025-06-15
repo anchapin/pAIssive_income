@@ -14,7 +14,10 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
+
+# Type alias for subprocess kwargs (for documentation purposes)
+SubprocessKwargs = dict[str, Any]
 
 
 def find_python_files(exclude_patterns: Optional[list[str]] = None) -> list[str]:
@@ -57,6 +60,26 @@ def find_python_files(exclude_patterns: Optional[list[str]] = None) -> list[str]
     return python_files
 
 
+def _safe_subprocess_run(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess:  # noqa: ANN401
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)
+
+
 def run_pre_commit(files: list[str]) -> int:
     """
     Run pre-commit on the specified files.
@@ -80,8 +103,7 @@ def run_pre_commit(files: list[str]) -> int:
 
     # Run pre-commit on the files
     cmd = ["pre-commit", "run", "--files", *files]
-    # nosec B603 S603 - We're only running pre-commit with Python files from the repo
-    result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603 S603
+    result = _safe_subprocess_run(cmd)
 
     logger.info(result.stdout)
     if result.stderr:

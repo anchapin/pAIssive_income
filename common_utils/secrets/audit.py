@@ -277,9 +277,9 @@ def _process_pattern_matches(
     # Process all matches outside the loop to avoid try-except inside loop
     for match in matches:
         if isinstance(match, tuple) and len(match) > 1:
-            secret_value = match[1]
+            secret_value = str(match[1])
         else:
-            secret_value = match
+            secret_value = str(match)
         results.append((pattern_name, line_number, line, secret_value))
 
     return results
@@ -615,6 +615,8 @@ def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
         "utf-8"
     ) or system_entropy.encode("utf-8")
 
+    derived_key = None
+    encoded_key = None
     try:
         derived_key = kdf.derive(key_material)
         encoded_key = base64.urlsafe_b64encode(derived_key)
@@ -623,9 +625,9 @@ def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
     finally:
         # Clean up sensitive data
         del key_material
-        if "derived_key" in locals():
+        if derived_key is not None:
             del derived_key
-        if "encoded_key" in locals():
+        if encoded_key is not None:
             del encoded_key
 
 

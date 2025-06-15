@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any, Protocol, cast
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 # Third-party imports
 import jwt
@@ -18,6 +18,9 @@ import jwt
 # Local imports
 from common_utils.logging import get_logger
 from users.auth import hash_credential, verify_credential
+
+if TYPE_CHECKING:
+    from users.password_reset import UserRepositoryProtocol
 
 
 # Define protocol for User model to help with type checking
@@ -51,6 +54,27 @@ class DBSessionProtocol(Protocol):
 
     def commit(self) -> None:
         """Commit the current transaction."""
+
+
+# Define protocol for User Repository
+class UserRepositoryProtocol(Protocol):
+    """Protocol defining the interface for user repository objects."""
+
+    def find_by_id(self, user_id: str) -> dict[str, Any] | None:
+        """Find a user by ID."""
+
+    def find_by_username(self, username: str) -> dict[str, Any] | None:
+        """Find a user by username."""
+
+    def find_by_email(self, email: str) -> dict[str, Any] | None:
+        """Find a user by email."""
+
+    def find_api_key(self, api_key: str) -> dict[str, Any] | None:
+        """Find an API key."""
+
+    def update(self, user_id: int, data: dict[str, Any]) -> bool:  # noqa: ARG002
+        """Update a user."""
+        return False  # Placeholder implementation
 
 
 # Initialize logger
@@ -111,7 +135,7 @@ class UserService:
 
     def __init__(
         self,
-        user_repository: object | None = None,
+        user_repository: UserRepositoryProtocol | None = None,
         token_secret: str | None = None,
         token_expiry: int | None = None,
     ) -> None:

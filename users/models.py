@@ -18,6 +18,8 @@ Base = declarative_base()
 db = sessionmaker()()
 
 
+# The type: ignore is required for SQLAlchemy 1.x compatibility with mypy.
+# If upgrading to SQLAlchemy 2.x, use DeclarativeBase and remove this ignore.
 class User(Base):  # type: ignore[misc, valid-type]
     """User model for database."""
 

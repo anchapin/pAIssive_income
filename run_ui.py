@@ -14,7 +14,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from queue import Queue
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from flask.globals import current_app
 from werkzeug.local import LocalProxy
@@ -29,15 +29,15 @@ T = TypeVar("T")
 # Type hint for Flask app logger
 FlaskLogger = logging.Logger
 
-logger = LocalProxy[logging.Logger](lambda: current_app.logger)
+logger = LocalProxy(lambda: current_app.logger)
 
 
 class CompressedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
     """Extended handler that compresses rotated logs."""
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize with compression delay."""
-        self.compress_delay = kwargs.pop("compress_delay", 60)
+        self.compress_delay = int(kwargs.pop("compress_delay", 60))
         super().__init__(*args, **kwargs)
 
     def rotation_filename(self, default_name: str) -> str:
@@ -49,7 +49,7 @@ class CompressedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
 
         def delayed_compress() -> None:
             """Compress file after delay to avoid race conditions."""
-            time.sleep(self.compress_delay)
+            time.sleep(float(self.compress_delay))
             source_path = Path(source)
             with source_path.open("rb") as f_in, gzip.open(f"{dest}.gz", "wb") as f_out:
                 f_out.writelines(f_in)
@@ -183,8 +183,8 @@ def setup_handlers() -> tuple[list[logging.Handler], Queue]:
     log_queue: Queue = Queue(maxsize=Config.LOG_QUEUE_SIZE)
 
     # Create main and error log handlers
-    file_handler = create_compressed_handler(Config.LOG_FILE)
-    error_handler = create_compressed_handler(Config.LOG_ERROR_FILE)
+    file_handler = create_compressed_handler(str(Config.LOG_FILE))
+    error_handler = create_compressed_handler(str(Config.LOG_ERROR_FILE))
     error_handler.setLevel(logging.ERROR)
 
     # Create console handler
@@ -229,7 +229,7 @@ def setup_logging() -> None:
     """Set up application logging with rotation and formatting."""
     try:
         Path(Config.LOG_DIR).mkdir(parents=True, exist_ok=True)
-        verify_log_files(Config.LOG_FILE, Config.LOG_ERROR_FILE)
+        verify_log_files(str(Config.LOG_FILE), str(Config.LOG_ERROR_FILE))
 
         # Set up handlers and queue
         handlers, log_queue = setup_handlers()
@@ -309,7 +309,7 @@ if __name__ == "__main__":
 
     # Default to localhost for security, only bind to all interfaces in container
     if is_container:
-        default_host = "0.0.0.0"  # noqa: S104 - Intentional for container environments
+        default_host = "0.0.0.0"  # nosec B104 - intentional binding in container environment
         if hasattr(app, "logger"):
             app.logger.warning(
                 "Binding to all network interfaces (0.0.0.0). "

@@ -17,4 +17,14 @@ setup(
     package_data={
         "": ["*.py", "*.json", "*.yml"],
     },
+    extras_require={
+        "agents": ["crewai>=0.28.0"],
+        "memory": [
+            "mem0ai>=0.1.100",
+            "qdrant-client>=1.9.1",
+            "openai>=1.33.0",
+            "pytz>=2024.1",
+        ],
+        "dev": ["pytest>=8.0.0", "pytest-cov>=4.1.0", "pytest-mock>=3.10.0"],
+    },
 )

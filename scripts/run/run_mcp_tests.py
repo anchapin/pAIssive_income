@@ -89,8 +89,9 @@ def _prepare_test_command() -> list[str]:
                 logger.warning("Test file not found at %s or %s", path, alt_path)
 
     # Use absolute path for the executable when possible
-    if shutil.which(sys.executable):
-        cmd[0] = shutil.which(sys.executable)
+    executable_path = shutil.which(sys.executable)
+    if executable_path:
+        cmd[0] = executable_path
 
     return cmd
 
@@ -480,6 +481,8 @@ def _check_import_capability() -> None:
             logger.info("Failed to import modelcontextprotocol: %s", e)
 
             # Try to find the module using importlib
+            import importlib.util
+
             spec = importlib.util.find_spec("modelcontextprotocol")
             if spec:
                 logger.info("Found module spec: %s", spec)

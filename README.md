@@ -1,13 +1,6 @@
 # pAIssive Income
 
 [![codecov](https://codecov.io/gh/anchapin/pAIssive_income/branch/main/graph/badge.svg)](https://codecov.io/gh/anchapin/pAIssive_income)
-
-> **CI will fail if coverage drops compared to the base branch (enforced by Codecov).**
->
-> **Pull Requests will receive automated coverage comments from the [Codecov](https://about.codecov.io/) bot when Codecov integration is enabled for your repository.**
-
-Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
-
 [![Build Status](https://github.com/anchapin/pAIssive_income/actions/workflows/ci.yml/badge.svg)](https://github.com/anchapin/pAIssive_income/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/anchapin/pAIssive_income/badge.svg?branch=main)](https://coveralls.io/github/anchapin/pAIssive_income?branch=main)
 
@@ -17,6 +10,7 @@ Framework for generating passive income by utilizing a team of AI agents to gene
 - **CrewAI Integration**: Use CrewAI to create and manage AI agent teams
 - **CopilotKit Integration**: Add AI copilot features to the React frontend
 - **Multi-Chain Protocol (MCP) Support**: Connect to various AI providers through a unified interface
+  - *Note: As of May 2025, the unused `mcp-use` dependency has been removed while maintaining full MCP functionality via the `modelcontextprotocol` package*
 - **mem0 Memory Integration**: Enhance agents with persistent memory capabilities
 
 **pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, and automation. It combines advanced AI models, multi-agent orchestration, and robust APIs with a focus on developer experience and security.
@@ -32,25 +26,15 @@ Framework for generating passive income by utilizing a team of AI agents to gene
 
 ## 📚 Documentation
 
-All project documentation is now centralized in [docs/](docs/):
+- **Project Overview & User Guide**: [docs/00_introduction/01_overview.md](docs/00_introduction/01_overview.md)
+- **Quick Start**: [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md)
+- **Developer Guide**: [docs/02_developer_guide/01_development_workflow.md](docs/02_developer_guide/01_development_workflow.md)
+- **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Security**: [docs/04_security_and_compliance/01_security_overview.md](docs/04_security_and_compliance/01_security_overview.md)
+- **FAQ/Troubleshooting**: [docs/07_troubleshooting_and_faq/faq.md](docs/07_troubleshooting_and_faq/faq.md)
+- **Changelog**: [docs/changelog.md](docs/changelog.md)
 
-- [Project Overview](docs/00_introduction/01_overview.md)
-- [Getting Started](docs/00_introduction/02_getting_started.md)
-- [User Guide](docs/01_user_guide/)
-- [Developer Guide](docs/02_developer_guide/)
-  - [Development Workflow & Contributing](docs/02_developer_guide/01_development_workflow.md)
-  - [API Reference](docs/02_developer_guide/05_api_reference/)
-  - [Module Deep Dives](docs/02_developer_guide/06_module_deep_dives/)
-- [DevOps & CI/CD](docs/03_devops_and_cicd/)
-- [Security & Compliance](docs/04_security_and_compliance/)
-- [SDKs & Integrations](docs/05_sdk_and_integrations/)
-- [Tooling & Scripts](docs/06_tooling_and_scripts/)
-- [Troubleshooting & FAQ](docs/07_troubleshooting_and_faq/)
-- [Team & Collaboration](docs/08_team_and_collaboration/)
-- [Archive & Historical Notes](docs/09_archive_and_notes/)
-- [Changelog](docs/changelog.md)
-
-For a full directory map, see [docs/00_introduction/03_project_structure.md](docs/00_introduction/03_project_structure.md).
+Full documentation and advanced usage are organized in [docs/](docs/).
 
 ---
 
@@ -190,17 +174,11 @@ For more details, see `.github/dependabot.yml`.
 For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
 
 ## Docker Compose Integration
-=======
-For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
-
-**pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, automation, and more. It features advanced agent orchestration, robust APIs, secure development practices, and a developer-friendly workflow. The project is organized for clarity, maintainability, and rapid onboarding.
-
----
 
 > **Tip:** To enable advanced build graph features (Compose BuildKit Bake), set `COMPOSE_BAKE=true` in your `.env` file.
 > This requires Docker Compose v2.10+ and will use the BuildKit bake engine for improved build performance and caching.
 
-For more details on the Docker Compose integration and Compose Bake, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
+For more details on the Docker Compose integration and Compose Bake, see [docs/03_devops_and_cicd/DOCKER_COMPOSE.md](docs/03_devops_and_cicd/DOCKER_COMPOSE.md).
 
 ## CrewAI + CopilotKit Integration
 
@@ -289,6 +267,22 @@ For more details on the mem0 integration, see:
 - [README_mem0_integration.md](README_mem0_integration.md) - Main integration guide
 - [docs/README_mem0.md](docs/README_mem0.md) - Overview of mem0 investigation
 - [docs/mem0_core_apis.md](docs/mem0_core_apis.md) - Documentation of mem0's core APIs
+- [docs/memory_rag_coordinator.md](docs/memory_rag_coordinator.md) - MemoryRAGCoordinator documentation
+
+- [docs/05_sdk_and_integrations/mem0_integration.md](docs/05_sdk_and_integrations/mem0_integration.md) – Main integration guide (now includes best practices for mem0 + RAG)
+- [docs/mem0_rag_best_practices.md](docs/mem0_rag_best_practices.md) – Detailed guide on when and how to use mem0 and RAG, with examples
+- [docs/README_mem0.md](docs/README_mem0.md) – Overview of mem0 investigation
+- [docs/mem0_core_apis.md](docs/mem0_core_apis.md) – Documentation of mem0's core APIs
+
+## ARTIST (Agentic Reasoning) Integration
+
+This project supports [ARTIST](https://arxiv.org/abs/2402.00838) (Agentic Reasoning and Tool Integration in Self-improving Transformers), an advanced framework for agentic reasoning and dynamic tool use in LLM-driven systems.
+
+- **Agentic Reasoning**: Leverage ARTIST's self-improving agent architecture to orchestrate complex reasoning and multi-tool workflows, enhancing both automation and adaptability.
+- **Integration Points**: Core logic resides in `ai_models/artist_agent.py`, with tool registry support and experiments in `artist_experiments/`.
+- **Experiments & Extensibility**: Run or extend experiments such as math problem solving and multi-API orchestration, or integrate ARTIST agents into your own workflows.
+
+See [docs/ARTIST_integration.md](docs/ARTIST_integration.md) for setup instructions, usage examples, troubleshooting, and demo checklists.
 
 ## 🚀 Getting Started
 
@@ -332,6 +326,10 @@ See [Security Policy](SECURITY.md) and [Security Overview](docs/04_security_and_
 
 All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](https://pnpm.io/) (Node.js). See the [Developer Workflow](docs/02_developer_guide/01_development_workflow.md) for guidelines, linting, and the contribution checklist.
 
+### OpenHands Development Environment
+
+This project includes automated setup for [OpenHands](https://github.com/All-Hands-AI/OpenHands) development environments. The `.openhands/setup.sh` script automatically configures all required dependencies (Node.js, pnpm, uv) with pinned versions for reproducible builds. See the [Development Workflow](docs/02_developer_guide/01_development_workflow.md#openhands-development-environment) for details.
+
 ---
 
 ## 📢 Need Help?
@@ -345,3 +343,9 @@ All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](h
 
 See [LICENSE](LICENSE) for license details.
 
+## Recent Changes
+
+### uv and pnpm Implementation Updates
+- Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
+- Enhanced GitHub workflow configurations for better cross-platform compatibility
+- Improved uv virtual environment handling and dependency management

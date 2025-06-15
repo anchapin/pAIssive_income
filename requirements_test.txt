@@ -1,0 +1,7 @@
+mem0ai>=0.1.100
+qdrant-client>=1.9.1
+openai>=1.33.0
+pytz>=2024.1
+pytest
+pytest-cov
+pytest-xdist

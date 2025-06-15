@@ -1,60 +1,114 @@
-# mem0 Investigation
+# mem0 Integration
 
-This directory contains the results of our investigation into mem0, a memory layer for AI agents and assistants.
+This directory contains documentation for the mem0 integration in the pAIssive_income project.
 
 ## Overview
 
-[mem0](https://mem0.ai) is a memory system that enables AI agents to remember user preferences, past interactions, and important information across conversations. This investigation explores its features, integration options, and potential use in our project.
+[mem0](https://mem0.ai) is a memory system that enables AI agents to remember user preferences, past interactions, and important information across conversations. It has been successfully integrated into our project to enhance agent personalization and effectiveness.
 
 ## Contents
 
+- [mem0_integration.md](../05_sdk_and_integrations/mem0_integration.md): **Integration/setup guide**
 - [mem0_investigation.md](mem0_investigation.md): Comprehensive overview of mem0, its features, and integration considerations
 - [mem0_integration_options.md](mem0_integration_options.md): Detailed analysis of different integration approaches
 - [mem0_core_apis.md](mem0_core_apis.md): Documentation of mem0's core APIs, classes, and usage patterns
-- [../examples/mem0_integration_example.py](../examples/mem0_integration_example.py): Example script demonstrating mem0 integration with our project
-- [../examples/test_mem0_local.py](../examples/test_mem0_local.py): Script for testing mem0 locally
-- [../requirements.txt](../requirements.txt): Contains all dependencies required for mem0 integration
+- [04_security_and_compliance/05_mem0_integration.md](04_security_and_compliance/05_mem0_integration.md): Security and compliance considerations for mem0 integration
+- [../agent_team/mem0_enhanced_agents.py](../agent_team/mem0_enhanced_agents.py): Memory-enhanced CrewAI agents
+- [../adk_demo/mem0_enhanced_adk_agents.py](../adk_demo/mem0_enhanced_adk_agents.py): Memory-enhanced ADK agents
+- [../test_mem0_integration.py](../test_mem0_integration.py): Test script for verifying mem0 integration
 
-## Key Findings
+## Implementation Status
 
-1. **Memory Capabilities**: mem0 provides a robust system for storing and retrieving memories in AI agents
-2. **Integration Options**: Multiple approaches available, from direct dependency to managed API
-3. **Dependencies**: Compatible with our existing stack, with minimal conflicts
-4. **Performance**: Efficient memory retrieval with semantic search capabilities
-5. **Customization**: Configurable to our specific needs
+The mem0 integration has been successfully implemented with the following components:
 
-## Next Steps
+1. **Memory-Enhanced CrewAI Agents**: `MemoryEnhancedCrewAIAgentTeam` class in `agent_team/mem0_enhanced_agents.py`
+2. **Memory-Enhanced ADK Agents**: `MemoryEnhancedAgent`, `MemoryEnhancedDataGathererAgent`, and `MemoryEnhancedSummarizerAgent` classes in `adk_demo/mem0_enhanced_adk_agents.py`
+3. **MemoryRAGCoordinator**: Unified middleware in `services/memory_rag_coordinator.py` that coordinates queries between mem0 and ChromaDB systems
+4. **Integration Tests**: Test script in `test_mem0_integration.py` to verify the integration
 
-1. **Prototype Integration**: Create a simple prototype to test mem0 integration
-2. **Evaluate Performance**: Assess memory retrieval quality and performance
-3. **Security Review**: Evaluate data security implications
-4. **Dependency Analysis**: Check for conflicts with existing dependencies
-5. **Decision on Integration Approach**: Choose between managed platform and self-hosted
+## Key Features
+
+1. **Persistent Memory**: Agents remember user preferences, past interactions, and important information
+2. **Memory Search**: Retrieve relevant memories based on context and queries
+3. **Conversation Storage**: Store entire conversations for future reference
+4. **Memory-Enhanced Agents**: Both ADK and CrewAI agents are enhanced with memory capabilities
+5. **Unified Memory & RAG**: MemoryRAGCoordinator provides a single interface for both mem0 memory and ChromaDB vector search
+6. **Score Normalization**: Consistent relevance scoring across different memory systems for optimal result ranking
+7. **Performance Optimized**: Efficient initialization and query processing for production use
 
 ## Getting Started
 
-To explore mem0 locally:
+To use mem0 in your project:
 
 1. Install the required dependencies:
    ```bash
+   # Using pip
    pip install -r requirements.txt
+
+   # Using uv (recommended)
+   uv pip install -r requirements.txt
    ```
 
 2. Set your OpenAI API key (required by mem0):
    ```bash
+   # Linux/macOS
    export OPENAI_API_KEY='your-api-key'
+
+   # Windows (PowerShell)
+   $env:OPENAI_API_KEY='your-api-key'
+
+   # Windows (Command Prompt)
+   set OPENAI_API_KEY=your-api-key
    ```
 
-3. Run the test script:
+3. Verify the integration:
    ```bash
-   python examples/test_mem0_local.py
+   python test_mem0_integration.py
    ```
 
-4. Explore the example integration:
-   ```bash
-   python examples/mem0_integration_example.py
+4. Use memory-enhanced agents in your code:
+   ```python
+   # For CrewAI agents
+   from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam
+
+   team = MemoryEnhancedCrewAIAgentTeam(user_id="user123")
+   researcher = team.add_agent(
+       role="Researcher",
+       goal="Find relevant information",
+       backstory="Expert at gathering data"
+   )
+   result = team.run()
+
+   # For ADK agents
+   from adk_demo.mem0_enhanced_adk_agents import MemoryEnhancedDataGathererAgent
+
+   agent = MemoryEnhancedDataGathererAgent(name="DataGatherer", user_id="user123")
+   response = agent.handle_message(message)
+
+   # For direct MemoryRAGCoordinator usage
+   from services.memory_rag_coordinator import MemoryRAGCoordinator
+
+   coordinator = MemoryRAGCoordinator()
+   response = coordinator.query(
+       query="What is the project deadline?",
+       user_id="user123"
+   )
+   merged_results = response["merged_results"]
    ```
+
+## Security and Compliance
+
+For security and compliance considerations when using mem0, see [04_security_and_compliance/05_mem0_integration.md](04_security_and_compliance/05_mem0_integration.md).
+
+## Future Enhancements
+
+Planned enhancements for the mem0 integration:
+
+1. **Advanced Context Enhancement**: Improve how memories are integrated into agent context
+2. **Memory Management UI**: Add a user interface for viewing and managing stored memories
+3. **Memory Analytics**: Add analytics for tracking memory usage and effectiveness
+4. **Multi-Provider Support**: Add support for alternative embedding providers beyond OpenAI
 
 ## Conclusion
 
-mem0 offers a promising solution for adding persistent memory capabilities to our AI agents. The open-source option provides flexibility and control, while the managed platform offers convenience and reduced maintenance overhead. Further testing is recommended to evaluate its effectiveness in our specific use cases.
+The mem0 integration enhances our agents with persistent memory capabilities, making them more personalized and effective. The implementation provides a solid foundation for future enhancements and can be easily extended to support additional agent types and use cases.

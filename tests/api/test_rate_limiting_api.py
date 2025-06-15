@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 try:
-    from api.main import app  # Update if API root is elsewhere
+    from api.app import app  # type: ignore[import-untyped]
 except ImportError:
     app = None
 

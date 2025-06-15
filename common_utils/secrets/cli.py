@@ -17,6 +17,8 @@ from pathlib import Path
 from secrets import compare_digest
 from typing import Any, Callable
 
+from common_utils.exceptions import InvalidRotationIntervalError  # Moved to top
+
 # Local imports
 from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
 
@@ -647,8 +649,6 @@ def _handle_schedule_rotation(
         masked_key: Masked key for logging
 
     """
-    # Import the custom exception
-    from common_utils.exceptions import InvalidRotationIntervalError
 
     # Define a function to abstract the raise
     def _raise_invalid_interval() -> None:

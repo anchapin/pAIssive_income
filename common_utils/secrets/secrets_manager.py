@@ -77,7 +77,8 @@ class SecretsBackend(enum.Enum):
             SecretsBackend: The default backend (ENV)
 
         """
-        # Return the enum value directly
+        # The type: ignore is required for mypy compatibility with enum.Enum return types.
+        # This is safe because cls.ENV is always a valid SecretsBackend.
         return cls.ENV  # type: ignore[return-value]
 
 
