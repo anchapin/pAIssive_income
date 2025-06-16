@@ -115,6 +115,7 @@ jobs:
         with:
           node-version: '20.11.0' # Use consistent Node.js version across workflows
           cache: 'pnpm'  # Use pnpm cache for consistency
+          cache-dependency-path: 'package.json'
 
       # Verify pnpm installation
       - name: Check pnpm version

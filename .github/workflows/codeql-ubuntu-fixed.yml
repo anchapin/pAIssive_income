@@ -69,6 +69,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: 'package.json'
 
       # Add pnpm to PATH for Linux/macOS
       - name: Add pnpm to PATH

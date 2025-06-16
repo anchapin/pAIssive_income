@@ -43,7 +43,8 @@ class TestMathProblemSolving:
         """Test factoring an expression."""
         math_tool = math_problem_solving.MathTool()
         result = math_tool.factor_expression("x**2 - 5*x + 6")
-        assert result == "(x - 2)*(x - 3)"
+        # Accept either order of factors since both are mathematically equivalent
+        assert result in ["(x - 2)*(x - 3)", "(x - 3)*(x - 2)"]
 
     def test_expand_expression(self) -> None:
         """Test expanding an expression."""

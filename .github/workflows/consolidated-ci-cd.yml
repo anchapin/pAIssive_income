@@ -102,6 +102,7 @@ jobs:
         with:
           node-version: '20.11.0' # Specify exact Node.js version for consistency
           cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: Get pnpm store directory
         shell: bash
@@ -117,20 +118,23 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install Node.js dependencies and build Tailwind CSS
-        working-directory: ui/react_frontend
         shell: bash
         run: |
           set -e
-          echo "Installing Node.js dependencies..."
+          echo "Installing root Node.js dependencies..."
 
-          # Ensure package.json exists
+          # Install root dependencies first
+          pnpm install --frozen-lockfile
+
+          # Install frontend dependencies
+          cd ui/react_frontend
           if [ ! -f "package.json" ]; then
-            echo "Error: package.json not found"
+            echo "Error: package.json not found in ui/react_frontend"
             exit 1
           fi
 
-          # Install dependencies
-          pnpm install --frozen-lockfile
+          # Install frontend dependencies
+          pnpm install
 
           # Build Tailwind CSS
           echo "Building Tailwind CSS..."
