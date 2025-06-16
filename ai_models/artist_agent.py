@@ -7,6 +7,7 @@ This is a scaffold for further expansion.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from common_utils import tooling
@@ -33,22 +34,39 @@ class ArtistAgent:
             str: Name of the tool to use.
 
         """
-        if any(
-            k in prompt.lower()
-            for k in [
-                "calculate",
-                "add",
-                "subtract",
-                "multiply",
-                "divide",
-                "+",
-                "-",
-                "*",
-                "/",
-            ]
-        ):
-            return "calculator"
-        # Add more heuristics for other tools here
+        prompt_lower = prompt.lower()
+        tool_keywords = [
+            (
+                [
+                    "calculate",
+                    "add",
+                    "subtract",
+                    "multiply",
+                    "divide",
+                    "+",
+                    "-",
+                    "*",
+                    "/",
+                ],
+                "calculator",
+            ),
+            (
+                [
+                    "analyze",
+                    "sentiment",
+                    "text",
+                    "phrase",
+                    "analyze the",
+                    "sentiment of",
+                ],
+                "text_analyzer",
+            ),
+            # Add more heuristics for other tools here as (keywords_list, tool_name) tuples
+        ]
+
+        for keywords, tool_name_candidate in tool_keywords:
+            if any(k in prompt_lower for k in keywords):
+                return tool_name_candidate
         return ""
 
     def extract_relevant_expression(self, prompt: str, tool_name: str) -> str:
@@ -73,7 +91,6 @@ class ArtistAgent:
     def _extract_calculator_expression(self, prompt: str) -> str:
         """Extract mathematical expression from prompt for calculator tool."""
         # Simple extraction - look for mathematical expressions
-        import re
 
         # Find mathematical expressions with numbers and operators
         pattern = r"[\d\+\-\*/\(\)\.\s]+"
@@ -85,13 +102,29 @@ class ArtistAgent:
 
     def _extract_text_analyzer_expression(self, prompt: str) -> str:
         """Extract text to analyze from prompt for text analyzer tool."""
-        # For text analysis, return the full prompt
+        # Try to find text after "analyze" or "sentiment of"
+        analyze_match = re.search(
+            r"analyze(?:\s+the)?\s+(?:sentiment\s+of\s+)?(?:this\s+)?(?:phrase:?\s*)?(.+)",
+            prompt,
+            re.IGNORECASE,
+        )
+        if analyze_match:
+            return analyze_match.group(1).strip()
+
+        sentiment_match = re.search(
+            r"sentiment\s+of\s+(?:this\s+)?(?:phrase:?\s*)?(.+)",
+            prompt,
+            re.IGNORECASE,
+        )
+        if sentiment_match:
+            return sentiment_match.group(1).strip()
+
+        # For text analysis, return the full prompt as fallback
         return prompt
 
     def _extract_code_executor_expression(self, prompt: str) -> str:
         """Extract code to execute from prompt for code executor tool."""
         # Look for code blocks or return the full prompt
-        import re
 
         # Look for code blocks marked with ```
         code_pattern = r"```(?:python|py)?\s*(.*?)```"

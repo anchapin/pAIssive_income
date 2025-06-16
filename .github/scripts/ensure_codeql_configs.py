@@ -8,17 +8,21 @@ This script creates the necessary CodeQL configuration files for security scanni
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 
 def ensure_directory(directory: str) -> None:
     """Ensure the directory exists."""
-    Path(directory).mkdir(parents=True, exist_ok=True)
+    path = Path(directory)
+    path.mkdir(parents=True, exist_ok=True)
+    logger.info("Ensured directory exists: %s", directory)
 
 
-def create_codeql_config(
-    filename: str, config_name: str, os_name: str | None = None
-) -> None:
+def create_codeql_config(filename: str, config_name: str, os_name: str | None = None) -> None:
     """Create a CodeQL configuration file with the given parameters."""
     config = {
         "name": config_name,
@@ -42,11 +46,14 @@ def create_codeql_config(
     if os_name:
         config["os"] = os_name
 
-    Path(filename).write_text(json.dumps(config, indent=2), encoding="utf-8")
+    with Path(filename).open("w", encoding="utf-8") as f:
+        json.dump(config, f, indent=2)
+
+    logger.info("Created CodeQL configuration file: %s", filename)
 
 
 def main() -> None:
-    """Create CodeQL configuration files."""
+    """Create all required CodeQL configuration files."""
     # Ensure the .github/codeql directory exists
     codeql_dir = Path(".github") / "codeql"
     ensure_directory(str(codeql_dir))
@@ -67,6 +74,8 @@ def main() -> None:
     unified_config = codeql_dir / "security-os-config.yml"
     create_codeql_config(str(unified_config), "Unified CodeQL Configuration")
 
+    logger.info("All CodeQL configuration files created successfully.")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     main()
