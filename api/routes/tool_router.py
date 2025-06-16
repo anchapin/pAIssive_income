@@ -22,10 +22,12 @@ if not logger.hasHandlers():
 
 # --- Settings ---
 API_KEY = os.getenv("TOOL_API_KEY")
-if not API_KEY:
+# Use a mutable variable for the API key to handle testing scenarios
+api_key = API_KEY
+if not api_key:
     # Check if we're in a testing/CI environment where API key might not be set
     if os.getenv("CI") == "true" or os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
-        API_KEY = "test-api-key-for-ci"
+        api_key = "test-api-key-for-ci"
         logger.warning("Using test API key for CI/testing environment")
     else:
         msg = "TOOL_API_KEY environment variable not set"
@@ -36,7 +38,7 @@ if not API_KEY:
 def api_key_auth(request: Request) -> str:
     """Authenticate API key from request headers."""
     header_key = request.headers.get("x-api-key")
-    if not header_key or header_key != API_KEY:
+    if not header_key or header_key != api_key:
         logger.info("[AUTH FAIL] Attempted access with invalid API key")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

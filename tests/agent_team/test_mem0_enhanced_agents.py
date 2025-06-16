@@ -8,8 +8,8 @@ import pytest
 logger = logging.getLogger(__name__)
 
 from agent_team.mem0_enhanced_agents import (
-    CREWAI_AVAILABLE,
-    MEM0_AVAILABLE,
+    crewai_available,
+    mem0_available,
     MemoryEnhancedCrewAIAgentTeam,
 )
 
@@ -23,7 +23,7 @@ They use mocking to avoid actual API calls to mem0 or CrewAI.
 
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(
-    not CREWAI_AVAILABLE or not MEM0_AVAILABLE,
+    not crewai_available or not mem0_available,
     reason="CrewAI or mem0 not installed",
 )
 

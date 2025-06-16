@@ -176,7 +176,7 @@ jobs:
 
       - name: Run MCP adapter tests with coverage
         run: |
-          python -m pytest -v --cov=ai_models.adapters.mcp_adapter --cov=ai_models.adapters.exceptions --cov-report=xml --cov-report=term tests/ai_models/adapters/test_mcp_adapter.py tests/ai_models/test_mcp_import.py tests/test_mcp_top_level_import.py --no-header --no-summary -k "not test_mcp_server" --confcutdir=tests/ai_models/adapters --noconftest
+          python -m pytest -v --cov=ai_models.adapters.mcp_adapter --cov=ai_models.adapters.exceptions --cov-report=xml --cov-report=term --cov-fail-under=15 tests/ai_models/adapters/test_mcp_adapter.py tests/ai_models/test_mcp_import.py tests/test_mcp_top_level_import.py --no-header --no-summary -k "not test_mcp_server" --confcutdir=tests/ai_models/adapters --noconftest
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

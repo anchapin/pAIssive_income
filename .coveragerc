@@ -1,6 +1,22 @@
 [run]
-source = adk
-omit = tests/*
+source = .
+omit =
+    tests/*
+    .venv/*
+    venv/*
+    env/*
+    .env/*
+    __pycache__/*
+    */migrations/*
+    manage.py
+    setup.py
+    conftest.py
+    */conftest.py
+    mock_modules/*
+    node_modules/*
+    ui/react_frontend/*
+    .github/*
+    scripts/*
 branch = True
 
 [report]
@@ -21,4 +37,10 @@ exclude_lines =
     # Skip exception handling that can't be tested easily
     except ImportError:
     raise ImportError
-fail_under = 0.05
+    # Skip main execution blocks
+    if __name__ == .__main__.:
+    # Skip debug code
+    if DEBUG:
+    # Skip logging setup
+    logging.basicConfig
+fail_under = 15

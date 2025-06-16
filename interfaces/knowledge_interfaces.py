@@ -213,11 +213,9 @@ class KnowledgeSource(ABC):
 
 
 class Mem0KnowledgeSource(KnowledgeSource):
-    """
-    Concrete implementation of KnowledgeSource for mem0 (Memory API).
-    """
+    """Concrete implementation of KnowledgeSource for mem0 (Memory API)."""
 
-    def __init__(self, mem0_client: Mem0ClientProtocol):
+    def __init__(self, mem0_client: Mem0ClientProtocol) -> None:
         """
         Initialize Mem0KnowledgeSource.
 
@@ -245,11 +243,9 @@ class Mem0KnowledgeSource(KnowledgeSource):
 
 
 class VectorRAGKnowledgeSource(KnowledgeSource):
-    """
-    Concrete implementation of KnowledgeSource for vector database RAG (e.g., ChromaDB).
-    """
+    """Concrete implementation of KnowledgeSource for vector database RAG (e.g., ChromaDB)."""
 
-    def __init__(self, vector_client: VectorClientProtocol):
+    def __init__(self, vector_client: VectorClientProtocol) -> None:
         """
         Initialize VectorRAGKnowledgeSource.
 
@@ -297,7 +293,7 @@ class KnowledgeIntegrationLayer:
         self,
         sources: list[KnowledgeSource],
         strategy: KnowledgeStrategy = KnowledgeStrategy.FALLBACK,
-    ):
+    ) -> None:
         """
         Initialize KnowledgeIntegrationLayer.
 
