@@ -19,7 +19,9 @@ from __future__ import annotations
 
 import logging
 import os
-# Any is not used, so it can be removed.
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 # Import standard ADK components
 from adk.agent import Agent
@@ -36,9 +38,6 @@ try:
     )
 except ImportError:
     MEM0_AVAILABLE = False
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 
 class DataGathererSkill(Skill):
