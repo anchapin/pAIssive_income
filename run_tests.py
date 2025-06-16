@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 import os
-import os.path  # Used for os.path.normpath and os.sep
+# os.path will be removed by replacing its usages with pathlib
 import platform
 import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
@@ -102,14 +102,18 @@ def validate_args(args: Sequence[str]) -> list[str]:
             continue
 
         # If the argument is a file path, check for directory traversal attempts
-        if os.path.sep in arg or "/" in arg or "\\" in arg:
+        if Path(arg).is_absolute() or Path(arg).parts: # Check if it looks like a path
             # Additional check for path traversal attempts
-            normalized_path = os.path.normpath(arg)
-            path_obj = Path(normalized_path)
-            if not normalized_path.startswith("..") and ".." not in path_obj.parts:
-                validated_args.append(arg)
-            else:
-                logger.warning("Skipping path with directory traversal: %s", arg)
+            try:
+                # Resolve to an absolute path to properly check parts
+                path_obj = Path(arg).resolve()
+                # Check if any part of the resolved path is '..'
+                if ".." not in path_obj.parts:
+                    validated_args.append(arg)
+                else:
+                    logger.warning("Skipping path with directory traversal: %s", arg)
+            except OSError as e: # Path resolution can fail
+                logger.warning("Could not normalize path %s, skipping: %s", arg, e)
         else:
             # If we get here, the argument passed all checks
             validated_args.append(arg)

@@ -19,8 +19,19 @@
 
 ## 🚀 Quick Start
 
-- **Getting Started:**
-  See [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md) for installation and setup instructions.
+The easiest way to get your development environment set up is by using our new setup scripts:
+
+-   **For Linux/macOS:**
+    ```bash
+    bash setup.sh
+    ```
+-   **For Windows:**
+    ```bat
+    setup.bat
+    ```
+These scripts will guide you through the installation of dependencies, environment configuration, and other necessary setup tasks.
+
+For manual setup steps or more details, please refer to [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md).
 
 ---
 

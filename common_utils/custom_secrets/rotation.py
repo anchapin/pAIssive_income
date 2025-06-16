@@ -1,5 +1,4 @@
-"""
-rotation - Module for common_utils/secrets.rotation.
+"""rotation - Module for common_utils/custom_secrets/rotation.py.
 
 This module provides utilities for rotating secrets.
 """
@@ -14,7 +13,7 @@ from pathlib import Path
 
 # Third-party imports
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 
 from .secrets_manager import SecretsBackend, get_secret, set_secret
 

@@ -1,5 +1,4 @@
-"""
-file_backend - Module for common_utils/secrets.file_backend.
+"""file_backend - Module for common_utils/custom_secrets/file_backend.py.
 
 This module provides a file-based backend for secrets management.
 """
@@ -13,7 +12,7 @@ from typing import Any
 
 # Third-party imports
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 
 # Initialize logger
 logger = get_logger(__name__)

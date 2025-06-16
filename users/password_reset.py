@@ -14,7 +14,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Protocol, TypeAlias, runtime_checkable
 
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 from users.auth import hash_credential
 
 # Type aliases

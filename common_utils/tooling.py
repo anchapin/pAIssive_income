@@ -182,7 +182,6 @@ def text_analyzer(text: str) -> str:
 
     Returns:
         str: Analysis results including sentiment and basic metrics.
-
     """
     # Basic sentiment analysis using simple keyword matching
     positive_words = [

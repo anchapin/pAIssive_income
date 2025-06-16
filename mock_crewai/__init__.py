@@ -19,7 +19,7 @@ __version__ = "0.120.0"
 from .agent import Agent
 from .crew import Crew
 from .task import Task
-from .types import AgentType, CrewType, TaskType
+from .custom_types import AgentType, CrewType, TaskType # Changed .types to .custom_types
 
 # Define what should be exported
 __all__ = ["Agent", "Crew", "Task", "__version__"]
