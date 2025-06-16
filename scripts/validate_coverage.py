@@ -12,14 +12,18 @@ from pathlib import Path
 try:
     from defusedxml import ElementTree as ET
 except ImportError:
-    # Fallback to standard library with warning
-    import warnings
-    import xml.etree.ElementTree as ET
-    warnings.warn(
-        "defusedxml not available, using xml.etree.ElementTree. "
-        "Install defusedxml for better security: pip install defusedxml",
-        UserWarning, stacklevel=2
-    )
+    # Install defusedxml if not available - required for security
+    import subprocess
+    import sys
+    print("Installing defusedxml for secure XML parsing...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "defusedxml"])
+        from defusedxml import ElementTree as ET
+        print("✅ defusedxml installed successfully")
+    except (subprocess.CalledProcessError, ImportError) as e:
+        print(f"❌ Failed to install defusedxml: {e}")
+        print("❌ Cannot proceed without secure XML parsing")
+        sys.exit(1)
 
 
 def validate_coverage_xml(coverage_file: str = "coverage.xml", min_threshold: float = 15.0) -> bool:
