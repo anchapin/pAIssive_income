@@ -83,6 +83,7 @@ class Mem0ClientProtocol(Protocol):
 
         Returns:
             List of memory results as dictionaries
+
         """
         ...
 
@@ -97,6 +98,7 @@ class Mem0ClientProtocol(Protocol):
 
         Returns:
             Result of the add operation
+
         """
         ...
 
@@ -120,6 +122,7 @@ class VectorClientProtocol(Protocol):
 
         Returns:
             List of relevant documents as dictionaries
+
         """
         ...
 
@@ -134,6 +137,7 @@ class VectorClientProtocol(Protocol):
 
         Returns:
             Result of the add operation
+
         """
         ...
 

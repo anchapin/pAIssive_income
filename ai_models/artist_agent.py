@@ -102,7 +102,6 @@ class ArtistAgent:
 
     def _extract_text_analyzer_expression(self, prompt: str) -> str:
         """Extract text to analyze from prompt for text analyzer tool."""
-
         # Try to find text after "analyze" or "sentiment of"
         analyze_match = re.search(
             r"analyze(?:\s+the)?\s+(?:sentiment\s+of\s+)?(?:this\s+)?(?:phrase:?\s*)?(.+)",
