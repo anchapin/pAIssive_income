@@ -73,6 +73,7 @@ except ImportError:
             """Run placeholder skill."""
             return None
 
+
 # Import mem0 components
 try:
     from mem0 import Memory
@@ -81,7 +82,6 @@ try:
 except ImportError:
     MEM0_AVAILABLE = False
     Memory = None  # type: ignore[assignment]
-
 
 # Import existing skills from adk_demo
 # Define placeholder skills that work regardless of ADK availability
@@ -245,7 +245,6 @@ class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
             with historical context for better decision making.
 
             For now, we simply return the original message unchanged.
-
 
         """
         return message

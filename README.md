@@ -17,10 +17,59 @@
 
 ---
 
+## 📋 Prerequisites
+
+Before getting started, ensure you have the following installed on your system:
+
+### Required Dependencies
+
+- **Python 3.8+** - Core runtime for the application
+- **Git** - Version control (for cloning the repository)
+- **Virtual Environment Tools** - For Python dependency isolation:
+  - [`uv`](https://github.com/astral-sh/uv) (recommended) - Fast Python package installer and resolver
+  - Or `venv` (built into Python 3.3+)
+- **Node.js 16.10+** - For UI components and frontend development
+- **pnpm** - Node.js package manager (preferred over npm/yarn)
+
+### Installation Quick Reference
+
+```bash
+# Install uv (Python package manager)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install pnpm (Node.js package manager)
+npm install -g pnpm
+
+# Verify installations
+python --version    # Should be 3.8+
+uv --version
+node --version      # Should be 16.10+
+pnpm --version
+git --version
+```
+
+### Optional Dependencies
+
+- **Docker & Docker Compose** - For containerized development
+- **VS Code** - Recommended IDE with project-specific configurations
+
+---
+
 ## 🚀 Quick Start
 
-- **Getting Started:**
-  See [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md) for installation and setup instructions.
+The easiest way to get your development environment set up is by using our new setup scripts:
+
+-   **For Linux/macOS:**
+    ```bash
+    bash setup.sh
+    ```
+-   **For Windows:**
+    ```bat
+    setup.bat
+    ```
+These scripts will guide you through the installation of dependencies, environment configuration, and other necessary setup tasks.
+
+For manual setup steps or more details, please refer to [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md).
 
 ---
 

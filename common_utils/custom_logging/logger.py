@@ -1,4 +1,4 @@
-"""logger - Module for common_utils/logging.logger."""
+"""logger - Module for common_utils/custom_logging/logger.py."""
 
 # Standard library imports
 

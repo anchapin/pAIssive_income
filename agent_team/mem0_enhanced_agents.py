@@ -41,6 +41,7 @@ except ImportError:
 # Import mem0 components
 try:
     from mem0 import Memory
+
     MEM0_AVAILABLE = True
 except ImportError:
     MEM0_AVAILABLE = False
@@ -205,7 +206,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
             logger.info("Workflow result: %s", result)
         except Exception:
-            logger.exception("Error running workflow: %s")
+            logger.exception("Error running workflow")
             return None
         else:
             return result
@@ -384,4 +385,4 @@ if __name__ == "__main__":
             result = team.run()
             logger.info("Workflow result: %s", result)
         except Exception:
-            logger.exception("Error running workflow: %s")
+            logger.exception("Error running workflow")

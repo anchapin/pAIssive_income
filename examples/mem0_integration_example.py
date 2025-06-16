@@ -12,7 +12,7 @@ Note: This is a demonstration script and not intended for production use.
 from __future__ import annotations
 
 import os
-from typing import Optional  # Added Dict back
+from typing import Optional
 
 # Import mem0 - this requires the package to be installed
 try:

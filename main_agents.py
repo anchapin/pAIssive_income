@@ -19,7 +19,9 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Optional
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 # Import standard ADK components
 from adk.agent import Agent
@@ -30,18 +32,12 @@ from adk.skill import Skill
 # Import memory-enhanced agents
 try:
     from adk_demo.mem0_enhanced_adk_agents import (
+        MEM0_AVAILABLE,
         MemoryEnhancedDataGathererAgent,
         MemoryEnhancedSummarizerAgent,
     )
-
-    mem0_available = True
 except ImportError:
-    mem0_available = False
-    MemoryEnhancedDataGathererAgent = None  # type: ignore[assignment]
-    MemoryEnhancedSummarizerAgent = None  # type: ignore[assignment]
-
-# Configure logging
-logger = logging.getLogger(__name__)
+    MEM0_AVAILABLE = False
 
 
 class DataGathererSkill(Skill):
@@ -181,7 +177,7 @@ class SummarizerAgent(Agent):
 
 
 def create_agents(
-    use_memory: bool = False, user_id: Optional[str] = None
+    use_memory: bool = False, user_id: str | None = None
 ) -> tuple[Agent, Agent]:
     """
     Create and return a pair of agents, optionally using memory enhancement.
@@ -194,18 +190,18 @@ def create_agents(
         A tuple containing (data_gatherer, summarizer) agents
 
     """
-    if use_memory and mem0_available:
+    if use_memory and MEM0_AVAILABLE:
         if not user_id:
             user_id = "default_user"
             logger.warning("No user_id provided, using 'default_user'")
 
-        logger.info("Creating memory-enhanced agents with user_id: %s", user_id)
+        logger.info(f"Creating memory-enhanced agents with user_id: {user_id}")
         data_gatherer = MemoryEnhancedDataGathererAgent(
             name="data_gatherer", user_id=user_id
         )
         summarizer = MemoryEnhancedSummarizerAgent(name="summarizer", user_id=user_id)
     else:
-        if use_memory and not mem0_available:
+        if use_memory and not MEM0_AVAILABLE:
             logger.warning("mem0 not available, falling back to standard agents")
 
         logger.info("Creating standard agents without memory enhancement")
@@ -223,7 +219,7 @@ if __name__ == "__main__":
     )
 
     # Check if mem0 is available
-    if not mem0_available:
+    if not MEM0_AVAILABLE:
         logger.warning("mem0 is not installed. Install with: pip install mem0ai")
 
     # Create agents with memory enhancement if available

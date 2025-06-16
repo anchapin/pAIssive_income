@@ -52,6 +52,7 @@ def canonicalize_text(text: str) -> str:
     return " ".join(text.split())
 
 
+
 def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
     """
     Create a canonical hash for deduplication.
@@ -210,6 +211,7 @@ inserted, skipped = embed_and_insert_documents_with_dedup(
 logger.info(
     "\nInserted %d documents, skipped %d duplicates.", len(inserted), len(skipped)
 )
+
 
 
 # 7. Retrieval: Context propagation and metadata filtering example

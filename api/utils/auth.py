@@ -17,8 +17,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from pydantic import BaseModel
 
-from common_utils.logging import get_logger
-from users.password_reset import UserRepositoryProtocol
+from common_utils.custom_logging import get_logger
 
 if TYPE_CHECKING:
     from users.password_reset import UserRepositoryProtocol
