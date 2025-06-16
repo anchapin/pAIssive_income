@@ -12,7 +12,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 from common_utils.validation.core import ValidationError, validate_input
 
 # Initialize logger

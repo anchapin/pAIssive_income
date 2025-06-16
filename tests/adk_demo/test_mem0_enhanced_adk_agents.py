@@ -11,6 +11,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+# Initialize logger
+logger = logging.getLogger(__name__)
+
 # Import the memory-enhanced ADK agents
 from adk_demo.mem0_enhanced_adk_agents import (
     ADK_AVAILABLE,
