@@ -56,4 +56,118 @@ docker compose up
 
 ---
 
-Setup, usage, common commands, and multi-container apps.
+## Docker Compose Integration
+
+This section covers Docker Compose integration for the project, combining local development, multi-service orchestration, and CI/CD use.
+
+### Overview
+
+The Docker Compose setup allows you to run the entire application stack with one command. It includes:
+
+- Flask backend API
+- React frontend with ag-ui integration
+- PostgreSQL database
+- (Optional) Redis for caching
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- Repository cloned locally
+
+### Configuration
+
+The main configuration is in `docker-compose.yml` at the project root, with services:
+- **app**: Flask backend
+- **frontend**: React frontend
+- **db**: PostgreSQL
+- **redis**: (optional) Redis
+
+### Environment Variables
+
+Set variables in `.env` (see `.env.example`), e.g.:
+- `FLASK_ENV`
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+- `REACT_APP_API_URL`
+- `REACT_APP_AG_UI_ENABLED`
+
+### Usage
+
+#### Docker Compose Bake (Build Acceleration)
+
+Set `COMPOSE_BAKE=true` to enable advanced parallel builds:
+
+```bash
+export COMPOSE_BAKE=true
+docker compose up -d --build
+```
+
+Unset to revert to standard Compose behavior.
+
+#### Start/Stop/Logs
+
+```bash
+docker compose up -d        # Start all services
+docker compose up -d --build  # Build and start
+docker compose down         # Stop all
+docker compose down -v      # Stop/remove volumes
+docker compose logs         # Logs for all
+docker compose logs app     # Logs for app only
+docker compose logs -f app  # Follow logs
+```
+
+#### Testing Compose Setup
+
+Use the script:
+
+```bash
+./test_docker_compose.sh
+```
+
+### Health Checks
+
+- **app**: `/health`
+- **frontend**: web server response
+- **db**: PostgreSQL connection
+
+### Volumes
+
+- `postgres-data` (PostgreSQL)
+- `redis-data` (Redis, if enabled)
+- `./data`, `./logs`, `./ui/react_frontend` (for dev)
+
+### Networks
+
+All services use the `paissive-network` bridge.
+
+### CI/CD Integration
+
+The setup is integrated into GitHub Actions via `.github/workflows/docker-compose-integration.yml`:
+- Sets up Docker, validates Compose config, builds/starts services, checks health, reports status
+
+### Troubleshooting
+
+- Use `docker compose logs` for issues
+- Check PostgreSQL health with `docker compose ps db`
+- Verify `REACT_APP_API_URL` for frontend API
+- For Bake issues, unset `COMPOSE_BAKE` and retry
+
+### Debugging
+
+- `docker compose ps`
+- `docker inspect <container>`
+- `docker network inspect paissive-network`
+- `df -h` for disk space
+
+### Extending Setup
+
+- Add new services in `docker-compose.yml`
+- Add/update health checks
+- Update dependencies
+- Test with `test_docker_compose.sh`
+
+### Performance Tuning
+
+- Compose Bake (`COMPOSE_BAKE=true`) improves build times with parallelism
+- PostgreSQL tuning via service command (see `docker-compose.yml`)
+
+---

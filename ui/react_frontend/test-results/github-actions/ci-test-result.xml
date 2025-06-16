@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="CI Mock API Tests" tests="1" failures="0" errors="0" time="0.5">
-  <testsuite name="CI Mock API Tests" tests="1" failures="0" errors="0" time="0.5">
-    <testcase name="ci compatibility test" classname="ci_mock_api_test.js" time="0.5"></testcase>
-  </testsuite>
-</testsuites>

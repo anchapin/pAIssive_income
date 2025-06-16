@@ -4,24 +4,22 @@ Example script demonstrating mem0 integration with our project.
 This script shows how mem0 could be used to enhance our agents with memory capabilities.
 It requires the mem0ai package to be installed:
 
-    pip install mem0ai
+    uv pip install mem0ai
 
 Note: This is a demonstration script and not intended for production use.
 """
 
-import os
-from typing import Dict, Optional
-import logging
+from __future__ import annotations
 
-# Initialize logger
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+import os
+from typing import Optional
 
 # Import mem0 - this requires the package to be installed
 try:
     from mem0 import Memory
 except ImportError:
-    logger.error("mem0ai package not installed. Please install it with: pip install mem0ai")
+    # The type: ignore is required for conditional import patterns and dynamic assignment.
+    # This is safe because the variable is always set to a valid implementation or None.
     Memory = None  # type: ignore[assignment]
 
 
@@ -29,7 +27,8 @@ except ImportError:
 class MockAgent:
     """Mock agent class to simulate our existing agent implementation."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
+        """Initialize the mock agent."""
         self.name = name
 
     def process_message(
@@ -44,7 +43,7 @@ class MockAgent:
 class MemoryEnhancedAgent(MockAgent):
     """Agent enhanced with mem0 memory capabilities."""
 
-    def __init__(self, name: str, user_id: str):
+    def __init__(self, name: str, user_id: str) -> None:
         """
         Initialize a memory-enhanced agent.
 
@@ -61,11 +60,13 @@ class MemoryEnhancedAgent(MockAgent):
         else:
             # Fallback if mem0 is not installed
             self.memory = None
-            logger.warning("mem0 not available, running without memory capabilities")
+            print("Warning: mem0 not available, running without memory capabilities")
 
         self.user_id = user_id
 
-    def process_message(self, message: str) -> str:
+    def process_message(
+        self, message: str, additional_context: Optional[str] = None
+    ) -> str:
         """
         Process a message with memory enhancement.
 
@@ -77,6 +78,7 @@ class MemoryEnhancedAgent(MockAgent):
 
         Args:
             message: The user message to process
+            additional_context: Optional additional context for the message
 
         Returns:
             The agent's response
@@ -84,7 +86,9 @@ class MemoryEnhancedAgent(MockAgent):
         """
         # Skip memory enhancement if mem0 is not available
         if self.memory is None:
-            return super().process_message(message)
+            return super().process_message(
+                message, additional_context=additional_context
+            )
 
         # Retrieve relevant memories
         relevant_memories = self.memory.search(
@@ -93,6 +97,8 @@ class MemoryEnhancedAgent(MockAgent):
 
         # Enhance the context with memories
         context = self._build_context_from_memories(relevant_memories)
+        if additional_context:  # Combine contexts if both exist
+            context = f"{context}\n{additional_context}"
 
         # Process with enhanced context
         response = super().process_message(message, additional_context=context)
@@ -108,7 +114,7 @@ class MemoryEnhancedAgent(MockAgent):
 
         return response
 
-    def _build_context_from_memories(self, memories: Optional[Dict]) -> str:
+    def _build_context_from_memories(self, memories: Optional[dict]) -> str:
         """
         Convert memories to a format usable by the agent.
 
@@ -128,13 +134,13 @@ class MemoryEnhancedAgent(MockAgent):
         return f"Relevant user information:\n{memory_str}"
 
 
-def main():
-    """Main function to demonstrate mem0 integration."""
+def main() -> None:
+    """Demonstrate mem0 integration."""
     # Check if OpenAI API key is available (required by mem0)
     if "OPENAI_API_KEY" not in os.environ:
-        logger.warning("OPENAI_API_KEY environment variable not set.")
-        logger.warning("mem0 requires an OpenAI API key to function properly.")
-        logger.warning("Set it with: export OPENAI_API_KEY='your-api-key'")
+        print("Warning: OPENAI_API_KEY environment variable not set.")
+        print("mem0 requires an OpenAI API key to function properly.")
+        print("Set it with: export OPENAI_API_KEY='your-api-key'")
 
     # Create a memory-enhanced agent
     agent = MemoryEnhancedAgent(name="MemoryBot", user_id="demo_user")
@@ -151,9 +157,7 @@ def main():
 
     # Process each message and print the response
     for message in messages:
-        logger.info("\nUser: %s", message)
-        response = agent.process_message(message)
-        logger.info("Agent: %s", response)
+        agent.process_message(message)
 
 
 if __name__ == "__main__":

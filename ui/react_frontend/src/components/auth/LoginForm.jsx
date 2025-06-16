@@ -8,8 +8,10 @@ import {
   FormHelperText,
   InputAdornment,
   IconButton,
-  CircularProgress
+  CircularProgress,
+  Link as MuiLink
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useFormValidation, validationSchemas } from '../../utils/validation';
 import { useAppContext } from '../../context/AppContext';
@@ -143,13 +145,19 @@ const LoginForm = ({ onSuccess }) => {
           fullWidth
           variant="contained"
           color="primary"
-          sx={{ mt: 3, mb: 2 }}
+          sx={{ mt: 3, mb: 1 }}
           disabled={!isValid || isSubmitting}
           aria-label="Log In"
           startIcon={!isSubmitting && <span role="img" aria-label="login">🔑</span>}
         >
           {isSubmitting ? <CircularProgress size={24} /> : "Log In"}
         </Button>
+
+        <Box sx={{ mb: 1, textAlign: 'right' }}>
+          <MuiLink component={RouterLink} to="/forgot-password" underline="hover" tabIndex={0}>
+            Forgot password?
+          </MuiLink>
+        </Box>
 
         <FormHelperText>
           Contact your administrator if you need access credentials

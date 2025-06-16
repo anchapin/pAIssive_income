@@ -49,56 +49,48 @@ const junitXml = `<?xml version="1.0" encoding="UTF-8"?>
 fs.writeFileSync(path.join(reportDir, 'junit-results.xml'), junitXml);
 
 test.describe('AgentUI CI Tests', () => {
-  // Test that always passes without any browser interaction
-  test('CI environment test', async () => {
-    console.log('Running CI environment test');
-    
-    // Log environment information
-    console.log('Environment information:');
-    console.log(`- NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
-    console.log(`- CI: ${process.env.CI || 'not set'}`);
-    console.log(`- REACT_APP_API_BASE_URL: ${process.env.REACT_APP_API_BASE_URL || 'not set'}`);
-    console.log(`- REACT_APP_BASE_URL: ${process.env.REACT_APP_BASE_URL || 'not set'}`);
-    
-    createReport('environment-info.txt',
-      `NODE_ENV: ${process.env.NODE_ENV || 'not set'}\n` +
-      `CI: ${process.env.CI || 'not set'}\n` +
-      `REACT_APP_API_BASE_URL: ${process.env.REACT_APP_API_BASE_URL || 'not set'}\n` +
-      `REACT_APP_BASE_URL: ${process.env.REACT_APP_BASE_URL || 'not set'}\n` +
-      `Timestamp: ${new Date().toISOString()}`);
-    
-    // This test always passes
-    expect(true).toBeTruthy();
-  });
+  // Real UI-based AgentUI flow for CI – checks agent name, description, and accessibility
+  test('AgentUI loads and renders agent info on About page', async ({ page }) => {
+    // Mock the API response for /api/agent
+    await page.route('**/api/agent', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 1,
+          name: 'Test Agent CI',
+          description: 'This is a CI agent for E2E testing'
+        })
+      });
+    });
 
-  // Test that always passes without any browser interaction
-  test('Simple math test', async () => {
-    console.log('Running simple math test that always passes');
-    expect(1 + 1).toBe(2);
-    expect(5 * 5).toBe(25);
-    createReport('math-test-success.txt', `Math test passed at ${new Date().toISOString()}`);
-  });
+    // Navigate to About page
+    await page.goto(`${BASE_URL}/about`);
+    await page.waitForLoadState('load', { timeout: 10000 });
 
-  // Test for AgentUI component existence (without browser interaction)
-  test('AgentUI component existence', async () => {
-    console.log('Running AgentUI component test');
-    try {
-      // Check if the AgentUI component file exists
-      const agentUIPath = path.join(process.cwd(), 'src', 'components', 'AgentUI', 'index.js');
-      const exists = fs.existsSync(agentUIPath);
-      console.log(`AgentUI component ${exists ? 'exists' : 'does not exist'} at ${agentUIPath}`);
+    // Screenshot for debugging
+    await page.screenshot({ path: 'agent-ui-ci-about-page.png', fullPage: true });
 
-      // This test always passes, we just want to log the information
-      expect(true).toBeTruthy();
+    // Assert agent name and description are visible
+    const agentName = await page.getByText(/test agent ci/i, { exact: false });
+    await expect(agentName).toBeVisible();
+    const agentDesc = await page.getByText(/ci agent for e2e testing/i, { exact: false });
+    await expect(agentDesc).toBeVisible();
 
-      createReport('agent-ui-test.txt',
-        `AgentUI component ${exists ? 'exists' : 'does not exist'} at ${agentUIPath}\n` +
-        `Test run at ${new Date().toISOString()}`
-      );
-    } catch (error) {
-      console.error(`Error checking for AgentUI component: ${error}`);
-      // Still pass the test
-      expect(true).toBeTruthy();
-    }
+    // Accessibility: main and heading are present
+    const main = await page.$('main, [role=main]');
+    expect(main).not.toBeNull();
+    const h1 = await page.$('h1');
+    expect(h1).not.toBeNull();
+
+    // Accessibility: agent card is a region with label
+    const region = await page.$('[role=region][aria-label*="agent"], [aria-labelledby*="agent"]');
+    expect(region).not.toBeNull();
+
+    // At least one action button is present
+    const actionButton = await page.getByRole('button', { name: /run|trigger|start|action/i }).catch(() => null);
+    expect(actionButton).not.toBeNull();
+
+    createReport('agent-ui-ci-success.txt', 'AgentUI loaded and UI elements verified.');
   });
 });

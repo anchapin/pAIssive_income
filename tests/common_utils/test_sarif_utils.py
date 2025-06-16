@@ -8,17 +8,12 @@ to ensure it handles edge cases correctly.
 
 import json
 import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-# Add the project root to the Python path for importing scripts package
-_PROJECT_ROOT = Path(__file__).parent.parent.parent
-if str(_PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT))
-
-from scripts.utils import sarif_utils  # noqa: E402
+# Import the module to test
+from scripts.utils import sarif_utils
 
 
 class TestSarifUtils(unittest.TestCase):
@@ -43,7 +38,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful
@@ -64,7 +59,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful (creates empty SARIF)
@@ -87,7 +82,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful (creates empty SARIF)
@@ -123,7 +118,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful
@@ -170,7 +165,7 @@ class TestSarifUtils(unittest.TestCase):
 
         # Convert the file
         result = sarif_utils.convert_file(
-            input_file, self.output_file, "TestTool", "https://example.com"
+            str(input_file), str(self.output_file), "TestTool", "https://example.com"
         )
 
         # Check that conversion was successful

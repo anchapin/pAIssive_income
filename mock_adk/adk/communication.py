@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any # Keep Any for Message.payload
-# List, Optional, Dict will be replaced or removed
+from typing import Any
 
 
 @dataclass

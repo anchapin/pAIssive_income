@@ -219,11 +219,11 @@ def _scan_directories_for_python_files() -> list[str]:
                 )
 
         except OSError:
-            logger.exception(f"Error accessing directory {root}")
+            logger.exception("Error accessing directory %s", root)
 
     _log_file_errors(error_files)
 
-    logger.info(f"Total Python files found: {len(python_files)}")
+    logger.info("Total Python files found: %d", len(python_files))
     return python_files
 
 
@@ -296,7 +296,7 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
                     return 0, "", f"Command '{command[0]}' not found. Skipped."
 
             except (subprocess.SubprocessError, FileNotFoundError):
-                logger.exception(f"Tool check failed: {command[0]}")
+                logger.exception("Tool check failed: %s", command[0])
                 return 0, "", f"Command '{command[0]}' not found. Skipped."
 
         # Always use shell=False for security
@@ -732,7 +732,7 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
         True if successful, False otherwise.
 
     """
-    logger.info(f"Processing file: {file_path}")
+    logger.info("Processing file: %s", file_path)
 
     # Step 1: Fix syntax issues
     syntax_success = _fix_syntax_issues(file_path, args)
@@ -800,12 +800,12 @@ def _check_tool_availability(tool: str) -> bool:
         )
 
         if result.returncode == 0:
-            logger.info(f"Tool {tool} found: {result.stdout.strip()}")
+            logger.info("Tool %s found: %s", tool, result.stdout.strip())
             return True
         logger.warning(f"Tool {tool} not found in PATH")
         return False
     except (subprocess.SubprocessError, FileNotFoundError):
-        logger.exception(f"Tool check failed: {tool}")
+        logger.exception("Tool check failed: %s", tool)
         return False
 
 
@@ -825,7 +825,7 @@ def _verify_tool_availability(args: argparse.Namespace) -> list[str]:
     if not tools_to_check:
         return []
 
-    logger.info(f"Checking for required tools: {tools_to_check}")
+    logger.info("Checking for required tools: %s", tools_to_check)
     missing_tools = []
 
     for tool in tools_to_check:
@@ -867,7 +867,7 @@ def _process_files(
         try:
             if fix_file(file_path, args):
                 success_count += 1
-                logger.info(f"Successfully processed: {file_path}")
+                logger.info("Successfully processed: %s", file_path)
             else:
                 failed_files.append(file_path)
                 logger.error(f"Failed to process: {file_path}")

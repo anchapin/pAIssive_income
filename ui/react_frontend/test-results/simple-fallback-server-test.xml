@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="simple-fallback-server" tests="1" failures="0" errors="0" skipped="0" timestamp="2025-05-26T02:06:52.810Z" time="0.001">
+    <testcase classname="simple-fallback-server" name="server-started" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>

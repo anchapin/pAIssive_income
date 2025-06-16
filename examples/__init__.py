@@ -1,1 +1,1 @@
-"""Public package."""
+"""Examples package for demonstrating various features."""

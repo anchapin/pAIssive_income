@@ -33,7 +33,7 @@ def run_command(
                 return None
 
         # nosec comment below tells security scanners this is safe as we control the input
-        process_result = subprocess.run(  # nosec B603
+        process_result = subprocess.run(  # nosec S603
             command,
             cwd=cwd,
             capture_output=capture_output,
@@ -234,6 +234,26 @@ def _determine_compile_sources() -> Optional[list[str]]:
         )
         return None
     return compile_sources
+
+
+def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)
 
 
 def _perform_venv_creation_steps(

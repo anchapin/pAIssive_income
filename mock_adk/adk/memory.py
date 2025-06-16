@@ -2,23 +2,20 @@
 
 from __future__ import annotations
 
-from typing import Any # Keep Any for storage value and retrieve return
-# Dict and List will be replaced
-
 
 class SimpleMemory:
     """Simple in-memory storage."""
 
     def __init__(self) -> None:
         """Initialize memory."""
-        self.storage: dict[str, list[Any]] = {}
+        self.storage: dict[str, list[object]] = {}
 
-    def store(self, key: str, value: Any) -> None:
+    def store(self, key: str, value: object) -> None:
         """Store a value."""
         if key not in self.storage:
             self.storage[key] = []
         self.storage[key].append(value)
 
-    def retrieve(self, key: str) -> list[Any]:
+    def retrieve(self, key: str) -> list[object]:
         """Retrieve values for a key."""
         return self.storage.get(key, [])

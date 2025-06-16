@@ -5,13 +5,32 @@ from __future__ import annotations
 import logging
 import re
 import urllib.parse
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 # Third-party imports
 try:
     import modelcontextprotocol as mcp
 except ImportError:
     mcp = None
+
+if TYPE_CHECKING:
+    if mcp is not None:
+        from modelcontextprotocol import Client
+    else:
+        # Create a placeholder type for type checking
+        class Client:
+            """Placeholder for MCP Client when not available."""
+
+            def connect(self) -> None:
+                """Placeholder connect method."""
+
+            def send_message(self, message: str) -> str:
+                """Placeholder send_message method."""
+                return ""
+
+            def disconnect(self) -> None:
+                """Placeholder disconnect method."""
+
 
 # Local imports
 from .exceptions import ModelContextProtocolError
@@ -110,7 +129,7 @@ class MCPAdapter:
 
         self.host = host
         self.port = port
-        self.client: Optional[mcp.Client] = None
+        self.client: Optional[Client] = None
         self.kwargs = kwargs
 
     def connect(self) -> None:

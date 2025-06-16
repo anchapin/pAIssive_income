@@ -1,5 +1,7 @@
 """Test script to verify mem0 integration."""
 
+from __future__ import annotations
+
 import logging
 import sys
 
@@ -11,52 +13,55 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def test_mem0_import():
+def test_mem0_import() -> bool | None:
     """Test that mem0 can be imported."""
     try:
-        import mem0  # nosec B404
+        import mem0  # nosec B404  # Safe: test-only import, not user-supplied
 
-        logger.info(f"Successfully imported mem0 version {mem0.__version__}")
+        logger.info("Successfully imported mem0 version %s", mem0.__version__)
         return True
     except ImportError as e:
-        logger.error(f"Failed to import mem0: {e}")
+        logger.error("Failed to import mem0: %s", e)
         return False
 
 
-def test_mem0_dependencies():
+def test_mem0_dependencies() -> bool:
     """Test that mem0 dependencies are installed."""
     dependencies = ["qdrant_client", "openai", "pytz"]
-    all_installed = True
+    import importlib
 
-    for dep in dependencies:
+    def is_importable(dep: str) -> bool:
         try:
-            # Use importlib instead of __import__ for better security
-            import importlib
-
             importlib.import_module(dep)  # nosec B403
-            logger.info(f"Successfully imported {dep}")
-        except ImportError as e:
-            logger.error(f"Failed to import {dep}: {e}")
-            all_installed = False
+            logger.info("Successfully imported %s", dep)
+        except ImportError:
+            return False
+        else:
+            return True
 
+    failed_deps = [dep for dep in dependencies if not is_importable(dep)]
+    all_installed = not failed_deps
+    for dep in failed_deps:
+        logger.exception("Failed to import %s", dep)
     if not all_installed:
         logger.error("Not all required dependencies are installed")
     return all_installed
 
 
-def test_mem0_basic_functionality():
+def test_mem0_basic_functionality() -> bool | None:
     """Test basic mem0 functionality."""
     try:
-        import mem0  # nosec B404        # Create a memory instance (without actually connecting to any services)
+        import mem0  # nosec B404  # Safe: test-only import, not user-supplied
 
+        # Create a memory instance (without actually connecting to any services)
         # Using the correct API based on documentation, and ensuring instance creation works
-        _ = mem0.Memory()  # nosec B106
-
+        mem0.Memory()  # nosec B106  # Safe: test-only instantiation
         logger.info("Successfully created Memory instance")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to test basic mem0 functionality: {e}")
+    except Exception:
+        logger.exception("Failed to test basic mem0 functionality")
         return False
+    else:
+        return True
 
 
 if __name__ == "__main__":

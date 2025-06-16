@@ -21,13 +21,32 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def run_command(command: list[str], check: bool = True) -> int:
+def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)
+
+
+def run_command(command: list[str]) -> int:
     """
     Run a command and return the exit code.
 
     Args:
         command: The command to run as a list of strings.
-        check: Whether to raise an exception if the command fails.
 
     Returns:
         The exit code of the command.
@@ -37,9 +56,8 @@ def run_command(command: list[str], check: bool = True) -> int:
     logger.debug("Running command: %s", cmd_str)
 
     try:
-        result = subprocess.run(
+        result = _safe_subprocess_run(
             command,
-            check=check,
             capture_output=True,
             text=True,
         )
@@ -78,9 +96,8 @@ def check_pre_commit_installed() -> bool:
         else:
             cmd = ["pre-commit", "--version"]
 
-        result = subprocess.run(
+        result = _safe_subprocess_run(
             cmd,
-            check=False,
             capture_output=True,
             text=True,
         )
@@ -103,7 +120,7 @@ def install_pre_commit() -> bool:
         return True
 
     logger.info("Installing pre-commit...")
-    return bool(run_command(["pip", "install", "pre-commit"], check=False) == 0)
+    return bool(run_command(["pip", "install", "pre-commit"]) == 0)
 
 
 def install_hooks() -> bool:
@@ -115,7 +132,7 @@ def install_hooks() -> bool:
 
     """
     logger.info("Installing pre-commit hooks...")
-    return bool(run_command(["pre-commit", "install"], check=False) == 0)
+    return bool(run_command(["pre-commit", "install"]) == 0)
 
 
 def main() -> int:

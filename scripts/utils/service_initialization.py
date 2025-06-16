@@ -9,6 +9,8 @@ import logging
 # Local imports
 from common_utils.custom_logging import get_logger
 
+logger = logging.getLogger(__name__)
+
 # Initialize logger
 logger = get_logger(__name__)
 

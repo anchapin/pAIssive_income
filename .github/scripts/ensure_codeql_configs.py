@@ -19,11 +19,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 def ensure_directory(directory: str) -> None:
     """Ensure the directory exists."""
     path = Path(directory)
-    if not path.exists():
-        path.mkdir(parents=True)
-        logger.info("Created directory: %s", directory)
-    else:
-        logger.info("Directory already exists: %s", directory)
+    path.mkdir(parents=True, exist_ok=True)
+    logger.info("Ensured directory exists: %s", directory)
 
 
 def create_codeql_config(filename: str, config_name: str, os_name: str | None = None) -> None:
@@ -70,14 +67,19 @@ def main() -> None:
 
     # Create the macOS configuration
     macos_config = codeql_dir / "security-os-macos.yml"
-    create_codeql_config(str(macos_config), "CodeQL Configuration for macOS", "macos-latest")
+    create_codeql_config(
+        str(macos_config), "CodeQL Configuration for macOS", "macos-latest"
+    )
 
     # Create the unified configuration
     unified_config = codeql_dir / "security-os-config.yml"
     create_codeql_config(str(unified_config), "Unified CodeQL Configuration")
 
+<<<<<<< HEAD
     logger.info("All CodeQL configuration files created successfully.")
 
+=======
+>>>>>>> main
 
 if __name__ == "__main__":
     main()

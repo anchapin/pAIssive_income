@@ -26,6 +26,10 @@ on:
           - mock
           - fixed
           - ci
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 jobs:
   e2e:

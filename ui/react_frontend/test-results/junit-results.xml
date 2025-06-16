@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mock API Server Tests" tests="1" failures="0" errors="0" time="0.5">
-  <testsuite name="Mock API Server Tests" tests="1" failures="0" errors="0" time="0.5">
-    <testcase name="server initialization test" classname="mock_api_server.test.js" time="0.5"></testcase>
-  </testsuite>
-</testsuites>

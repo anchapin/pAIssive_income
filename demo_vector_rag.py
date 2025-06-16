@@ -1,18 +1,14 @@
 """
-Demo: Vector Database + RAG (Retrieval-Augmented Generation) using ChromaDB
+Demo: Vector Database + RAG (Retrieval-Augmented Generation) using ChromaDB.
+
 with a Unified Schema and Best Practices for Interoperability.
 
-Requirements:
+Steps:
  1. uv pip install chromadb sentence-transformers
  2. python demo_vector_rag.py
 
-This script demonstrates:
-- Unified schema for vector DB (id, content, user_id, metadata, embedding)
-- Canonicalization and deduplication before upsert
-- Context propagation and metadata filtering on retrieval
-- Clear comments and test block for reference
-
-For more details, see README_mem0_integration.md.
+This script embeds example texts, stores them in a local vector DB,
+then retrieves the most relevant context for a query.
 """
 
 from __future__ import annotations
@@ -21,17 +17,20 @@ import hashlib
 import json
 import logging
 import unicodedata
-from typing import Any # Assuming Any might be used elsewhere, or to be safe
+from typing import Optional
 
 import chromadb
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 
-# Configure logging for reference usage
+# Configure logging instead of print statements
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
-# 1. Initialize ChromaDB client (local, persistent for demo)
+# 1. Initialize ChromaDB client (local, in-memory for demo)
 client = chromadb.Client(
     Settings(
         persist_directory=".chromadb_demo",  # change or remove for pure in-memory
@@ -44,17 +43,19 @@ client = chromadb.Client(
 
 
 def canonicalize_text(text: str) -> str:
-    """Normalize and canonicalize text for deduplication.
+    """
+    Normalize and canonicalize text for deduplication.
 
     - Lowercase, strip, remove extra whitespace, apply NFC unicode normalization.
     """
     text = unicodedata.normalize("NFC", text.lower().strip())
-    text = " ".join(text.split())
-    return text
+    return " ".join(text.split())
+
 
 
 def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
-    """Create a canonical hash for deduplication.
+    """
+    Create a canonical hash for deduplication.
 
     Uses user_id, canonicalized content, and metadata['source'] if present.
     """
@@ -66,11 +67,12 @@ def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
 
 def prepare_document(
     doc: dict,
-    user_id: str | None = None,
-    default_metadata: dict | None = None,
-    embedding: list[float] | None = None,
+    user_id: Optional[str] = None,
+    default_metadata: Optional[dict] = None,
+    embedding: Optional[list[float]] = None,
 ) -> dict:
-    """Ensure the document follows the unified schema.
+    """
+    Ensure the document follows the unified schema.
 
     If fields are missing, fill with defaults.
     """
@@ -120,28 +122,15 @@ demo_documents = [
         "id": "5",
         "content": "Retrieval-Augmented Generation (RAG) enhances LLMs with external knowledge.",
         "user_id": "global",
-        "metadata": {"type": "definition", "source": "demo", "lang": "en"},
-    },
-    # Example of a duplicate (should not be inserted twice)
-    {
-        "id": "6",
-        "content": "The Eiffel Tower is in Paris.",
-        "user_id": "global",
         "metadata": {"type": "fact", "source": "demo", "lang": "en"},
-    },
-    # Example with different metadata (treated as different if source differs)
-    {
-        "id": "7",
-        "content": "The Eiffel Tower is in Paris.",
-        "user_id": "global",
-        "metadata": {"type": "travel", "source": "wikipedia", "lang": "en"},
     },
 ]
 
-# 4. Load embedding model (Sentence Transformers)
+# 3. Load embedding model (Sentence Transformers)
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
-# 5. Create/get collection
+
+# 4. Create/get collection
 collection = client.get_or_create_collection("demo_rag")
 
 
@@ -152,36 +141,40 @@ def embed_and_insert_documents_with_dedup(
     collection: chromadb.Collection,
     user_id_default: str = "global",
 ) -> tuple[list[dict], list[str]]:
-    """Embed documents, canonicalize, deduplicate, and insert into collection.
+    """
+    Embed documents, canonicalize, deduplicate, and insert into collection.
 
-    Returns: (inserted_docs, skipped_duplicate_ids)
+    Returns: (inserted_docs, skipped_duplicate_ids).
     """
     stored_hashes = set()
+    inserted_docs: list[dict] = []
+    skipped_ids: list[str] = []
+
     # Retrieve all existing documents' canonical hashes (if any)
     # (In production: index this efficiently. For demo, we keep it simple.)
     try:
         # Attempt to fetch all docs (if API allows)
-        existing = collection.get(include=["metadatas", "documents", "ids"])
-        for i, doc in enumerate(existing["documents"]):
-            # Use user_id from metadatas, content from doc, and source from metadata
-            meta = existing["metadatas"][i]
-            uid = meta.get("user_id", user_id_default)
-            source = meta.get("source", "demo")
-            content = doc
-            doc_hash = canonical_doc_hash(uid, content, meta)
-            stored_hashes.add(doc_hash)
-    except Exception:
-        pass  # Collection may be empty
+        existing = collection.get(include=["documents", "metadatas"])
+        existing_docs = existing.get("documents")
+        existing_metas = existing.get("metadatas")
+        if existing_docs is not None and existing_metas is not None:
+            for i, doc_content in enumerate(existing_docs):
+                meta = existing_metas[i]
+                uid = meta.get("user_id", user_id_default)
+                content = doc_content
+                doc_hash = canonical_doc_hash(uid, content, meta)
+                stored_hashes.add(doc_hash)
+    except (RuntimeError, ValueError, KeyError, TypeError) as e:
+        logger.warning("Collection may be empty or error occurred: %s", e)
 
-    inserted_docs = []
-    skipped_ids = []
-
-    for doc in docs:
-        doc = prepare_document(doc, user_id=user_id_default)
+    for doc_in in docs:
+        doc = prepare_document(doc_in, user_id=user_id_default)
         doc_hash = canonical_doc_hash(doc["user_id"], doc["content"], doc["metadata"])
         if doc_hash in stored_hashes:
             logger.info(
-                f"Deduplication: Skipping duplicate doc id={doc['id']} (hash={doc_hash[:8]}...)"
+                "Deduplication: Skipping duplicate doc id=%s (hash=%s...)",
+                doc["id"],
+                doc_hash[:8],
             )
             skipped_ids.append(doc["id"])
             continue
@@ -205,7 +198,7 @@ def embed_and_insert_documents_with_dedup(
                 }
             ],
         )
-        logger.info(f"Inserted doc id={doc['id']} (hash={doc_hash[:8]}...)")
+        logger.info("Inserted doc id=%s (hash=%s...)", doc["id"], doc_hash[:8])
         inserted_docs.append(doc)
         stored_hashes.add(doc_hash)
     return inserted_docs, skipped_ids
@@ -215,18 +208,22 @@ def embed_and_insert_documents_with_dedup(
 inserted, skipped = embed_and_insert_documents_with_dedup(
     demo_documents, embedder, collection
 )
-logger.info(f"\nInserted {len(inserted)} documents, skipped {len(skipped)} duplicates.")
+logger.info(
+    "\nInserted %d documents, skipped %d duplicates.", len(inserted), len(skipped)
+)
+
 
 
 # 7. Retrieval: Context propagation and metadata filtering example
 def query_with_metadata_filter(
     collection: chromadb.Collection,
     query: str,
-    user_id: str | None = None,
-    metadata_filter: dict | None = None,
+    user_id: Optional[str] = None,
+    metadata_filter: Optional[dict] = None,
     n_results: int = 3,
 ) -> dict:
-    """Query the vector DB with optional user_id and metadata filter.
+    """
+    Query the vector DB with optional user_id and metadata filter.
 
     Returns the matching results.
     """
@@ -236,44 +233,46 @@ def query_with_metadata_filter(
         where["user_id"] = user_id
     if metadata_filter:
         where.update(metadata_filter)
-    results = collection.query(
+    return collection.query(
         query_embeddings=[query_embedding],
         n_results=n_results,
         where=where if where else None,
-        include=["documents", "metadatas", "distances", "ids"],
+        include=["documents", "metadatas", "distances"],
     )
-    return results
 
 
-# Demo query: Retrieve facts only, for user 'global'
-logger.info("\n--- Retrieval Demo: Query with Metadata Filtering ---")
+# 6. Demo query
 query = "What city is the Eiffel Tower located in?"
-metadata_filter = {"type": "fact"}
-results = query_with_metadata_filter(
-    collection, query, user_id="global", metadata_filter=metadata_filter, n_results=3
-)
+metadata_filter = {"type": "fact"}  # Filter for fact-type documents
 
-logger.info(f"\nQuery: {query}\nFilter: {metadata_filter}\nResults:")
-for doc, meta, dist in zip(
-    results["documents"][0], results["metadatas"][0], results["distances"][0]
-):
-    logger.info("- %s [meta: %s] (distance: %.4f)", doc, meta, dist)
+results = query_with_metadata_filter(
+    collection, query, user_id="global", metadata_filter=metadata_filter
+)
+logger.info("\nQuery: %s\nFilter: %s\nResults:", query, metadata_filter)
+docs = results.get("documents")
+metas = results.get("metadatas")
+dists = results.get("distances")
+if docs is not None and metas is not None and dists is not None:
+    for doc, meta, dist in zip(docs[0], metas[0], dists[0]):
+        logger.info("- %s [meta: %s] (distance: %.4f)", doc, meta, dist)
 
 # Show how context propagation works: fetch all 'fact' type for a user
 logger.info("\n--- Context Propagation Demo: All 'fact' memories for user 'global' ---")
 all_facts = collection.get(where={"user_id": "global", "type": "fact"})
-for i, doc in enumerate(all_facts["documents"]):
-    meta = all_facts["metadatas"][i]
-    logger.info(f"Fact {i + 1}: {doc} [meta: {meta}]")
+docs = all_facts.get("documents")
+metas = all_facts.get("metadatas")
+if docs is not None and metas is not None:
+    for i, doc in enumerate(docs):
+        meta = metas[i]
+        logger.info("Fact %d: %s [meta: %s]", i + 1, doc, meta)
 
-# 8. Test block: Verify deduplication and filtering
+"""
+Expected output:
+"""
 
 
 def test_deduplication_and_metadata() -> None:
-    """Test deduplication (should not insert duplicates).
-
-    Also tests metadata filtering (should return only filtered docs).
-    """
+    """Test deduplication and metadata filtering logic."""
     # Try to re-insert a duplicate doc
     duplicate = {
         "id": "dup1",
@@ -284,8 +283,14 @@ def test_deduplication_and_metadata() -> None:
     inserted, skipped = embed_and_insert_documents_with_dedup(
         [duplicate], embedder, collection
     )
-    assert len(inserted) == 0, "Deduplication failed: duplicate was inserted."
-    assert len(skipped) == 1, "Deduplication test: duplicate was not skipped."
+    if len(inserted) != 0:
+        logger.error("Deduplication failed: duplicate was inserted.")
+        msg = "Deduplication failed: duplicate was inserted."
+        raise AssertionError(msg)
+    if len(skipped) != 1:
+        logger.error("Deduplication test: duplicate was not skipped.")
+        msg = "Deduplication test: duplicate was not skipped."
+        raise AssertionError(msg)
     logger.info("Deduplication test passed.")
 
     # Insert a new doc with different source
@@ -298,15 +303,20 @@ def test_deduplication_and_metadata() -> None:
     inserted, skipped = embed_and_insert_documents_with_dedup(
         [new_doc], embedder, collection
     )
-    assert len(inserted) == 1, "Unique document was not inserted."
+    if len(inserted) != 1:
+        logger.error("Unique document was not inserted.")
+        msg = "Unique document was not inserted."
+        raise AssertionError(msg)
     logger.info("Insertion of new doc with different source passed.")
 
     # Test metadata filtering
     filter_meta = {"source": "wikipedia"}
     results = collection.get(where={"user_id": "global", **filter_meta})
-    assert any(doc == new_doc["content"] for doc in results["documents"]), (
-        "Metadata filtering failed."
-    )
+    docs = results.get("documents")
+    if docs is not None and not any(doc == new_doc["content"] for doc in docs):
+        logger.error("Metadata filtering failed.")
+        msg = "Metadata filtering failed."
+        raise AssertionError(msg)
     logger.info("Metadata filtering test passed.")
 
 
@@ -314,6 +324,3 @@ if __name__ == "__main__":
     logger.info("\n--- Running Test Block ---")
     test_deduplication_and_metadata()
     logger.info("All tests passed.")
-
-    # Cleanup for demo (optional):
-    # client.delete_collection("demo_rag")

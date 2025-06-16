@@ -1,0 +1,202 @@
+{
+  "timestamp": "2025-05-19T21:55:08.181Z",
+  "generated": {
+    "date": "5/19/2025, 5:55:08 PM",
+    "timestamp": "2025-05-19T21:55:08.181Z"
+  },
+  "operatingSystem": {
+    "platform": "win32",
+    "isWindows": true,
+    "isMacOS": false,
+    "isLinux": false,
+    "isWSL": false,
+    "osType": "Windows_NT",
+    "osRelease": "10.0.26100",
+    "architecture": "x64"
+  },
+  "ciEnvironment": {
+    "isCI": false,
+    "ciType": "unknown",
+    "isGitHubActions": false,
+    "isJenkins": false,
+    "isGitLabCI": false,
+    "isCircleCI": false,
+    "isTravis": false,
+    "isAzurePipelines": false,
+    "isTeamCity": false,
+    "isBitbucket": false,
+    "isAppVeyor": false,
+    "isBuildkite": false,
+    "isCodefresh": false,
+    "isSemaphore": false,
+    "isHarness": false
+  },
+  "containerEnvironment": {
+    "isDocker": false,
+    "isKubernetes": false,
+    "isContainerized": false,
+    "isRkt": false,
+    "isContainerd": false,
+    "isCRIO": false,
+    "isSingularity": false
+  },
+  "cloudEnvironment": {
+    "isAWS": false,
+    "isAzure": false,
+    "isGCP": false,
+    "isAlibabaCloud": false,
+    "isTencentCloud": false,
+    "isHuaweiCloud": false,
+    "isIBMCloud": false,
+    "isCloudEnvironment": false,
+    "isAzureFunctions": false,
+    "isServerless": false
+  },
+  "systemInfo": {
+    "nodeVersion": "v22.15.0",
+    "architecture": "x64",
+    "hostname": "gaming-pc",
+    "username": "ancha",
+    "tmpDir": "C:\\Users\\ancha\\AppData\\Local\\Temp",
+    "homeDir": "C:\\Users\\ancha",
+    "workingDir": "C:\\Users\\ancha\\Documents\\AI\\pAIssive_income2\\pAIssive_income",
+    "memory": {
+      "total": 34129940480,
+      "free": 5695901696
+    },
+    "cpus": [
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 7610875,
+          "nice": 0,
+          "sys": 8373125,
+          "idle": 20438703,
+          "irq": 561593
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 8140406,
+          "nice": 0,
+          "sys": 7337671,
+          "idle": 20944562,
+          "irq": 250390
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 10163187,
+          "nice": 0,
+          "sys": 8251687,
+          "idle": 18007765,
+          "irq": 255265
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 9460296,
+          "nice": 0,
+          "sys": 7450843,
+          "idle": 19511500,
+          "irq": 227500
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 9164546,
+          "nice": 0,
+          "sys": 6620390,
+          "idle": 20637703,
+          "irq": 241421
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 10121375,
+          "nice": 0,
+          "sys": 6211656,
+          "idle": 20089609,
+          "irq": 165546
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 10852437,
+          "nice": 0,
+          "sys": 8754984,
+          "idle": 16815218,
+          "irq": 345203
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 13015468,
+          "nice": 0,
+          "sys": 8189390,
+          "idle": 15217781,
+          "irq": 313406
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 8098875,
+          "nice": 0,
+          "sys": 6883921,
+          "idle": 21439843,
+          "irq": 247578
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 8715828,
+          "nice": 0,
+          "sys": 6583703,
+          "idle": 21123109,
+          "irq": 223312
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 12951656,
+          "nice": 0,
+          "sys": 8413015,
+          "idle": 15057968,
+          "irq": 248078
+        }
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics         ",
+        "speed": 3900,
+        "times": {
+          "user": 14788171,
+          "nice": 0,
+          "sys": 7973625,
+          "idle": 13660843,
+          "irq": 216656
+        }
+      }
+    ]
+  }
+}

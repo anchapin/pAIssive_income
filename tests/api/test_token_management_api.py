@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 try:
-    from api.main import app  # Adjust if FastAPI app is elsewhere
+    from api.app import app  # type: ignore[import-untyped]
 except ImportError:
     app = None
 

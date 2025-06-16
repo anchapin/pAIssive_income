@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-# Optional is no longer needed
-from .communication import AgentCommunicator, Message
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .communication import AgentCommunicator, Message
 
 
 class Agent:
@@ -21,6 +23,6 @@ class Agent:
     def start(self) -> None:
         """Start the agent. Override in subclasses."""
 
-    def handle_message(self, message: Message) -> Message | None:
+    def handle_message(self, message: Message) -> Message | None:  # noqa: ARG002
         """Handle a received message. Override in subclasses."""
         return None

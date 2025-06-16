@@ -1,5 +1,5 @@
-const assert = require('assert');
-const { add, subtract, multiply, divide } = require('./math');
+import assert from 'assert';
+import { add, subtract, multiply, divide } from './math.js';
 
 describe('Math functions', function () {
   describe('add', function () {

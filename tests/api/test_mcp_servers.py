@@ -26,7 +26,7 @@ def isolated_settings_file(monkeypatch):
 
 
 @pytest.fixture
-def app(_: Path):  # Renamed from isolated_settings_file to _ to indicate unused
+def app(isolated_settings_file: Path):
     app = Flask(__name__)
     app.config["TESTING"] = True
     app.config["DEBUG"] = True

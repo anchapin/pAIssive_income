@@ -10,6 +10,10 @@ on:
         required: false
         type: string
         default: "tests/"
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
 
 jobs:
   test:

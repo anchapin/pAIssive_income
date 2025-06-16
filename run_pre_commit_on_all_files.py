@@ -6,10 +6,16 @@ Wrapper script for backward compatibility.
 This script forwards to the new location of the pre-commit runner script.
 """
 
+from __future__ import annotations
+
 import logging
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
+
+# Type alias for subprocess kwargs (for documentation purposes)
+SubprocessKwargs = dict[str, Any]
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -27,10 +33,36 @@ if not target_script.exists():
 
 # Forward all arguments to the target script using subprocess instead of os.execv
 cmd = [sys.executable, str(target_script)] + sys.argv[1:]
+# Convert any Path objects in cmd to str
+cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
 
-# Use subprocess.run instead of os.execv for better security
+
+def _safe_subprocess_run(
+    cmd: list[str],
+    **kwargs: Any,  # noqa: ANN401
+) -> subprocess.CompletedProcess[str]:
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    allowed_keys = {
+        "cwd",
+        "timeout",
+        "check",
+        "shell",
+        "text",
+        "capture_output",
+        "input",
+        "encoding",
+        "errors",
+        "env",
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_keys}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)
+
+
+# Use _safe_subprocess_run instead of subprocess.run for better security
 # nosec comment below tells security scanners this is safe as we control the input
-result = subprocess.run(  # nosec B603 S603
+result = _safe_subprocess_run(  # nosec B603 S603
     cmd,
     check=False,
     shell=False,  # Explicitly set shell=False for security

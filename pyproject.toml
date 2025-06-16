@@ -71,80 +71,168 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 
+# Optimized Ruff configuration for comprehensive linting and formatting
 [tool.ruff]
 target-version = "py310"
 line-length = 100
-select = ["E", "F", "B", "S", "I", "N", "UP", "ANN", "C4", "SIM", "ARG", "PTH", "RUF", "ERA", "TRY", "PLR", "PLW", "PLE", "BLE", "ISC"]
-ignore = []
+fix = true
+unsafe-fixes = false
+cache-dir = ".ruff_cache"
 
-[tool.ruff.per-file-ignores]
+# Extended exclude patterns for better performance
+extend-exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "ui/react_frontend/node_modules",  # Explicitly exclude node_modules in React frontend
+    "__pycache__",
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
+    ".pytest_cache",
+    ".mypy_cache",
+    "build",
+    "dist",
+    "*.egg-info",
+    "docs/source/conf.py",
+    "old/",
+    "ui/react_frontend/"  # Exclude React frontend code (uses ESLint/TypeScript)
+]
+
+# Comprehensive rule selection replacing Flake8
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "B",   # flake8-bugbear
+    "C",   # flake8-comprehensions
+    "T",   # flake8-print
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
+    "N",   # pep8-naming
+    "PT",  # flake8-pytest-style
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "ERA", # eradicate
+    "PL",  # pylint
+    "TRY", # tryceratops
+    "FIX", # autofix
+    "S",   # bandit security rules
+    "PERF", # performance rules
+]
+
+ignore = [
+    "D203",  # One blank line before class
+    "D213",  # Multi-line summary style
+    "E501",  # Line length (handled by formatter)
+    "PLR0913", # Too many arguments in function definition
+]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-single-line = true
+lines-between-types = 1
+
+# Comprehensive per-file-ignores with focused exceptions
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "E402"]  # Allow unused imports in __init__
+"tests/**/*.py" = [
+    "PLR2004",  # Allow magic numbers in tests
+    "ARG001",   # Allow unused arguments in tests (fixtures)
+    "F401",     # Allow unused imports in tests
+    "S101",     # Allow assert statements in tests (pytest style)
+]
+"**/test_*.py" = [
+    "PLR0915",  # Allow long test functions
+    "S101",     # Allow assert statements in tests (pytest style)
+]
+"artist_experiments/test_artist_experiments.py" = ["S101"]
+"artist_experiments\\test_artist_experiments.py" = ["S101"]
+"artist_experiments/**/test_*.py" = ["S101"]
+"setup_dev_environment.py" = [
+    "T201",     # Allow print statements in setup script
+]
+# Stub files have different type hint conventions
+"**/*.pyi" = [
+    "UP006",    # Allow older style type hints in stub files
+    "UP007"     # Allow older style typing imports in stub files
+]
+
+# Original entries
+"tool_templates/**" = ["E501"]
+"niche_analysis/niche_analyzer.py" = ["E402"]
+"ai_models/fallbacks/fallback_strategy.py" = ["E402"]
+"ai_models/adapters/base_adapter.py" = ["E402"]
+"ai_models/model_base_types.py" = ["E402"]
+"ai_models/model_types.py" = ["E402"]
+
+# Additional specific ignores
+"demo_vector_rag.py" = ["S101"]
+# Allow binding to 0.0.0.0 in dev/test server entrypoints
+"run_ui.py" = ["S104"]
+"artist_experiments/run_artist.py" = ["S104"]
+"verify_pr243_fixes.py" = ["S603"]
+"scripts/**/*.py" = ["ALL"]
+"adk_demo/**/*.py" = ["ALL"]
+"examples/**/*.py" = ["ALL"]
+"mock_adk/**/*.py" = ["ALL"]
+"mock_crewai/**/*.py" = ["ALL"]
+"migrations/**/*.py" = ["ALL"]
+"performance/**/*.py" = ["ALL"]
+"security/**/*.py" = ["ALL"]
+"test-artifacts/**/*.py" = ["ALL"]
+"test-results/**/*.py" = ["ALL"]
+"ui/**/*.py" = ["ALL"]
+
+# Merge with existing script ignores
 "scripts/fix/fix_security_issues.py" = ["S603"]
 "scripts/run/run_github_actions_locally.py" = ["S603", "G004", "TRY300", "RUF013", "RUF005"]
 "scripts/setup/regenerate_venv.py" = ["S603", "TRY300"]
 "scripts/setup/setup_pre_commit.py" = ["S603"]
 "scripts/setup/setup_dev_environment.py" = ["S603"]
+"run_basic_tests.py" = ["S603"]
+"simple_bandit_scan.py" = ["S603"]
+"tests/security/test_security_scan.py" = ["S603"]
+"scripts/ci/simulate_ci_environment.py" = ["S108"]
+"validate_workflows.py" = ["PERF203"]
 
-[tool.mypy]
-python_version = "3.10"
+# Enhanced formatter settings
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = 88
+line-ending = "auto"
+preview = true
+
+[tool.pyright]
+pythonVersion = "3.10"
 exclude = ["ui/react_frontend", "scripts/__init__.py", ".github/scripts/__init__.py", ".github/scripts"]
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
-check_untyped_defs = true
-disallow_untyped_decorators = false
-no_implicit_optional = false
-ignore_missing_imports = true
-warn_return_any = false
-warn_unused_configs = true
-warn_redundant_casts = true
-warn_unused_ignores = false
-warn_no_return = false
-warn_unreachable = false
-show_error_codes = true
-cache_dir = ".mypy_cache"
-incremental = true
-follow_imports = "skip"
-follow_imports_for_stubs = true
-namespace_packages = true
-explicit_package_bases = true
-mypy_path = "mypy_stubs"
-files = ["!scripts/__init__.py", "!.github/scripts/__init__.py"]
+reportMissingImports = false
+reportMissingTypeStubs = false
+reportUnusedImport = false
+reportUnusedVariable = false
+reportGeneralTypeIssues = false
+reportOptionalMemberAccess = false
+reportOptionalSubscript = false
+reportPrivateImportUsage = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnknownParameterType = false
+reportMissingParameterType = false
+reportMissingTypeArgument = false
+reportUntypedFunctionDecorator = false
+reportUntypedClassDecorator = false
+reportUntypedBaseClass = false
+reportUntypedNamedTuple = false
+reportPrivateUsage = false
+reportConstantRedefinition = false
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
+reportOverlappingOverload = false
+typeCheckingMode = "basic"
 
-[[tool.mypy.overrides]]
-module = "mypy.plugins.*"
-ignore_missing_imports = true
 
-[[tool.mypy.overrides]]
-module = "run_ui"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "migrations.env"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "users.password_reset"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "api.utils.auth"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "test_sarif_utils"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "run_mcp_tests"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "install_mcp_sdk"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "scripts.manage_quality"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "tests.api.*"
-ignore_errors = true

@@ -13,11 +13,19 @@ from __future__ import annotations
 
 import logging
 import os
-import sys # Added for sys.exit()
-# Optional will be replaced by | None
+import sys
+from typing import Optional, Protocol
 
 # Import standard CrewAI components
 from crewai import Agent, Crew, Task
+
+
+class TeamProtocol(Protocol):
+    """Protocol for team objects that can run workflows."""
+
+    def run(self) -> object:
+        """Run the team workflow."""
+
 
 # Import memory-enhanced agent team
 try:
@@ -30,7 +38,6 @@ try:
 except ImportError:
     MEM0_AVAILABLE = False
     CREWAI_AVAILABLE = False
-
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -38,8 +45,14 @@ logger = logging.getLogger(__name__)
 
 # Example: Assemble into a Crew (team)
 
+mem0_available = MEM0_AVAILABLE
+crewai_available = CREWAI_AVAILABLE
+memory_enhanced_team_cls = MemoryEnhancedCrewAIAgentTeam if CREWAI_AVAILABLE else None
 
-def create_team(use_memory: bool = False, user_id: str | None = None) -> object:
+
+def create_team(
+    use_memory: bool = False, user_id: Optional[str] = None
+) -> TeamProtocol:
     """
     Create and return a CrewAI team, optionally using memory enhancement.
 
@@ -51,50 +64,54 @@ def create_team(use_memory: bool = False, user_id: str | None = None) -> object:
         A CrewAI team or memory-enhanced team
 
     """
-    if use_memory and MEM0_AVAILABLE:
+    if use_memory and mem0_available:
         if not user_id:
             user_id = "default_user"
             logger.warning("No user_id provided, using 'default_user'")
 
-        logger.info(f"Creating memory-enhanced team with user_id: {user_id}")
-        team = MemoryEnhancedCrewAIAgentTeam(user_id=user_id)
+        logger.info("Creating memory-enhanced team with user_id: %s", user_id)
+        if memory_enhanced_team_cls is None:
+            logger.error(
+                "MemoryEnhancedCrewAIAgentTeam class is not available. Falling back to standard team."
+            )
+        else:
+            team = memory_enhanced_team_cls(user_id=user_id)
+            # Add agents with memory capabilities
+            data_gatherer = team.add_agent(
+                role="Data Gatherer",
+                goal="Collect relevant information and data for the project",
+                backstory="An AI specialized in data collection from APIs and databases.",
+            )
 
-        # Add agents with memory capabilities
-        data_gatherer = team.add_agent(
-            role="Data Gatherer",
-            goal="Collect relevant information and data for the project",
-            backstory="An AI specialized in data collection from APIs and databases.",
-        )
+            analyzer = team.add_agent(
+                role="Analyzer",
+                goal="Analyze collected data and extract actionable insights",
+                backstory="An AI expert in analytics and pattern recognition.",
+            )
 
-        analyzer = team.add_agent(
-            role="Analyzer",
-            goal="Analyze collected data and extract actionable insights",
-            backstory="An AI expert in analytics and pattern recognition.",
-        )
+            writer = team.add_agent(
+                role="Writer",
+                goal="Generate clear, readable reports from analyzed data",
+                backstory="An AI that excels at communicating insights in natural language.",
+            )
 
-        writer = team.add_agent(
-            role="Writer",
-            goal="Generate clear, readable reports from analyzed data",
-            backstory="An AI that excels at communicating insights in natural language.",
-        )
+            # Add tasks
+            team.add_task(
+                description="Gather all relevant data from internal and external sources.",
+                agent=data_gatherer,
+            )
 
-        # Add tasks
-        team.add_task(
-            description="Gather all relevant data from internal and external sources.",
-            agent=data_gatherer,
-        )
+            team.add_task(
+                description="Analyze gathered data for trends and anomalies.",
+                agent=analyzer,
+            )
 
-        team.add_task(
-            description="Analyze gathered data for trends and anomalies.",
-            agent=analyzer,
-        )
+            team.add_task(
+                description="Write a summary report based on analysis.", agent=writer
+            )
 
-        team.add_task(
-            description="Write a summary report based on analysis.", agent=writer
-        )
-
-        return team
-    if use_memory and not MEM0_AVAILABLE:
+            return team
+    if use_memory and not mem0_available:
         logger.warning("mem0 not available, falling back to standard team")
 
     logger.info("Creating standard team without memory enhancement")
@@ -125,7 +142,8 @@ def create_team(use_memory: bool = False, user_id: str | None = None) -> object:
         agent=analyzer,
     )
     task_report = Task(
-        description="Write a summary report based on analysis.", agent=writer
+        description="Write a summary report based on analysis.",
+        agent=writer
     )
 
     reporting_team = Crew(
@@ -142,26 +160,26 @@ if __name__ == "__main__":
     )
 
     # Check if dependencies are available
-    if not CREWAI_AVAILABLE:
+    if not crewai_available:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
-        sys.exit(1) # PLR1722
+        sys.exit(1)
 
-    if not MEM0_AVAILABLE:
+    if not mem0_available:
         logger.warning("mem0 is not installed. Install with: pip install mem0ai")
 
     # Create team with memory enhancement if available
     use_memory = os.environ.get("USE_MEMORY", "1") == "1"
     user_id = os.environ.get("USER_ID", "example_user")
 
-    team = create_team(use_memory=use_memory, user_id=user_id)
+    team: TeamProtocol = create_team(use_memory=use_memory, user_id=user_id)
 
     # Example: Run the workflow (for demonstration; adapt as needed)
     try:
         result = team.run()
         logger.info("CrewAI workflow completed successfully")
-        logger.info(f"Result: {result}")
-    except Exception as e:
-        logger.error(f"Error running CrewAI workflow: {e}")
+        logger.info("Result: %s", result)
+    except Exception:
+        logger.exception("Error running CrewAI workflow")
 
 # Next steps:
 # - Replace example agents, goals, and tasks with project-specific logic.
