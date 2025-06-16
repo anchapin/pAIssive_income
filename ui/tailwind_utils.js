@@ -246,7 +246,7 @@ function buildTailwind(options = {}) {
       postcss = config?.postcss || {}
     } = options;
 
-    log(`Building Tailwind CSS with options:`, 'info', {
+    log('Building Tailwind CSS with options:', 'info', {
       configPath,
       inputPath,
       outputPath,
@@ -378,7 +378,7 @@ async function buildMultipleFiles(options) {
   const { files, watch, parallel = false } = options;
   const config = getConfig();
 
-  log(`Building multiple Tailwind CSS files`, 'info', {
+  log('Building multiple Tailwind CSS files', 'info', {
     fileCount: files.length,
     watch,
     parallel
@@ -522,7 +522,7 @@ async function buildAllTailwind(options = {}) {
       buildTools = config?.buildTools || {}
     } = options;
 
-    log(`Building all Tailwind CSS files`, 'info', { watch, parallel });
+    log('Building all Tailwind CSS files', 'info', { watch, parallel });
 
     // Check for webpack or vite integration
     const useWebpack = buildTools.webpack?.enabled || config?.buildTools?.webpack?.enabled;
@@ -587,7 +587,7 @@ function buildWithWebpack(options = {}) {
   const webpackConfig = options.buildTools?.webpack || config?.buildTools?.webpack || {};
 
   try {
-    log(`Building Tailwind CSS with webpack integration`, 'info', {
+    log('Building Tailwind CSS with webpack integration', 'info', {
       configPath: webpackConfig.configPath
     });
 
@@ -686,7 +686,7 @@ function buildWithVite(options = {}) {
   const viteConfig = options.buildTools?.vite || config?.buildTools?.vite || {};
 
   try {
-    log(`Building Tailwind CSS with Vite integration`, 'info', {
+    log('Building Tailwind CSS with Vite integration', 'info', {
       configPath: viteConfig.configPath
     });
 
@@ -892,7 +892,7 @@ function loadPostCSSPlugins(options = {}) {
   for (const plugin of options.plugins) {
     try {
       if (!plugin.name) {
-        log(`Invalid plugin configuration: missing name`, 'warn');
+        log('Invalid plugin configuration: missing name', 'warn');
         continue;
       }
 
@@ -959,7 +959,7 @@ async function main() {
     // Get configuration after parsing arguments
     const config = getConfig();
 
-    log(`Building Tailwind CSS with options:`, 'info', {
+    log('Building Tailwind CSS with options:', 'info', {
       files: options.files.length,
       watch: options.watch,
       parallel: options.parallel,

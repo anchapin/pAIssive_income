@@ -154,7 +154,7 @@ function AppContent() {
     primaryColor: theme.palette.primary.main,
     secondaryColor: theme.palette.secondary.main,
     fontFamily: theme.typography.fontFamily,
-    borderRadius: "8px",
+    borderRadius: '8px',
     darkMode: darkMode,
   };
 

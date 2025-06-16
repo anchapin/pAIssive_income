@@ -64,7 +64,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: '8'
+          version: '8.14.0'
 
       # Add pnpm to PATH (macOS)
       - name: Add pnpm to PATH
@@ -81,6 +81,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+          cache-dependency-path: 'package.json'
 
       # Verify pnpm installation
       - name: Check pnpm version

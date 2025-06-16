@@ -28,7 +28,7 @@ import {
  */
 const RevenueAreaChart = ({
   data,
-  title = "Revenue Projections",
+  title = 'Revenue Projections',
   height = 400,
   milestones = []
 }) => {

@@ -25,12 +25,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: 'pnpm'
+          cache-dependency-path: 'package.json'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: '8.14.0' # Match version in package.json packageManager field
           run_install: false
 
       - name: Install dependencies
@@ -47,7 +48,7 @@ jobs:
           echo "Node.js version: $(node --version)"
           echo "npm version: $(npm --version)"
           echo "pnpm version: $(pnpm --version)"
-          pnpm test:ci --passWithNoTests || true
+          pnpm test || true
 
       - name: Generate coverage report
         run: pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage report, but continuing workflow"
@@ -56,7 +57,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage/lcov.info
-          flags: js, node${{ matrix.node-version }}
+          flags: js,node${{ matrix.node-version }}
           fail_ci_if_error: false
 
       - name: Upload HTML coverage report as artifact
