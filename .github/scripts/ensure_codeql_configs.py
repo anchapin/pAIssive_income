@@ -75,11 +75,7 @@ def main() -> None:
     unified_config = codeql_dir / "security-os-config.yml"
     create_codeql_config(str(unified_config), "Unified CodeQL Configuration")
 
-<<<<<<< HEAD
     logger.info("All CodeQL configuration files created successfully.")
-
-=======
->>>>>>> main
 
 if __name__ == "__main__":
     main()
