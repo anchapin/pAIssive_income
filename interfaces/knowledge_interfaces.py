@@ -59,9 +59,83 @@ from __future__ import annotations  # Already present, but good to ensure
 import logging  # Added logging import
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any
+from typing import Any, Protocol
 
 logger = logging.getLogger(__name__) # Added module-level logger
+
+
+class Mem0ClientProtocol(Protocol):
+    """
+    Protocol definition for mem0 client interface.
+
+    This protocol defines the expected interface for mem0 clients,
+    improving type safety and making the expected API explicit.
+    """
+
+    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+        """
+        Search for memories based on query and user context.
+
+        Args:
+            query: The search query string
+            user_id: Unique identifier for the user
+            **kwargs: Additional search parameters
+
+        Returns:
+            List of memory results as dictionaries
+        """
+        ...
+
+    def add(self, content: str | list[dict[str, str]], user_id: str, **kwargs: Any) -> Any:
+        """
+        Add new memory content.
+
+        Args:
+            content: Content to store (string or conversation messages)
+            user_id: Unique identifier for the user
+            **kwargs: Additional parameters (e.g., metadata)
+
+        Returns:
+            Result of the add operation
+        """
+        ...
+
+
+class VectorClientProtocol(Protocol):
+    """
+    Protocol definition for vector database client interface.
+
+    This protocol defines the expected interface for vector database clients,
+    improving type safety and making the expected API explicit.
+    """
+
+    def query(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+        """
+        Query the vector database for relevant documents.
+
+        Args:
+            query: The search query string
+            user_id: Unique identifier for the user
+            **kwargs: Additional query parameters (e.g., limit, filters)
+
+        Returns:
+            List of relevant documents as dictionaries
+        """
+        ...
+
+    def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
+        """
+        Add new content to the vector database.
+
+        Args:
+            content: Content to store
+            user_id: Unique identifier for the user
+            **kwargs: Additional parameters (e.g., metadata, embeddings)
+
+        Returns:
+            Result of the add operation
+        """
+        ...
 
 
 class KnowledgeSource(ABC):
@@ -139,25 +213,31 @@ class Mem0KnowledgeSource(KnowledgeSource):
     Concrete implementation of KnowledgeSource for mem0 (Memory API).
     """
 
-    def __init__(self, mem0_client: Any):
+    def __init__(self, mem0_client: Mem0ClientProtocol):
         """
         Initialize Mem0KnowledgeSource.
 
         Args:
-            mem0_client: Initialized client for mem0's Memory API.
+            mem0_client: Initialized client for mem0's Memory API that implements Mem0ClientProtocol.
 
         """
-        self.mem0_client = mem0_client  # Stub: Replace with actual mem0 client
+        self.mem0_client = mem0_client
 
     def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
         """Search mem0 for relevant memories."""
-        # Stub: Replace with actual call to mem0's Memory API
-        return [{"source": "mem0", "content": f"Stub memory for '{query}'"}]
+        try:
+            return self.mem0_client.search(query, user_id, **kwargs)
+        except Exception:
+            logger.exception("Error searching mem0 memories")
+            return []
 
     def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
         """Add new content to mem0."""
-        # Stub: Replace with actual call to mem0's add API
-        return {"source": "mem0", "status": "added", "content": content}
+        try:
+            return self.mem0_client.add(content, user_id, **kwargs)
+        except Exception:
+            logger.exception("Error adding content to mem0")
+            return {"source": "mem0", "status": "error", "content": content}
 
 
 class VectorRAGKnowledgeSource(KnowledgeSource):
@@ -165,25 +245,31 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
     Concrete implementation of KnowledgeSource for vector database RAG (e.g., ChromaDB).
     """
 
-    def __init__(self, vector_client: Any):
+    def __init__(self, vector_client: VectorClientProtocol):
         """
         Initialize VectorRAGKnowledgeSource.
 
         Args:
-            vector_client: Initialized vector DB client (e.g., ChromaDB).
+            vector_client: Initialized vector DB client (e.g., ChromaDB) that implements VectorClientProtocol.
 
         """
-        self.vector_client = vector_client  # Stub: Replace with actual vector DB client
+        self.vector_client = vector_client
 
     def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
         """Search vector DB for relevant documents."""
-        # Stub: Replace with actual vector DB search
-        return [{"source": "vector_rag", "content": f"Stub vector match for '{query}'"}]
+        try:
+            return self.vector_client.query(query, user_id, **kwargs)
+        except Exception:
+            logger.exception("Error searching vector database")
+            return []
 
     def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
         """Add new content to vector DB."""
-        # Stub: Replace with actual vector DB add
-        return {"source": "vector_rag", "status": "added", "content": content}
+        try:
+            return self.vector_client.add(content, user_id, **kwargs)
+        except Exception:
+            logger.exception("Error adding content to vector database")
+            return {"source": "vector_rag", "status": "error", "content": content}
 
 
 class KnowledgeStrategy(Enum):

@@ -7,6 +7,7 @@ This is a scaffold for further expansion.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from common_utils import tooling
@@ -90,7 +91,6 @@ class ArtistAgent:
     def _extract_calculator_expression(self, prompt: str) -> str:
         """Extract mathematical expression from prompt for calculator tool."""
         # Simple extraction - look for mathematical expressions
-        import re
 
         # Find mathematical expressions with numbers and operators
         pattern = r"[\d\+\-\*/\(\)\.\s]+"
@@ -102,7 +102,6 @@ class ArtistAgent:
 
     def _extract_text_analyzer_expression(self, prompt: str) -> str:
         """Extract text to analyze from prompt for text analyzer tool."""
-        import re
 
         # Try to find text after "analyze" or "sentiment of"
         analyze_match = re.search(
@@ -127,7 +126,6 @@ class ArtistAgent:
     def _extract_code_executor_expression(self, prompt: str) -> str:
         """Extract code to execute from prompt for code executor tool."""
         # Look for code blocks or return the full prompt
-        import re
 
         # Look for code blocks marked with ```
         code_pattern = r"```(?:python|py)?\s*(.*?)```"

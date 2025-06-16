@@ -13,7 +13,6 @@ from pathlib import Path
 
 # Initialize logger
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 
 def ensure_directory(directory: str) -> None:
@@ -47,7 +46,7 @@ def create_codeql_config(filename: str, config_name: str, os_name: str | None = 
     if os_name:
         config["os"] = os_name
 
-    with Path(filename).open("w") as f:
+    with Path(filename).open("w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
 
     logger.info("Created CodeQL configuration file: %s", filename)
@@ -78,4 +77,5 @@ def main() -> None:
     logger.info("All CodeQL configuration files created successfully.")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     main()

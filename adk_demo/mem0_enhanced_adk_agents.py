@@ -113,9 +113,6 @@ if ADK_AVAILABLE:
     except ImportError:
         # Keep placeholder skills if import fails
         pass
-else:
-    # Use placeholder skills if ADK is not available - already defined above
-    pass
 
 
 # Configure logging

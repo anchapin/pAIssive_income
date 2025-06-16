@@ -42,13 +42,8 @@ if %ERRORLEVEL% == 0 (
         echo   - package.json is valid
         echo   - network connectivity is available
         echo.
-        echo WARNING: Continuing with setup, but Node.js functionality may be impacted.
-        echo You can retry manually with: pnpm install
-        echo.
-        echo If Node.js dependencies are critical for your setup, consider stopping here.
-        echo To make pnpm install failure stop the script, uncomment the next two lines:
-        echo REM popd
-        echo REM exit /b 1
+        popd
+        exit /b 1
     ) else (
         echo Node.js dependencies installed successfully via pnpm.
     )
