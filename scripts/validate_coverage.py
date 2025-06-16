@@ -7,8 +7,19 @@ and ensures that coverage.xml files are generated correctly.
 """
 
 import sys
-import xml.etree.ElementTree as ET
 from pathlib import Path
+
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    # Fallback to standard library with warning
+    import xml.etree.ElementTree as ET
+    import warnings
+    warnings.warn(
+        "defusedxml not available, using xml.etree.ElementTree. "
+        "Install defusedxml for better security: pip install defusedxml",
+        UserWarning
+    )
 
 
 def validate_coverage_xml(coverage_file: str = "coverage.xml", min_threshold: float = 15.0) -> bool:
