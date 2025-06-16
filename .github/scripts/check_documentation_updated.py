@@ -49,7 +49,7 @@ def get_git_executable() -> str:
     return "git"
 
 
-def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
+def get_changed_files() -> list[str]:  # noqa: PLR0915
     """
     Return a list of files changed in the current PR or commit range.
 
@@ -199,6 +199,7 @@ def _get_files_from_github_api(github_event_name: str) -> list[str]:
 
     Returns:
         List of changed file paths
+
     """
     try:
         # Check if we're in a GitHub Actions environment with an event payload
@@ -358,6 +359,7 @@ def _check_for_recent_doc_files() -> bool:
 
     Returns:
         True if documentation files are found, False otherwise
+
     """
     try:
         # Look for common documentation files that might indicate documentation updates

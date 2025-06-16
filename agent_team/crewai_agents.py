@@ -228,8 +228,8 @@ class CrewAIAgentTeam:
 
         """
         self.llm_provider = llm_provider
-        self.agents: list[object] = []
-        self.tasks: list[object] = []
+        self.agents: list[AgentProtocol] = []
+        self.tasks: list[TaskProtocol] = []
         self.api_client: object | None = None
 
         # Dedicated logger for agentic reasoning

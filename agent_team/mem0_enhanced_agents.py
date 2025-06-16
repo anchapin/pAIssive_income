@@ -34,17 +34,17 @@ from typing import Any, Optional, Union
 try:
     # Check if CrewAI is available without importing unused components
     import crewai  # noqa: F401
-    CREWAI_AVAILABLE = True
+    crewai_available = True
 except ImportError:
-    CREWAI_AVAILABLE = False
+    crewai_available = False
 
 # Import mem0 components
 try:
     from mem0 import Memory
 
-    MEM0_AVAILABLE = True
+    mem0_available = True
 except ImportError:
-    MEM0_AVAILABLE = False
+    mem0_available = False
     Memory = None  # type: ignore[assignment]
 
 # Import base CrewAI agent team
@@ -80,7 +80,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         super().__init__(llm_provider)
 
         # Initialize mem0 memory if available
-        if MEM0_AVAILABLE and Memory is not None:
+        if mem0_available and Memory is not None:
             self.memory = Memory()
             logger.info("mem0 memory initialized")
         else:
@@ -162,7 +162,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             The result of the workflow
 
         """
-        if not CREWAI_AVAILABLE:
+        if not crewai_available:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
 
@@ -347,10 +347,10 @@ if __name__ == "__main__":
     )
 
     # Check if dependencies are available
-    if not CREWAI_AVAILABLE:
+    if not crewai_available:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
         sys.exit(1)
-    elif not MEM0_AVAILABLE:
+    elif not mem0_available:
         logger.error("mem0 is not installed. Install with: pip install mem0ai")
         sys.exit(1)
     else:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-check_dead_links.py
+check_dead_links.py.
 
 Scans all Markdown documentation for dead links, excluding files/directories in .gitignore.
 Outputs a summary report to stdout.
@@ -12,12 +12,13 @@ Outputs a summary report to stdout.
 Requires: Python 3.8+, requests
 """
 
+import fnmatch
 import os
 import re
 import sys
-import fnmatch
+from urllib.parse import urldefrag, urlparse
+
 import requests
-from urllib.parse import urlparse, urldefrag
 
 # Config
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -29,14 +30,14 @@ def load_gitignore(root):
     path = os.path.join(root, ".gitignore")
     if not os.path.isfile(path):
         return ignore
-    with open(path, "r") as f:
+    with open(path) as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith("#"):
                 ignore.append(line)
     return ignore
 
-def should_exclude(path, ignore_patterns):
+def should_exclude(path, ignore_patterns) -> bool:
     rel_path = os.path.relpath(path, REPO_ROOT)
     for pat in ignore_patterns:
         if pat.endswith("/"):
@@ -59,8 +60,8 @@ def find_markdown_files(root, ignore_patterns):
                 if not should_exclude(full, ignore_patterns):
                     yield full
 
-LINK_RE = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
-INLINE_LINK_RE = re.compile(r'<(https?://[^>]+)>')
+LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+INLINE_LINK_RE = re.compile(r"<(https?://[^>]+)>")
 
 def extract_links(markdown):
     links = []
@@ -97,7 +98,7 @@ def anchors_in_markdown(content):
         anchors.add(anchor)
     return anchors
 
-def check_file_link(url, basepath):
+def check_file_link(url, basepath) -> bool:
     # Remove anchor
     path, anchor = urldefrag(url)
     path = os.path.normpath(os.path.join(os.path.dirname(basepath), path))
@@ -114,7 +115,7 @@ def check_file_link(url, basepath):
         return False
     return True
 
-def main():
+def main() -> None:
     ignore_patterns = load_gitignore(REPO_ROOT)
     files_checked = 0
     total_links = 0
@@ -140,9 +141,8 @@ def main():
                     anchor_fmt = link[1:].lower().replace(" ", "-")
                     if anchor_fmt not in file_anchors:
                         dead_links.append((mdfile, link))
-                else:
-                    if not check_file_link(link, mdfile):
-                        dead_links.append((mdfile, link))
+                elif not check_file_link(link, mdfile):
+                    dead_links.append((mdfile, link))
             # else: skip mailto:, etc.
 
     print(f"Markdown files checked: {files_checked}")

@@ -24,7 +24,7 @@ The consolidated CI/CD pipeline provides comprehensive testing, security scannin
   - Linting with Ruff
   - Type checking with mypy
   - Testing with pytest (parallel execution)
-  - Coverage reporting to Codecov
+  - Coverage reporting to Codecov (15% minimum threshold enforced)
 
 ### 2. Security & SAST (`security`)
 - **Runs on**: Ubuntu, Windows, MacOS
