@@ -70,7 +70,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-          cache-dependency-path: 'package.json'
+          cache-dependency-path: './pnpm-lock.yaml'
 
       # Add pnpm to PATH for Linux/macOS
       - name: Add pnpm to PATH

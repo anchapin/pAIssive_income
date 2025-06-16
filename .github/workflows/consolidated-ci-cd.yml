@@ -102,7 +102,7 @@ jobs:
         with:
           node-version: '20.11.0' # Specify exact Node.js version for consistency
           cache: 'pnpm'
-          cache-dependency-path: 'pnpm-lock.yaml'
+          cache-dependency-path: './pnpm-lock.yaml'
 
       - name: Get pnpm store directory
         shell: bash

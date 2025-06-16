@@ -81,7 +81,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-          cache-dependency-path: 'package.json'
+          cache-dependency-path: './pnpm-lock.yaml'
 
       # Verify pnpm installation
       - name: Check pnpm version

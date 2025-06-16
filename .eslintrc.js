@@ -15,6 +15,14 @@ module.exports = {
       jsx: true,
     },
   },
+  ignorePatterns: [
+    'dist/',
+    'node_modules/',
+    'build/',
+    '.venv/',
+    'venv/',
+    '*.min.js',
+  ],
   rules: {
     'quotes': ['error', 'single'],
     'no-console': 'warn',

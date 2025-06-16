@@ -83,7 +83,7 @@ jobs:
         with:
           node-version: '20.11.0' # Use consistent Node.js version across workflows
           cache: 'pnpm'
-          cache-dependency-path: 'ui/react_frontend/package.json'
+          cache-dependency-path: './pnpm-lock.yaml'
 
       # Install global pnpm if needed (for Windows)
       - name: Install global pnpm (Windows)
@@ -98,6 +98,7 @@ jobs:
           pnpm --version
 
       - name: Install root dependencies first
+        working-directory: .
         run: pnpm install --frozen-lockfile
 
       - name: Install frontend dependencies

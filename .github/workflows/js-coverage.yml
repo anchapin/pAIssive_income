@@ -21,18 +21,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-          cache-dependency-path: 'package.json'
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: '8.14.0' # Match version in package.json packageManager field
           run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+          cache-dependency-path: './pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install
