@@ -195,7 +195,8 @@ class MemoryEnhancedAgent(Agent):
         return response
 
     def _extract_query_from_message(self, message: Message) -> str:
-        """Extract a query string from a message."""
+        """
+        Extract a query string from a message.
 
         Args:
             message: The message to extract from
@@ -215,7 +216,8 @@ class MemoryEnhancedAgent(Agent):
     def _enhance_message_with_memories(
         self, message: Message, memories: list[dict[str, Any]]
     ) -> Message:
-        """Enhance a message with relevant memories."""
+        """
+        Enhance a message with relevant memories.
 
         Args:
             message: The original message
@@ -234,7 +236,8 @@ class MemoryEnhancedAgent(Agent):
         return message
 
     def _store_interaction(self, message: Message, response: Message) -> None:
-        """Store an interaction in memory."""
+        """
+        Store an interaction in memory.
 
         Args:
             message: The incoming message
@@ -260,7 +263,8 @@ class MemoryEnhancedAgent(Agent):
     def _store_memory(
         self, content: str | list[dict[str, str]], metadata: dict[str, str] | None = None
     ) -> None:
-        """Store a memory using mem0."""
+        """
+        Store a memory using mem0.
 
         Args:
             content: The content to store (string or conversation messages)
@@ -283,7 +287,8 @@ class MemoryEnhancedAgent(Agent):
     def _retrieve_relevant_memories(
         self, query: str, limit: int = 5
     ) -> list[dict[str, Any]]:
-        """Retrieve relevant memories for a query."""
+        """
+        Retrieve relevant memories for a query.
 
         Args:
             query: The query string

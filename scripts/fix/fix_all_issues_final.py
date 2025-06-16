@@ -17,7 +17,7 @@ import sys
 from typing import Callable, Optional
 
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.custom_logging import get_logger
 
 # Initialize logger
 logger = get_logger(__name__)
