@@ -1,4 +1,5 @@
-"""audit - Module for common_utils/custom_secrets/audit.py.
+"""
+audit - Module for common_utils/custom_secrets/audit.py.
 
 This module provides utilities for auditing code for hardcoded secrets.
 """
@@ -22,7 +23,10 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 # Local imports
-from common_utils.custom_logging.secure_logging import get_secure_logger, mask_sensitive_data
+from common_utils.custom_logging.secure_logging import (
+    get_secure_logger,
+    mask_sensitive_data,
+)
 
 # Initialize secure logger
 logger = get_secure_logger(__name__)

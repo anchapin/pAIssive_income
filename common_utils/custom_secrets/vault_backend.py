@@ -1,4 +1,5 @@
-"""vault_backend - Module for common_utils/custom_secrets/vault_backend.py.
+"""
+vault_backend - Module for common_utils/custom_secrets/vault_backend.py.
 
 This module provides integration with HashiCorp Vault for secrets management.
 """

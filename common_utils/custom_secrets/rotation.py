@@ -1,4 +1,5 @@
-"""rotation - Module for common_utils/custom_secrets/rotation.py.
+"""
+rotation - Module for common_utils/custom_secrets/rotation.py.
 
 This module provides utilities for rotating secrets.
 """

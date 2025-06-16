@@ -18,8 +18,12 @@ __version__ = "0.120.0"
 # Import classes in a specific order to avoid circular imports
 from .agent import Agent
 from .crew import Crew
+from .custom_types import (  # Changed .types to .custom_types
+    AgentType,
+    CrewType,
+    TaskType,
+)
 from .task import Task
-from .custom_types import AgentType, CrewType, TaskType # Changed .types to .custom_types
 
 # Define what should be exported
 __all__ = ["Agent", "Crew", "Task", "__version__"]

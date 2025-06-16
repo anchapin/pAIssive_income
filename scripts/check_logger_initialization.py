@@ -7,13 +7,13 @@ Validates Python files for proper logger setup patterns.
 from __future__ import annotations
 
 import ast
+import logging  # Added logging import
 import sys
 from pathlib import Path
-import logging # Added logging import
 
 # Initialize logger for this script itself
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(name)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s: %(message)s")
 
 
 class LoggerChecker(ast.NodeVisitor):

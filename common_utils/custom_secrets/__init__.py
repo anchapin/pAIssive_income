@@ -1,4 +1,5 @@
-"""__init__ - Module for common_utils/custom_secrets/__init__.py.
+"""
+__init__ - Module for common_utils/custom_secrets/__init__.py.
 
 This package provides utilities for managing secrets across different backends.
 """

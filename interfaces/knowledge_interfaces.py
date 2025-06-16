@@ -54,9 +54,9 @@ Note:
 
 """
 
-from __future__ import annotations # Already present, but good to ensure
+from __future__ import annotations  # Already present, but good to ensure
 
-import logging # Added logging import
+import logging  # Added logging import
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any
@@ -101,7 +101,8 @@ class KnowledgeSource(ABC):
         """
 
     def update(self, content_id: str, new_content: str, user_id: str, **kwargs: Any) -> Any:
-        """Update existing knowledge entry.
+        """
+        Update existing knowledge entry.
 
         Args:
             content_id: Identifier of content to update.
@@ -117,7 +118,8 @@ class KnowledgeSource(ABC):
         raise NotImplementedError(msg)
 
     def delete(self, content_id: str, user_id: str, **kwargs: Any) -> Any:
-        """Delete an entry.
+        """
+        Delete an entry.
 
         Args:
             content_id: Identifier of content to delete.
@@ -138,10 +140,12 @@ class Mem0KnowledgeSource(KnowledgeSource):
     """
 
     def __init__(self, mem0_client: Any):
-        """Initialize Mem0KnowledgeSource.
+        """
+        Initialize Mem0KnowledgeSource.
 
         Args:
             mem0_client: Initialized client for mem0's Memory API.
+
         """
         self.mem0_client = mem0_client  # Stub: Replace with actual mem0 client
 
@@ -162,10 +166,12 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
     """
 
     def __init__(self, vector_client: Any):
-        """Initialize VectorRAGKnowledgeSource.
+        """
+        Initialize VectorRAGKnowledgeSource.
 
         Args:
             vector_client: Initialized vector DB client (e.g., ChromaDB).
+
         """
         self.vector_client = vector_client  # Stub: Replace with actual vector DB client
 
@@ -200,15 +206,17 @@ class KnowledgeIntegrationLayer:
     def __init__(
         self,
         sources: list[KnowledgeSource],
-        strategy: "KnowledgeStrategy" = KnowledgeStrategy.FALLBACK,
+        strategy: KnowledgeStrategy = KnowledgeStrategy.FALLBACK,
     ):
-        """Initialize KnowledgeIntegrationLayer.
+        """
+        Initialize KnowledgeIntegrationLayer.
 
         Args:
             sources: List of KnowledgeSource implementations.
             strategy: Aggregation logic. One of:
                 - KnowledgeStrategy.FALLBACK: Try sources in order, return first with results.
                 - KnowledgeStrategy.AGGREGATE: Query all sources and merge results.
+
         """
         self.sources = sources
         if isinstance(strategy, str):

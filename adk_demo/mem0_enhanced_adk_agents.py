@@ -248,6 +248,7 @@ class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
             with historical context for better decision making.
 
             For now, we simply return the original message unchanged.
+
         """
         return message
 
