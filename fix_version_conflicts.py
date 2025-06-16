@@ -13,7 +13,9 @@ import sys
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +30,8 @@ def fix_pydantic_version_conflict() -> bool:
             [sys.executable, "-m", "pip", "install", "pydantic>=2.6.0,<2.10.0"],
             capture_output=True,
             text=True,
-            timeout=60, check=False
+            timeout=60,
+            check=False,
         )
 
         if result.returncode == 0:
@@ -53,7 +56,8 @@ def fix_click_version_conflict() -> bool:
             [sys.executable, "-m", "pip", "install", "click>=8.0.2,<8.2.0"],
             capture_output=True,
             text=True,
-            timeout=60, check=False
+            timeout=60,
+            check=False,
         )
 
         if result.returncode == 0:
@@ -76,13 +80,16 @@ def verify_dependency_resolution() -> bool:
             [sys.executable, "-m", "pip", "check"],
             capture_output=True,
             text=True,
-            timeout=30, check=False
+            timeout=30,
+            check=False,
         )
 
         if result.returncode == 0:
             logger.info("✓ All dependency conflicts resolved")
             return True
-        logger.warning(f"✗ Remaining dependency conflicts:\n{result.stdout}\n{result.stderr}")
+        logger.warning(
+            f"✗ Remaining dependency conflicts:\n{result.stdout}\n{result.stderr}"
+        )
         return False
 
     except Exception as e:
@@ -102,10 +109,7 @@ def update_requirements_with_fixed_versions() -> bool:
                 content = f.read()
 
             # Update pydantic version constraint
-            content = content.replace(
-                "pydantic>=2.6.0",
-                "pydantic>=2.6.0,<2.10.0"
-            )
+            content = content.replace("pydantic>=2.6.0", "pydantic>=2.6.0,<2.10.0")
 
             # Add click version constraint if not present
             if "click>=" not in content:

@@ -10,7 +10,9 @@ import sys
 from typing import Optional, Tuple
 
 
-def test_import(package_name: str, import_statement: Optional[str] = None) -> Tuple[bool, str]:
+def test_import(
+    package_name: str, import_statement: Optional[str] = None
+) -> Tuple[bool, str]:
     """Test importing a package and return success status and message."""
     if import_statement is None:
         import_statement = f"import {package_name}"
@@ -83,15 +85,19 @@ def main():
     print("\n🔍 Testing version compatibility:")
     try:
         import pydantic
+
         print(f"  ✅ pydantic version: {pydantic.__version__}")
 
         import fastapi
+
         print(f"  ✅ fastapi version: {fastapi.__version__}")
 
         import click
+
         print(f"  ✅ click version: {click.__version__}")
 
         import pytest
+
         print(f"  ✅ pytest version: {pytest.__version__}")
 
     except Exception as e:

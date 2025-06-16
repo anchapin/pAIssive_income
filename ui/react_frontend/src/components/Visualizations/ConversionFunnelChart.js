@@ -67,17 +67,17 @@ import InfoIcon from '@mui/icons-material/Info';
  */
 const ConversionFunnelChart = ({
   data = [],
-  title = "User Conversion Funnel",
+  title = 'User Conversion Funnel',
   height = 400,
   comparisonData = null,
-  segmentOptions = ["All Users", "New Users", "Returning Users", "Mobile Users", "Desktop Users"]
+  segmentOptions = ['All Users', 'New Users', 'Returning Users', 'Mobile Users', 'Desktop Users']
 }) => {
   // State for showing comparison funnel
   const [showComparison, setShowComparison] = useState(false);
 
   // State for display options
   const [sortMethod, setSortMethod] = useState('default');
-  const [selectedSegment, setSelectedSegment] = useState("All Users");
+  const [selectedSegment, setSelectedSegment] = useState('All Users');
 
   // State for drill-down dialog
   const [drilldownOpen, setDrilldownOpen] = useState(false);
@@ -137,7 +137,7 @@ const ConversionFunnelChart = ({
         conversionRate: conversionRate !== null ? conversionRate.toFixed(1) : null,
         dropoff: conversionRate !== null ? 100 - conversionRate : null,
         previousConversionRate: previousConversionRate !== null ? previousConversionRate.toFixed(1) : null,
-        percentOfTop: index > 0 ? (item.value / processedData[0].value * 100).toFixed(1) : "100.0"
+        percentOfTop: index > 0 ? (item.value / processedData[0].value * 100).toFixed(1) : '100.0'
       };
     });
   };
@@ -175,18 +175,18 @@ const ConversionFunnelChart = ({
 
     // 2. Segment breakdown
     const segmentData = [
-      { segment: "Mobile", value: Math.round(stage.value * 0.4) },
-      { segment: "Desktop", value: Math.round(stage.value * 0.5) },
-      { segment: "Tablet", value: Math.round(stage.value * 0.1) }
+      { segment: 'Mobile', value: Math.round(stage.value * 0.4) },
+      { segment: 'Desktop', value: Math.round(stage.value * 0.5) },
+      { segment: 'Tablet', value: Math.round(stage.value * 0.1) }
     ];
 
     // 3. User sources
     const sourceData = [
-      { source: "Direct", value: Math.round(stage.value * 0.3) },
-      { source: "Organic Search", value: Math.round(stage.value * 0.25) },
-      { source: "Social Media", value: Math.round(stage.value * 0.2) },
-      { source: "Email", value: Math.round(stage.value * 0.15) },
-      { source: "Referral", value: Math.round(stage.value * 0.1) }
+      { source: 'Direct', value: Math.round(stage.value * 0.3) },
+      { source: 'Organic Search', value: Math.round(stage.value * 0.25) },
+      { source: 'Social Media', value: Math.round(stage.value * 0.2) },
+      { source: 'Email', value: Math.round(stage.value * 0.15) },
+      { source: 'Referral', value: Math.round(stage.value * 0.1) }
     ];
 
     // 4. User journey paths (entry and exit)
@@ -211,7 +211,7 @@ const ConversionFunnelChart = ({
       const data = payload[0].payload;
 
       // Determine if we're showing comparison data
-      const isComparison = payload.length > 1 && payload[1]?.dataKey === "comparisonValue";
+      const isComparison = payload.length > 1 && payload[1]?.dataKey === 'comparisonValue';
       const comparisonValue = isComparison ? payload[1].value : null;
 
       const changePercent = isComparison && comparisonValue
@@ -336,25 +336,25 @@ const ConversionFunnelChart = ({
 
     if (format === 'csv') {
       // Create CSV content
-      let csvContent = "data:text/csv;charset=utf-8,";
+      let csvContent = 'data:text/csv;charset=utf-8,';
 
       // Add headers
-      csvContent += "Stage,Users,Conversion Rate,Dropoff\n";
+      csvContent += 'Stage,Users,Conversion Rate,Dropoff\n';
 
       // Add data rows
       funnelData.forEach((item, index) => {
         const nextItem = funnelData[index + 1];
-        const conversionRate = nextItem ? item.conversionRate + "%" : "N/A";
-        const dropoff = nextItem ? item.dropoff + "%" : "N/A";
+        const conversionRate = nextItem ? item.conversionRate + '%' : 'N/A';
+        const dropoff = nextItem ? item.dropoff + '%' : 'N/A';
 
         csvContent += `${item.name},${item.value},${conversionRate},${dropoff}\n`;
       });
 
       // Create download link
       const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.csv`);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_data.csv`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup
@@ -367,9 +367,9 @@ const ConversionFunnelChart = ({
       // Create download link
       const blob = new Blob([jsonContent], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.json`);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_data.json`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup
@@ -392,7 +392,7 @@ const ConversionFunnelChart = ({
               <Button
                 onClick={() => setShowComparison(!showComparison)}
                 startIcon={<CompareIcon />}
-                color={showComparison ? "primary" : "inherit"}
+                color={showComparison ? 'primary' : 'inherit'}
                 disabled={!comparisonData}
               >
                 Compare
@@ -762,7 +762,7 @@ const ConversionFunnelChart = ({
                               <Typography variant="h5" component="div"
                                 color={
                                   drilldownData.trendData[6].value > drilldownData.trendData[0].value ?
-                                  "success.main" : "error.main"
+                                  'success.main' : 'error.main'
                                 }
                               >
                                 {(((drilldownData.trendData[6].value / drilldownData.trendData[0].value) - 1) * 100).toFixed(1)}%

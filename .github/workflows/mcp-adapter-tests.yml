@@ -34,6 +34,11 @@ on:
       - 'scripts/setup/install_mcp_sdk.py'
       - '.github/workflows/mcp-adapter-tests.yml'
 
+# Prevent concurrent runs to avoid resource conflicts
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-mcp-adapter:
     name: Test MCP Adapter
@@ -52,7 +57,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.7" # Use consistent Python version across workflows
 
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'

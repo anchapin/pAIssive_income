@@ -40,12 +40,16 @@ def parse_requirements_file(file_path: Path) -> Dict[str, str]:
                 version_spec = match.group(2) or ""
                 packages[package_name] = version_spec.strip()
             else:
-                print(f"Warning: Could not parse line {line_num} in {file_path}: {line}")
+                print(
+                    f"Warning: Could not parse line {line_num} in {file_path}: {line}"
+                )
 
     return packages
 
 
-def find_conflicts(files_packages: Dict[str, Dict[str, str]]) -> List[Tuple[str, Dict[str, str]]]:
+def find_conflicts(
+    files_packages: Dict[str, Dict[str, str]],
+) -> List[Tuple[str, Dict[str, str]]]:
     """Find packages with conflicting version specifications."""
     conflicts = []
 
@@ -71,7 +75,9 @@ def find_conflicts(files_packages: Dict[str, Dict[str, str]]) -> List[Tuple[str,
     return conflicts
 
 
-def check_missing_security_tools(files_packages: Dict[str, Dict[str, str]]) -> List[str]:
+def check_missing_security_tools(
+    files_packages: Dict[str, Dict[str, str]],
+) -> List[str]:
     """Check for missing security tools."""
     security_tools = ["safety", "bandit", "click"]
     missing_tools = []
@@ -128,7 +134,9 @@ def main() -> None:
         print("✅ All required security tools are present!")
 
     # Summary
-    total_packages = len(set().union(*[packages.keys() for packages in files_packages.values()]))
+    total_packages = len(
+        set().union(*[packages.keys() for packages in files_packages.values()])
+    )
     print("\n📊 Summary:")
     print(f"  - Total unique packages: {total_packages}")
     print(f"  - Version conflicts: {len(conflicts)}")

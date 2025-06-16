@@ -26,7 +26,11 @@ API_KEY = os.getenv("TOOL_API_KEY")
 api_key = API_KEY
 if not api_key:
     # Check if we're in a testing/CI environment where API key might not be set
-    if os.getenv("CI") == "true" or os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
+    if (
+        os.getenv("CI") == "true"
+        or os.getenv("PYTEST_CURRENT_TEST")
+        or os.getenv("TESTING")
+    ):
         api_key = "test-api-key-for-ci"
         logger.warning("Using test API key for CI/testing environment")
     else:

@@ -83,6 +83,7 @@ except ImportError:
     MEM0_AVAILABLE = False
     Memory = None  # type: ignore[assignment]
 
+
 # Import existing skills from adk_demo
 # Define placeholder skills that work regardless of ADK availability
 class DataGathererSkill(Skill):

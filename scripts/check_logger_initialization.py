@@ -226,7 +226,9 @@ def main() -> None:
             for issue_type, line_no, message in issues:
                 logger.info("  Line %s: %s - %s", line_no, issue_type, message)
 
-    logger.info("\nSummary: Found %s issues in %s files", total_issues, files_with_issues)
+    logger.info(
+        "\nSummary: Found %s issues in %s files", total_issues, files_with_issues
+    )
 
     # Exit with error code if issues found (for CI/CD)
     if total_issues > 0:

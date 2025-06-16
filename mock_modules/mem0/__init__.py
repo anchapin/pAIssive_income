@@ -1,5 +1,7 @@
 """Mock mem0 module."""
+
 __version__ = "0.1.100"
+
 
 class Memory:
     def __init__(self, config=None) -> None:
@@ -14,7 +16,7 @@ class Memory:
     def search(self, query, user_id="default", **kwargs):
         return [
             {"id": "mock-1", "text": f"Mock memory result for: {query}", "score": 0.9},
-            {"id": "mock-2", "text": f"Another mock result for: {query}", "score": 0.8}
+            {"id": "mock-2", "text": f"Another mock result for: {query}", "score": 0.8},
         ]
 
     def get(self, memory_id):

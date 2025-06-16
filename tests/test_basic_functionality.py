@@ -8,6 +8,7 @@ import pytest
 def test_ai_models_adapters_init():
     """Test ai_models adapters initialization."""
     from ai_models.adapters import adapter_factory
+
     assert adapter_factory is not None
 
 
@@ -40,6 +41,7 @@ def test_api_app_import():
     """Test API app import."""
     try:
         from api.app import app
+
         assert app is not None
     except ImportError:
         # API app might not be available in all environments
@@ -65,11 +67,13 @@ def test_users_models_basic():
     from users.models import User
 
     user = User(username="testuser", email="test@example.com")
-    assert user.username == "testuser"
-    assert user.email == "test@example.com"
+    # Access the actual values, not the SQLAlchemy column descriptors
+    assert str(user.username) == "testuser"
+    assert str(user.email) == "test@example.com"
 
 
 def test_artist_experiments_basic():
     """Test artist experiments basic import."""
     import artist_experiments
+
     assert artist_experiments is not None

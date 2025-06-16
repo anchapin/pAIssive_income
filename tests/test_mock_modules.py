@@ -74,7 +74,9 @@ class TestMockModules(unittest.TestCase):
 
             # Test Agent class
             assert hasattr(crewai, "Agent")
-            agent = crewai.Agent(role="test-role", goal="test-goal", backstory="test-backstory")
+            agent = crewai.Agent(
+                role="test-role", goal="test-goal", backstory="test-backstory"
+            )
             assert agent.role == "test-role"
             assert agent.goal == "test-goal"
             assert agent.backstory == "test-backstory"
@@ -148,10 +150,12 @@ class TestMockModules(unittest.TestCase):
         try:
             # Test MCP alternative import
             import mcp
+
             assert hasattr(mcp, "Client")
 
             # Test mem0ai alternative import
             import mem0ai
+
             assert hasattr(mem0ai, "Memory")
 
         except ImportError as e:

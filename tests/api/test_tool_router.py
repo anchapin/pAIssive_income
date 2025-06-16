@@ -10,7 +10,9 @@ if os.getenv("TOOL_API_KEY") is None:
     os.environ["TOOL_API_KEY"] = "test_default_key_for_import"
 from api.app import app
 
-pytestmark = pytest.mark.skip(reason="TestClient compatibility issue with current FastAPI/Starlette version")
+pytestmark = pytest.mark.skip(
+    reason="TestClient compatibility issue with current FastAPI/Starlette version"
+)
 
 # The test client will use the TOOL_API_KEY that is set in the environment.
 # This ensures consistency with what the application (api.app) expects.

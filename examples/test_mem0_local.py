@@ -104,8 +104,6 @@ def test_memory_deletion(user_id: str) -> None:
     print_json(delete_result)
 
 
-
-
 def main() -> None:
     """Run all tests."""
     # Check if OpenAI API key is set
@@ -117,7 +115,6 @@ def main() -> None:
     memory_id = test_basic_memory_operations()
     test_memory_updates(memory_id)
     test_memory_deletion(user_id)
-
 
 
 if __name__ == "__main__":

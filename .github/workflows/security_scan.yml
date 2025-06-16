@@ -231,7 +231,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.12.7' # Use consistent Python version across workflows
 
       - name: Create security-reports directory
         run: mkdir -p security-reports
@@ -491,7 +491,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.12.7' # Use consistent Python version across workflows
 
       - name: Create security-reports directory
         run: mkdir -p security-reports

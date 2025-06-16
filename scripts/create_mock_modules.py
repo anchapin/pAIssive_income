@@ -78,7 +78,9 @@ def create_mock_crewai_module() -> bool:
 
         # Create mock Agent class
         class MockAgent:
-            def __init__(self, role: str = "", goal: str = "", backstory: str = "", **kwargs: Any) -> None:
+            def __init__(
+                self, role: str = "", goal: str = "", backstory: str = "", **kwargs: Any
+            ) -> None:
                 self.role = role
                 self.goal = goal
                 self.backstory = backstory
@@ -89,14 +91,21 @@ def create_mock_crewai_module() -> bool:
 
         # Create mock Task class
         class MockTask:
-            def __init__(self, description: str = "", agent: Optional[Any] = None, **kwargs: Any) -> None:
+            def __init__(
+                self, description: str = "", agent: Optional[Any] = None, **kwargs: Any
+            ) -> None:
                 self.description = description
                 self.agent = agent
                 self.kwargs = kwargs
 
         # Create mock Crew class
         class MockCrew:
-            def __init__(self, agents: Optional[List[Any]] = None, tasks: Optional[List[Any]] = None, **kwargs: Any) -> None:
+            def __init__(
+                self,
+                agents: Optional[List[Any]] = None,
+                tasks: Optional[List[Any]] = None,
+                **kwargs: Any,
+            ) -> None:
                 self.agents = agents or []
                 self.tasks = tasks or []
                 self.kwargs = kwargs
@@ -137,15 +146,27 @@ def create_mock_mem0_module() -> bool:
                 self.config = config or {}
                 self.storage: Dict[str, Any] = {}
 
-            def add(self, text: str, user_id: str = "default", **kwargs: Any) -> Dict[str, str]:
+            def add(
+                self, text: str, user_id: str = "default", **kwargs: Any
+            ) -> Dict[str, str]:
                 memory_id = f"mock-memory-{len(self.storage)}"
                 self.storage[memory_id] = {"text": text, "user_id": user_id, **kwargs}
                 return {"id": memory_id}
 
-            def search(self, query: str, user_id: str = "default", **kwargs: Any) -> List[Dict[str, Any]]:
+            def search(
+                self, query: str, user_id: str = "default", **kwargs: Any
+            ) -> List[Dict[str, Any]]:
                 return [
-                    {"id": "mock-1", "text": f"Mock memory result for: {query}", "score": 0.9},
-                    {"id": "mock-2", "text": f"Another mock result for: {query}", "score": 0.8}
+                    {
+                        "id": "mock-1",
+                        "text": f"Mock memory result for: {query}",
+                        "score": 0.9,
+                    },
+                    {
+                        "id": "mock-2",
+                        "text": f"Another mock result for: {query}",
+                        "score": 0.8,
+                    },
                 ]
 
             def get(self, memory_id: str) -> Optional[Dict[str, Any]]:
@@ -307,7 +328,9 @@ def verify_mock_modules() -> bool:
 
             # Check version
             if hasattr(module, "__version__"):
-                logger.info(f"✅ {module_name} v{module.__version__} imported successfully")
+                logger.info(
+                    f"✅ {module_name} v{module.__version__} imported successfully"
+                )
             else:
                 logger.warning(f"⚠️  {module_name} imported but missing __version__")
 
@@ -349,7 +372,9 @@ def main() -> int:
         logger.info("✅ All mock modules verified successfully!")
         return 0
     logger.error("❌ Some mock modules failed verification")
-    return 1 if success_count == 0 else 0  # Return 0 if at least some modules were created
+    return (
+        1 if success_count == 0 else 0
+    )  # Return 0 if at least some modules were created
 
 
 if __name__ == "__main__":

@@ -53,6 +53,7 @@ def test_utils_math_comprehensive():
 def test_ai_models_version():
     """Test ai_models version module."""
     from ai_models.version import __version__
+
     assert __version__ is not None
     assert isinstance(__version__, str)
     assert len(__version__) > 0
@@ -61,6 +62,7 @@ def test_ai_models_version():
 def test_ai_models_init():
     """Test ai_models initialization."""
     import ai_models
+
     assert ai_models is not None
     assert hasattr(ai_models, "__version__")
 
@@ -83,16 +85,17 @@ def test_users_models_comprehensive():
 
     # Test basic user creation
     user1 = User(username="user1", email="user1@example.com")
-    assert user1.username == "user1"
-    assert user1.email == "user1@example.com"
+    # Access the actual values, not the SQLAlchemy column descriptors
+    assert str(user1.username) == "user1"
+    assert str(user1.email) == "user1@example.com"
 
     # Test user with different data
     user2 = User(username="testuser123", email="test123@domain.com")
-    assert user2.username == "testuser123"
-    assert user2.email == "test123@domain.com"
+    assert str(user2.username) == "testuser123"
+    assert str(user2.email) == "test123@domain.com"
 
     # Test user equality if implemented
-    user3 = User(username="user1", email="user1@example.com")
+    User(username="user1", email="user1@example.com")
     # Note: equality might not be implemented, so we just test creation
 
 
@@ -241,6 +244,7 @@ def test_users_auth_basic():
 
     # Test empty credential error
     import pytest
+
     with pytest.raises(ValueError):
         hash_credential("")
 
@@ -277,6 +281,7 @@ def test_utils_init():
 
     # Test utils has math_utils
     from utils import math_utils
+
     assert math_utils is not None
 
 

@@ -220,13 +220,19 @@ def _get_files_from_github_api(github_event_name: str) -> list[str]:
             # We need to use a different approach
             logger.info("PR detected, but changed files not available in payload")
             logger.info("PR number: %s", pr_data.get("number", "unknown"))
-            logger.info("PR head SHA: %s", pr_data.get("head", {}).get("sha", "unknown"))
-            logger.info("PR base SHA: %s", pr_data.get("base", {}).get("sha", "unknown"))
+            logger.info(
+                "PR head SHA: %s", pr_data.get("head", {}).get("sha", "unknown")
+            )
+            logger.info(
+                "PR base SHA: %s", pr_data.get("base", {}).get("sha", "unknown")
+            )
 
             # Return empty list to trigger the "no files" logic which passes the check
             return []
 
-        logger.warning("Unsupported event type for file extraction: %s", github_event_name)
+        logger.warning(
+            "Unsupported event type for file extraction: %s", github_event_name
+        )
         return []
 
     except Exception:
@@ -290,7 +296,9 @@ def main() -> None:
 
             # Check if this is a PR with documentation files by looking at the current branch
             if os.getenv("GITHUB_EVENT_NAME") == "pull_request":
-                logger.info("This is a PR context - checking for documentation files in current state...")
+                logger.info(
+                    "This is a PR context - checking for documentation files in current state..."
+                )
 
                 # Look for recently added documentation files
                 doc_files_exist = _check_for_recent_doc_files()

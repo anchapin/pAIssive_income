@@ -25,6 +25,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 TIMEOUT = 7  # seconds
 EXCLUDE_PATTERNS = []
 
+
 def load_gitignore(root):
     ignore = []
     path = os.path.join(root, ".gitignore")
@@ -37,6 +38,7 @@ def load_gitignore(root):
                 ignore.append(line)
     return ignore
 
+
 def should_exclude(path, ignore_patterns) -> bool:
     rel_path = os.path.relpath(path, REPO_ROOT)
     for pat in ignore_patterns:
@@ -47,6 +49,7 @@ def should_exclude(path, ignore_patterns) -> bool:
         if fnmatch.fnmatch(rel_path, pat):
             return True
     return False
+
 
 def find_markdown_files(root, ignore_patterns):
     for dirpath, dirnames, filenames in os.walk(root):
@@ -60,8 +63,10 @@ def find_markdown_files(root, ignore_patterns):
                 if not should_exclude(full, ignore_patterns):
                     yield full
 
+
 LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 INLINE_LINK_RE = re.compile(r"<(https?://[^>]+)>")
+
 
 def extract_links(markdown):
     links = []
@@ -75,6 +80,7 @@ def extract_links(markdown):
         links.append(url)
     return links
 
+
 def check_http_link(url):
     try:
         resp = requests.head(url, allow_redirects=True, timeout=TIMEOUT)
@@ -85,6 +91,7 @@ def check_http_link(url):
         return resp.status_code < 400
     except Exception:
         return False
+
 
 def anchors_in_markdown(content):
     """Return a set of valid anchor names in the file, following GitHub's anchor logic."""
@@ -97,6 +104,7 @@ def anchors_in_markdown(content):
         anchor = anchor.replace(" ", "-")
         anchors.add(anchor)
     return anchors
+
 
 def check_file_link(url, basepath) -> bool:
     # Remove anchor
@@ -114,6 +122,7 @@ def check_file_link(url, basepath) -> bool:
                 return True
         return False
     return True
+
 
 def main() -> None:
     ignore_patterns = load_gitignore(REPO_ROOT)
@@ -156,6 +165,7 @@ def main() -> None:
     else:
         print("No dead links found!")
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

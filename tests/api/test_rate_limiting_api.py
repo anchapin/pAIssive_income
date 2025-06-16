@@ -13,12 +13,16 @@ except ImportError:
     app = None
 
 
-@pytest.mark.skip(reason="TestClient compatibility issue with current FastAPI/Starlette version")
+@pytest.mark.skip(
+    reason="TestClient compatibility issue with current FastAPI/Starlette version"
+)
 class TestRateLimitingAPI:
     ENDPOINT = "/users/"  # Use a typical endpoint for rate limiting demo
 
     def test_within_rate_limit(self):
         # Send a small number of requests below the limit
+        if app is None:
+            pytest.skip("FastAPI app not available")
         client = TestClient(app)
         for _ in range(3):
             resp = client.get(self.ENDPOINT)
@@ -26,6 +30,8 @@ class TestRateLimitingAPI:
 
     def test_exceed_rate_limit(self):
         # Simulate burst to exceed limit (assuming limit is 5/minute for test)
+        if app is None:
+            pytest.skip("FastAPI app not available")
         client = TestClient(app)
         responses = [client.get(self.ENDPOINT) for _ in range(10)]
         status_codes = [r.status_code for r in responses]
@@ -33,6 +39,8 @@ class TestRateLimitingAPI:
         assert HTTPStatus.TOO_MANY_REQUESTS in status_codes
 
     def test_rate_limit_headers_present(self):
+        if app is None:
+            pytest.skip("FastAPI app not available")
         client = TestClient(app)
         resp = client.get(self.ENDPOINT)
         # Check for standard rate limit headers
@@ -43,6 +51,8 @@ class TestRateLimitingAPI:
 
     def test_rate_limit_reset(self):
         # Exceed limit, then wait for reset window and try again
+        if app is None:
+            pytest.skip("FastAPI app not available")
         client = TestClient(app)
         for _ in range(10):
             client.get(self.ENDPOINT)
@@ -60,6 +70,8 @@ class TestRateLimitingAPI:
 
     def test_burst_requests(self):
         # Send rapid burst and check at least some are limited
+        if app is None:
+            pytest.skip("FastAPI app not available")
         client = TestClient(app)
         responses = [client.get(self.ENDPOINT) for _ in range(20)]
         limited = [
@@ -69,6 +81,8 @@ class TestRateLimitingAPI:
 
     def test_rate_limit_authenticated_vs_unauthenticated(self):
         # If different limits by auth, test both cases
+        if app is None:
+            pytest.skip("FastAPI app not available")
         client = TestClient(app)
         resp_anon = client.get(self.ENDPOINT)
         headers = {"Authorization": "Bearer validtoken"}  # Test token only

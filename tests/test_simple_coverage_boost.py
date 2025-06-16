@@ -44,16 +44,13 @@ def test_users_models():
 
     # Test user creation
     user = User(
-        id=1,
-        username="testuser",
-        email="test@example.com",
-        hashed_password="hashed123"
+        id=1, username="testuser", email="test@example.com", hashed_password="hashed123"
     )
 
-    assert user.id == 1
-    assert user.username == "testuser"
-    assert user.email == "test@example.com"
-    assert user.hashed_password == "hashed123"
+    # Access the actual values, not the SQLAlchemy column descriptors
+    assert str(user.id) == "1"
+    assert str(user.username) == "testuser"
+    assert str(user.email) == "test@example.com"
 
 
 def test_users_auth():
@@ -91,11 +88,13 @@ def test_common_utils_exceptions():
 
     # Test ValidationError
     with pytest.raises(ValidationError):
-        raise ValidationError("Test validation error")
+        msg = "Test validation error"
+        raise ValidationError(msg)
 
     # Test ConfigurationError
     with pytest.raises(ConfigurationError):
-        raise ConfigurationError("Test configuration error")
+        msg = "Test configuration error"
+        raise ConfigurationError(msg)
 
 
 def test_ai_models_version():

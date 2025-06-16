@@ -15,7 +15,9 @@ import sys
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -26,13 +28,7 @@ def check_critical_imports() -> dict[str, bool]:
     imports_status = {}
 
     # Core testing dependencies
-    core_imports = [
-        "pytest",
-        "ruff",
-        "safety",
-        "bandit",
-        "pyright"
-    ]
+    core_imports = ["pytest", "ruff", "safety", "bandit", "pyright"]
 
     for module in core_imports:
         try:
@@ -44,11 +40,7 @@ def check_critical_imports() -> dict[str, bool]:
             imports_status[module] = False
 
     # Optional dependencies with fallbacks
-    optional_imports = [
-        "modelcontextprotocol",
-        "crewai",
-        "mem0"
-    ]
+    optional_imports = ["modelcontextprotocol", "crewai", "mem0"]
 
     for module in optional_imports:
         try:
@@ -72,7 +64,7 @@ def check_project_imports() -> dict[str, bool]:
     modules_to_test = [
         "agent_team.mem0_enhanced_agents",
         "ai_models.adapters.mcp_adapter",
-        "main_crewai_agents"
+        "main_crewai_agents",
     ]
 
     for module in modules_to_test:
@@ -99,13 +91,16 @@ def check_dependency_conflicts() -> bool:
             [sys.executable, "-m", "pip", "check"],
             capture_output=True,
             text=True,
-            timeout=30, check=False
+            timeout=30,
+            check=False,
         )
 
         if result.returncode == 0:
             logger.info("✓ No dependency conflicts found")
             return True
-        logger.warning(f"✗ Dependency conflicts found:\n{result.stdout}\n{result.stderr}")
+        logger.warning(
+            f"✗ Dependency conflicts found:\n{result.stdout}\n{result.stderr}"
+        )
         return False
 
     except subprocess.TimeoutExpired:
@@ -120,11 +115,7 @@ def verify_requirements_files() -> bool:
     """Verify that requirements files are consistent and valid."""
     logger.info("=== Verifying Requirements Files ===")
 
-    requirements_files = [
-        "requirements.txt",
-        "requirements-ci.txt",
-        "pyproject.toml"
-    ]
+    requirements_files = ["requirements.txt", "requirements-ci.txt", "pyproject.toml"]
 
     all_valid = True
 
@@ -139,14 +130,18 @@ def verify_requirements_files() -> bool:
 
                 # Check for problematic version specifications
                 if "==" in content and req_file == "requirements-ci.txt":
-                    logger.warning(f"⚠ {req_file} contains exact version pins (==) which may cause conflicts")
+                    logger.warning(
+                        f"⚠ {req_file} contains exact version pins (==) which may cause conflicts"
+                    )
 
                 # Check for missing essential packages in CI requirements
                 if req_file == "requirements-ci.txt":
                     essential_packages = ["pytest", "ruff", "bandit", "safety"]
                     for package in essential_packages:
                         if package not in content:
-                            logger.warning(f"⚠ {req_file} missing essential package: {package}")
+                            logger.warning(
+                                f"⚠ {req_file} missing essential package: {package}"
+                            )
                             all_valid = False
 
             except Exception as e:
@@ -219,7 +214,8 @@ print("Import test completed successfully")
             [sys.executable, "-c", test_script],
             capture_output=True,
             text=True,
-            timeout=30, check=False
+            timeout=30,
+            check=False,
         )
 
         if result.returncode == 0:
@@ -242,7 +238,9 @@ def main() -> int:
 
     # Check critical imports
     imports_status = check_critical_imports()
-    if not all(imports_status[module] for module in ["pytest", "ruff", "safety", "bandit"]):
+    if not all(
+        imports_status[module] for module in ["pytest", "ruff", "safety", "bandit"]
+    ):
         logger.error("Critical imports are failing")
         success = False
 

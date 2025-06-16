@@ -9,7 +9,9 @@ except ImportError:
     app = None
 
 
-@pytest.mark.skip(reason="TestClient compatibility issue with current FastAPI/Starlette version")
+@pytest.mark.skip(
+    reason="TestClient compatibility issue with current FastAPI/Starlette version"
+)
 class TestTokenManagementAPI:
     AUTH_ENDPOINT = "/auth/token"  # Test token only
     REFRESH_ENDPOINT = "/auth/token/refresh"  # Test token only
@@ -26,9 +28,15 @@ class TestTokenManagementAPI:
     HTTP_NOT_FOUND = 404
     HTTP_UNPROCESSABLE_ENTITY = 422
 
+    def _get_client(self) -> TestClient:
+        """Get TestClient, skipping test if app is not available."""
+        if app is None:
+            pytest.skip("FastAPI app not available")
+        return TestClient(app)
+
     def test_token_creation_success(self):
         # Test data - not real credentials
-        client = TestClient(app)
+        client = self._get_client()
         resp = client.post(
             self.AUTH_ENDPOINT,
             data={
@@ -43,7 +51,7 @@ class TestTokenManagementAPI:
 
     def test_token_creation_invalid_credentials(self):
         # Test data - not real credentials
-        client = TestClient(app)
+        client = self._get_client()
         resp = client.post(
             self.AUTH_ENDPOINT,
             data={
@@ -56,7 +64,7 @@ class TestTokenManagementAPI:
     def test_token_validation_success(self):
         # Obtain token
         # Test data - not real credentials
-        client = TestClient(app)
+        client = self._get_client()
         resp = client.post(
             self.AUTH_ENDPOINT,
             data={
@@ -71,13 +79,13 @@ class TestTokenManagementAPI:
 
     def test_token_validation_invalid_token(self):
         # Test data - not a real token
-        client = TestClient(app)
+        client = self._get_client()
         headers = {"Authorization": "Bearer invalidtoken"}  # Test token only
         resp = client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)
 
     def test_token_validation_missing_token(self):
-        client = TestClient(app)
+        client = self._get_client()
         resp = client.get(self.PROTECTED_ENDPOINT)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)
 
@@ -85,7 +93,7 @@ class TestTokenManagementAPI:
         # This test assumes short-lived tokens in test or mockable expiry
         # Here, simulate with a known expired token if possible
         # Test data - not a real token
-        client = TestClient(app)
+        client = self._get_client()
         headers = {"Authorization": "Bearer expiredtoken"}  # Test token only
         resp = client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)
@@ -93,7 +101,7 @@ class TestTokenManagementAPI:
     def test_token_refresh_success(self):
         # Obtain refresh token
         # Test data - not real credentials
-        client = TestClient(app)
+        client = self._get_client()
         auth_resp = client.post(
             self.AUTH_ENDPOINT,
             data={
@@ -110,7 +118,7 @@ class TestTokenManagementAPI:
 
     def test_token_refresh_invalid_token(self):
         # Test data - not a real token
-        client = TestClient(app)
+        client = self._get_client()
         resp = client.post(
             self.REFRESH_ENDPOINT,
             data={"refresh_token": "invalid"},  # Test token only
@@ -119,7 +127,7 @@ class TestTokenManagementAPI:
 
     def test_token_refresh_expired_token(self):
         # Test data - not a real token
-        client = TestClient(app)
+        client = self._get_client()
         resp = client.post(
             self.REFRESH_ENDPOINT,
             data={"refresh_token": "expiredtoken"},  # Test token only
@@ -129,7 +137,7 @@ class TestTokenManagementAPI:
     def test_token_revocation(self):
         # Obtain token and revoke it
         # Test data - not real credentials
-        client = TestClient(app)
+        client = self._get_client()
         auth_resp = client.post(
             self.AUTH_ENDPOINT,
             data={
@@ -150,7 +158,7 @@ class TestTokenManagementAPI:
 
     def test_token_revocation_invalid_token(self):
         # Test data - not a real token
-        client = TestClient(app)
+        client = self._get_client()
         headers = {"Authorization": "Bearer invalidtoken"}  # Test token only
         resp = client.post(self.REVOKE_ENDPOINT, headers=headers)
         assert resp.status_code in (
@@ -161,14 +169,14 @@ class TestTokenManagementAPI:
 
     def test_malformed_token(self):
         # Test data - malformed token for testing
-        client = TestClient(app)
+        client = self._get_client()
         headers = {"Authorization": "Bearer "}  # Intentionally malformed test token
         resp = client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)
 
     def test_empty_authorization_header(self):
         # Test data - empty authorization header for testing
-        client = TestClient(app)
+        client = self._get_client()
         headers = {"Authorization": ""}  # Intentionally empty test header
         resp = client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)

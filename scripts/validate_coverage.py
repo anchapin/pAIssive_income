@@ -15,10 +15,12 @@ except ImportError:
     # Install defusedxml if not available - required for security
     import subprocess
     import sys
+
     print("Installing defusedxml for secure XML parsing...")
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "defusedxml"])
         from defusedxml import ElementTree as ET
+
         print("✅ defusedxml installed successfully")
     except (subprocess.CalledProcessError, ImportError) as e:
         print(f"❌ Failed to install defusedxml: {e}")
@@ -26,7 +28,9 @@ except ImportError:
         sys.exit(1)
 
 
-def validate_coverage_xml(coverage_file: str = "coverage.xml", min_threshold: float = 15.0) -> bool:
+def validate_coverage_xml(
+    coverage_file: str = "coverage.xml", min_threshold: float = 15.0
+) -> bool:
     """
     Validate that the coverage.xml file exists and meets the minimum threshold.
 

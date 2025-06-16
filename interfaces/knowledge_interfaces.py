@@ -61,7 +61,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Protocol
 
-logger = logging.getLogger(__name__) # Added module-level logger
+logger = logging.getLogger(__name__)  # Added module-level logger
 
 
 class Mem0ClientProtocol(Protocol):
@@ -87,7 +87,9 @@ class Mem0ClientProtocol(Protocol):
         """
         ...
 
-    def add(self, content: str | list[dict[str, str]], user_id: str, **kwargs: Any) -> Any:
+    def add(
+        self, content: str | list[dict[str, str]], user_id: str, **kwargs: Any
+    ) -> Any:
         """
         Add new memory content.
 
@@ -178,7 +180,9 @@ class KnowledgeSource(ABC):
 
         """
 
-    def update(self, content_id: str, new_content: str, user_id: str, **kwargs: Any) -> Any:
+    def update(
+        self, content_id: str, new_content: str, user_id: str, **kwargs: Any
+    ) -> Any:
         """
         Update existing knowledge entry.
 

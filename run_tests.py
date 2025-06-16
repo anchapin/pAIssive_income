@@ -103,7 +103,7 @@ def validate_args(args: Sequence[str]) -> list[str]:
             continue
 
         # If the argument is a file path, check for directory traversal attempts
-        if Path(arg).is_absolute() or Path(arg).parts: # Check if it looks like a path
+        if Path(arg).is_absolute() or Path(arg).parts:  # Check if it looks like a path
             # Additional check for path traversal attempts
             try:
                 # Resolve to an absolute path to properly check parts
@@ -113,7 +113,7 @@ def validate_args(args: Sequence[str]) -> list[str]:
                     validated_args.append(arg)
                 else:
                     logger.warning("Skipping path with directory traversal: %s", arg)
-            except OSError as e: # Path resolution can fail
+            except OSError as e:  # Path resolution can fail
                 logger.warning("Could not normalize path %s, skipping: %s", arg, e)
         else:
             # If we get here, the argument passed all checks

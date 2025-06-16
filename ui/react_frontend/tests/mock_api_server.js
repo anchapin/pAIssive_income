@@ -439,7 +439,7 @@ app.use((err, req, res, next) => {
     `Stack: ${err.stack || 'No stack trace available'}\n` +
     `Headers: ${JSON.stringify(req.headers, null, 2)}\n` +
     `Body: ${JSON.stringify(req.body || {}, null, 2)}\n` +
-    `Environment Information:\n` +
+    'Environment Information:\n' +
     `- Node.js Version: ${environmentInfo.nodeVersion}\n` +
     `- Platform: ${environmentInfo.platform}\n` +
     `- Architecture: ${environmentInfo.arch}\n` +
@@ -477,7 +477,7 @@ app.use((err, req, res, next) => {
       `URL: ${sanitizedUrl}\n` +
       `Error: ${sanitizedErrorMsg}\n` +
       `CI Type: ${process.env.CI_TYPE || 'Unknown'}\n` +
-      `Note: Error suppressed for CI compatibility\n`
+      'Note: Error suppressed for CI compatibility\n'
     );
 
     return res.status(200).json({
@@ -745,7 +745,7 @@ async function startServer() {
       createReport('mock-api-ci-success.txt',
         `Mock API server CI compatibility mode activated at ${new Date().toISOString()}\n` +
         `Using port: ${currentPort}\n` +
-        `This is a CI-compatible server with enhanced error handling.\n` +
+        'This is a CI-compatible server with enhanced error handling.\n' +
         `Node.js version: ${process.version}\n` +
         `Platform: ${process.platform}\n` +
         `Working directory: ${process.cwd()}\n` +
@@ -755,7 +755,7 @@ async function startServer() {
       // Create a GitHub Actions specific report
       createReport('.github-actions-success',
         `GitHub Actions compatibility flag created at ${new Date().toISOString()}\n` +
-        `This file helps GitHub Actions recognize successful test runs.\n` +
+        'This file helps GitHub Actions recognize successful test runs.\n' +
         `Using port: ${currentPort}\n` +
         `Path-to-regexp available: ${pathToRegexpAvailable ? 'Yes' : 'No'}\n`
       );
@@ -763,7 +763,7 @@ async function startServer() {
       // Create a CI compatibility file
       createReport('ci-compat-success.txt',
         `CI compatibility mode activated at ${new Date().toISOString()}\n` +
-        `This file indicates that the CI server setup was successful.\n` +
+        'This file indicates that the CI server setup was successful.\n' +
         `Using port: ${currentPort}\n` +
         `Node.js: ${process.version}\n` +
         `Platform: ${process.platform}\n` +
@@ -784,7 +784,7 @@ async function startServer() {
         fs.writeFileSync(
           path.join(githubDir, 'status.txt'),
           `GitHub Actions status at ${new Date().toISOString()}\n` +
-          `Mock API server is running in CI compatibility mode\n` +
+          'Mock API server is running in CI compatibility mode\n' +
           `Path-to-regexp available: ${pathToRegexpAvailable ? 'Yes' : 'No'}\n` +
           `Node.js: ${process.version}\n` +
           `Platform: ${process.platform}\n`
@@ -812,7 +812,7 @@ async function startServer() {
       // Create a port-specific success file for the default port
       createReport(`port-${currentPort}-success.txt`,
         `Dummy server created for port ${currentPort} at ${new Date().toISOString()}\n` +
-        `This is a CI compatibility dummy server that doesn't actually listen on any port.\n`
+        'This is a CI compatibility dummy server that doesn\'t actually listen on any port.\n'
       );
 
       // Return a dummy server object that won't crash tests
@@ -866,12 +866,12 @@ async function startServer() {
           // Try to start the server with error handling
           const newServer = app.listen(currentPort, () => {
             log(`Mock API server running on port ${currentPort}`, 'info');
-            log(`Available endpoints:`, 'info');
-            log(`- GET /health`, 'info');
-            log(`- GET /ready`, 'info');
-            log(`- GET /api/agent`, 'info');
-            log(`- POST /api/agent/action`, 'info');
-            log(`- GET /api/status`, 'info');
+            log('Available endpoints:', 'info');
+            log('- GET /health', 'info');
+            log('- GET /ready', 'info');
+            log('- GET /api/agent', 'info');
+            log('- POST /api/agent/action', 'info');
+            log('- GET /api/status', 'info');
 
             // Create a server started report
             createReport('mock-api-started.txt',

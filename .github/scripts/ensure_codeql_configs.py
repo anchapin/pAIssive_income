@@ -22,7 +22,9 @@ def ensure_directory(directory: str) -> None:
     logger.info("Ensured directory exists: %s", directory)
 
 
-def create_codeql_config(filename: str, config_name: str, os_name: str | None = None) -> None:
+def create_codeql_config(
+    filename: str, config_name: str, os_name: str | None = None
+) -> None:
     """Create a CodeQL configuration file with the given parameters."""
     config = {
         "name": config_name,
@@ -76,6 +78,10 @@ def main() -> None:
 
     logger.info("All CodeQL configuration files created successfully.")
 
+
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     main()
