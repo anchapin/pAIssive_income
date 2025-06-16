@@ -79,7 +79,7 @@ class TestSecurityFixes(unittest.TestCase):
 
             # Read the file content
             temp_path_obj = Path(temp_path)
-            with temp_path_obj.open(encoding='utf-8', errors='replace') as f:
+            with temp_path_obj.open(encoding="utf-8", errors="replace") as f:
                 content = f.read()
 
             # Ensure no sensitive data in file
