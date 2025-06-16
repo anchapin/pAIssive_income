@@ -71,7 +71,11 @@ jobs:
       - name: Check pnpm version
         run: pnpm --version
 
-      - name: Install dependencies
+      - name: Install root dependencies first
+        run: pnpm install --frozen-lockfile
+
+      - name: Install frontend dependencies
+        working-directory: ui/react_frontend
         run: pnpm install
 
       # Create coverage directory to prevent errors
