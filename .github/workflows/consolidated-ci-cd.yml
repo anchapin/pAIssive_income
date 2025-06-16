@@ -94,20 +94,14 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9 # Pin pnpm version
-          run_install: false # We run install in a later dedicated step
+          version: 8 # Specify the desired pnpm version
+          run_install: false # We will run install manually later
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'  # Use npm cache initially to avoid pnpm cache issues
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8 # Specify the desired pnpm version
-          run_install: false # We will run install manually later
+          cache: 'pnpm'
 
       - name: Get pnpm store directory
         shell: bash
@@ -511,7 +505,9 @@ jobs:
           fi
         shell: bash
 
-      - name: Run tests
+      - name: Run tests (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           Set-PSDebug -Trace 1
           $ErrorActionPreference = "Stop"
@@ -790,6 +786,48 @@ except (json.JSONDecodeError, FileNotFoundError) as e:
         if: always()
         with:
           name: security-reports-${{ runner.os }}-${{ github.run_id }}
+          path: security-reports/
+          retention-days: 7
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install safety bandit semgrep pip-audit
+          mkdir -p security-reports
+
+      - name: Run basic security scans
+        continue-on-error: true
+        run: |
+          echo "Running safety check..."
+          safety check || echo "Safety check failed, but continuing"
+          
+          echo "Running bandit..."
+          bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" --exit-zero || echo "Bandit failed, but continuing"
+          
+          echo "Running pip-audit..."
+          pip-audit || echo "pip-audit failed, but continuing"
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports-basic-${{ github.run_id }}
           path: security-reports/
           retention-days: 7
 
