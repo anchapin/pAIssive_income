@@ -117,7 +117,8 @@ def main() -> int:
         logger.info("Extra pytest args: %s", " ".join(args.extra_pytest_args))
 
     try:
-        # Use a list of validated arguments for security
+        # Convert any Path objects in pytest_cmd to str
+        pytest_cmd = [str(c) for c in pytest_cmd]
         result: subprocess.CompletedProcess = subprocess.run(
             pytest_cmd,
             check=False,

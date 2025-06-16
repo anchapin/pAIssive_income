@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites>
-  <testsuite name="ci-tests-enhanced" tests="1" failures="0" errors="0" skipped="0" timestamp="2025-05-24T23:08:40.292Z" time="0.001">
-    <testcase classname="ci-tests-enhanced" name="run-ci-tests" time="0.001">
-    </testcase>
-  </testsuite>
-</testsuites>

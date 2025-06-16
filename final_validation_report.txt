@@ -1,0 +1,27 @@
+Checking 24 workflow files...
+OK: auto-fix.yml
+OK: check-documentation.yml
+OK: codeql-fixed.yml
+OK: codeql-macos-fixed.yml
+OK: codeql-macos.yml
+OK: codeql-ubuntu.yml
+OK: codeql-windows-fixed.yml
+OK: codeql-windows.yml
+OK: codeql.yml
+OK: consolidated-ci-cd.yml
+OK: docker-compose-workflow.yml
+OK: ensure-codeql-fixed.yml
+OK: fix-codeql-issues.yml
+OK: frontend-e2e.yml
+OK: frontend-vitest.yml
+OK: js-coverage.yml
+OK: mcp-adapter-tests.yml
+OK: mock-api-server.yml
+OK: reusable-setup-python.yml
+OK: setup-pnpm.yml
+OK: setup-uv.yml
+OK: tailwind-build.yml
+OK: test-setup-script.yml
+OK: test.yml
+
+Summary: 24/24 files valid

@@ -224,7 +224,7 @@ const ApiAnalyticsDashboard = () => {
             <Paper sx={{ p: 2 }}>
               <ApiUsageLineChart
                 data={requestsData}
-                dataKey=os.environ.get("KEY")
+                dataKey="value"
                 name="API Requests"
                 color="#2196f3"
                 height={300}
@@ -239,7 +239,7 @@ const ApiAnalyticsDashboard = () => {
             <Paper sx={{ p: 2 }}>
               <ApiUsageLineChart
                 data={requestsData}
-                dataKey=os.environ.get("KEY")
+                dataKey="value"
                 name="Response Time"
                 color="#ff9800"
                 height={300}
@@ -258,7 +258,7 @@ const ApiAnalyticsDashboard = () => {
                   ...item,
                   error_rate: item.error_count / item.request_count
                 }))}
-                dataKey=os.environ.get("KEY")
+                dataKey="error_rate"
                 name="Error Rate"
                 color="#f44336"
                 height={300}
@@ -276,7 +276,7 @@ const ApiAnalyticsDashboard = () => {
             <Paper sx={{ p: 2 }}>
               <ApiEndpointBarChart
                 data={endpointStats}
-                dataKey=os.environ.get("KEY")
+                dataKey="request_count"
                 name="Requests"
                 color="#4caf50"
                 height={400}

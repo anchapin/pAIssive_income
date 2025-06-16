@@ -1,7 +1,7 @@
 """Mock ADK (Agent Development Kit) package."""
 
 from .agent import Agent
-from .communication import Message, AgentCommunicator
+from .communication import AgentCommunicator, Message
 from .memory import SimpleMemory
 from .skill import Skill
 

@@ -1,9 +1,9 @@
 // Tailwind CSS Configuration for Flask UI
-module.exports = {
+export default {
   content: [
-    "./ui/templates/**/*.html",
-    "./ui/static/js/**/*.js",
-    "./ui/static/css/style.css"
+    './ui/templates/**/*.html',
+    './ui/static/js/**/*.js',
+    './ui/static/css/style.css'
   ],
   theme: {
     extend: {},

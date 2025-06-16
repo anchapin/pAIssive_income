@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from common_utils.secrets.audit import generate_report
-from common_utils.secrets.cli import handle_list
+from common_utils.custom_secrets.audit import generate_report
+from common_utils.custom_secrets.cli import handle_list
 
 
 class TestSecurityFixes(unittest.TestCase):
@@ -35,7 +35,7 @@ class TestSecurityFixes(unittest.TestCase):
         }
 
         # Mock logger
-        with patch("common_utils.secrets.audit.logger") as mock_logger:
+        with patch("common_utils.custom_secrets.audit.logger") as mock_logger:
             # Call generate_report
             generate_report(results)
 
@@ -109,7 +109,7 @@ class TestSecurityFixes(unittest.TestCase):
         # Use a single with statement with multiple contexts
         with (
             patch(
-                "common_utils.secrets.cli.list_secrets", return_value=test_credentials
+                "common_utils.custom_secrets.cli.list_secrets", return_value=test_credentials
             ),
             patch("builtins.print") as mock_print,
         ):

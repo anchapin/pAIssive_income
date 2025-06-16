@@ -6,9 +6,9 @@
  * Enhanced with robust error handling, logging, and configuration management.
  */
 
-const { execSync, spawn } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+import { execSync, spawn } from 'child_process';
+import path from 'path';
+import fs from 'fs';
 
 // Log levels
 const LOG_LEVELS = {
@@ -515,7 +515,7 @@ async function buildAllTailwind(options = {}) {
 
   try {
     const {
-      static = defaults.static || {},
+      staticOptions = defaults.static || {},
       react = defaults.react || {},
       watch = false,
       parallel = config?.performance?.concurrentBuilds > 1,
@@ -538,10 +538,10 @@ async function buildAllTailwind(options = {}) {
     // Use multiple file build approach for better performance and flexibility
     const files = [
       {
-        configPath: static.configPath || defaults.static?.configPath || './tailwind.config.js',
-        inputPath: static.inputPath || defaults.static?.inputPath || './ui/static/css/tailwind.css',
-        outputPath: static.outputPath || defaults.static?.outputPath || './ui/static/css/tailwind.output.css',
-        minify: static.minify !== undefined ? static.minify : (defaults.static?.minify !== undefined ? defaults.static.minify : true),
+        configPath: staticOptions.configPath || defaults.static?.configPath || './tailwind.config.js',
+        inputPath: staticOptions.inputPath || defaults.static?.inputPath || './ui/static/css/tailwind.css',
+        outputPath: staticOptions.outputPath || defaults.static?.outputPath || './ui/static/css/tailwind.output.css',
+        minify: staticOptions.minify !== undefined ? staticOptions.minify : (defaults.static?.minify !== undefined ? defaults.static.minify : true),
         type: 'static'
       },
       {
@@ -992,7 +992,7 @@ async function main() {
 }
 
 // Run the main function if this file is executed directly
-if (require.main === module) {
+if (import.meta.url.startsWith('file://') && process.argv[1] === import.meta.url.substring(7)) {
   // Handle the Promise returned by main()
   main().catch(error => {
     console.error(`Fatal error in main function: ${error.message}`);
@@ -1133,7 +1133,7 @@ function buildSingleFile(options = {}) {
   }
 }
 
-module.exports = {
+export {
   buildTailwind,
   watchTailwind,
   buildAllTailwind,

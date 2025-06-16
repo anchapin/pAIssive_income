@@ -13,13 +13,14 @@ logging.basicConfig(
 )
 
 # Check if crewai is installed
+crewai_available = False
+
 try:
     import crewai
 
-    CREWAI_AVAILABLE = True
+    crewai_available = True
     logging.info(f"CrewAI is available (version: {crewai.__version__})")
 except ImportError as e:
-    CREWAI_AVAILABLE = False
     logging.warning(f"CrewAI is not available: {e}")
 
     # Try to add the mock_crewai directory to sys.path
@@ -158,17 +159,15 @@ def test_crewai_copilotkit_frontend_test():
     logging.info("CrewAI and CopilotKit frontend test test passed")
 
 
-@pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
+@pytest.mark.skipif(not crewai_available, reason="CrewAI is not available")
 def test_crewai_copilotkit_api_integration():
     """Test the integration between CrewAI and CopilotKit API."""
-    if not CREWAI_AVAILABLE:
+    if not crewai_available:
         pytest.skip("CrewAI is not installed - skipping test")
 
     try:
         # Import the CrewAI agent from the agent_team module
-        from agent_team.crewai_agents import (
-            CrewAIAgentTeam,  # type: ignore[import, attr-defined]
-        )
+        from agent_team.crewai_agents import CrewAIAgentTeam
 
         # Create a mock API response
         mock_api_response = {

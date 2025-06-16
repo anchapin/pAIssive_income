@@ -81,6 +81,101 @@ shell_injection:
 """
 
 
+# Define the empty SARIF content
+EMPTY_SARIF = """{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Bandit",
+          "informationUri": "https://github.com/PyCQA/bandit",
+          "version": "1.7.5",
+          "rules": []
+        }
+      },
+      "results": []
+    }
+  ]
+}"""
+
+# Compact version for error recovery
+COMPACT_SARIF = """{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Bandit",
+          "informationUri": "https://github.com/PyCQA/bandit",
+          "version": "1.7.5",
+          "rules": []
+        }
+      },
+      "results": []
+    }
+  ]
+}"""
+
+
+def create_directory(path: Path) -> None:
+    """
+    Create a directory if it doesn't exist.
+
+    Args:
+        path: The directory path to create
+
+    """
+    path.mkdir(parents=True, exist_ok=True)
+    logger.info("Created directory: %s", path)
+
+
+def write_sarif_file(path: Path, content: str) -> None:
+    """
+    Write SARIF content to a file.
+
+    Args:
+        path: The file path to write to
+        content: The SARIF content to write
+
+    """
+    # If the file has a .json extension, use json.dump for proper formatting
+    if path.suffix == ".json":
+        import json
+
+        try:
+            # Parse the content as JSON
+            json_content = json.loads(content)
+            # Write with proper indentation
+            with path.open("w") as f:
+                json.dump(json_content, f, indent=2)
+        except json.JSONDecodeError:
+            # Fallback to direct write if parsing fails
+            with path.open("w") as f:
+                f.write(content)
+    else:
+        # For non-JSON files, write directly
+        with path.open("w") as f:
+            f.write(content)
+    logger.info("Generated SARIF file: %s", path)
+
+
+def get_run_ids(current_run_id: str) -> list[str]:
+    """
+    Get a list of run IDs to process.
+
+    Args:
+        current_run_id: The current run ID
+
+    Returns:
+        List of run IDs to process
+
+    """
+    return [current_run_id]
+
+
 def setup_directories() -> tuple[Path, Path, bool]:
     """
     Set up directories for Bandit configuration files.

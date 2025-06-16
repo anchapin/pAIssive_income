@@ -1,7 +1,16 @@
 {
-  "spec": "src/**/*.test.js",
+  "require": ["@babel/register"],
   "recursive": true,
   "timeout": 5000,
-  "reporter": "spec",
-  "ui": "bdd"
+  "spec": [
+    "src/**/*.test.js",
+    "ui/**/*.test.js"
+  ],
+  "ignore": [
+    "node_modules/**",
+    ".venv*/**",
+    "venv*/**",
+    "__pycache__/**",
+    "*.pyc"
+  ]
 }

@@ -111,6 +111,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
             # Wrap DB-specific error in our custom exception
             raise DatabaseError from e
 
+    # The following method names are required by BaseHTTPRequestHandler and must use camel case.
+
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests."""
         try:
@@ -127,7 +129,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                         cursor.execute("SELECT * FROM agent LIMIT 1;")
                         agent = cursor.fetchone()
                         if agent:
-                            self._send_response(200, agent)
+                            self._send_response(200, dict(agent))
                         else:
                             # If no agent found in database, return a default agent
                             logger.warning(
@@ -186,7 +188,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                                 WHERE table_name = 'agent_action'
                             );
                         """)
-                        table_exists = cursor.fetchone()["exists"]
+                        result = cursor.fetchone()
+                        table_exists = result[0] if result else False
 
                         if not table_exists:
                             logger.warning(
@@ -223,7 +226,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                             ),
                         )
                         conn.commit()
-                        action_id = cursor.fetchone()["id"]
+                        result = cursor.fetchone()
+                        action_id = result[0] if result else 0
                         self._send_response(
                             200, {"status": "success", "action_id": action_id}
                         )

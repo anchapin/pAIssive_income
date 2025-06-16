@@ -22,6 +22,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+TWO_PARTS = 2
+
 
 class MathTool:
     """Mathematical tool for ARTIST experiments."""
@@ -51,7 +53,8 @@ class MathTool:
             # Handle equations with equals sign
             if "=" in equation_str:
                 parts = equation_str.split("=")
-                if len(parts) == 2:
+                expected_parts = 2
+                if len(parts) == expected_parts:
                     left = parse_expr(parts[0])
                     right = parse_expr(parts[1])
                     equation = sp.Eq(left, right)
@@ -68,8 +71,8 @@ class MathTool:
             # If no equals sign, just evaluate the expression
             expr = parse_expr(equation_str)
             return str(expr.evalf())
-        except Exception as e:
-            logger.error(f"Error solving equation: {e}")
+        except (ValueError, TypeError, sp.SympifyError) as e:
+            logger.exception("Error solving equation")
             return f"Error: {e!s}"
 
     @staticmethod
@@ -88,8 +91,8 @@ class MathTool:
             expr = parse_expr(expr_str)
             factored = sp.factor(expr)
             return str(factored)
-        except Exception as e:
-            logger.error(f"Error factoring expression: {e}")
+        except (ValueError, TypeError, sp.SympifyError) as e:
+            logger.exception("Error factoring expression")
             return f"Error: {e!s}"
 
     @staticmethod
@@ -108,8 +111,8 @@ class MathTool:
             expr = parse_expr(expr_str)
             expanded = sp.expand(expr)
             return str(expanded)
-        except Exception as e:
-            logger.error(f"Error expanding expression: {e}")
+        except (ValueError, TypeError, sp.SympifyError) as e:
+            logger.exception("Error expanding expression")
             return f"Error: {e!s}"
 
 

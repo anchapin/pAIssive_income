@@ -12,6 +12,7 @@ import importlib
 import logging
 import sys
 from pathlib import Path
+from typing import cast
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -35,7 +36,7 @@ def verify_imports() -> bool:
         # First, try importing the types module
         logger.info("Importing types module...")
         # Import but don't use the types - just checking they can be imported
-        import mock_crewai.types
+        import mock_crewai.custom_types
 
         # Try importing the modules in different orders to test for circular imports
         logger.info("Testing import order 1: agent -> task -> crew")
@@ -75,15 +76,15 @@ def verify_usage() -> bool:
 
         # Create instances and test interactions
         agent = Agent(role="Test Agent", goal="Test Goal", backstory="Test Backstory")
-        # Use type casting to avoid mypy errors
         task = Task(description="Test Task")
-        # Assign agent after creation to avoid type issues
-        task.agent = agent  # type: ignore[assignment]
+        # Assign agent after creation; if type checker complains, use cast
+        task.agent = cast("Agent", agent)
         crew = Crew(agents=[agent], tasks=[task])
 
         # Test method calls
-        # Use type casting to avoid mypy errors
-        result = agent.execute_task(task)  # type: ignore[arg-type, type-var]
+        # If execute_task expects a specific type, cast task to that type
+        # If not possible, document why the ignore is necessary
+        result = agent.execute_task(task)
         logger.info("Agent.execute_task result: %s", result)
 
         result = crew.kickoff()

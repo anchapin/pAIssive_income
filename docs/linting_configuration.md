@@ -167,6 +167,6 @@ If you encounter issues with linting or formatting:
 
 The project has migrated from using Flake8 to using Ruff as the primary linting tool. Ruff provides all the functionality of Flake8 and more, with significantly better performance.
 
-Additionally, the project has migrated from using MyPy to using Pyrefly for type checking. Pyrefly offers improved performance and better error messages compared to MyPy. See the [Type Checking](type-checking.md) documentation for more details.
+Additionally, the project has migrated from using MyPy to using Pyright for type checking. Pyright offers improved performance and better error messages compared to MyPy. See the [Type Checking](type-checking.md) documentation for more details.
 
-If you encounter any references to Flake8 or MyPy in documentation or scripts, please update them to reference Ruff and Pyrefly respectively.
+If you encounter any references to Flake8 or MyPy in documentation or scripts, please update them to reference Ruff and Pyright respectively.

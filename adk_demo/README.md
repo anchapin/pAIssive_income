@@ -50,7 +50,7 @@ This directory contains a minimal demonstration of Google's Agent Development Ki
 
 1. **Install ADK** (if not already):
    ```bash
-   pip install adk
+   uv pip install adk
    ```
 
 2. **Run the demo:**

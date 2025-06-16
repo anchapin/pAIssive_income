@@ -95,11 +95,16 @@ def run_command(
 
     try:
         # Use absolute path for the executable when possible
-        if cmd and shutil.which(cmd[0]):
-            cmd[0] = shutil.which(cmd[0])
+        if cmd:
+            executable_path = shutil.which(cmd[0])
+            if executable_path:
+                cmd[0] = executable_path
+
+        # Convert any Path objects in cmd to str
+        cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
 
         # nosec comment below tells Bandit to ignore this line since we've added proper validation
-        process = subprocess.run(  # nosec B603
+        process = subprocess.run(  # nosec S603
             cmd,
             cwd=cwd,
             env=env,
@@ -287,7 +292,7 @@ def configure_vscode() -> bool:
         # Linting and formatting settings
         "python.linting.enabled": True,
         "python.linting.flake8Enabled": True,
-        "python.linting.mypyEnabled": True,
+        "python.linting.pyrightEnabled": True,
         # Disable Black formatter
         "python.formatting.blackEnabled": False,
         # Enable Ruff as the primary formatter and linter

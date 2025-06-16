@@ -11,6 +11,40 @@ This document describes the standard development process, coding standards, and 
 
 All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other tools are not supported for development or CI.
 
+### OpenHands Development Environment
+
+For developers using [OpenHands](https://github.com/All-Hands-AI/OpenHands) (formerly SWE-Agent), the project includes an automated setup script that configures the development environment with all required dependencies.
+
+**Setup Script:** `.openhands/setup.sh`
+
+This script automatically installs:
+- **Node.js 18.x (LTS)** - JavaScript runtime
+- **npm** - Node.js package manager (comes with Node.js)
+- **python3-pip** - Python package installer
+- **pnpm 8.6.0** - Fast, disk space efficient package manager (pinned version)
+- **uv 0.4.30** - Ultra-fast Python package installer and resolver (pinned version)
+
+**Features:**
+- **Pinned Versions:** All packages use specific versions for reproducible builds
+- **Error Handling:** Comprehensive error checking and logging with timestamps
+- **Verification:** Automatic verification of all installed tools
+- **Optimized Installation:** Uses consolidated sudo commands for efficiency
+- **Cache Management:** Proper cleanup of package manager caches
+
+**Usage:**
+The setup script runs automatically when the OpenHands runtime container starts. No manual intervention is required.
+
+**Verification:**
+After setup completion, the script verifies all installations:
+```bash
+node --version    # Should show Node.js 18.x
+npm --version     # Should show npm version
+pnpm --version    # Should show 8.6.0
+uv --version      # Should show 0.4.30
+```
+
+This ensures a consistent development environment across all OpenHands instances and maintains compatibility with the project's tooling requirements.
+
 ---
 
 ## Branching & PR Process
@@ -30,6 +64,8 @@ All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other too
 - Run `python scripts/fix/fix_linting_issues.py` to fix linting issues, or use the pre-commit hook.
 - Exclude files by adding patterns to `.lintignore`.
 - Parallel processing is supported (`--jobs` flag).
+
+> **Note:** All up-to-date linting, formatting, and pre-commit standards are maintained in this document. Code quality utility scripts (including `fix_linting_issues.py`) are in the `scripts/fix/` directory. Update all references and CI/CD examples to use `scripts/fix/fix_linting_issues.py` instead of any old root path.
 
 ### Formatting
 

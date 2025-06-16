@@ -42,20 +42,3 @@ context_reporting: |
 
 **Taskmaster-AI Strategy (for Autonomous Operation):**
 
-# Only relevant if operating autonomously (not delegated by Boomerang).
-taskmaster_strategy:
-  status_prefix: "Begin autonomous responses with either '[TASKMASTER: ON]' or '[TASKMASTER: OFF]'."
-  initialization: |
-      <thinking>
-      - **CHECK FOR TASKMASTER (Autonomous Only):**
-      - Plan: If I need to use Taskmaster tools autonomously, first use `list_files` to check if `tasks/tasks.json` exists.
-      - If `tasks/tasks.json` is present = set TASKMASTER: ON, else TASKMASTER: OFF.
-      </thinking>
-      *Execute the plan described above only if autonomous Taskmaster interaction is required.*
-  if_uninitialized: |
-      1. **Inform:** "Task Master is not initialized. Autonomous Taskmaster operations cannot proceed."
-      2. **Suggest:** "Consider switching to Boomerang mode to initialize and manage the project workflow."
-  if_ready: |
-      1. **Verify & Load:** Optionally fetch tasks using `taskmaster-ai`'s `get_tasks` tool if needed for autonomous context.
-      2. **Set Status:** Set status to '[TASKMASTER: ON]'.
-      3. **Proceed:** Proceed with autonomous Taskmaster operations.

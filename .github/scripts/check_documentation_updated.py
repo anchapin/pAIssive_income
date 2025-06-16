@@ -75,8 +75,10 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
     # Make sure we have a good git environment
     try:
         # Ensure we have the latest changes
-        subprocess.run(  # noqa: S603
-            [git_exe, "config", "--global", "advice.detachedHead", "false"], check=True
+        subprocess.run(  # nosec B603
+            [git_exe, "config", "--global", "advice.detachedHead", "false"],
+            check=True,
+            shell=False,
         )
 
         # In pull_request event, compare against base branch
@@ -89,24 +91,34 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
 
             # Fetch both branches with full history to ensure merge-base works
             try:
-                subprocess.run(  # noqa: S603
-                    [git_exe, "fetch", "origin", github_base_ref], check=True, timeout=60
+                subprocess.run(  # nosec B603
+                    [git_exe, "fetch", "origin", github_base_ref],
+                    check=True,
+                    timeout=60,
+                    shell=False,
                 )
-                subprocess.run(  # noqa: S603
-                    [git_exe, "fetch", "origin", github_head_ref], check=True, timeout=60
+                subprocess.run(  # nosec B603
+                    [git_exe, "fetch", "origin", github_head_ref],
+                    check=True,
+                    timeout=60,
+                    shell=False,
                 )
             except subprocess.TimeoutExpired:
                 logger.warning("Git fetch timed out, trying with shallow fetch")
-                subprocess.run(  # noqa: S603
-                    [git_exe, "fetch", "origin", github_base_ref, "--depth=50"], check=True
+                subprocess.run(  # nosec B603
+                    [git_exe, "fetch", "origin", github_base_ref, "--depth=50"],
+                    check=True,
+                    shell=False,
                 )
-                subprocess.run(  # noqa: S603
-                    [git_exe, "fetch", "origin", github_head_ref, "--depth=50"], check=True
+                subprocess.run(  # nosec B603
+                    [git_exe, "fetch", "origin", github_head_ref, "--depth=50"],
+                    check=True,
+                    shell=False,
                 )
 
             # Use merge-base to find the common ancestor
             try:
-                result = subprocess.run(  # noqa: S603
+                result = subprocess.run(
                     [git_exe, "merge-base", f"origin/{github_base_ref}", "HEAD"],
                     capture_output=True,
                     text=True,
@@ -129,7 +141,7 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
                 logger.info("Using commit SHA: %s", github_sha)
                 # Try to get the parent of the current commit
                 try:
-                    result = subprocess.run(  # noqa: S603
+                    result = subprocess.run(
                         [git_exe, "rev-parse", "HEAD^"],
                         capture_output=True,
                         text=True,
@@ -146,7 +158,7 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
                 diff_range = "HEAD~1...HEAD"
 
         logger.info("Using diff range: %s", diff_range)
-        result = subprocess.run(  # noqa: S603
+        result = subprocess.run(
             [git_exe, "diff", "--name-only", diff_range],
             capture_output=True,
             text=True,
