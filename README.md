@@ -108,6 +108,75 @@ See [LICENSE](LICENSE).
 
 ---
 
+## Python Testing and Coverage
+
+This project enforces at least **15% code coverage** for Python files using [pytest](https://pytest.org/) and [pytest-cov](https://pytest-cov.readthedocs.io/).
+
+### How to Run Python Tests
+
+First, install dependencies:
+
+```sh
+# Using uv (recommended)
+uv pip install -r requirements.txt
+uv pip install -r requirements-dev.txt
+
+# Or using pip
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
+
+Run Python tests and check coverage:
+
+```sh
+# Run all tests with coverage
+python run_tests.py --with-coverage
+
+# Or use pytest directly
+pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15
+```
+
+- If code coverage falls below 15%, the test run will fail.
+- Coverage reports will be printed to the console and an XML report will be generated as `coverage.xml`.
+
+### Python Test Structure
+
+Tests are located in the `tests/` directory and follow these conventions:
+
+- **Unit tests:** Test individual functions and classes in isolation (`tests/unit/`)
+- **Integration tests:** Test interactions between components (`tests/integration/`)
+- **API tests:** Test API endpoints and schemas (`tests/api/`)
+- **Security tests:** Test security features and validations (`tests/security/`)
+
+### Python Testing Tools
+
+- **[pytest](https://pytest.org/):** Test framework
+- **[pytest-cov](https://pytest-cov.readthedocs.io/):** Code coverage tool
+- **[pytest-asyncio](https://pytest-asyncio.readthedocs.io/):** Async test support
+- **[pytest-xdist](https://pytest-xdist.readthedocs.io/):** Parallel test execution
+
+### Python Testing Best Practices
+
+- Write tests for all new functions and classes
+- Aim for meaningful test coverage (15%+ enforced, higher encouraged)
+- Use descriptive test names that explain the expected behavior
+- Mock external dependencies and API calls
+- Test both success and error scenarios
+- Use pytest markers for test organization (`@pytest.mark.unit`, `@pytest.mark.integration`)
+
+### Troubleshooting Python Tests
+
+If tests fail:
+
+1. Check that all dependencies are installed: `pip install -r requirements-dev.txt`
+2. Verify Python version compatibility (3.12+ recommended)
+3. Check for import errors and missing modules
+4. Review test output for specific error messages
+5. Ensure test files follow naming conventions (`test_*.py`)
+
+For more detailed testing information, see [docs/02_developer_guide/03_testing_strategy.md](docs/02_developer_guide/03_testing_strategy.md).
+
+---
 
 ## JavaScript Testing and Coverage
 

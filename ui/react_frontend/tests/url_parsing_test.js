@@ -327,7 +327,7 @@ function runTests() {
   const totalPassed = parseUrlPassed + generateUrlPassed;
   const totalFailed = parseUrlFailed + generateUrlFailed;
   
-  log(`\nTest Summary:`);
+  log('\nTest Summary:');
   log(`parseUrl: ${parseUrlPassed} passed, ${parseUrlFailed} failed`);
   log(`generateUrl: ${generateUrlPassed} passed, ${generateUrlFailed} failed`);
   log(`Total: ${totalPassed} passed, ${totalFailed} failed (${totalTests} total)`);
@@ -338,7 +338,7 @@ function runTests() {
     `parseUrl: ${parseUrlPassed} passed, ${parseUrlFailed} failed\n` +
     `generateUrl: ${generateUrlPassed} passed, ${generateUrlFailed} failed\n` +
     `Total: ${totalPassed} passed, ${totalFailed} failed (${totalTests} total)\n\n` +
-    `Environment:\n` +
+    'Environment:\n' +
     `CI: ${config.isCI ? 'Yes' : 'No'}\n` +
     `Node.js version: ${process.version}\n` +
     `Platform: ${process.platform}\n` +

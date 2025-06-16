@@ -8,8 +8,13 @@ This document explains the consolidation of security-related GitHub Actions work
 
 ### Consolidated Workflows
 
-1. **Removed**: `.github/workflows/security-scan.yml` (simpler workflow)
-2. **Enhanced**: `.github/workflows/security_scan.yml` (comprehensive workflow)
+1. **Enhanced**: `.github/workflows/security_scan.yml` (comprehensive workflow)
+   - Added Safety for Python dependency vulnerability checking
+   - Added pip-audit for Python dependency auditing
+   - Fixed SARIF category conflicts with unique naming
+2. **Simplified**: `.github/workflows/consolidated-ci-cd.yml`
+   - Removed duplicate security job to eliminate redundancy
+   - Updated build-deploy job dependencies
 
 ### Features Added to the Consolidated Workflow
 
@@ -43,17 +48,18 @@ The consolidated security scan workflow can be triggered in several ways:
 
 ## Security Tools Included
 
-The consolidated workflow includes the following security tools:
+The consolidated security_scan.yml workflow includes the following security tools:
 
-1. **Safety**: Checks for known vulnerabilities in Python dependencies
-2. **Pip-Audit**: Alternative dependency vulnerability scanner
-3. **Bandit**: Static analysis tool designed to find common security issues in Python code
-4. **Trivy**: Comprehensive vulnerability scanner for containers and filesystems
-5. **Semgrep**: Lightweight static analysis for many languages to find bugs and enforce code standards
-6. **Pylint Security Checks**: Python linter focused on security issues
-7. **Gitleaks**: Secret scanning tool to find hardcoded secrets and credentials
-8. **CodeQL**: GitHub's semantic code analysis engine
-9. **Dependency Review**: Reviews dependencies for security vulnerabilities
+1. **Trivy**: Comprehensive vulnerability scanner for containers and filesystems
+2. **Gitleaks**: Secret scanning tool to find hardcoded secrets and credentials
+3. **Semgrep**: Lightweight static analysis for many languages to find bugs and enforce code standards
+4. **Pylint Security**: Python linter focused on security issues
+5. **Bandit**: Static analysis tool designed to find common security issues in Python code
+6. **Safety**: Checks for known vulnerabilities in Python dependencies
+7. **Pip-Audit**: Alternative dependency vulnerability scanner
+8. **Custom Secret Scanner**: Custom secret detection using fix_potential_secrets.py
+
+Note: CodeQL analysis is handled by separate dedicated workflows for each OS platform.
 
 ## Artifacts and Reports
 

@@ -11,20 +11,31 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
-  ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'build/',
-  ],
   rules: {
-    // Add any custom rules here
+    'quotes': ['error', 'single'],
+    'no-console': 'warn',
+    'no-unused-vars': 'warn',
   },
   overrides: [
     {
       files: ['**/*.test.js'],
       env: {
         jest: true,
+      },
+    },
+    {
+      files: ['ui/react_frontend/**/*.js'],
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      env: {
+        browser: true,
       },
     },
   ],
