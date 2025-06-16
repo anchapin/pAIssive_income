@@ -27,8 +27,8 @@ describe('validateString', () => {
   });
   it('trims by default', () => {
     expect(validateString('   abc  ', { minLength: 3 })).toEqual({ valid: true, error: null });
-    expect(validateString('   ', { required: true })).toEqual({ valid: false, error: expect.any(String) });
-    expect(validateString('   a ', { trim: false, minLength: 3 })).toEqual({ valid: false, error: expect.any(String) });
+    expect(validateString('   ', { required: true })).toEqual({ valid: false, error: 'This field is required.' });
+    expect(validateString(' a ', { trim: false, minLength: 3 })).toEqual({ valid: true, error: null });
   });
 });
 

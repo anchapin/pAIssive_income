@@ -15,9 +15,9 @@ const originalEnv = process.env;
 
 describe('apiClient', () => {
   beforeEach(() => {
-    jest.resetModules();
-    jest.clearAllMocks();
-    global.fetch = jest.fn();
+    vi.resetModules();
+    vi.clearAllMocks();
+    global.fetch = vi.fn();
     process.env = { ...originalEnv, NODE_ENV: 'development' };
   });
 
@@ -26,13 +26,13 @@ describe('apiClient', () => {
   });
 
   it('calls correct URL and method for user.getCurrentUser', async () => {
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: true,
       headers: { get: () => 'application/json' },
       json: async () => ({ id: 'user', name: 'User' })
     });
     const data = await userAPI.getCurrentUser();
-    expect(fetch).toHaveBeenCalledWith(
+    expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/user/profile'),
       expect.objectContaining({ method: undefined, headers: expect.any(Object), signal: expect.any(Object) })
     );
@@ -40,14 +40,14 @@ describe('apiClient', () => {
   });
 
   it('calls correct method and body for user.login', async () => {
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: true,
       headers: { get: () => 'application/json' },
       json: async () => ({ id: 'user', name: 'User' })
     });
     const creds = { username: 'x', password: 'y' };
     await userAPI.login(creds);
-    expect(fetch).toHaveBeenCalledWith(
+    expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/auth/login'),
       expect.objectContaining({
         method: 'POST',
@@ -59,7 +59,7 @@ describe('apiClient', () => {
   });
 
   it('handles non-JSON responses', async () => {
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: true,
       headers: { get: () => '' }
     });
@@ -68,7 +68,7 @@ describe('apiClient', () => {
   });
 
   it('throws on API error with JSON message', async () => {
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: false,
       headers: { get: () => 'application/json' },
       json: async () => ({ message: 'bad request' })
@@ -77,13 +77,13 @@ describe('apiClient', () => {
   });
 
   it('calls correct endpoint for dashboard.getProjectsOverview', async () => {
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: true,
       headers: { get: () => 'application/json' },
       json: async () => ({ projects: [1, 2] })
     });
     const data = await dashboardAPI.getProjectsOverview();
-    expect(fetch).toHaveBeenCalledWith(
+    expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/dashboard/overview'),
       expect.any(Object)
     );
@@ -91,31 +91,31 @@ describe('apiClient', () => {
   });
 
   it('returns mock data in development on fetch error', async () => {
-    fetch.mockRejectedValue(new Error('fail'));
+    global.fetch.mockRejectedValue(new Error('fail'));
     const data = await dashboardAPI.getProjectsOverview();
     expect(data).toEqual({ projects: [], totalRevenue: 0, totalSubscribers: 0 });
   });
 
   it('returns mock user in development on fetch error', async () => {
-    fetch.mockRejectedValue(new Error('fail'));
+    global.fetch.mockRejectedValue(new Error('fail'));
     const data = await userAPI.getCurrentUser();
     expect(data).toEqual({ id: 'mock-user', name: 'Test User', email: 'test@example.com' });
   });
 
   it('throws error in production on fetch error', async () => {
     process.env = { ...originalEnv, NODE_ENV: 'production' };
-    fetch.mockRejectedValue(new Error('fail'));
+    global.fetch.mockRejectedValue(new Error('fail'));
     await expect(userAPI.getCurrentUser()).rejects.toThrow('fail');
   });
 
   it('nicheAnalysis.analyzeNiches calls correct endpoint', async () => {
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: true,
       headers: { get: () => 'application/json' },
       json: async () => ({ result: 'ok' })
     });
     await nicheAnalysisAPI.analyzeNiches(['n1', 'n2']);
-    expect(fetch).toHaveBeenCalledWith(
+    expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/niche-analysis/analyze'),
       expect.objectContaining({
         method: 'POST',
@@ -125,13 +125,13 @@ describe('apiClient', () => {
   });
 
   it('developer.generateSolution calls correct endpoint', async () => {
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: true,
       headers: { get: () => 'application/json' },
       json: async () => ({ solution: 'ok' })
     });
     await developerAPI.generateSolution('n1', 't1');
-    expect(fetch).toHaveBeenCalledWith(
+    expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/developer/solution'),
       expect.objectContaining({
         method: 'POST',
@@ -141,13 +141,13 @@ describe('apiClient', () => {
   });
 
   it('monetization.generateStrategy calls correct endpoint', async () => {
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: true,
       headers: { get: () => 'application/json' },
       json: async () => ({ strategy: 'ok' })
     });
     await monetizationAPI.generateStrategy('s1', { foo: 1 });
-    expect(fetch).toHaveBeenCalledWith(
+    expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/monetization/strategy'),
       expect.objectContaining({
         method: 'POST',
@@ -157,13 +157,13 @@ describe('apiClient', () => {
   });
 
   it('marketing.generateCampaign calls correct endpoint', async () => {
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: true,
       headers: { get: () => 'application/json' },
       json: async () => ({ campaign: 'ok' })
     });
     await marketingAPI.generateCampaign('s2', [1], [2]);
-    expect(fetch).toHaveBeenCalledWith(
+    expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/marketing/campaign'),
       expect.objectContaining({
         method: 'POST',
