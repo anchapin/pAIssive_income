@@ -36,12 +36,21 @@ echo "----------------------------------------------------"
 echo "STEP 2: Installing Node.js dependencies..."
 echo "----------------------------------------------------"
 if command -v pnpm &> /dev/null; then
+    echo "Running pnpm install..."
     pnpm install
-    if [ $? -ne 0 ]; then
-        echo "ERROR: pnpm install failed."
-        echo "WARNING: Node.js dependency installation failed. Subsequent steps or application functionality might be affected."
+    PNPM_EXIT_CODE=$?
+    if [ $PNPM_EXIT_CODE -ne 0 ]; then
+        echo "ERROR: pnpm install failed with exit code $PNPM_EXIT_CODE."
+        echo "This indicates a problem with Node.js dependency installation."
+        echo "Please check the error messages above and ensure:"
+        echo "  - pnpm is properly installed and up to date"
+        echo "  - package.json is valid"
+        echo "  - network connectivity is available"
+        echo ""
+        echo "WARNING: Continuing with setup, but Node.js functionality may be impacted."
+        echo "You can retry manually with: pnpm install"
     else
-        echo "Node.js dependencies installed via pnpm."
+        echo "Node.js dependencies installed successfully via pnpm."
     fi
 else
     echo "WARNING: pnpm command not found. Skipping Node.js dependency installation."
@@ -89,7 +98,7 @@ echo "   python3 init_db.py"
 echo ""
 echo "4. To run the application or tests, please refer to the project documentation."
 echo ""
-echo "For the jules.google.com setup, the command to run this script is:"
+echo "For the pAIssive Income setup, the command to run this script is:"
 echo "  bash setup.sh"
 echo "----------------------------------------------------"
 
