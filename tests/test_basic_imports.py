@@ -30,7 +30,7 @@ def test_utils_import():
 
 def test_utils_math_utils():
     """Test basic math utils functions."""
-    from utils.math_utils import add, multiply, subtract, divide, average
+    from utils.math_utils import add, average, divide, multiply, subtract
 
     # Test add
     assert add(2, 3) == 5
@@ -64,7 +64,7 @@ def test_users_models_import():
 def test_users_models_user_creation():
     """Test basic User model functionality."""
     from users.models import User
-    
+
     user = User(username="testuser", email="test@example.com")
     assert user.username == "testuser"
     assert user.email == "test@example.com"

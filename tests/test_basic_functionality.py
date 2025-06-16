@@ -1,7 +1,8 @@
 """Test basic functionality across modules."""
 
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
 
 
 def test_ai_models_adapters_init():
@@ -13,7 +14,7 @@ def test_ai_models_adapters_init():
 def test_ai_models_exceptions():
     """Test ai_models exceptions."""
     from ai_models.adapters.exceptions import AdapterError
-    
+
     error = AdapterError("Test adapter error")
     assert str(error) == "Test adapter error"
 
@@ -21,10 +22,10 @@ def test_ai_models_exceptions():
 def test_app_flask_init():
     """Test app_flask initialization."""
     from app_flask import create_app
-    
+
     app = create_app()
     assert app is not None
-    assert hasattr(app, 'config')
+    assert hasattr(app, "config")
 
 
 def test_common_utils_custom_logging():
@@ -48,15 +49,15 @@ def test_api_app_import():
 def test_config_loading():
     """Test config loading functionality."""
     import config
-    
+
     # Test that config can be loaded
-    if hasattr(config, 'load_config'):
+    if hasattr(config, "load_config"):
         config.load_config()
-    
+
     # Test environment variables
-    if hasattr(config, 'get_env_var'):
+    if hasattr(config, "get_env_var"):
         # This should not raise an exception
-        config.get_env_var('PATH', default='')
+        config.get_env_var("PATH", default="")
 
 
 def test_users_models_basic():

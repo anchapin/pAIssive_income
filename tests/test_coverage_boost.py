@@ -5,46 +5,46 @@ import pytest
 
 def test_utils_math_comprehensive():
     """Comprehensive test of math utils to boost coverage."""
-    from utils.math_utils import add, subtract, multiply, divide, average
-    
+    from utils.math_utils import add, average, divide, multiply, subtract
+
     # Test add function thoroughly
     assert add(1, 2) == 3
     assert add(-1, 1) == 0
     assert add(0, 0) == 0
     assert add(1.5, 2.5) == 4.0
     assert add(-5, -3) == -8
-    
+
     # Test subtract function thoroughly
     assert subtract(5, 3) == 2
     assert subtract(0, 0) == 0
     assert subtract(-1, -1) == 0
     assert subtract(10, 15) == -5
     assert subtract(3.7, 1.2) == 2.5
-    
+
     # Test multiply function thoroughly
     assert multiply(3, 4) == 12
     assert multiply(-2, 3) == -6
     assert multiply(0, 100) == 0
     assert multiply(2.5, 4) == 10.0
     assert multiply(-1, -1) == 1
-    
+
     # Test divide function thoroughly
     assert divide(10, 2) == 5
     assert divide(7, 2) == 3.5
     assert divide(-6, 3) == -2
     assert divide(0, 5) == 0
-    
+
     # Test divide by zero
     with pytest.raises(ZeroDivisionError):
         divide(5, 0)
-    
+
     # Test average function thoroughly
     assert average([1, 2, 3]) == 2.0
     assert average([10]) == 10.0
     assert average([1, 2, 3, 4, 5]) == 3.0
     assert average([-1, 0, 1]) == 0.0
     assert average([2.5, 3.5]) == 3.0
-    
+
     # Test average with empty list
     with pytest.raises(ValueError):
         average([])
@@ -62,17 +62,17 @@ def test_ai_models_init():
     """Test ai_models initialization."""
     import ai_models
     assert ai_models is not None
-    assert hasattr(ai_models, '__version__')
+    assert hasattr(ai_models, "__version__")
 
 
 def test_ai_models_adapters_exceptions():
     """Test ai_models adapter exceptions."""
     from ai_models.adapters.exceptions import AdapterError
-    
+
     # Test basic exception creation
     error = AdapterError("Test error")
     assert str(error) == "Test error"
-    
+
     # Test exception inheritance
     assert isinstance(error, Exception)
 
@@ -80,17 +80,17 @@ def test_ai_models_adapters_exceptions():
 def test_users_models_comprehensive():
     """Comprehensive test of User model."""
     from users.models import User
-    
+
     # Test basic user creation
     user1 = User(username="user1", email="user1@example.com")
     assert user1.username == "user1"
     assert user1.email == "user1@example.com"
-    
+
     # Test user with different data
     user2 = User(username="testuser123", email="test123@domain.com")
     assert user2.username == "testuser123"
     assert user2.email == "test123@domain.com"
-    
+
     # Test user equality if implemented
     user3 = User(username="user1", email="user1@example.com")
     # Note: equality might not be implemented, so we just test creation
@@ -99,10 +99,10 @@ def test_users_models_comprehensive():
 def test_config_module():
     """Test config module functionality."""
     import config
-    
+
     # Test basic import
     assert config is not None
-    
+
     # Test if config has any callable functions
     config_attrs = dir(config)
     assert len(config_attrs) > 0
@@ -111,8 +111,13 @@ def test_config_module():
 def test_common_utils_exceptions_comprehensive():
     """Test common_utils exceptions comprehensively."""
     from common_utils.exceptions import (
-        DirectoryPermissionError, FilePermissionError, DirectoryNotFoundError,
-        FileNotPythonError, MissingFileError, ScriptNotFoundError, InvalidRotationIntervalError
+        DirectoryNotFoundError,
+        DirectoryPermissionError,
+        FileNotPythonError,
+        FilePermissionError,
+        InvalidRotationIntervalError,
+        MissingFileError,
+        ScriptNotFoundError,
     )
 
     # Test DirectoryPermissionError
@@ -173,8 +178,13 @@ def test_common_utils_exceptions_comprehensive():
 
 def test_common_utils_validation_core():
     """Test validation core functionality."""
-    from common_utils.validation.core import ValidationError, validate_input, validation_error_response
     from pydantic import BaseModel
+
+    from common_utils.validation.core import (
+        ValidationError,
+        validate_input,
+        validation_error_response,
+    )
 
     # Test ValidationError
     error = ValidationError()
@@ -207,7 +217,7 @@ def test_common_utils_validation_core():
 
 def test_users_auth_basic():
     """Test users auth basic functionality."""
-    from users.auth import hash_credential, verify_credential, hash_auth, verify_auth
+    from users.auth import hash_auth, hash_credential, verify_auth, verify_credential
 
     # Test credential hashing
     password = "test_password123"
@@ -238,11 +248,11 @@ def test_users_auth_basic():
 def test_app_flask_basic():
     """Test app_flask basic functionality."""
     from app_flask import create_app
-    
+
     app = create_app()
     assert app is not None
-    assert hasattr(app, 'config')
-    
+    assert hasattr(app, "config")
+
     # Test app configuration
     assert app.config is not None
 
@@ -250,10 +260,10 @@ def test_app_flask_basic():
 def test_crewai_basic():
     """Test crewai basic functionality."""
     import crewai
-    
+
     # Test basic import
     assert crewai is not None
-    
+
     # Test if crewai has expected attributes
     crewai_attrs = dir(crewai)
     assert len(crewai_attrs) > 0
@@ -262,9 +272,9 @@ def test_crewai_basic():
 def test_utils_init():
     """Test utils module initialization."""
     import utils
-    
+
     assert utils is not None
-    
+
     # Test utils has math_utils
     from utils import math_utils
     assert math_utils is not None
@@ -273,12 +283,12 @@ def test_utils_init():
 def test_ai_models_artist_agent_basic():
     """Test artist agent basic functionality."""
     from ai_models.artist_agent import ArtistAgent
-    
+
     # Test basic import and class existence
     assert ArtistAgent is not None
-    
+
     # Test if we can inspect the class
-    assert hasattr(ArtistAgent, '__init__')
+    assert hasattr(ArtistAgent, "__init__")
 
 
 def test_common_utils_validation_init():
@@ -295,24 +305,24 @@ def test_common_utils_validation_init():
 def test_config_comprehensive():
     """Test config module comprehensively."""
     import config
-    
+
     # Test basic functionality
     assert config is not None
-    
+
     # Test if config has load_config function
-    if hasattr(config, 'load_config'):
+    if hasattr(config, "load_config"):
         # Try to call it
         try:
             config.load_config()
         except Exception:
             # It's okay if it fails, we're just testing coverage
             pass
-    
+
     # Test if config has get_setting function
-    if hasattr(config, 'get_setting'):
+    if hasattr(config, "get_setting"):
         # Try to get a setting
         try:
-            config.get_setting('DEBUG', default=False)
+            config.get_setting("DEBUG", default=False)
         except Exception:
             # It's okay if it fails, we're just testing coverage
             pass
