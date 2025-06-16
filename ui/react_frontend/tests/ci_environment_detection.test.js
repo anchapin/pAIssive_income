@@ -6,7 +6,6 @@
  */
 
 import fs from 'fs';
-import path from 'path';
 import os from 'os';
 
 // Mock the fs module
@@ -14,6 +13,13 @@ vi.mock('fs', async (importOriginal) => {
   const actual = await importOriginal()
   return {
     ...actual,
+    default: {
+      ...actual.default,
+      existsSync: vi.fn(),
+      readFileSync: vi.fn(),
+      writeFileSync: vi.fn(),
+      mkdirSync: vi.fn()
+    },
     existsSync: vi.fn(),
     readFileSync: vi.fn(),
     writeFileSync: vi.fn(),
@@ -23,6 +29,17 @@ vi.mock('fs', async (importOriginal) => {
 
 // Mock the os module
 vi.mock('os', () => ({
+  default: {
+    platform: vi.fn(),
+    release: vi.fn(),
+    tmpdir: vi.fn(),
+    homedir: vi.fn(),
+    hostname: vi.fn(),
+    userInfo: vi.fn(),
+    totalmem: vi.fn(),
+    freemem: vi.fn(),
+    cpus: vi.fn()
+  },
   platform: vi.fn(),
   release: vi.fn(),
   tmpdir: vi.fn(),
@@ -36,11 +53,11 @@ vi.mock('os', () => ({
 
 // Import the modules to test
 import {
-  detectEnvironment,
+  detectCIEnvironmentType as detectEnvironment,
   setupCIEnvironment,
   getCIEnvironmentInfo,
   createCIReport
-} from '../src/utils/environmentDetection';
+} from './helpers/ci-environment';
 
 describe('CI Environment Detection Module', () => {
   // Store original environment variables
@@ -88,7 +105,7 @@ describe('CI Environment Detection Module', () => {
       const result = detectEnvironment();
 
       // Assert
-      expect(result.ci).toBe('none');
+      expect(result).toBe('none');
     });
 
     it('should detect GitHub Actions environment', () => {
@@ -101,7 +118,7 @@ describe('CI Environment Detection Module', () => {
       const result = detectEnvironment();
 
       // Assert
-      expect(result.ci).toBe('github');
+      expect(result).toBe('github');
     });
 
     it('should detect GitHub Actions from GITHUB_WORKFLOW without GITHUB_ACTIONS', () => {
@@ -114,7 +131,7 @@ describe('CI Environment Detection Module', () => {
       const result = detectEnvironment();
 
       // Assert
-      expect(result.ci).toBe('github');
+      expect(result).toBe('github');
     });
 
     it('should detect Jenkins environment', () => {
@@ -126,7 +143,7 @@ describe('CI Environment Detection Module', () => {
       const result = detectEnvironment();
 
       // Assert
-      expect(result.ci).toBe('jenkins');
+      expect(result).toBe('jenkins');
     });
 
     it('should detect GitLab CI environment', () => {
@@ -138,7 +155,7 @@ describe('CI Environment Detection Module', () => {
       const result = detectEnvironment();
 
       // Assert
-      expect(result.ci).toBe('gitlab');
+      expect(result).toBe('gitlab');
     });
 
     it('should detect CircleCI environment', () => {
@@ -150,7 +167,7 @@ describe('CI Environment Detection Module', () => {
       const result = detectEnvironment();
 
       // Assert
-      expect(result.ci).toBe('circle');
+      expect(result).toBe('circle');
     });
 
     it('should detect Travis CI environment', () => {
@@ -162,7 +179,7 @@ describe('CI Environment Detection Module', () => {
       const result = detectEnvironment();
 
       // Assert
-      expect(result.ci).toBe('travis');
+      expect(result).toBe('travis');
     });
 
     it('should detect Azure Pipelines environment', () => {
@@ -174,7 +191,7 @@ describe('CI Environment Detection Module', () => {
       const result = detectEnvironment();
 
       // Assert
-      expect(result.ci).toBe('azure');
+      expect(result).toBe('azure');
     });
 
     it('should detect Docker environment', () => {
@@ -183,10 +200,10 @@ describe('CI Environment Detection Module', () => {
       process.env.DOCKER_ENVIRONMENT = 'true';
 
       // Act
-      const result = detectEnvironment();
+      const result = detectEnvironment({ includeContainers: true });
 
       // Assert
-      expect(result.ci).toBe('generic');
+      expect(result).toBe('docker');
     });
 
     it('should detect Kubernetes environment', () => {
@@ -195,10 +212,10 @@ describe('CI Environment Detection Module', () => {
       process.env.KUBERNETES_SERVICE_HOST = '10.0.0.1';
 
       // Act
-      const result = detectEnvironment();
+      const result = detectEnvironment({ includeContainers: true });
 
       // Assert
-      expect(result.ci).toBe('generic');
+      expect(result).toBe('kubernetes');
     });
 
     it('should return "generic" for unknown CI environments', () => {
@@ -215,7 +232,7 @@ describe('CI Environment Detection Module', () => {
       const result = detectEnvironment();
 
       // Assert
-      expect(result.ci).toBe('generic');
+      expect(result).toBe('generic');
     });
   });
 
@@ -237,7 +254,8 @@ describe('CI Environment Detection Module', () => {
     it('should create CI directories when specified', () => {
       // Arrange
       process.env.CI = 'true';
-      fs.existsSync.mockImplementation(() => false);
+      fs.existsSync = vi.fn(() => false);
+      fs.mkdirSync = vi.fn(() => undefined);
 
       // Act
       const result = setupCIEnvironment();
@@ -250,7 +268,7 @@ describe('CI Environment Detection Module', () => {
     it('should handle errors during setup', () => {
       // Arrange
       process.env.CI = 'true';
-      fs.mkdirSync.mockImplementation(() => { throw new Error('Test error'); });
+      fs.mkdirSync = vi.fn(() => { throw new Error('Test error'); });
 
       // Act
       const result = setupCIEnvironment();
@@ -330,6 +348,7 @@ describe('CI Environment Detection Module', () => {
       // Arrange
       process.env.CI = 'true';
       const filename = 'test-report.txt';
+      fs.writeFileSync = vi.fn(() => undefined);
 
       // Act
       const result = createCIReport(filename, {

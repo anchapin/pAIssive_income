@@ -55,11 +55,11 @@ describe('CI Environment Setup Module', () => {
     // Reset environment variables
     process.env = { ...originalEnv };
 
-    // Default mock implementations
-    fs.existsSync.mockImplementation(() => false);
-    fs.readFileSync.mockImplementation(() => '');
-    fs.mkdirSync.mockImplementation(() => undefined);
-    fs.writeFileSync.mockImplementation(() => undefined);
+    // Default mock implementations using vi.fn()
+    fs.existsSync = vi.fn(() => false);
+    fs.readFileSync = vi.fn(() => '');
+    fs.mkdirSync = vi.fn(() => undefined);
+    fs.writeFileSync = vi.fn(() => undefined);
 
     // Mock os functions
     os.platform.mockImplementation(() => 'linux');

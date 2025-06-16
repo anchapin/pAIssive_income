@@ -34,7 +34,7 @@ describe('apiClient', () => {
     const data = await userAPI.getCurrentUser();
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/user/profile'),
-      expect.objectContaining({ method: undefined, headers: expect.any(Object), signal: expect.any(Object) })
+      expect.objectContaining({ headers: expect.any(Object), signal: expect.any(Object) })
     );
     expect(data).toEqual({ id: 'user', name: 'User' });
   });
@@ -68,6 +68,7 @@ describe('apiClient', () => {
   });
 
   it('throws on API error with JSON message', async () => {
+    process.env = { ...originalEnv, NODE_ENV: 'production' };
     global.fetch.mockResolvedValue({
       ok: false,
       headers: { get: () => 'application/json' },

@@ -7,7 +7,7 @@
 
 // Security limits to prevent DoS attacks
 const LIMITS = {
-  MAX_PARAMS: 100,
+  MAX_PARAMS: 20,
   MAX_PATH_LENGTH: 1000,
   MAX_PATTERN_LENGTH: 500
 };
@@ -18,6 +18,11 @@ const LIMITS = {
  */
 function pathToRegexp(path, keys, options = {}) {
   try {
+    // Handle RegExp input - return as-is
+    if (path instanceof RegExp) {
+      return path;
+    }
+
     // Handle different input types
     if (!path || typeof path !== 'string') {
       return /.*/;
@@ -98,7 +103,9 @@ pathToRegexp.compile = function compile(path) {
       Object.entries(params).forEach(([key, value]) => {
         if (typeof value === 'string' || typeof value === 'number') {
           const pattern = new RegExp(`:${key}(?![a-zA-Z0-9_])`, 'g');
-          result = result.replace(pattern, String(value));
+          // URL encode the value for security
+          const encodedValue = encodeURIComponent(String(value));
+          result = result.replace(pattern, encodedValue);
         }
       });
       return result;
@@ -116,31 +123,42 @@ pathToRegexp.match = function match(pattern) {
   return function(pathname) {
     try {
       if (!pattern || !pathname) {
-        return { path: '', params: {}, index: 0, isExact: false };
+        return false;
       }
 
-      const patternParts = pattern.split('/').filter(Boolean);
-      const pathParts = pathname.split('/').filter(Boolean);
+      // Normalize Windows paths
+      const normalizedPattern = pattern.replace(/\\/g, '/');
+      const normalizedPathname = pathname.replace(/\\/g, '/');
+
+      const patternParts = normalizedPattern.split('/').filter(Boolean);
+      const pathParts = normalizedPathname.split('/').filter(Boolean);
       const params = {};
       let isExact = patternParts.length === pathParts.length;
+      let matches = true;
 
       patternParts.forEach((part, i) => {
         if (part.startsWith(':') && pathParts[i]) {
           params[part.substring(1)] = pathParts[i];
         } else if (part !== pathParts[i]) {
           isExact = false;
+          matches = false;
         }
       });
 
+      // Return false for non-matching paths
+      if (!matches && !isExact) {
+        return false;
+      }
+
       return {
-        path: pathname,
+        path: normalizedPathname,
         params,
         index: 0,
         isExact
       };
     } catch (error) {
       console.error('Error in match:', error.message);
-      return { path: '', params: {}, index: 0, isExact: false };
+      return false;
     }
   };
 };

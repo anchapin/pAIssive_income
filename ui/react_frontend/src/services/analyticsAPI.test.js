@@ -5,7 +5,9 @@
 import analyticsAPI from './analyticsAPI';
 import * as apiClient from './apiClient';
 
-vi.mock('./apiClient');
+vi.mock('./apiClient', () => ({
+  fetchAPI: vi.fn()
+}));
 
 describe('analyticsAPI', () => {
   beforeEach(() => {

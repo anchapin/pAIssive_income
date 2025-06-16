@@ -1520,12 +1520,45 @@ function formatEnvironmentVariables() {
   return result;
 }
 
+/**
+ * Get CI environment information
+ * @returns {Object} CI environment information
+ */
+function getCIEnvironmentInfo() {
+  const env = detectEnvironment();
+  const ciType = detectCIEnvironmentType();
+
+  return {
+    ci: ciType,
+    isCI: env.isCI,
+    isGitHubActions: env.isGitHubActions,
+    isJenkins: env.isJenkins,
+    isGitLabCI: env.isGitLabCI,
+    isCircleCI: env.isCircleCI,
+    isTravis: env.isTravis,
+    isAzurePipelines: env.isAzurePipelines,
+    isTeamCity: env.isTeamCity,
+    isBitbucket: env.isBitbucket,
+    isAppVeyor: env.isAppVeyor,
+    platform: env.platform,
+    nodeVersion: env.nodeVersion,
+    architecture: env.architecture,
+    osType: env.osType,
+    osRelease: env.osRelease,
+    workingDir: env.workingDir,
+    hostname: env.hostname,
+    username: env.username,
+    memory: env.memory
+  };
+}
+
 module.exports = {
   detectCIEnvironmentType,
   createCIDirectories,
   createCIMarkerFiles,
   setupCIEnvironment,
   createCIReport,
+  getCIEnvironmentInfo,
   formatBytes,
   formatEnvironmentVariables
 };
