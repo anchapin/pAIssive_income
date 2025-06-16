@@ -29,7 +29,7 @@ The recommended way to set up the development environment is by using the projec
 4.  **Initialize the Database:**
     Once the `.env` file is correctly configured, initialize the database:
     ```bash
-    python3 init_db.py
+    python init_db.py
     ```
 
 5.  **Note on Specific Tool Versions (for OpenHands-like environments):**
