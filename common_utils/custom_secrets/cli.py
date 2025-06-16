@@ -1,5 +1,5 @@
 """
-cli - Module for common_utils/secrets.cli.
+cli - Module for common_utils/custom_secrets/cli.py.
 
 This module provides a command-line interface for managing secrets.
 """
@@ -17,10 +17,12 @@ from pathlib import Path
 from secrets import compare_digest
 from typing import Any, Callable
 
-from common_utils.exceptions import InvalidRotationIntervalError  # Moved to top
-
 # Local imports
-from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
+from common_utils.custom_logging.secure_logging import (
+    get_secure_logger,
+    mask_sensitive_data,
+)
+from common_utils.exceptions import InvalidRotationIntervalError  # Moved to top
 
 from .audit import SecretsAuditor
 from .rotation import SecretRotation

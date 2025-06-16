@@ -21,7 +21,7 @@ These workflows scan the codebase for security vulnerabilities using GitHub's Co
 
 #### Configuration
 
-The CodeQL workflows are configured using the `.github/scripts/ensure-codeql-configs.py` script, which ensures that the CodeQL configuration is consistent across all workflows.
+The CodeQL workflows are configured using the `.github/scripts/ensure_codeql_configs.py` script, which ensures that the CodeQL configuration is consistent across all workflows.
 
 ### CI/CD Pipeline
 

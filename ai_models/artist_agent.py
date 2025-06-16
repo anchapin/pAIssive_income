@@ -33,22 +33,39 @@ class ArtistAgent:
             str: Name of the tool to use.
 
         """
-        if any(
-            k in prompt.lower()
-            for k in [
-                "calculate",
-                "add",
-                "subtract",
-                "multiply",
-                "divide",
-                "+",
-                "-",
-                "*",
-                "/",
-            ]
-        ):
-            return "calculator"
-        # Add more heuristics for other tools here
+        prompt_lower = prompt.lower()
+        tool_keywords = [
+            (
+                [
+                    "calculate",
+                    "add",
+                    "subtract",
+                    "multiply",
+                    "divide",
+                    "+",
+                    "-",
+                    "*",
+                    "/",
+                ],
+                "calculator",
+            ),
+            (
+                [
+                    "analyze",
+                    "sentiment",
+                    "text",
+                    "phrase",
+                    "analyze the",
+                    "sentiment of",
+                ],
+                "text_analyzer",
+            ),
+            # Add more heuristics for other tools here as (keywords_list, tool_name) tuples
+        ]
+
+        for keywords, tool_name_candidate in tool_keywords:
+            if any(k in prompt_lower for k in keywords):
+                return tool_name_candidate
         return ""
 
     def extract_relevant_expression(self, prompt: str, tool_name: str) -> str:
@@ -75,6 +92,24 @@ class ArtistAgent:
         # Simple extraction - look for mathematical expressions
         import re
 
+<<<<<<< HEAD
+            # Try to find text after "analyze" or "sentiment of"
+            analyze_match = re.search(
+                r"analyze(?:\s+the)?\s+(?:sentiment\s+of\s+)?(?:this\s+)?(?:phrase:?\s*)?(.+)",
+                prompt,
+                re.IGNORECASE,
+            )
+            if analyze_match:
+                return analyze_match.group(1).strip()
+
+            sentiment_match = re.search(
+                r"sentiment\s+of\s+(?:this\s+)?(?:phrase:?\s*)?(.+)",
+                prompt,
+                re.IGNORECASE,
+            )
+            if sentiment_match:
+                return sentiment_match.group(1).strip()
+=======
         # Find mathematical expressions with numbers and operators
         pattern = r"[\d\+\-\*/\(\)\.\s]+"
         matches = re.findall(pattern, prompt)

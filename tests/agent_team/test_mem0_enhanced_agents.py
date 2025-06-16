@@ -1,9 +1,12 @@
-
 import logging
 import unittest
+from typing import Any, Dict, List, Optional  # Assuming these are used in the file
 from unittest.mock import MagicMock, patch
 
 import pytest
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 from agent_team.mem0_enhanced_agents import (
     CREWAI_AVAILABLE,
