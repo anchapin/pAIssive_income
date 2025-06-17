@@ -16,9 +16,6 @@
     "react-scripts": "^5.0.1",
     "typescript": "^4.9.5"
   },
-  "optionalDependencies": {
-    "@ag-ui-protocol/ag-ui": "^1.0.0"
-  },
   "pnpm": {
     "overrides": {
       "@ag-ui-protocol/ag-ui": "npm:@ag-ui-protocol/ag-ui-mock@^1.0.0"
@@ -33,7 +30,6 @@
     }
   },
   "devDependencies": {
-    "@babel/plugin-transform-nullish-coalescing-operator": "^7.27.1",
     "@babel/plugin-transform-optional-chaining": "^7.27.1",
     "@playwright/test": "^1.52.0",
     "@testing-library/jest-dom": "^6.0.0",
@@ -142,5 +138,8 @@
       "last 1 safari version"
     ]
   },
-  "packageManager": "pnpm@8.14.0+sha512.5d4bf97b349faf1a51318aa1ba887e99d9c36e203dbcb55938a91fddd2454246cb00723d6642f54d463a0f52a2701dadf8de002a37fc613c9cdc94ed5675ddce"
+  "packageManager": "pnpm@8.14.0+sha512.5d4bf97b349faf1a51318aa1ba887e99d9c36e203dbcb55938a91fddd2454246cb00723d6642f54d463a0f52a2701dadf8de002a37fc613c9cdc94ed5675ddce",
+  "optionalDependencies": {
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.27.1"
+  }
 }

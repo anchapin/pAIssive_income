@@ -129,10 +129,11 @@ importers:
       typescript:
         specifier: ^4.9.5
         version: 4.9.5
-    devDependencies:
+    optionalDependencies:
       '@babel/plugin-transform-nullish-coalescing-operator':
         specifier: ^7.27.1
         version: 7.27.1(@babel/core@7.27.4)
+    devDependencies:
       '@babel/plugin-transform-optional-chaining':
         specifier: ^7.27.1
         version: 7.27.1(@babel/core@7.27.4)
