@@ -68,22 +68,31 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          # Try to generate coverage from frontend
+          # Generate coverage from frontend using robust script
           cd ui/react_frontend
-          if [ -f "package.json" ] && grep -q "coverage" package.json; then
-            echo "Generating frontend coverage report..."
-            pnpm coverage > ../../coverage/lcov.info || echo "Failed to generate frontend coverage report"
+          echo "Using robust coverage generation script..."
+          pnpm coverage:robust
+
+          # Copy coverage files to root coverage directory
+          if [ -d "coverage" ]; then
+            echo "Copying frontend coverage files..."
+            mkdir -p ../../coverage
+            cp -r coverage/* ../../coverage/ || echo "Failed to copy coverage files"
+            echo "Coverage files copied successfully"
+          else
+            echo "No coverage directory found in frontend"
           fi
 
-          # Try to generate coverage from root
+          # Check if coverage files were generated
           cd ../..
-          if [ -f "package.json" ] && grep -q "coverage" package.json; then
-            echo "Generating root coverage report..."
-            pnpm coverage >> ./coverage/lcov.info || echo "Failed to generate root coverage report"
+          if [ -f "./coverage/lcov.info" ]; then
+            echo "Coverage report generated successfully"
+            echo "Coverage file size: $(wc -l < ./coverage/lcov.info) lines"
+          else
+            echo "No lcov.info found, creating empty file"
+            mkdir -p ./coverage
+            touch ./coverage/lcov.info
           fi
-
-          # Ensure coverage file exists even if empty
-          touch ./coverage/lcov.info
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
