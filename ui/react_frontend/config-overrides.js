@@ -1,4 +1,4 @@
-const { override, addBabelPreset } = require('customize-cra');
+const { override, addBabelPreset, addBabelPlugin } = require('customize-cra');
 const path = require('path');
 
 module.exports = override(
@@ -8,6 +8,9 @@ module.exports = override(
     },
   }),
   addBabelPreset('@babel/preset-react'),
+  addBabelPlugin(['@babel/plugin-transform-class-properties', { loose: true }]),
+  addBabelPlugin(['@babel/plugin-transform-private-methods', { loose: true }]),
+  addBabelPlugin(['@babel/plugin-transform-private-property-in-object', { loose: true }]),
   (config) => {
     // Apply babel loader configuration
     const babelRule = config.module.rules.find(rule => rule.oneOf).oneOf.find(
