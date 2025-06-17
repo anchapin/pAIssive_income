@@ -339,7 +339,7 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           config-file: .github/codeql/security-os-ubuntu.yml
-          debug: true
+          debug: false
 
       # Autobuild attempts to build any compiled languages
       - name: Autobuild

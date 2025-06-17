@@ -22,7 +22,7 @@ name: Consolidated CI/CD
 
 on:
   push:
-    branches: [ main, dev, master, develop ] # Standardized branch list
+    branches: [ main, dev, master, develop, fix/test-coverage-15-percent ] # Standardized branch list + feature branch
     paths:
       - '**/*.py'
       - '**/*.js'
@@ -38,7 +38,7 @@ on:
     tags:
       - 'v*.*.*'
   pull_request:
-    branches: [ main, dev, master, develop ]
+    branches: [ main, dev, master, develop, fix/test-coverage-15-percent ]
     paths:
       - '**/*.py'
       - '**/*.js'
