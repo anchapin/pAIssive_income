@@ -4,18 +4,18 @@ This directory contains JavaScript source code for the project.
 
 ## Requirements
 
-- Node.js 18 or higher (required for nyc 17.1.0)
+- Node.js 18 or higher
 - pnpm (preferred package manager)
 
 ## Testing
 
-Tests are written using Mocha and can be run with:
+Tests are written using Vitest and can be run with:
 
 ```bash
 pnpm test
 ```
 
-Coverage reports are generated using nyc (Istanbul) and can be viewed with:
+Coverage reports are generated using Vitest's built-in coverage provider and can be viewed with:
 
 ```bash
 pnpm coverage

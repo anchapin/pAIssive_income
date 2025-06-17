@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { AgentUI } from './AgentUI';
+import { AgentUI } from './AgentUI.jsx';
 
 describe('AgentUI Component', () => {
   const mockAgent = {
@@ -19,7 +19,7 @@ describe('AgentUI Component', () => {
     darkMode: false,
   };
 
-  const mockOnAction = jest.fn();
+  const mockOnAction = vi.fn();
 
   beforeEach(() => {
     mockOnAction.mockClear();
@@ -33,10 +33,10 @@ describe('AgentUI Component', () => {
   test('renders with agent data', () => {
     render(<AgentUI agent={mockAgent} />);
     expect(screen.getByText('Agent Interface')).toBeInTheDocument();
-    
+
     // Expand the component to see agent details
     fireEvent.click(screen.getByLabelText('Expand'));
-    
+
     expect(screen.getByText('ID:')).toBeInTheDocument();
     expect(screen.getByText('agent-123')).toBeInTheDocument();
     expect(screen.getByText('Name:')).toBeInTheDocument();
@@ -63,10 +63,10 @@ describe('AgentUI Component', () => {
 
   test('sends message when form is submitted', () => {
     render(<AgentUI agent={mockAgent} onAction={mockOnAction} />);
-    
+
     const messageInput = screen.getByPlaceholderText('Send a message to the agent...');
     fireEvent.change(messageInput, { target: { value: 'Hello agent' } });
-    
+
     fireEvent.click(screen.getByText('Send Message'));
     expect(mockOnAction).toHaveBeenCalledWith({
       type: 'MESSAGE',
@@ -74,7 +74,7 @@ describe('AgentUI Component', () => {
       content: 'Hello agent',
       timestamp: expect.any(String),
     });
-    
+
     // Message input should be cleared after sending
     expect(messageInput.value).toBe('');
   });

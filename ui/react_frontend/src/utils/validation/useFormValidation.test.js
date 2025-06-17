@@ -1,4 +1,7 @@
 /**
+ * @vitest-environment jsdom
+ */
+/**
  * Unit tests for useFormValidation hook
  */
 import { act, renderHook } from '@testing-library/react';
@@ -90,7 +93,7 @@ describe('useFormValidation', () => {
     const { result } = renderHook(() =>
       useFormValidation({ foo: '', bar: '' }, schema)
     );
-    const onSubmit = jest.fn();
+    const onSubmit = vi.fn();
     // Make the field valid
     act(() => {
       result.current.setFieldValue('foo', 'abc');
@@ -99,7 +102,7 @@ describe('useFormValidation', () => {
       result.current.handleBlur({ target: { name: 'foo', value: 'abc' } });
     });
     // Simulate submit event
-    const event = { preventDefault: jest.fn() };
+    const event = { preventDefault: vi.fn() };
     act(() => {
       result.current.handleSubmit(onSubmit)(event);
     });
@@ -112,8 +115,8 @@ describe('useFormValidation', () => {
     const { result } = renderHook(() =>
       useFormValidation({ foo: '', bar: '' }, schema)
     );
-    const onSubmit = jest.fn();
-    const event = { preventDefault: jest.fn() };
+    const onSubmit = vi.fn();
+    const event = { preventDefault: vi.fn() };
     act(() => {
       result.current.handleSubmit(onSubmit)(event);
     });

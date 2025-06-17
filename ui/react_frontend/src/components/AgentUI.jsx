@@ -218,4 +218,4 @@ export const AgentUI = ({ agent, theme, onAction }) => {
   );
 };
 
-export default { AgentUI };
+export default AgentUI;

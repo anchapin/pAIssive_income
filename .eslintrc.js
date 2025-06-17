@@ -23,8 +23,15 @@ module.exports = {
   overrides: [
     {
       files: ['**/*.test.js'],
-      env: {
-        jest: true,
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        vi: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
       },
     },
   ],

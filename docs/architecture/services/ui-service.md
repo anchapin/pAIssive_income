@@ -26,7 +26,7 @@ The UI Service is responsible for delivering the web-based user interface for th
 - **API Communication**: Axios for REST, SWR for data fetching
 - **Real-time Updates**: Socket.IO for WebSocket communication
 - **Build Tool**: Vite for fast development and optimized builds
-- **Testing**: Jest for unit tests, Cypress for E2E tests
+- **Testing**: Vitest for unit tests, Playwright for E2E tests
 - **Monitoring**: OpenTelemetry for frontend metrics
 - **Documentation**: Storybook for component documentation
 

@@ -15,7 +15,7 @@ import ApiAnalyticsDashboard from './ApiAnalyticsDashboard';
 
 // Utility to mock fetch with different endpoints
 function setupFetchMock({ summaryData, requestsData, endpointStats, fail = false }) {
-  global.fetch = jest.fn((url) => {
+  global.fetch = vi.fn((url) => {
     if (fail) {
       return Promise.resolve({
         ok: false,
@@ -44,11 +44,10 @@ function setupFetchMock({ summaryData, requestsData, endpointStats, fail = false
   });
 }
 
-afterEach(() => {
-  jest.resetAllMocks();
-});
-
 describe('ApiAnalyticsDashboard', () => {
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
   const mockSummary = {
     total_requests: 1234,
     error_rate: 0.042,
