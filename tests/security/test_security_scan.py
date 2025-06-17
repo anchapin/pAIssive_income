@@ -147,7 +147,7 @@ def test_safety_scan() -> None:
     logger.info("Running safety check...")
     stdout, stderr, return_code = run_command("safety check --json")
 
-    if return_code != 0 and "command not found" in stderr:
+    if return_code != 0 and stderr and "command not found" in stderr:
         logger.info("Safety not installed. Installing...")
         run_command("uv pip install safety")  # Using uv
         stdout, stderr, return_code = run_command("safety check --json")
@@ -200,7 +200,7 @@ def test_bandit_scan() -> None:
     logger.info("Running bandit scan...")
     stdout, stderr, return_code = run_command("bandit -r . -f json")
 
-    if return_code != 0 and "command not found" in stderr:
+    if return_code != 0 and stderr and "command not found" in stderr:
         logger.info("Bandit not installed. Installing...")
         run_command("uv pip install bandit")  # Using uv
         stdout, stderr, return_code = run_command("bandit -r . -f json")

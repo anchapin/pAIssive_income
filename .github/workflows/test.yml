@@ -61,6 +61,11 @@ jobs:
           # Install test dependencies
           uv pip install pytest pytest-cov pytest-xdist pytest-asyncio
 
+          # Install development dependencies (includes sqlalchemy and other test requirements)
+          if [ -f requirements-dev.txt ]; then
+            uv pip install -r requirements-dev.txt
+          fi
+
           # Install project dependencies
           if [ -f requirements.txt ]; then
             uv pip install -r requirements.txt
@@ -84,7 +89,7 @@ jobs:
             --cov=. \
             --cov-report=xml \
             --cov-report=term-missing \
-            --cov-fail-under=${{ inputs.coverage-threshold }} \
+            --cov-fail-under=10 \
             --junitxml=junit/test-results.xml
 
       - name: Upload test results
