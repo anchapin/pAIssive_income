@@ -2,6 +2,11 @@
 
 Track all major changes, releases, and fixes here.
 
+## [Unreleased] - 2025-06-17
+
+### Dependencies
+- Updated webpack from 5.99.8 to 5.99.9 with bug fixes for HMR, ES modules, and asset processing
+
 ## [Unreleased] - 2024-06-10
 
 - Tool registry now supports rich metadata for each tool, including `keywords` for intent matching and `input_preprocessor` for input adaptation, enabling agentic reasoning and autonomous tool selection.
