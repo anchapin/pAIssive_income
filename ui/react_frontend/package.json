@@ -5,6 +5,8 @@
   "dependencies": {
     "@copilotkit/react-core": "^1.8.12",
     "@copilotkit/react-ui": "^1.8.12",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.5",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "node-notifier": "^8.0.2",
