@@ -239,7 +239,7 @@ The mock API server tests are integrated into the GitHub Actions CI/CD pipeline.
 
 3. **Use mocks appropriately**
    - Mock external dependencies to isolate the component being tested
-   - Use Jest's mock functions to verify function calls and arguments
+   - Use Vitest's mock functions to verify function calls and arguments
 
 4. **Test edge cases**
    - Test boundary conditions and error cases

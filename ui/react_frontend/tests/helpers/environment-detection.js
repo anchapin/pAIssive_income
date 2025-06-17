@@ -243,24 +243,165 @@ function detectEnvironment() {
   const ci = detectCIEnvironment();
   const container = detectContainerEnvironment();
   const dirs = getWorkingDirs();
-  
+
   return {
     isCI: ci.isCI,
+    isGitHubActions: ci.providers.gitHubActions,
+    isJenkins: ci.providers.jenkins,
+    isGitLabCI: ci.providers.gitLabCI,
+    isCircleCI: ci.providers.circleCI,
+    isAzure: ci.providers.azure,
+    isTravis: ci.providers.travis,
+    isVercel: ci.providers.vercel,
+    isNetlify: ci.providers.netlify,
+    isHeroku: ci.providers.heroku,
+    isDocker: container.type.docker,
+    isKubernetes: container.type.kubernetes,
+    isDockerCompose: !!process.env.COMPOSE_PROJECT_NAME,
+    isDockerSwarm: !!process.env.DOCKER_SWARM,
+    isContainerized: container.isContainer,
+    isAWS: !!process.env.AWS_REGION,
+    isAWSLambda: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
+    isAzureFunctions: !!process.env.AZURE_FUNCTIONS_ENVIRONMENT,
+    isGCP: !!process.env.GOOGLE_CLOUD_PROJECT,
+    isGCPCloudFunctions: !!(process.env.FUNCTION_NAME && process.env.FUNCTION_REGION),
+    isGKE: !!(process.env.KUBERNETES_SERVICE_HOST && process.env.GKE_CLUSTER_NAME),
+    isCloudEnvironment: !!(process.env.AWS_REGION || process.env.AZURE_SUBSCRIPTION_ID || process.env.GOOGLE_CLOUD_PROJECT),
+    isServerless: !!(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AZURE_FUNCTIONS_ENVIRONMENT || (process.env.FUNCTION_NAME && process.env.FUNCTION_REGION)),
+    isDevelopment: process.env.NODE_ENV === 'development',
+    isProduction: process.env.NODE_ENV === 'production',
+    isTest: process.env.NODE_ENV === 'test',
+    isWSL: !!process.env.WSL_DISTRO_NAME,
+    isWindows: process.platform === 'win32',
+    isMacOS: process.platform === 'darwin',
+    isLinux: process.platform === 'linux',
+    platform: process.platform,
     ciProviders: ci.providers,
     container,
-    platform: {
-      type: os.type(),
-      platform: process.platform,
-      release: os.release(),
-      arch: process.arch,
-      nodeVersion: process.version,
-      isWindows: process.platform === 'win32',
-      isMac: process.platform === 'darwin',
-      isLinux: process.platform === 'linux'
-    },
     directories: dirs,
     env: process.env.NODE_ENV || 'development'
   };
+}
+
+/**
+ * Create a comprehensive environment report
+ * @param {string} [filePath] - Optional file path to write the report to
+ * @param {Object} [options] - Report options
+ * @param {boolean} [options.formatJson=false] - Whether to format as JSON instead of text
+ * @param {boolean} [options.includeEnvVars=false] - Whether to include environment variables
+ * @returns {string} Environment report
+ */
+function createEnvironmentReport(filePath, options = {}) {
+  const { formatJson = false, includeEnvVars = false } = options;
+  const env = detectEnvironment();
+
+  if (formatJson) {
+    const reportObj = {
+      timestamp: new Date().toISOString(),
+      operatingSystem: {
+        platform: env.platform,
+        isWindows: env.isWindows,
+        isMacOS: env.isMacOS,
+        isLinux: env.isLinux,
+        isWSL: env.isWSL
+      },
+      ciEnvironment: {
+        isCI: env.isCI,
+        isGitHubActions: env.isGitHubActions,
+        isJenkins: env.isJenkins,
+        isGitLabCI: env.isGitLabCI,
+        isCircleCI: env.isCircleCI,
+        isAzure: env.isAzure,
+        isTravis: env.isTravis
+      },
+      containerEnvironment: {
+        isContainerized: env.isContainerized,
+        isDocker: env.isDocker,
+        isKubernetes: env.isKubernetes,
+        isDockerCompose: env.isDockerCompose,
+        isDockerSwarm: env.isDockerSwarm
+      },
+      cloudEnvironment: {
+        isCloudEnvironment: env.isCloudEnvironment,
+        isAWS: env.isAWS,
+        isAWSLambda: env.isAWSLambda,
+        isAzure: env.isAzure,
+        isAzureFunctions: env.isAzureFunctions,
+        isGCP: env.isGCP,
+        isGCPCloudFunctions: env.isGCPCloudFunctions,
+        isServerless: env.isServerless
+      },
+      nodeEnvironment: {
+        isDevelopment: env.isDevelopment,
+        isProduction: env.isProduction,
+        isTest: env.isTest,
+        nodeVersion: process.version
+      }
+    };
+
+    if (includeEnvVars) {
+      reportObj.environmentVariables = process.env;
+    }
+
+    const report = JSON.stringify(reportObj, null, 2);
+
+    if (filePath) {
+      safelyWriteFile(filePath, report);
+    }
+
+    return report;
+  }
+
+  // Text format
+  const report = `Environment Detection Report
+============================
+Generated at: ${new Date().toISOString()}
+
+Operating System:
+- Platform: ${env.platform}
+- Windows: ${env.isWindows ? 'Yes' : 'No'}
+- macOS: ${env.isMacOS ? 'Yes' : 'No'}
+- Linux: ${env.isLinux ? 'Yes' : 'No'}
+- WSL: ${env.isWSL ? 'Yes' : 'No'}
+
+CI Environment:
+- CI: ${env.isCI ? 'Yes' : 'No'}
+- GitHub Actions: ${env.isGitHubActions ? 'Yes' : 'No'}
+- Jenkins: ${env.isJenkins ? 'Yes' : 'No'}
+- GitLab CI: ${env.isGitLabCI ? 'Yes' : 'No'}
+- CircleCI: ${env.isCircleCI ? 'Yes' : 'No'}
+- Azure Pipelines: ${env.isAzure ? 'Yes' : 'No'}
+- Travis CI: ${env.isTravis ? 'Yes' : 'No'}
+
+Container Environment:
+- Containerized: ${env.isContainerized ? 'Yes' : 'No'}
+- Docker: ${env.isDocker ? 'Yes' : 'No'}
+- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}
+- Docker Compose: ${env.isDockerCompose ? 'Yes' : 'No'}
+- Docker Swarm: ${env.isDockerSwarm ? 'Yes' : 'No'}
+
+Cloud Environment:
+- Cloud Environment: ${env.isCloudEnvironment ? 'Yes' : 'No'}
+- AWS: ${env.isAWS ? 'Yes' : 'No'}
+- AWS Lambda: ${env.isAWSLambda ? 'Yes' : 'No'}
+- Azure: ${env.isAzure ? 'Yes' : 'No'}
+- Azure Functions: ${env.isAzureFunctions ? 'Yes' : 'No'}
+- GCP: ${env.isGCP ? 'Yes' : 'No'}
+- GCP Cloud Functions: ${env.isGCPCloudFunctions ? 'Yes' : 'No'}
+- Serverless: ${env.isServerless ? 'Yes' : 'No'}
+
+Node Environment:
+- Development: ${env.isDevelopment ? 'Yes' : 'No'}
+- Production: ${env.isProduction ? 'Yes' : 'No'}
+- Test: ${env.isTest ? 'Yes' : 'No'}
+- Node Version: ${process.version}
+`;
+
+  if (filePath) {
+    safelyWriteFile(filePath, report);
+  }
+
+  return report;
 }
 
 // Export environment detection functions
@@ -269,6 +410,7 @@ module.exports = {
   detectCIEnvironment,
   detectContainerEnvironment,
   getWorkingDirs,
+  createEnvironmentReport,
   safeFileExists,
   safeReadFile,
   safelyCreateDirectory,

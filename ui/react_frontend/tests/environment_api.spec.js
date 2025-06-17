@@ -436,14 +436,14 @@ const createEnvironmentAwareApiClient = () => {
         return platformSpecific.getPlatformSpecificPath(`C:\\temp\\${filename}`);
       } else if (env.isMacOS) {
         return platformSpecific.getPlatformSpecificPath(`/Users/user/tmp/${filename}`);
+      } else if (env.isWSL) {
+        return platformSpecific.getPlatformSpecificPath(`/mnt/c/temp/${filename}`);
       } else if (env.isLinux) {
         return platformSpecific.getPlatformSpecificPath(`/tmp/${filename}`);
       } else if (env.isIOS) {
         return platformSpecific.getPlatformSpecificPath(`/var/mobile/tmp/${filename}`);
       } else if (env.isAndroid) {
         return platformSpecific.getPlatformSpecificPath(`/data/local/tmp/${filename}`);
-      } else if (env.isWSL) {
-        return platformSpecific.getPlatformSpecificPath(`/mnt/c/temp/${filename}`);
       } else {
         return platformSpecific.getPlatformSpecificPath(`/tmp/${filename}`);
       }

@@ -9,8 +9,8 @@
     "@mui/material": "^7.1.0",
     "node-notifier": "^8.0.2",
     "nth-check": "2.1.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-router": "^7.6.0",
     "react-router-dom": "^6.30.0",
     "react-scripts": "^5.0.1",
@@ -35,10 +35,9 @@
   "devDependencies": {
     "@babel/plugin-transform-nullish-coalescing-operator": "^7.27.1",
     "@babel/plugin-transform-optional-chaining": "^7.27.1",
-    "@jest/reporters": "^29.7.0",
     "@playwright/test": "^1.52.0",
     "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^4.4.1",
     "@vitest/coverage-v8": "1.6.1",
@@ -79,10 +78,11 @@
   "scripts": {
     "start": "pnpm tailwind:build && react-app-rewired start",
     "build": "pnpm tailwind:build && react-app-rewired build",
-    "test": "node run_tests_with_tailwind.js --test-command \"npx react-app-rewired test --passWithNoTests\"",
+    "test": "node run_tests_with_tailwind.js --test-command \"npx vitest run --passWithNoTests\"",
     "test:legacy": "pnpm tailwind:build && react-app-rewired test --passWithNoTests",
     "test:unit": "pnpm tailwind:build && vitest run --passWithNoTests",
     "test:unit:ui": "pnpm tailwind:build && vitest --ui --passWithNoTests",
+    "test:unit:ci": "pnpm tailwind:build && vitest run --passWithNoTests",
     "test:e2e": "pnpm tailwind:build && npx playwright test tests/e2e/agent_ui.spec.ts --passWithNoTests",
     "test:e2e:with-servers": "pnpm tailwind:build && node -e \"process.platform === 'win32' ? require('child_process').execSync('powershell -File tests/run_e2e_tests.ps1', {stdio: 'inherit'}) : require('child_process').execSync('bash tests/run_e2e_tests.sh', {stdio: 'inherit'})\"",
     "test:mock-api": "node tests/run_mock_api_test.js",
@@ -127,8 +127,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "react-app"
     ]
   },
   "browserslist": {

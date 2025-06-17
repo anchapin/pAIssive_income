@@ -6,34 +6,54 @@
  */
 
 import fs from 'fs';
-import path from 'path';
 import os from 'os';
 
 // Mock the fs module
-jest.mock('fs', () => ({
-  existsSync: jest.fn(),
-  readFileSync: jest.fn(),
-  writeFileSync: jest.fn(),
-  mkdirSync: jest.fn()
-}));
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    default: {
+      ...actual.default,
+      existsSync: vi.fn(),
+      readFileSync: vi.fn(),
+      writeFileSync: vi.fn(),
+      mkdirSync: vi.fn()
+    },
+    existsSync: vi.fn(),
+    readFileSync: vi.fn(),
+    writeFileSync: vi.fn(),
+    mkdirSync: vi.fn()
+  }
+});
 
 // Mock the os module
-jest.mock('os', () => ({
-  platform: jest.fn(),
-  release: jest.fn(),
-  tmpdir: jest.fn(),
-  homedir: jest.fn(),
-  hostname: jest.fn(),
-  userInfo: jest.fn(),
-  totalmem: jest.fn(),
-  freemem: jest.fn(),
-  cpus: jest.fn()
+vi.mock('os', () => ({
+  default: {
+    platform: vi.fn(),
+    release: vi.fn(),
+    tmpdir: vi.fn(),
+    homedir: vi.fn(),
+    hostname: vi.fn(),
+    userInfo: vi.fn(),
+    totalmem: vi.fn(),
+    freemem: vi.fn(),
+    cpus: vi.fn()
+  },
+  platform: vi.fn(),
+  release: vi.fn(),
+  tmpdir: vi.fn(),
+  homedir: vi.fn(),
+  hostname: vi.fn(),
+  userInfo: vi.fn(),
+  totalmem: vi.fn(),
+  freemem: vi.fn(),
+  cpus: vi.fn()
 }));
 
 // Import the modules to test
-import { detectEnvironment } from '../src/utils/environmentDetection';
 import {
-  detectCIEnvironmentType,
+  detectCIEnvironmentType as detectEnvironment,
   setupCIEnvironment,
   getCIEnvironmentInfo,
   createCIReport
@@ -46,7 +66,7 @@ describe('CI Environment Detection Module', () => {
   // Setup before each test
   beforeEach(() => {
     // Reset all mocks
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     // Reset environment variables
     process.env = { ...originalEnv };
@@ -75,14 +95,14 @@ describe('CI Environment Detection Module', () => {
     process.env = { ...originalEnv };
   });
 
-  describe('detectCIEnvironmentType Function', () => {
+  describe('detectEnvironment Function', () => {
     it('should return "none" when no CI environment is detected', () => {
       // Arrange
       process.env.CI = 'false';
       delete process.env.GITHUB_ACTIONS;
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment();
 
       // Assert
       expect(result).toBe('none');
@@ -95,7 +115,7 @@ describe('CI Environment Detection Module', () => {
       process.env.CI = 'true';
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment();
 
       // Assert
       expect(result).toBe('github');
@@ -108,7 +128,7 @@ describe('CI Environment Detection Module', () => {
       process.env.CI = 'true';
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment();
 
       // Assert
       expect(result).toBe('github');
@@ -120,7 +140,7 @@ describe('CI Environment Detection Module', () => {
       process.env.CI = 'true';
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment();
 
       // Assert
       expect(result).toBe('jenkins');
@@ -132,7 +152,7 @@ describe('CI Environment Detection Module', () => {
       process.env.CI = 'true';
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment();
 
       // Assert
       expect(result).toBe('gitlab');
@@ -144,7 +164,7 @@ describe('CI Environment Detection Module', () => {
       process.env.CI = 'true';
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment();
 
       // Assert
       expect(result).toBe('circle');
@@ -156,7 +176,7 @@ describe('CI Environment Detection Module', () => {
       process.env.CI = 'true';
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment();
 
       // Assert
       expect(result).toBe('travis');
@@ -168,7 +188,7 @@ describe('CI Environment Detection Module', () => {
       process.env.CI = 'true';
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment();
 
       // Assert
       expect(result).toBe('azure');
@@ -180,10 +200,10 @@ describe('CI Environment Detection Module', () => {
       process.env.DOCKER_ENVIRONMENT = 'true';
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment({ includeContainers: true });
 
       // Assert
-      expect(result).toBe('generic');
+      expect(result).toBe('docker');
     });
 
     it('should detect Kubernetes environment', () => {
@@ -192,10 +212,10 @@ describe('CI Environment Detection Module', () => {
       process.env.KUBERNETES_SERVICE_HOST = '10.0.0.1';
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment({ includeContainers: true });
 
       // Assert
-      expect(result).toBe('generic');
+      expect(result).toBe('kubernetes');
     });
 
     it('should return "generic" for unknown CI environments', () => {
@@ -209,7 +229,7 @@ describe('CI Environment Detection Module', () => {
       delete process.env.TF_BUILD;
 
       // Act
-      const result = detectCIEnvironmentType();
+      const result = detectEnvironment();
 
       // Assert
       expect(result).toBe('generic');
@@ -234,7 +254,8 @@ describe('CI Environment Detection Module', () => {
     it('should create CI directories when specified', () => {
       // Arrange
       process.env.CI = 'true';
-      fs.existsSync.mockImplementation(() => false);
+      fs.existsSync = vi.fn(() => false);
+      fs.mkdirSync = vi.fn(() => undefined);
 
       // Act
       const result = setupCIEnvironment();
@@ -247,7 +268,7 @@ describe('CI Environment Detection Module', () => {
     it('should handle errors during setup', () => {
       // Arrange
       process.env.CI = 'true';
-      fs.mkdirSync.mockImplementation(() => { throw new Error('Test error'); });
+      fs.mkdirSync = vi.fn(() => { throw new Error('Test error'); });
 
       // Act
       const result = setupCIEnvironment();
@@ -327,6 +348,7 @@ describe('CI Environment Detection Module', () => {
       // Arrange
       process.env.CI = 'true';
       const filename = 'test-report.txt';
+      fs.writeFileSync = vi.fn(() => undefined);
 
       // Act
       const result = createCIReport(filename, {

@@ -194,7 +194,7 @@ For more detailed testing information, see:
 
 ## JavaScript Testing and Coverage
 
-This project enforces at least **80% code coverage** for JavaScript files using [nyc (Istanbul)](https://github.com/istanbuljs/nyc) and [Mocha](https://mochajs.org/).
+This project enforces at least **80% code coverage** for JavaScript files using [Vitest](https://vitest.dev/) with V8 coverage provider.
 
 ### How to Run JavaScript Tests
 
@@ -229,13 +229,7 @@ You can find example JS source and tests in the `src/` directory.
 
 For more complex JavaScript code, such as React components, you can write tests to verify rendering, user interaction, and state updates.
 
-**Example: Testing a React Component with Mocha and Enzyme**
-
-First, install additional test utilities:
-
-```sh
-pnpm add --save-dev enzyme enzyme-adapter-react-16 @wojtekmaj/enzyme-adapter-react-17
-```
+**Example: Testing a React Component with Vitest and React Testing Library**
 
 Example component (`src/Hello.js`):
 
@@ -250,24 +244,19 @@ export function Hello({ name }) {
 Example test (`src/Hello.test.js`):
 
 ```js
-const React = require('react');
-const { shallow, configure } = require('enzyme');
-const Adapter = require('@wojtekmaj/enzyme-adapter-react-17');
-const { Hello } = require('./Hello');
-
-configure({ adapter: new Adapter() });
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { Hello } from './Hello';
 
 describe('Hello component', () => {
   it('renders the correct greeting', () => {
-    const wrapper = shallow(<Hello name="World" />);
-    if (!wrapper.text().includes('Hello, World!')) {
-      throw new Error('Greeting not rendered correctly');
-    }
+    render(<Hello name="World" />);
+    expect(screen.getByText('Hello, World!')).toBeInTheDocument();
   });
 });
 ```
 
-> **Tip:** For React projects, [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) is very popular and may offer a smoother setup for component and hook testing.
+> **Tip:** This project uses [Vitest](https://vitest.dev/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) for modern, fast testing with excellent React support and built-in mocking capabilities.
 
 **Best Practices:**
 - Test both rendering and user events/interactions.
