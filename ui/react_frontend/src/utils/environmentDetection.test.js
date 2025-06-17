@@ -10,7 +10,7 @@
 
 // Mock the global objects
 vi.mock('os', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = await importOriginal();
   return {
     ...actual,
     platform: vi.fn(),
@@ -23,7 +23,7 @@ vi.mock('os', async (importOriginal) => {
     freemem: vi.fn(),
     cpus: vi.fn(),
     type: vi.fn()
-  }
+  };
 });
 
 // Import the module to test

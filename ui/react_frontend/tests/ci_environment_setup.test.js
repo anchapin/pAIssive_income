@@ -11,14 +11,14 @@ import os from 'os';
 
 // Mock the fs module
 vi.mock('fs', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = await importOriginal();
   return {
     ...actual,
     existsSync: vi.fn(),
     readFileSync: vi.fn(),
     writeFileSync: vi.fn(),
     mkdirSync: vi.fn()
-  }
+  };
 });
 
 // Mock the os module

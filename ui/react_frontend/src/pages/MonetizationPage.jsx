@@ -610,9 +610,9 @@ const MonetizationPage = () => {
                 title="Revenue Growth Over Time"
                 height={500}
                 milestones={[
-                  { month: 6, label: "6 Months" },
-                  { month: 12, label: "1 Year" },
-                  { month: 24, label: "2 Years" }
+                  { month: 6, label: '6 Months' },
+                  { month: 12, label: '1 Year' },
+                  { month: 24, label: '2 Years' }
                 ]}
               />
             </Item>
