@@ -48,7 +48,7 @@ jobs:
           echo "Node.js version: $(node --version)"
           echo "npm version: $(npm --version)"
           echo "pnpm version: $(pnpm --version)"
-          pnpm test:unit:ci --passWithNoTests || true
+          pnpm test:ci || true
 
       - name: Generate coverage report
         run: pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage report, but continuing workflow"
