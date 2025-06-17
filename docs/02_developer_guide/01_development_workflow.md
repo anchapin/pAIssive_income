@@ -45,6 +45,46 @@ uv --version      # Should show 0.4.30
 
 This ensures a consistent development environment across all OpenHands instances and maintains compatibility with the project's tooling requirements.
 
+### Jules Environment Setup
+
+For developers using [Jules](https://jules.google/docs/environment/) VM environments, the project includes a specialized setup script optimized for Jules environments.
+
+**Setup Script:** `setup-jules.sh`
+
+This script provides a streamlined setup experience specifically designed for Jules VM environments:
+
+**Features:**
+- **Automatic Tool Installation:** Installs `uv` and `pnpm` if not present
+- **Virtual Environment Creation:** Uses `uv` for fast virtual environment setup
+- **Dependency Installation:** Handles both Python and Node.js dependencies
+- **Environment Configuration:** Sets up `.env` files from examples
+- **Validation Testing:** Runs basic tests to verify the setup
+- **Status Reporting:** Provides clear feedback with environment summary
+
+**Usage:**
+```bash
+./setup-jules.sh
+```
+
+**What it does:**
+1. Checks for Python 3 and Node.js prerequisites
+2. Installs `uv` (Python package manager) if not present
+3. Installs `pnpm` (Node.js package manager) if not present
+4. Creates a Python virtual environment using `uv`
+5. Installs Python dependencies from `requirements.txt` and `requirements-dev.txt`
+6. Installs Node.js dependencies using `pnpm`
+7. Sets up `.env` configuration files
+8. Runs validation tests to ensure everything works
+9. Provides an environment summary with tool versions
+
+**When to use:**
+- Working in a Jules VM environment
+- Need a quick, streamlined setup
+- Prefer automatic tool installation without configuration options
+- Setting up for the first time in a clean environment
+
+For more detailed setup options and configuration, use the enhanced setup script described above.
+
 ---
 
 ## Branching & PR Process
@@ -83,6 +123,7 @@ This ensures a consistent development environment across all OpenHands instances
 
 ## Testing Standards
 
+### Python Testing
 - Minimum 90% line coverage required (enforced in CI).
 - Run `python scripts/run/run_tests.py --with-coverage` before PRs.
 - All new features/bugfixes must have unit and/or integration tests, covering edge/error cases.
@@ -91,15 +132,31 @@ This ensures a consistent development environment across all OpenHands instances
 - Mock external dependencies in unit tests.
 - All tests must pass in CI.
 
+### Frontend Testing (React/JavaScript)
+- Use Vitest for unit testing React components and JavaScript/TypeScript code.
+- Test files for React components should use `.jsx` extensions for better tooling support.
+- Run frontend tests with `pnpm test` from the `ui/react_frontend` directory.
+- Use the enhanced test setup (`tests/setup.ts`) which provides:
+  - TypeScript support for better type safety
+  - Comprehensive browser API mocking (matchMedia, localStorage, sessionStorage)
+  - Global fetch API mocking with typed implementations
+  - Proper test isolation and cleanup
+  - Environment variable handling for cross-platform testing
+- Include React imports in JSX test files and use proper wrapper components.
+- Mock external dependencies and APIs appropriately.
+- Ensure tests work in both local development and CI environments.
+
 ---
 
 ## Contribution Checklist
 
 - [ ] Code includes tests covering new/changed logic and edge/error cases.
 - [ ] Ran `python scripts/run/run_tests.py --with-coverage` and coverage is ≥90%.
+- [ ] For frontend changes: Ran `pnpm test` from `ui/react_frontend` directory.
 - [ ] Code passes all linting and type checks (`ruff`, `mypy`, etc.).
 - [ ] All automated tests pass in CI.
 - [ ] Documentation and docstrings are updated.
+- [ ] For React components: Used `.jsx` extensions and proper test setup.
 
 ---
 

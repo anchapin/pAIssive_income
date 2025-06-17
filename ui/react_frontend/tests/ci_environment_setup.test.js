@@ -23,15 +23,17 @@ vi.mock('fs', async (importOriginal) => {
 
 // Mock the os module
 vi.mock('os', () => ({
-  platform: vi.fn(),
-  release: vi.fn(),
-  tmpdir: vi.fn(),
-  homedir: vi.fn(),
-  hostname: vi.fn(),
-  userInfo: vi.fn(),
-  totalmem: vi.fn(),
-  freemem: vi.fn(),
-  cpus: vi.fn()
+  default: {
+    platform: vi.fn(),
+    release: vi.fn(),
+    tmpdir: vi.fn(),
+    homedir: vi.fn(),
+    hostname: vi.fn(),
+    userInfo: vi.fn(),
+    totalmem: vi.fn(),
+    freemem: vi.fn(),
+    cpus: vi.fn()
+  }
 }));
 
 // Import the modules to test
