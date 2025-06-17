@@ -39,6 +39,8 @@ This project enforces high standards for test coverage, reliability, and maintai
 
 ## Running Tests
 
+### Python Tests
+
 ```bash
 # Run all tests with coverage
 python run_tests.py --with-coverage
@@ -49,6 +51,33 @@ pytest -m unit
 # Run only integration tests
 pytest -m integration
 ```
+
+### Frontend Tests (React/JavaScript)
+
+The frontend uses Vitest for unit testing React components and JavaScript/TypeScript code:
+
+```bash
+# Navigate to frontend directory
+cd ui/react_frontend
+
+# Run all frontend tests
+pnpm test
+
+# Run tests with coverage
+pnpm test:coverage
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run a specific test file
+pnpm test src/components/UI/Notifications.test.jsx
+```
+
+### Test Configuration
+
+- **Python**: Uses pytest with configuration in `pytest.ini`
+- **Frontend**: Uses Vitest with configuration in `ui/react_frontend/vitest.config.js`
+- **Test Setup**: Frontend tests use `tests/setup.ts` for global test configuration and mocking
 
 ---
 
