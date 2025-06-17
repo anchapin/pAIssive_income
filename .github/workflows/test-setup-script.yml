@@ -155,7 +155,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: '8.14.0'
 
       - name: Add pnpm to PATH
         shell: bash
@@ -904,8 +904,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 8
 
       - name: Verify pnpm in PATH
         shell: powershell
@@ -1760,8 +1758,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 8
 
       - name: Add pnpm to PATH
         shell: bash

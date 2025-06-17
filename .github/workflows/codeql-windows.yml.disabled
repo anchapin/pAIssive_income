@@ -25,6 +25,7 @@ on:
       - 'CODE_OF_CONDUCT.md'
   schedule:
     - cron: '30 1 * * 0'
+  workflow_dispatch:  # Allow manual triggering
   workflow_run:
     workflows: ["Auto Fix (Linting & CodeQL Issues)"]
     types:

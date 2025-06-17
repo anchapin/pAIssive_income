@@ -20,7 +20,7 @@ import {
  */
 const CustomerLifetimeValueGauge = ({
   data,
-  title = "Customer Lifetime Value",
+  title = 'Customer Lifetime Value',
   height = 300
 }) => {
   // If no data, return a message
@@ -42,8 +42,8 @@ const CustomerLifetimeValueGauge = ({
     const adjustedMaxValue = currentValue > maxValue ? currentValue * 1.2 : maxValue;
 
     return [
-      { name: "Value", value: currentValue, color: "#0088FE" },
-      { name: "Remaining", value: adjustedMaxValue - currentValue, color: "#EEEEEE" }
+      { name: 'Value', value: currentValue, color: '#0088FE' },
+      { name: 'Remaining', value: adjustedMaxValue - currentValue, color: '#EEEEEE' }
     ];
   };
 

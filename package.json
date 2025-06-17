@@ -61,5 +61,55 @@
     "webpack": "^5.99.8",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.1"
-  }
+  },
+  "nyc": {
+    "all": true,
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "include": [
+      "src/**/*.js",
+      "ui/**/*.js",
+      "sdk/javascript/**/*.js"
+    ],
+    "exclude": [
+      "**/*.test.js",
+      "**/test/**",
+      "tests/**",
+      "**/__mocks__/**",
+      "**/mocks/**",
+      "**/mock*/**",
+      "**/testUtils.js",
+      "**/test_utils.js",
+      "**/test-utils.js",
+      "**/setupTests.js",
+      ".venv*/**",
+      "venv*/**",
+      "__pycache__/**",
+      "*.pyc",
+      "node_modules/**",
+      ".git/**"
+    ],
+    "statements": 1,
+    "branches": 1,
+    "functions": 1,
+    "lines": 1,
+    "check-coverage": false,
+    "overrides": {
+      "src/**/*.js": {
+        "statements": 70,
+        "branches": 70,
+        "functions": 70,
+        "lines": 70
+      },
+      "src/math.js": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    }
+  },
+  "packageManager": "pnpm@8.14.0+sha512.5d4bf97b349faf1a51318aa1ba887e99d9c36e203dbcb55938a91fddd2454246cb00723d6642f54d463a0f52a2701dadf8de002a37fc613c9cdc94ed5675ddce"
 }

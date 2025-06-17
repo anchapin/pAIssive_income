@@ -2,7 +2,7 @@ name: Frontend Unit Tests (Vitest)
 
 on:
   pull_request:
-    branches: [ main, develop, master ]
+    branches: [ main, dev, master, develop ] # Standardized branch list
     paths:
       - "ui/react_frontend/**"
       - ".github/workflows/frontend-vitest.yml"
@@ -40,14 +40,15 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 8.14.0
+          run_install: false
 
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: '20.11.0' # Use consistent Node.js version across workflows
           cache: 'pnpm'
-          cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
+          cache-dependency-path: './pnpm-lock.yaml'
 
       # Add global pnpm to PATH
       - name: Add global pnpm to PATH
@@ -70,7 +71,12 @@ jobs:
       - name: Check pnpm version
         run: pnpm --version
 
-      - name: Install dependencies
+      - name: Install root dependencies first
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+
+      - name: Install frontend dependencies
+        working-directory: ui/react_frontend
         run: pnpm install
 
       # Create coverage directory to prevent errors

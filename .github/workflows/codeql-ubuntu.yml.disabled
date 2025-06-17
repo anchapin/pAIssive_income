@@ -232,23 +232,23 @@ jobs:
             echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
             mkdir -p .github/codeql
             cat > .github/codeql/security-os-ubuntu.yml << 'EOF'
-              name: "CodeQL Configuration for Ubuntu"
-              os: ubuntu-latest
-              queries:
-                - uses: security-and-quality
-                - uses: security-extended
-                - uses: security
-              disable-default-queries: false
-              trap-for-errors: true
+name: "CodeQL Configuration for Ubuntu"
+os: ubuntu-latest
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
             EOF
             cat > .github/codeql/security-os-config.yml << 'EOF'
-              name: "Unified CodeQL Configuration"
-              queries:
-                - uses: security-and-quality
-                - uses: security-extended
-                - uses: security
-              disable-default-queries: false
-              trap-for-errors: true
+name: "Unified CodeQL Configuration"
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
             EOF
           fi
 

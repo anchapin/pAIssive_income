@@ -78,10 +78,10 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 const MultiMetricLineChart = ({
   data = [],
   metrics = [],
-  xAxisKey = "time",
-  xAxisLabel = "Time",
-  yAxisLabel = "Value",
-  title = "Metrics Over Time",
+  xAxisKey = 'time',
+  xAxisLabel = 'Time',
+  yAxisLabel = 'Value',
+  title = 'Metrics Over Time',
   height = 400,
   formatter = {
     yAxis: (value) => value,
@@ -127,16 +127,16 @@ const MultiMetricLineChart = ({
   const [referenceDialogType, setReferenceDialogType] = useState('line');
   const [newReferenceLine, setNewReferenceLine] = useState({
     value: 0,
-    label: "Threshold",
-    color: "#ff4081",
-    orientation: "horizontal" // horizontal or vertical
+    label: 'Threshold',
+    color: '#ff4081',
+    orientation: 'horizontal' // horizontal or vertical
   });
   const [newReferenceArea, setNewReferenceArea] = useState({
     start: 0,
     end: 100,
-    label: "Target Range",
-    color: "#2196f3",
-    orientation: "horizontal" // horizontal or vertical
+    label: 'Target Range',
+    color: '#2196f3',
+    orientation: 'horizontal' // horizontal or vertical
   });
 
   // State for data analysis
@@ -440,18 +440,18 @@ const MultiMetricLineChart = ({
       setReferenceLines([...referenceLines, newReferenceLine]);
       setNewReferenceLine({
         value: 0,
-        label: "Threshold",
-        color: "#ff4081",
-        orientation: "horizontal"
+        label: 'Threshold',
+        color: '#ff4081',
+        orientation: 'horizontal'
       });
     } else {
       setReferenceAreas([...referenceAreas, newReferenceArea]);
       setNewReferenceArea({
         start: 0,
         end: 100,
-        label: "Target Range",
-        color: "#2196f3",
-        orientation: "horizontal"
+        label: 'Target Range',
+        color: '#2196f3',
+        orientation: 'horizontal'
       });
     }
     setShowReferenceDialog(false);
@@ -481,7 +481,7 @@ const MultiMetricLineChart = ({
 
     if (format === 'csv') {
       // Create CSV content
-      let csvContent = "data:text/csv;charset=utf-8,";
+      let csvContent = 'data:text/csv;charset=utf-8,';
 
       // Add headers
       const headers = [xAxisKey];
@@ -489,7 +489,7 @@ const MultiMetricLineChart = ({
         headers.push(metric.key);
       });
 
-      csvContent += headers.join(",") + "\n";
+      csvContent += headers.join(',') + '\n';
 
       // Add data rows
       chartData.forEach(item => {
@@ -497,14 +497,14 @@ const MultiMetricLineChart = ({
         metrics.forEach(metric => {
           row.push(item[metric.key] !== undefined ? item[metric.key] : '');
         });
-        csvContent += row.join(",") + "\n";
+        csvContent += row.join(',') + '\n';
       });
 
       // Create download link
       const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.csv`);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_data.csv`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup
@@ -517,9 +517,9 @@ const MultiMetricLineChart = ({
       // Create download link
       const blob = new Blob([jsonContent], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.json`);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_data.json`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup
@@ -634,8 +634,8 @@ const MultiMetricLineChart = ({
                 <Chip
                   key={metric.key}
                   label={metric.name}
-                  color={visibleMetrics[metric.key] ? "primary" : "default"}
-                  variant={visibleMetrics[metric.key] ? "filled" : "outlined"}
+                  color={visibleMetrics[metric.key] ? 'primary' : 'default'}
+                  variant={visibleMetrics[metric.key] ? 'filled' : 'outlined'}
                   onClick={() => toggleMetric(metric.key)}
                   sx={{
                     opacity: visibleMetrics[metric.key] ? 1 : 0.6,
