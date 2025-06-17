@@ -67,7 +67,7 @@ This project enforces high standards for test coverage, reliability, and maintai
 - Install database drivers: `uv pip install psycopg2-binary flask-sqlalchemy flask-migrate`
 - For Flask tests, ensure Flask-Limiter is installed: `uv pip install flask-limiter`
 
-### Test Commands
+### Python Tests
 
 ```bash
 # Run all tests with coverage
@@ -98,6 +98,33 @@ uv run python -m pytest tests/test_basic.py -v
 # Test with coverage report
 uv run python -m pytest --cov --cov-report=html
 ```
+
+### Frontend Tests (React/JavaScript)
+
+The frontend uses Vitest for unit testing React components and JavaScript/TypeScript code:
+
+```bash
+# Navigate to frontend directory
+cd ui/react_frontend
+
+# Run all frontend tests
+pnpm test
+
+# Run tests with coverage
+pnpm test:coverage
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run a specific test file
+pnpm test src/components/UI/Notifications.test.jsx
+```
+
+### Test Configuration
+
+- **Python**: Uses pytest with configuration in `pytest.ini`
+- **Frontend**: Uses Vitest with configuration in `ui/react_frontend/vitest.config.js`
+- **Test Setup**: Frontend tests use `tests/setup.ts` for global test configuration and mocking
 
 ---
 

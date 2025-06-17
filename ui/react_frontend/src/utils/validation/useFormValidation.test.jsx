@@ -5,6 +5,7 @@
  * Unit tests for useFormValidation hook
  */
 import { act, renderHook } from '@testing-library/react';
+import React from 'react';
 import useFormValidation from './useFormValidation';
 
 const requiredString = (value) =>
@@ -20,9 +21,12 @@ const schema = {
 };
 
 describe('useFormValidation', () => {
+  const wrapper = ({ children }) => <>{children}</>;
+
   it('initializes values, errors, touched, dirty, isValid', () => {
     const { result } = renderHook(() =>
-      useFormValidation({ foo: '', bar: '' }, schema)
+      useFormValidation({ foo: '', bar: '' }, schema),
+      { wrapper }
     );
     expect(result.current.values).toEqual({ foo: '', bar: '' });
     expect(result.current.errors).toEqual({ foo: 'Too short' });
@@ -33,7 +37,8 @@ describe('useFormValidation', () => {
 
   it('handleChange updates value, dirty, and errors on touched', () => {
     const { result } = renderHook(() =>
-      useFormValidation({ foo: '', bar: '' }, schema)
+      useFormValidation({ foo: '', bar: '' }, schema),
+      { wrapper }
     );
     act(() => {
       result.current.handleBlur({ target: { name: 'foo', value: '' } });
@@ -50,7 +55,8 @@ describe('useFormValidation', () => {
 
   it('handleBlur marks touched and updates error', () => {
     const { result } = renderHook(() =>
-      useFormValidation({ foo: '', bar: '' }, schema)
+      useFormValidation({ foo: '', bar: '' }, schema),
+      { wrapper }
     );
     act(() => {
       result.current.handleBlur({ target: { name: 'foo', value: '' } });
@@ -61,7 +67,8 @@ describe('useFormValidation', () => {
 
   it('setFieldValue programmatically sets value and error', () => {
     const { result } = renderHook(() =>
-      useFormValidation({ foo: '', bar: '' }, schema)
+      useFormValidation({ foo: '', bar: '' }, schema),
+      { wrapper }
     );
     act(() => {
       result.current.handleBlur({ target: { name: 'foo', value: '' } });
@@ -75,7 +82,8 @@ describe('useFormValidation', () => {
 
   it('resetForm restores initial state', () => {
     const { result } = renderHook(() =>
-      useFormValidation({ foo: '', bar: '' }, schema)
+      useFormValidation({ foo: '', bar: '' }, schema),
+      { wrapper }
     );
     act(() => {
       result.current.setFieldValue('foo', 'hello');
@@ -91,7 +99,8 @@ describe('useFormValidation', () => {
 
   it('handleSubmit calls onSubmit if valid and sets touched', () => {
     const { result } = renderHook(() =>
-      useFormValidation({ foo: '', bar: '' }, schema)
+      useFormValidation({ foo: '', bar: '' }, schema),
+      { wrapper }
     );
     const onSubmit = vi.fn();
     // Make the field valid
@@ -113,7 +122,8 @@ describe('useFormValidation', () => {
 
   it('handleSubmit does not call onSubmit if invalid', () => {
     const { result } = renderHook(() =>
-      useFormValidation({ foo: '', bar: '' }, schema)
+      useFormValidation({ foo: '', bar: '' }, schema),
+      { wrapper }
     );
     const onSubmit = vi.fn();
     const event = { preventDefault: vi.fn() };
@@ -127,7 +137,8 @@ describe('useFormValidation', () => {
 
   it('validateForm returns correct validity', () => {
     const { result } = renderHook(() =>
-      useFormValidation({ foo: '', bar: '' }, schema)
+      useFormValidation({ foo: '', bar: '' }, schema),
+      { wrapper }
     );
     expect(result.current.validateForm()).toBe(false);
     act(() => {
@@ -138,7 +149,8 @@ describe('useFormValidation', () => {
 
   it('setValues directly sets all values', () => {
     const { result } = renderHook(() =>
-      useFormValidation({ foo: '', bar: '' }, schema)
+      useFormValidation({ foo: '', bar: '' }, schema),
+      { wrapper }
     );
     act(() => {
       result.current.setValues({ foo: 'abc', bar: 'b' });
