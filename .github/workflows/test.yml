@@ -51,8 +51,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Create virtual environment with uv
-          uv venv .venv
+          # Create virtual environment with uv (with fallback)
+          uv venv .venv || {
+            echo "uv venv failed. Falling back to Python's built-in venv..."
+            python -m venv .venv
+          }
           source .venv/bin/activate
 
           # Install test dependencies

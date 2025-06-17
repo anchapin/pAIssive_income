@@ -38,7 +38,7 @@ exclude_lines =
     except ImportError:
     raise ImportError
     # Skip main execution blocks
-    if __name__ == .__main__.:
+    if __name__ == ['"]__main__['"]:
     # Skip debug code
     if DEBUG:
     # Skip logging setup

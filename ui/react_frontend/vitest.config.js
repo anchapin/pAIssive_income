@@ -9,5 +9,27 @@ export default defineConfig({
     setupFiles: ['./src/setupTests.js'],
     include: ['**/*.{test,spec}.{js,jsx,ts,tsx}'],
     exclude: ['node_modules', 'dist', 'build'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'dist/',
+        'build/',
+        'coverage/',
+        '**/*.config.js',
+        '**/*.config.ts',
+        'tests/',
+        'src/setupTests.js'
+      ],
+      thresholds: {
+        global: {
+          branches: 15,
+          functions: 15,
+          lines: 15,
+          statements: 15
+        }
+      }
+    }
   },
 });
