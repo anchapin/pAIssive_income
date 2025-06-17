@@ -22,12 +22,22 @@ module.exports = override(
     }
 
     // Force webpack to use the fixed version of nth-check for all instances
+    // Also, add an alias for path-to-regexp to use our mock
     if (config.resolve && config.resolve.alias) {
       config.resolve.alias['nth-check'] = path.resolve(__dirname, 'node_modules/nth-check');
+      config.resolve.alias['path-to-regexp'] = path.resolve(__dirname, 'tests/mock_path_to_regexp_fixed.js');
     } else if (config.resolve) {
-      config.resolve.alias = { 'nth-check': path.resolve(__dirname, 'node_modules/nth-check') };
+      config.resolve.alias = {
+        'nth-check': path.resolve(__dirname, 'node_modules/nth-check'),
+        'path-to-regexp': path.resolve(__dirname, 'tests/mock_path_to_regexp_fixed.js')
+      };
     } else {
-      config.resolve = { alias: { 'nth-check': path.resolve(__dirname, 'node_modules/nth-check') } };
+      config.resolve = {
+        alias: {
+          'nth-check': path.resolve(__dirname, 'node_modules/nth-check'),
+          'path-to-regexp': path.resolve(__dirname, 'tests/mock_path_to_regexp_fixed.js')
+        }
+      };
     }
 
     return config;
