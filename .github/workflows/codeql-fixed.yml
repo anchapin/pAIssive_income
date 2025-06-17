@@ -69,7 +69,6 @@ jobs:
         uses: pnpm/action-setup@v4
         continue-on-error: true
         with:
-          version: '8.14.0' # Match version in package.json packageManager field
           run_install: false
 
       # Fallback pnpm installation if action fails

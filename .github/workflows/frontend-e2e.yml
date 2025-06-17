@@ -75,7 +75,6 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: '8.14.0' # Match version in package.json packageManager field
           run_install: false
 
       - name: Setup Node.js
