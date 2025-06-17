@@ -253,9 +253,52 @@ The mock API server tests are integrated into the GitHub Actions CI/CD pipeline.
    - Monitor test coverage to identify untested code
    - Aim for high coverage but prioritize meaningful tests over coverage percentage
 
-## Recent Improvements
+## Test Configuration Updates (PR 294)
 
-The frontend tests have been recently improved to:
+Recent updates to the test configuration include:
+
+### Vitest Configuration Changes
+
+The `vitest.config.js` file has been updated to:
+- Change the setup file from `./src/setupTests.js` to `./tests/setup.ts`
+- Use TypeScript for the test setup file for better type safety
+- Maintain the same test environment configuration (jsdom) and test file patterns
+
+### Test Setup File Migration
+
+The test setup has been migrated from `src/setupTests.js` to `tests/setup.ts` with the following improvements:
+- **TypeScript Support**: The setup file is now written in TypeScript for better type safety
+- **Enhanced Mocking**: Improved mock implementations for browser APIs:
+  - `window.matchMedia` with comprehensive mock implementation
+  - `localStorage` and `sessionStorage` with full API compatibility
+  - Global `fetch` API with typed mock implementations
+- **Better Test Isolation**: Enhanced beforeEach/afterEach hooks for proper test cleanup
+- **Environment Variable Handling**: Improved mock platform support for cross-platform testing
+
+### Test File Extensions
+
+Test files for React components have been updated to use `.jsx` extensions instead of `.js` to better reflect their JSX content:
+- `useFormValidation.test.js` → `useFormValidation.test.jsx`
+- Added React import to test files that use JSX syntax
+- Improved test wrapper components for better React Testing Library compatibility
+
+### Mock API Server Updates
+
+The mock API server test runner has been renamed and improved:
+- `mock_api_server.test.js` → `mock_api_server_test_runner.js`
+- Better separation of concerns between test runner and actual tests
+- Improved error handling and logging
+
+### OS Module Mocking Improvements
+
+Enhanced mocking of the `os` module in CI environment tests:
+- Better default export handling for ES modules
+- Improved compatibility with different Node.js versions
+- More robust mock implementations for system information functions
+
+## Previous Improvements
+
+The frontend tests have been previously improved to:
 
 1. **Fix path-to-regexp error in mock API server**
    - Added a robust mock implementation of path-to-regexp for CI compatibility
