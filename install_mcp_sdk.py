@@ -6,12 +6,19 @@ This script installs the Model Context Protocol (MCP) SDK and its dependencies.
 It handles various installation scenarios and provides fallback options.
 """
 
+from __future__ import annotations
+
+import importlib
 import logging
 import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional, Union
+
+# Constants
+MIN_PYTHON_MAJOR = 3
+MIN_PYTHON_MINOR = 8
 
 # Set up logging
 logging.basicConfig(
@@ -20,22 +27,31 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def run_command(command: str, description: str = "", check: bool = True, capture_output: bool = False) -> Union[str, bool, None]:
+def run_command(
+    command: str,
+    description: str = "",
+    check: bool = True,
+    capture_output: bool = False,
+) -> str | bool | None:
     """Run a command with error handling."""
     logger.info("Running: %s", description or command)
     try:
+        # Use shlex.split for safer command parsing
+        cmd_args = shlex.split(command) if not isinstance(command, list) else command
+
         if capture_output:
-            result = subprocess.run(
-                command,
-                shell=True,
+            # nosec: B603 - command is parsed with shlex.split for safety
+            result = subprocess.run(  # nosec: B603  # noqa: S603
+                cmd_args,
                 check=check,
                 capture_output=True,
                 text=True,
                 timeout=300,
             )
             return result.stdout.strip() if result.returncode == 0 else None
-        subprocess.run(command, shell=True, check=check, timeout=300)
-        return True
+
+        # nosec: B603 - command is parsed with shlex.split for safety
+        subprocess.run(cmd_args, check=check, timeout=300)  # nosec: B603  # noqa: S603
     except subprocess.TimeoutExpired:
         logger.exception("Command timed out: %s", command)
         return False
@@ -47,19 +63,33 @@ def run_command(command: str, description: str = "", check: bool = True, capture
         if check:
             raise
         return False
-    except Exception as e:
-        logger.error(f"Unexpected error running command: {command}")
-        logger.error(f"Error: {e}")
+    except (OSError, ValueError):
+        logger.exception("Command execution error: %s", command)
         return False
+    else:
+        return True
 
 
 def check_python_version() -> bool:
     """Check if Python version is compatible."""
     version = sys.version_info
-    if version.major < 3 or (version.major == 3 and version.minor < 8):
-        logger.error(f"Python 3.8+ required, found {version.major}.{version.minor}")
+    if version.major < MIN_PYTHON_MAJOR or (
+        version.major == MIN_PYTHON_MAJOR and version.minor < MIN_PYTHON_MINOR
+    ):
+        logger.error(
+            "Python %d.%d+ required, found %d.%d",
+            MIN_PYTHON_MAJOR,
+            MIN_PYTHON_MINOR,
+            version.major,
+            version.minor,
+        )
         return False
-    logger.info(f"Python version: {version.major}.{version.minor}.{version.micro}")
+    logger.info(
+        "Python version: %d.%d.%d",
+        version.major,
+        version.minor,
+        version.micro,
+    )
     return True
 
 
@@ -84,7 +114,7 @@ def install_mcp_packages() -> None:
 
     # Try installing with pip first
     for package in packages:
-        logger.info(f"Attempting to install {package}...")
+        logger.info("Attempting to install %s...", package)
 
         # Try with pip first with timeout and better error handling
         python_cmd = "python3" if os.name != "nt" else "python"
@@ -100,7 +130,7 @@ def install_mcp_packages() -> None:
                 "which uv || where uv", check=False, capture_output=True
             )
             if uv_available:
-                logger.info(f"Trying to install {package} with uv...")
+                logger.info("Trying to install %s with uv...", package)
                 uv_cmd = f"uv pip install {package}"
                 if is_ci:
                     uv_cmd += " --no-cache"
@@ -109,11 +139,12 @@ def install_mcp_packages() -> None:
                 )
 
         if success:
-            logger.info(f"Successfully installed {package}")
+            logger.info("Successfully installed %s", package)
             installed_any = True
         else:
             logger.warning(
-                f"Failed to install {package} - package may not be available in PyPI yet"
+                "Failed to install %s - package may not be available in PyPI yet",
+                package,
             )
 
     if not installed_any:
@@ -186,30 +217,33 @@ def create_server(*args, **kwargs):
     logger.info("Mock MCP modules created successfully")
 
 
-def verify_installation() -> Optional[bool]:
+def verify_installation() -> bool | None:
     """Verify MCP installation."""
     logger.info("Verifying MCP installation...")
 
     try:
         # Try importing MCP modules
-        import importlib
-
         modules_to_check = ["mcp", "modelcontextprotocol"]
-        for module in modules_to_check:
-            try:
-                importlib.import_module(module)
-                logger.info(f"Successfully imported {module}")
-            except ImportError:
-                logger.warning(f"Could not import {module}")
+        import_errors = []
 
-        return True
-    except Exception as e:
-        logger.exception(f"Verification failed: {e}")
+        # Check all modules at once to avoid performance overhead
+        for module_name in modules_to_check:
+            try:
+                importlib.import_module(module_name)
+                logger.info("Successfully imported %s", module_name)
+            except ImportError as e:  # noqa: PERF203
+                logger.warning("Could not import %s", module_name)
+                import_errors.append(e)
+
+        # Return True if we successfully imported at least one module
+        return len(import_errors) < len(modules_to_check)
+    except ImportError:
+        logger.exception("Verification failed due to import error")
         return False
 
 
 def main() -> int:
-    """Main installation function."""
+    """Install MCP SDK and dependencies."""
     logger.info("Starting MCP SDK installation...")
 
     try:
@@ -221,35 +255,35 @@ def main() -> int:
         # Install MCP packages
         try:
             install_mcp_packages()
-        except Exception as e:
-            logger.warning(f"MCP package installation encountered issues: {e}")
+        except ImportError as e:
+            logger.warning("MCP package installation encountered issues: %s", e)
             logger.info("Continuing with mock modules...")
 
         # Create mock modules for testing
         try:
             create_mock_mcp_modules()
-        except Exception as e:
-            logger.error(f"Failed to create mock modules: {e}")
+        except OSError:
+            logger.exception("Failed to create mock modules")
             return 1
 
         # Verify installation
-        try:
-            if verify_installation():
-                logger.info("MCP SDK installation completed successfully!")
-            else:
-                logger.warning("MCP SDK installation completed with warnings")
-        except Exception as e:
-            logger.warning(f"Installation verification failed: {e}")
+        verification_result = verify_installation()
+        if verification_result:
+            logger.info("MCP SDK installation completed successfully!")
+            return 0
+        if verification_result is False:
+            logger.warning("MCP SDK installation completed with warnings")
+        else:
+            logger.warning("Installation verification failed")
             logger.info("Installation may still be functional")
 
-        return 0
-
-    except Exception as e:
-        logger.error(f"Unexpected error during installation: {e}")
+    except (OSError, ImportError):
+        logger.exception("Installation error")
         logger.info(
             "Installation failed, but this may not prevent the build from continuing"
         )
-        return 0  # Return 0 to not fail the CI build
+
+    return 0  # Return 0 to not fail the CI build
 
 
 if __name__ == "__main__":
