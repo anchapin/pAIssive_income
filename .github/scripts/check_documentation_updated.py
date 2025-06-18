@@ -234,6 +234,12 @@ def main() -> None:
     try:
         logger.info("Starting documentation check...")
 
+        # Check if this is a dependabot PR - skip documentation check
+        github_actor = os.getenv("GITHUB_ACTOR", "")
+        if github_actor == "dependabot[bot]" or "dependabot" in github_actor.lower():
+            logger.info("✅ Documentation check skipped (dependabot PR)")
+            sys.exit(0)
+
         # Get the list of changed files
         changed_files = get_changed_files()
 
