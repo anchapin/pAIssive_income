@@ -933,10 +933,12 @@ function enhancedMonkeyPatchRequire() {
 
     Module.prototype.require = function(id) {
       if (id === 'path-to-regexp') {
+        console.log('JULES_DEBUG: enhanced_mock_path_to_regexp IS MOCKING require("path-to-regexp")');
         log('Intercepted require for path-to-regexp', 'important');
 
         // Return a more robust mock implementation
         function pathToRegexp(path, keys, options) {
+          console.log('JULES_DEBUG: Mock pathToRegexp CALLED WITH PATH:', path, typeof path);
           try {
             if (verboseLogging) {
               log(`Mock pathToRegexp called with path: ${sanitizeForLog(path)}`, 'info');

@@ -29,7 +29,7 @@ describe('useFormValidation', () => {
       { wrapper }
     );
     expect(result.current.values).toEqual({ foo: '', bar: '' });
-    expect(result.current.errors).toEqual({ foo: 'Too short' });
+    expect(result.current.errors).toEqual({ foo: 'Too short', bar: null });
     expect(result.current.touched).toEqual({});
     expect(result.current.dirty).toBe(false);
     expect(result.current.isValid).toBe(false);
