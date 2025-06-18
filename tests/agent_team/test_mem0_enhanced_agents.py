@@ -258,7 +258,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
 
         # Check that the rag_coordinator was called properly
         new_team.rag_coordinator.query.assert_called_with(query, "test-user")
-        
+
         # Verify the result (should come from the mocked rag_coordinator)
         assert len(result) == 2
         assert result[0]["text"] == "Test memory 1"
