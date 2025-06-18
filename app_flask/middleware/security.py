@@ -1,5 +1,5 @@
 """Security middleware for Flask application."""
-# ruff: noqa: ANN002,ANN003,ANN202
+# ruff: noqa: ANN001,ANN002,ANN003,ANN202
 
 from __future__ import annotations
 
@@ -133,7 +133,7 @@ def sanitize_response() -> Callable[[F], F]:
     return decorator
 
 
-def setup_security_middleware(app: object) -> None:
+def setup_security_middleware(app) -> None:
     """
     Set up security middleware for the Flask app.
 
