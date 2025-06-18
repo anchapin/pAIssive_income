@@ -22,18 +22,8 @@
   "pnpm": {
     "overrides": {
       "@ag-ui-protocol/ag-ui": "^1.0.0",
-      "svgo": {
-        "css-select": {
-          "nth-check": "^2.1.1"
-        }
-      },
-      "postcss": "^8.4.32",
-      "resolve-url-loader": {
-        "postcss": "^8.4.32"
-      },
-      "css-loader": {
-        "postcss": "^8.4.32"
-      }
+      "nth-check": "^2.1.1",
+      "postcss": "^8.4.32"
     },
     "peerDependencyRules": {
       "allowAny": [
