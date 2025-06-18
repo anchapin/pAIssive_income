@@ -50,7 +50,7 @@ The project uses Node.js packages defined in `package.json` for the frontend com
 
 ### Development Dependencies
 
-- **Webpack (^5.99.8)**: Module bundler
+- **Webpack (^5.99.9)**: Module bundler
 - **Babel (^7.27.1)**: JavaScript compiler
 - **Various loaders and plugins**: For handling different file types and build processes
 

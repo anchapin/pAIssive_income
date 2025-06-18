@@ -302,7 +302,7 @@ const ApiAnalyticsDashboard = () => {
             <Paper sx={{ p: 2 }}>
               <ApiEndpointBarChart
                 data={endpointStats}
-                dataKey="avg_response_time"
+                dataKey="avgResponseTime"
                 name="Avg Response Time (ms)"
                 color="#9c27b0"
                 height={400}

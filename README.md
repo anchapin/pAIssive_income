@@ -459,3 +459,6 @@ See [LICENSE](LICENSE) for license details.
 - Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
 - Enhanced GitHub workflow configurations for better cross-platform compatibility
 - Improved uv virtual environment handling and dependency management
+
+### JavaScript Dependencies
+- Updated react-router-dom from 7.6.0 to 7.6.2 (June 2025) - includes bug fixes and performance improvements

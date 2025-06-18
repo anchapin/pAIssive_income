@@ -114,7 +114,7 @@ function detectCIEnvironmentType(options = {}) {
     }
 
     // Check for Azure Pipelines
-    if (env.isAzurePipelines) {
+    if (env.isAzure) {
       if (verbose) console.log('Azure Pipelines detected');
       return 'azure';
     }

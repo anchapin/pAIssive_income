@@ -114,15 +114,6 @@ jobs:
         shell: pwsh
         run: Get-Volume
 
-      # Create SARIF results directory
-      - name: Create SARIF results directory
-        shell: pwsh
-        run: |
-          if (-not (Test-Path "sarif-results")) {
-            New-Item -ItemType Directory -Path "sarif-results" -Force
-            Write-Host "Created sarif-results directory"
-          }
-
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:

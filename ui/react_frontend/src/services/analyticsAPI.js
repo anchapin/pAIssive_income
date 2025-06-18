@@ -9,7 +9,7 @@ const analyticsAPI = {
    * @param {number} days - Number of days to include
    * @returns {Promise<Object>} - Summary data
    */
-  getSummary: (days = 30) => fetchAPI(`/api/v1/analytics/summary?days=${days}`),
+  getSummary: (days = 30) => fetchAPI(`/api/v1/analytics/summary?days=${days}`, {}),
 
   /**
    * Get detailed request statistics
@@ -35,7 +35,7 @@ const analyticsAPI = {
       }
     });
 
-    return fetchAPI(`/api/v1/analytics/requests?${queryParams.toString()}`);
+    return fetchAPI(`/api/v1/analytics/requests?${queryParams.toString()}`, {});
   },
 
   /**
@@ -43,7 +43,7 @@ const analyticsAPI = {
    * @param {number} days - Number of days to include
    * @returns {Promise<Array>} - Endpoint statistics
    */
-  getEndpointStats: (days = 30) => fetchAPI(`/api/v1/analytics/endpoints?days=${days}`),
+  getEndpointStats: (days = 30) => fetchAPI(`/api/v1/analytics/endpoints?days=${days}`, {}),
 
   /**
    * Get user statistics
@@ -55,7 +55,7 @@ const analyticsAPI = {
     const url = user_id
       ? `/api/v1/analytics/users?days=${days}&user_id=${user_id}`
       : `/api/v1/analytics/users?days=${days}`;
-    return fetchAPI(url);
+    return fetchAPI(url, {});
   },
 
   /**
@@ -68,7 +68,7 @@ const analyticsAPI = {
     const url = api_key_id
       ? `/api/v1/analytics/api-keys?days=${days}&api_key_id=${api_key_id}`
       : `/api/v1/analytics/api-keys?days=${days}`;
-    return fetchAPI(url);
+    return fetchAPI(url, {});
   },
 
   /**
