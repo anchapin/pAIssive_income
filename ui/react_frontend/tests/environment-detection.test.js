@@ -10,7 +10,7 @@
  * - Node.js environments
  */
 
-import { detectEnvironment } from '../src/utils/environmentDetection.js';
+import { detectEnvironment, createEnvironmentReport } from '../src/utils/environmentDetection.js';
 
 describe('Environment Detection', () => {
   // Save original environment variables
@@ -154,6 +154,7 @@ describe('Environment Detection', () => {
     test('should detect Kubernetes distributions', () => {
       // Mock GKE environment
       process.env.KUBERNETES_SERVICE_HOST = '10.0.0.1';
+      process.env.GOOGLE_CLOUD_PROJECT = 'test-project';
       process.env.GKE_CLUSTER_NAME = 'test-cluster';
       
       const env = detectEnvironment();
