@@ -52,7 +52,7 @@ const ForgotPasswordForm = ({ onSuccess }) => {
         autoComplete="email"
         inputProps={{ 'aria-label': 'email' }}
       />
-      <Button type="submit" variant="contained" color="primary" fullWidth disabled={submitting} sx={{ mb: 2 }}>
+      <Button type="submit" variant="contained" color="primary" fullWidth disabled={submitting || !email.trim()} sx={{ mb: 2 }}>
         {submitting ? 'Sending...' : 'Send Reset Link'}
       </Button>
       <Box sx={{ textAlign: 'right' }}>
