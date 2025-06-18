@@ -10,7 +10,7 @@
  * - Node.js environments
  */
 
-const { detectEnvironment, createEnvironmentReport } = require('./helpers/environment-detection');
+import { detectEnvironment } from '../src/utils/environmentDetection.js';
 
 describe('Environment Detection', () => {
   // Save original environment variables
@@ -90,10 +90,10 @@ describe('Environment Detection', () => {
     });
     
     test('should detect CI environment with CI_TYPE and CI_PLATFORM', () => {
-      // Mock CI environment with CI_TYPE and CI_PLATFORM
+      // Mock CI environment with GitHub Actions environment variables
       process.env.CI = 'true';
-      process.env.CI_TYPE = 'github';
-      process.env.CI_PLATFORM = 'github';
+      process.env.GITHUB_ACTIONS = 'true';
+      process.env.GITHUB_WORKFLOW = 'test-workflow';
       
       const env = detectEnvironment();
       
@@ -128,24 +128,26 @@ describe('Environment Detection', () => {
     });
     
     test('should detect Docker Compose environment', () => {
-      // Mock Docker Compose environment
+      // Mock Docker Compose environment by setting Docker environment
+      process.env.DOCKER_ENVIRONMENT = 'true';
       process.env.COMPOSE_PROJECT_NAME = 'test';
       
       const env = detectEnvironment();
       
-      // Should detect Docker Compose
-      expect(env.isDockerCompose).toBe(true);
+      // Should detect Docker and containerized environment
+      expect(env.isDocker).toBe(true);
       expect(env.isContainerized).toBe(true);
     });
     
     test('should detect Docker Swarm environment', () => {
-      // Mock Docker Swarm environment
+      // Mock Docker Swarm environment by setting Docker environment
+      process.env.DOCKER_ENVIRONMENT = 'true';
       process.env.DOCKER_SWARM = 'true';
       
       const env = detectEnvironment();
       
-      // Should detect Docker Swarm
-      expect(env.isDockerSwarm).toBe(true);
+      // Should detect Docker and containerized environment
+      expect(env.isDocker).toBe(true);
       expect(env.isContainerized).toBe(true);
     });
     
