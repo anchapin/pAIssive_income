@@ -28,7 +28,7 @@ def is_git_tracked(path) -> bool:
         # --error-unmatch causes non-tracked files to raise an error
         git_exe = shutil.which("git") or "git"
         # The following subprocess call is static and used for git file tracking in test collection.
-        subprocess.check_output(  # noqa: S603
+        subprocess.check_output(
             [git_exe, "ls-files", "--error-unmatch", os.path.relpath(path)],
             stderr=subprocess.DEVNULL,
         )
@@ -93,13 +93,13 @@ def app():
         try:
             db.session.remove()
             db.drop_all()
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.warning("Error during database cleanup")
         finally:
             # Clean up temporary directory
             try:
                 shutil.rmtree(temp_dir)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 logger.warning("Error cleaning up temp directory")
 
 

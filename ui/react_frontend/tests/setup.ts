@@ -2,23 +2,79 @@
 import '@testing-library/jest-dom';
 import { vi, beforeEach, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
+import React from 'react';
 
-// Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
+// Mock Emotion React to prevent context errors
+vi.mock('@emotion/react', () => ({
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
+  useTheme: () => ({
+    palette: {
+      mode: 'light',
+      primary: { main: '#1976d2' },
+    },
+  }),
+  jsx: vi.fn(),
+  css: vi.fn(),
+}));
+
+// Mock Material-UI components and hooks
+vi.mock('@mui/material/styles', () => ({
+  createTheme: vi.fn(() => ({
+    palette: {
+      mode: 'light',
+      primary: { main: '#1976d2' },
+      secondary: { main: '#dc004e' },
+      error: { main: '#f44336' },
+      warning: { main: '#ff9800' },
+      info: { main: '#2196f3' },
+      success: { main: '#4caf50' },
+    },
+    spacing: (factor: number) => factor * 8,
+    breakpoints: {
+      up: () => '',
+      down: () => '',
+      values: { xs: 0, sm: 600, md: 900, lg: 1200, xl: 1536 }
+    },
   })),
-});
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
+  useTheme: () => ({
+    palette: {
+      mode: 'light',
+      primary: { main: '#1976d2' },
+    },
+    spacing: (factor: number) => factor * 8,
+  }),
+}));
 
-// Mock Storage
+// Mock Material-UI components 
+vi.mock('@mui/material', () => ({
+  Box: ({ children, component = 'div', sx, ...props }: any) => {
+    const { sx: _sx, ...cleanProps } = props;
+    return React.createElement(component, cleanProps, children);
+  },
+  TextField: ({ label, fullWidth, margin, inputProps, ...props }: any) => {
+    const { fullWidth: _fw, margin: _m, inputProps: ip, ...cleanProps } = props;
+    return React.createElement('input', { 'aria-label': label?.toLowerCase(), ...ip, ...cleanProps });
+  },
+  Button: ({ children, variant, color, fullWidth, sx, disabled, ...props }: any) => {
+    const { variant: _v, color: _c, fullWidth: _fw, sx: _sx, ...cleanProps } = props;
+    return React.createElement('button', { disabled, ...cleanProps }, children);
+  },
+  Typography: ({ children, component = 'div', variant, gutterBottom, ...props }: any) => {
+    const { variant: _v, gutterBottom: _gb, ...cleanProps } = props;
+    return React.createElement(component, cleanProps, children);
+  },
+  Alert: ({ children, severity, role = 'alert', sx, ...props }: any) => {
+    const { sx: _sx, ...cleanProps } = props;
+    return React.createElement('div', { role, 'data-severity': severity, ...cleanProps }, children);
+  },
+  Link: ({ children, component, to, underline, tabIndex, ...props }: any) => {
+    const { underline: _u, ...cleanProps } = props;
+    return component ? React.createElement(component, { to, tabIndex, ...cleanProps }, children) : React.createElement('a', { tabIndex, ...cleanProps }, children);
+  },
+}));
+
+// Mock localStorage and sessionStorage
 const createStorageMock = () => {
   let store: Record<string, string> = {};
   return {
@@ -39,8 +95,28 @@ const createStorageMock = () => {
   };
 };
 
-Object.defineProperty(window, 'localStorage', { value: createStorageMock() });
-Object.defineProperty(window, 'sessionStorage', { value: createStorageMock() });
+Object.defineProperty(window, 'localStorage', {
+  value: createStorageMock(),
+});
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: createStorageMock(),
+});
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
 
 
 // Mock fetch API globally

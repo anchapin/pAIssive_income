@@ -9,8 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
-const express = require('express');
-const cors = require('cors');
+const url = require('url');
 
 // CI environment detection
 const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
@@ -128,11 +127,9 @@ function generateUrl(pattern, params) {
   }
 }
 
-// Simple Express app without complex routing - avoid path-to-regexp issues
-console.log('Using simple Express routing to avoid path-to-regexp dependency issues');
+// Simple HTTP server without Express to avoid path-to-regexp issues entirely
+console.log('Using simple HTTP server to avoid path-to-regexp dependency issues');
 
-// Create Express app
-const app = express();
 const PORT = process.env.MOCK_API_PORT || process.env.PORT || 8000;
 
 // Create a report directory for test artifacts

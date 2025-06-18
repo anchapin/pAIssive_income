@@ -14,35 +14,41 @@
  */
 
 const http = require('http');
-const assert = require('assert').strict;
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
+/**
+ * Sanitize user input for logging to prevent log injection
+ * @param {string} input - Input to sanitize
+ * @returns {string} Sanitized input
+ */
+function sanitizeForLog(input) {
+  if (typeof input !== 'string') {
+    input = String(input);
+  }
+  // Remove newlines and carriage returns to prevent log injection
+  return input.replace(/[\r\n]/g, ' ').substring(0, 500); // Also limit length
+}
+
 // Function to safely create directory
 function safelyCreateDirectory(dirPath) {
   try {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-      console.log(`Created directory at ${dirPath}`);
-      return true;
-    } else {
-      console.log(`Directory already exists at ${dirPath}`);
-      return false;
-    }
+    // Use recursive: true to avoid race conditions - it won't fail if directory exists
+    fs.mkdirSync(dirPath, { recursive: true });
+    console.log(`Created/verified directory at ${dirPath}`);
+    return true;
   } catch (error) {
-    console.error(`Error creating directory at ${dirPath}: ${error.message}`);
+    console.error(`Error creating directory at ${dirPath}: ${sanitizeForLog(error.message)}`);
 
     // Try with absolute path as fallback
     try {
       const absolutePath = path.resolve(dirPath);
-      if (!fs.existsSync(absolutePath)) {
-        fs.mkdirSync(absolutePath, { recursive: true });
-        console.log(`Created directory at absolute path: ${absolutePath}`);
-        return true;
-      }
+      fs.mkdirSync(absolutePath, { recursive: true });
+      console.log(`Created directory at absolute path: ${absolutePath}`);
+      return true;
     } catch (fallbackError) {
-      console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
+      console.error(`Failed to create directory with absolute path: ${sanitizeForLog(fallbackError.message)}`);
     }
 
     return false;
@@ -52,7 +58,8 @@ function safelyCreateDirectory(dirPath) {
 // Function to safely write file
 function safelyWriteFile(filePath, content, append = false) {
   try {
-    if (append && fs.existsSync(filePath)) {
+    if (append) {
+      // Use appendFileSync which handles existing/non-existing files atomically
       fs.appendFileSync(filePath, content);
       return true;
     } else {
@@ -61,12 +68,12 @@ function safelyWriteFile(filePath, content, append = false) {
       return true;
     }
   } catch (error) {
-    console.error(`Error writing file at ${filePath}: ${error.message}`);
+    console.error(`Error writing file at ${filePath}: ${sanitizeForLog(error.message)}`);
 
     // Try with absolute path as fallback
     try {
       const absolutePath = path.resolve(filePath);
-      if (append && fs.existsSync(absolutePath)) {
+      if (append) {
         fs.appendFileSync(absolutePath, content);
         return true;
       } else {
@@ -75,7 +82,7 @@ function safelyWriteFile(filePath, content, append = false) {
         return true;
       }
     } catch (fallbackError) {
-      console.error(`Failed to write file with absolute path: ${fallbackError.message}`);
+      console.error(`Failed to write file with absolute path: ${sanitizeForLog(fallbackError.message)}`);
     }
 
     return false;
@@ -773,15 +780,15 @@ async function waitForServerReady({ url, timeout = 30000, retryInterval = 500 })
         try {
           res = await Promise.race([requestPromise, timeoutPromise]);
         } catch (timeoutError) {
-          console.error(`Request timed out: ${timeoutError.message}`);
+          console.error(`Request timed out: ${sanitizeForLog(timeoutError.message)}`);
 
           // Log the timeout error
           safelyWriteFile(
             path.join(logsDir, 'timeout-errors.log'),
             `Timeout error at ${new Date().toISOString()}\n` +
-            `URL: ${currentUrl}\n` +
-            `Error: ${timeoutError.message}\n` +
-            `Stack: ${timeoutError.stack || 'No stack trace available'}\n\n`,
+            `URL: ${sanitizeForLog(currentUrl)}\n` +
+            `Error: ${sanitizeForLog(timeoutError.message)}\n` +
+            `Stack: ${sanitizeForLog(timeoutError.stack || 'No stack trace available')}\n\n`,
             true // Append mode
           );
 

@@ -3,28 +3,8 @@ name: "CodeQL Configuration for macOS"
 # This configuration file customizes the CodeQL analysis for macOS
 # It inherits settings from the unified configuration and adds macOS-specific settings
 
-# Inherit from the unified configuration
-extends: security-os-config.yml
-
 # macOS-specific settings
 os: macos-latest
-
-# Additional macOS-specific paths to exclude
-paths-ignore:
-  # macOS specific files
-  - '**/.DS_Store'
-  - '**/.AppleDouble'
-  - '**/.LSOverride'
-  # Using '?' instead of '\r' to avoid backslash issues in CodeQL filters
-  - '**/Icon?'
-  - '**/*.app/**'
-  - '**/*.pkg'
-  - '**/*.dmg'
-  - '**/._*'
-  - '**/.Spotlight-V100/**'
-  - '**/.Trashes/**'
-  - '**/ehthumbs.db'
-  - '**/Thumbs.db'
 
 # Query filters
 queries:
@@ -40,13 +20,59 @@ queries:
 # Disable noisy alerts
 disable-default-queries: false
 
-# Query suite definitions
-query-filters:
-  - exclude:
-      tags contain: test
-  - exclude:
-      tags contain: maintainability
-      precision below: high
+# Paths to ignore during analysis
+paths-ignore:
+  # Dependencies and build artifacts
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/coverage/**'
+  - '**/.venv/**'
+  - '**/venv/**'
+  - '**/env/**'
+  - '**/__pycache__/**'
+  - '**/.pytest_cache/**'
+  - '**/.mypy_cache/**'
+  - '**/.ruff_cache/**'
+
+  # Test files
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/__tests__/**'
+  - '**/*.test.js'
+  - '**/*.test.ts'
+  - '**/*.test.jsx'
+  - '**/*.test.tsx'
+  - '**/*.spec.js'
+  - '**/*.spec.ts'
+  - '**/*.spec.jsx'
+  - '**/*.spec.tsx'
+  - '**/*.test.py'
+  - '**/*.spec.py'
+  - 'test_mem0_integration.py'
+
+  # Documentation and configuration
+  - '**/docs/**'
+  - '**/*.md'
+  - '**/*.rst'
+  - '**/.github/**'
+  - '**/.vscode/**'
+  - '**/.idea/**'
+
+  # Generated files
+  - '**/playwright-report/**'
+  - '**/sarif-results/**'
+  - '**/*.sarif'
+  - '**/*.sarif.json'
+
+  # macOS-specific paths to exclude
+  - '**/.DS_Store'
+  - '**/._*'
+  - '**/Thumbs.db'
+  - '**/Icon\r'
+  - '**/Library/**'
+  - '**/Applications/**'
+  - '**/System/**'
 
 # Trap errors during extraction
 trap-for-errors: true

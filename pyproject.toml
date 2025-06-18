@@ -71,7 +71,8 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 
-# Optimized Ruff configuration for comprehensive linting and formatting
+
+
 [tool.ruff]
 target-version = "py310"
 line-length = 100
@@ -188,7 +189,11 @@ lines-between-types = 1
 
 # Merge with existing script ignores
 "scripts/fix/fix_security_issues.py" = ["S603"]
-"scripts/run/run_github_actions_locally.py" = ["S603", "G004", "TRY300", "RUF013", "RUF005"]
+"scripts/run/run_github_actions_locally.py" = ["S603",
+"G004",
+"TRY300",
+"RUF013",
+"RUF005"]
 "scripts/setup/regenerate_venv.py" = ["S603", "TRY300"]
 "scripts/setup/setup_pre_commit.py" = ["S603"]
 "scripts/setup/setup_dev_environment.py" = ["S603"]
@@ -234,5 +239,4 @@ reportIncompatibleMethodOverride = false
 reportIncompatibleVariableOverride = false
 reportOverlappingOverload = false
 typeCheckingMode = "basic"
-
 

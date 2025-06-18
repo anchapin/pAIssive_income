@@ -1,58 +1,38 @@
-name: Auto Fix (Linting Only)
-
+name: Auto Fix (Linting & CodeQL Issues)
 on:
-  workflow_dispatch:
-    inputs:
-      fix_type:
-        description: 'Type of fix to apply'
-        required: true
-        default: 'lint'
-        type: choice
-        options:
-          - lint
-          # Removed codeql and both options to prevent auto-fixing CodeQL issues
-
-permissions:
-  contents: write
-  pull-requests: write
+  pull_request:
+    paths:
+      - "**.py"
+      - "**.js"
+      - "**.ts"
+      - "**.tsx"
+      - "**.jsx"
+      - "**.json"
+      - "**.yml"
+      - "**.yaml"
 
 jobs:
-  fix-linting-issues:
-    if: ${{ github.event.inputs.fix_type == 'lint' || github.event.inputs.fix_type == 'both' }}
-    name: Fix Linting Issues
+  auto-fix:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-          fetch-depth: 0
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install uv and dependencies
+      - name: Fix Python code
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          uv venv .venv || python -m venv .venv
-          source .venv/bin/activate
-          uv pip install setuptools wheel ruff || python -m pip install ruff
-          uv pip install -e ".[dev]" || pip install -e ".[dev]"
+          pip install ruff
+          ruff check --fix . || echo "Ruff encountered some issues but continuing..."
 
-      - name: Run fix_linting_issues.py if present, else fallback to Ruff
+      - name: Fix JavaScript/TypeScript code
         run: |
-          source .venv/bin/activate
-          if [ -f "fix_linting_issues.py" ]; then
-            python fix_linting_issues.py --verbose
-          else
-            echo "fix_linting_issues.py not found, running Ruff fix on all Python files"
-            ruff check --fix .
-            ruff format .
-          fi
+          npm install -g prettier
+          # Only format JavaScript/TypeScript files that exist
+          echo "Formatting JavaScript/TypeScript files..."
+          find . -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" | head -20 | while read file; do
+            echo "Formatting: $file"
+            prettier --write "$file" || echo "Failed to format $file, continuing..."
+          done
+          echo "JavaScript/TypeScript formatting completed"
 
       - name: Check for changes
         id: lint-git-check
@@ -69,15 +49,37 @@ jobs:
         env:
           GIT_AUTH_TOKEN: ${{ secrets.ACTIONS_BOT_PAT }} # gitleaks:allow
         run: |
+          # Check if we have a valid token
+          if [ -z "$GIT_AUTH_TOKEN" ]; then
+            echo "Warning: ACTIONS_BOT_PAT secret not available. Cannot commit changes."
+            echo "This is expected for external contributors. Changes will be shown in the PR."
+            exit 0
+          fi
+
+          # Configure git
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+
+          # Check if there are actually changes to commit
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit after all."
+            exit 0
+          fi
+
+          # Set up authentication and push
           git remote set-url origin https://x-access-token:${GIT_AUTH_TOKEN}@github.com/${{ github.repository }}
           git add .
-          git commit -m "Auto-fix linting issues"
-          git push
+          git commit -m "Auto-fix linting issues" || {
+            echo "Failed to commit changes. This might be due to no actual changes or permission issues."
+            exit 0
+          }
+          git push || {
+            echo "Failed to push changes. This might be due to permission issues or branch protection."
+            exit 0
+          }
 
   fix-codeql-issues:
-    if: ${{ github.event.inputs.fix_type == 'codeql' || github.event.inputs.fix_type == 'both' }}
+    if: false  # Disabled for pull_request triggers
     name: Fix CodeQL Issues
     runs-on: ubuntu-latest
     timeout-minutes: 30

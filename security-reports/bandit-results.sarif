@@ -6,7 +6,8 @@
       "tool": {
         "driver": {
           "name": "Bandit",
-          "informationUri": "https://bandit.readthedocs.io/",
+          "informationUri": "https://github.com/PyCQA/bandit",
+          "version": "1.7.5",
           "rules": []
         }
       },

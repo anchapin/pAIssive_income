@@ -1076,19 +1076,24 @@ function createCIReport(filePath, options = {}) {
     // Include detailed system info if requested
     if (includeSystemInfo) {
       reportObj.detailedSystemInfo = {
-        hostname: env.hostname,
-        username: env.username,
-        memory: {
+        hostname: env.hostname || 'unknown',
+        username: env.username || 'unknown',
+        memory: env.memory ? {
           total: env.memory.total,
           free: env.memory.free,
           totalFormatted: formatBytes(env.memory.total),
           freeFormatted: formatBytes(env.memory.free)
+        } : {
+          total: 0,
+          free: 0,
+          totalFormatted: 'N/A',
+          freeFormatted: 'N/A'
         },
-        cpus: env.cpus.length,
-        cpuInfo: env.cpus.map(cpu => ({
+        cpus: env.cpus ? env.cpus.length : 0,
+        cpuInfo: env.cpus ? env.cpus.map(cpu => ({
           model: cpu.model,
           speed: cpu.speed
-        }))
+        })) : []
       };
     }
 

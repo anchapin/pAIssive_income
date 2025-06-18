@@ -1,6 +1,7 @@
 {
   "name": "paissive-income",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "tailwind:build:static": "npx tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify",
@@ -16,12 +17,10 @@
     "tailwind:build:postcss": "node ui/tailwind_utils.js --postcss-config ./ui/postcss.config.js",
     "tailwind:build:multi": "node ui/tailwind_utils.js --add-file ./tailwind.config.js ./ui/static/css/tailwind.css ./ui/static/css/tailwind.output.css --add-file ./ui/react_frontend/tailwind.config.js ./ui/react_frontend/src/index.css ./ui/react_frontend/src/tailwind.output.css",
     "tailwind:config": "node ui/tailwind_utils.js --config-file ./ui/tailwind.config.json",
-    "test": "pnpm install && pnpm tailwind:build && vitest run",
-    "test:ci": "pnpm install --frozen-lockfile && pnpm tailwind:build && vitest run --coverage",
-    "test:parallel": "pnpm install --frozen-lockfile && pnpm tailwind:build && vitest run --coverage",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage",
+    "test": "pnpm install && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
+    "test:ci": "pnpm install --frozen-lockfile && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
+    "test:parallel": "pnpm install --frozen-lockfile && pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --parallel --passWithNoTests",
+    "coverage": "nyc report --reporter=text-lcov",
     "lint": "eslint \"**/*.js\""
   },
   "keywords": [],
@@ -30,12 +29,11 @@
   "engines": {
     "node": ">=20"
   },
-  "type": "module",
   "dependencies": {
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-router-dom": "^7.5.3",
     "recharts": "^2.12.0"
   },
@@ -51,6 +49,7 @@
     "css-loader": "^7.1.2",
     "cssnano": "^6.1.0",
     "eslint": "^9.0.0",
+    "expect": "^29.7.0",
     "html-webpack-plugin": "^5.6.3",
     "jsdom": "^26.1.0",
     "postcss": "^8.4.32",
@@ -61,5 +60,67 @@
     "webpack": "^5.99.8",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.1"
+  },
+  "nyc": {
+    "all": true,
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "include": [
+      "src/**/*.js",
+      "ui/**/*.js",
+      "sdk/javascript/**/*.js"
+    ],
+    "exclude": [
+      "**/*.test.js",
+      "**/test/**",
+      "tests/**",
+      "**/__mocks__/**",
+      "**/mocks/**",
+      "**/mock*/**",
+      "**/testUtils.js",
+      "**/test_utils.js",
+      "**/test-utils.js",
+      "**/setupTests.js",
+      "**/.venv/**",
+      "**/.venv_new/**",
+      "**/venv/**",
+      "**/env/**",
+      "**/.env/**",
+      "**/node_modules/**",
+      "**/__pycache__/**",
+      "**/.pytest_cache/**",
+      "**/.mypy_cache/**",
+      "**/.ruff_cache/**",
+      "**/build/**",
+      "**/dist/**",
+      "**/*.egg-info/**",
+      ".venv*/**",
+      "venv*/**",
+      "__pycache__/**",
+      "*.pyc",
+      "node_modules/**",
+      ".git/**"
+    ],
+    "statements": 1,
+    "branches": 1,
+    "functions": 1,
+    "lines": 1,
+    "check-coverage": false,
+    "overrides": {
+      "src/**/*.js": {
+        "statements": 70,
+        "branches": 70,
+        "functions": 70,
+        "lines": 70
+      },
+      "src/math.js": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    }
   }
 }

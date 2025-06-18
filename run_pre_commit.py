@@ -3,7 +3,8 @@
 """
 Script to run pre-commit with proper exclusions for .venv directory.
 
-This script finds all Python files in the repository, excluding those in the .venv directory,
+This script finds all Python files in the repository,
+excluding those in the .venv directory,
 and runs pre-commit on them.
 """
 

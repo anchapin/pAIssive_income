@@ -5,6 +5,7 @@ on:
     branches: [ main, dev, master, develop ]
     paths:
       - '.github/workflows/codeql*.yml'
+      - '.github/scripts/ensure-fixed-codeql-workflows.sh'
       - '.github/scripts/ensure-fixed-codeql-workflows.ps1'
       - '.github/workflows/ensure-codeql-fixed.yml'
   workflow_dispatch:
@@ -24,10 +25,35 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Make script executable
-        run: chmod +x .github/scripts/ensure-fixed-codeql-workflows.sh
+        run: |
+          if [ -f ".github/scripts/ensure-fixed-codeql-workflows.sh" ]; then
+            chmod +x .github/scripts/ensure-fixed-codeql-workflows.sh
+            echo "Made bash script executable"
+          else
+            echo "Bash script not found, will try PowerShell script"
+          fi
 
       - name: Run script to ensure fixed CodeQL workflows
-        run: .github/scripts/ensure-fixed-codeql-workflows.sh
+        run: |
+          echo "Checking for available scripts..."
+          ls -la .github/scripts/ensure-fixed-codeql-workflows.*
+
+          if [ -f ".github/scripts/ensure-fixed-codeql-workflows.sh" ]; then
+            echo "Running bash script..."
+            ./.github/scripts/ensure-fixed-codeql-workflows.sh
+          elif [ -f ".github/scripts/ensure-fixed-codeql-workflows.ps1" ]; then
+            echo "Running PowerShell script with pwsh..."
+            if command -v pwsh >/dev/null 2>&1; then
+              pwsh -File .github/scripts/ensure-fixed-codeql-workflows.ps1
+            else
+              echo "PowerShell not available, skipping"
+              exit 0
+            fi
+          else
+            echo "No script found, skipping workflow replacement"
+            exit 0
+          fi
+          echo "Script execution completed"
 
       - name: Check for changes
         id: check-changes

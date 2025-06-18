@@ -22,14 +22,14 @@ if TYPE_CHECKING:
             """Placeholder for MCP Client when not available."""
 
             def connect(self) -> None:
-                """Placeholder connect method."""
+                """Connect to MCP server placeholder."""
 
-            def send_message(self, message: str) -> str:
-                """Placeholder send_message method."""
+            def send_message(self, _message: str) -> str:
+                """Send message to MCP server placeholder."""
                 return ""
 
             def disconnect(self) -> None:
-                """Placeholder disconnect method."""
+                """Disconnect from MCP server placeholder."""
 
 
 # Local imports

@@ -13,6 +13,8 @@ import logging
 import re
 from typing import Optional, Protocol, Union, runtime_checkable
 
+from common_utils.tooling import list_tools
+
 
 # Protocols for type safety
 @runtime_checkable
@@ -62,8 +64,6 @@ class CrewProtocol(Protocol):
 
 
 crewai_available = False
-
-from common_utils.tooling import list_tools
 
 try:
     from crewai import Agent as RealAgent

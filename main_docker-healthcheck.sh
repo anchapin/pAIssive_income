@@ -84,7 +84,9 @@ check_memory() {
   local free_mem=$(free -m | awk 'NR==2 {print $4}')
   local usage_percent=$((used_mem * 100 / total_mem))
 
-  log "Memory usage: ${usage_percent}% (${used_mem}MB used, ${free_mem}MB free, ${total_mem}MB total)"
+  log "Memory usage: ${usage_percent}% (${used_mem}MB used,
+  ${free_mem}MB free,
+  ${total_mem}MB total)"
 
   if [ "$usage_percent" -gt 90 ]; then
     log "⚠️ High memory usage warning: ${usage_percent}%"
@@ -194,7 +196,8 @@ check_health() {
 
   # Final decision based on all checks
   if [ "$python_running" -eq 0 ] && [ "$port_listening" -eq 0 ]; then
-    log "⚠️ Flask process is running and port is listening, but health endpoint is not responding."
+    log "⚠️ Flask process is running and port is listening,
+    but health endpoint is not responding."
     log "This might be a transient issue. Returning success to avoid container restart."
     return 0
   fi
