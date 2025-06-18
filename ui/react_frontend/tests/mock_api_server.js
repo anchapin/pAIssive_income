@@ -188,6 +188,7 @@ if (express && express.Router) {
     // Override route method to use simple string matching instead of path-to-regexp
     const originalRoute = router.route;
     router.route = function(path) {
+      console.log('JULES_DEBUG: EXPRESS ROUTER.ROUTE INPUT PATH:', path, typeof path);
       console.log(`Creating route for path: ${path}`);
 
       // Create a simple route handler that uses string comparison
@@ -266,6 +267,7 @@ if (express && express.Router) {
 }
 
 // Create Express app
+try { console.log('JULES_DEBUG: mock_api_server.js require.resolve("path-to-regexp"):', require.resolve('path-to-regexp')); } catch(e) { console.log('JULES_DEBUG: mock_api_server.js Could not require.resolve("path-to-regexp")'); }
 const app = express();
 const PORT = process.env.MOCK_API_PORT || process.env.PORT || 8000;
 

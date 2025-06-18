@@ -2,6 +2,16 @@
 
 Track all major changes, releases, and fixes here.
 
+## [Unreleased] - 2025-06-17
+
+### Dependencies
+- Updated webpack from 5.99.8 to 5.99.9 with bug fixes for HMR, ES modules, and asset processing
+- Updated @babel/core from 7.27.1 to 7.27.4
+  - Improved parseExpression error messages
+  - Reduced regenerator helper size optimizations
+  - Split regeneratorRuntime into multiple helpers for better performance
+  - Various bug fixes for async generator functions and TypeScript compatibility
+
 ## [Unreleased] - 2024-06-10
 
 - Tool registry now supports rich metadata for each tool, including `keywords` for intent matching and `input_preprocessor` for input adaptation, enabling agentic reasoning and autonomous tool selection.

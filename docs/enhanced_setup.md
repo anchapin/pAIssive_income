@@ -1,8 +1,15 @@
 # Enhanced Development Environment Setup
 
-This document describes the enhanced development environment setup script for the pAIssive Income project.
+This document describes the development environment setup scripts for the pAIssive Income project.
 
 ## Overview
+
+We provide multiple setup scripts to accommodate different development environments:
+
+1. **Enhanced Setup Script** - Full-featured setup with extensive configuration options
+2. **Jules Environment Setup Script** - Optimized for Jules VM environment with streamlined setup
+
+### Enhanced Setup Script
 
 The enhanced setup script automates the setup of a development environment for the pAIssive Income project. It performs the following tasks:
 
@@ -14,21 +21,92 @@ The enhanced setup script automates the setup of a development environment for t
 6. Creates IDE configuration files
 7. Provides instructions for manual steps
 
+### Jules Environment Setup Script
+
+The Jules setup script (`setup-jules.sh`) is specifically optimized for Jules VM environments and provides:
+
+1. Streamlined dependency checking and installation
+2. Automatic installation of `uv` and `pnpm` if not present
+3. Virtual environment creation using `uv`
+4. Python and Node.js dependency installation
+5. Environment configuration (.env setup)
+6. Basic validation testing
+7. Environment summary and status reporting
+
 ## Usage
 
-### Windows
+### Enhanced Setup (Windows)
 
 ```batch
 enhanced_setup_dev_environment.bat [options]
 ```
 
-### Unix/Linux/macOS
+### Enhanced Setup (Unix/Linux/macOS)
 
 ```bash
 ./enhanced_setup_dev_environment.sh [options]
 ```
 
-## Options
+### Jules Environment Setup
+
+```bash
+./setup-jules.sh
+```
+
+**Note:** The Jules setup script is designed to work out-of-the-box without command-line options and is optimized for Jules VM environments.
+
+## Jules Environment Setup Details
+
+The `setup-jules.sh` script is specifically designed for Jules VM environments and provides a streamlined setup experience. Here's what it does:
+
+### Prerequisites Check
+- Verifies Python 3 is installed
+- Verifies Node.js is installed
+- Exits with clear error messages if prerequisites are missing
+
+### Automatic Tool Installation
+- Installs `uv` (fast Python package installer) if not present
+- Installs `pnpm` (fast Node.js package manager) if not present
+- Updates PATH to include newly installed tools
+
+### Environment Setup
+- Creates a Python virtual environment using `uv venv`
+- Activates the virtual environment for the session
+- Installs Python dependencies from `requirements.txt` and `requirements-dev.txt`
+- Installs Node.js dependencies using `pnpm install`
+
+### Configuration
+- Copies `.env.example` to `.env` if it doesn't exist
+- Preserves existing `.env` files
+
+### Validation Testing
+- Tests Python environment with basic imports
+- Checks for common packages (PyYAML, requests)
+- Validates Node.js environment
+- Runs existing tests if available
+- Reports pytest availability
+
+### Status Reporting
+- Provides clear status messages with emojis
+- Shows environment summary with versions
+- Confirms successful setup completion
+
+### When to Use Jules Setup
+
+Use `setup-jules.sh` when:
+- Working in a Jules VM environment
+- You want a quick, streamlined setup
+- You prefer automatic tool installation
+- You don't need extensive configuration options
+- You're setting up for the first time
+
+Use the enhanced setup script when:
+- You need custom configuration options
+- You're setting up on various platforms
+- You need IDE-specific configurations
+- You want to control which components are installed
+
+## Enhanced Setup Options
 
 ### System Dependencies
 

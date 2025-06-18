@@ -105,22 +105,34 @@ function createMockPathToRegexp() {
       if (Array.isArray(keys)) {
         const paramNames = path.match(/:[a-zA-Z0-9_]+/g) || [];
         if (paramNames.length > LIMITS.MAX_PARAMS) {
-          safeLog('Too many parameters in path', 'warn');
-          return /.*/;
+          safeLog('Too many parameters in path, limiting to MAX_PARAMS', 'warn');
+          // Limit to MAX_PARAMS instead of returning early
+          paramNames.slice(0, LIMITS.MAX_PARAMS).forEach(param => {
+            const paramName = sanitizeParam(param.substring(1));
+            if (paramName) {
+              keys.push({
+                name: paramName,
+                prefix: '/',
+                suffix: '',
+                pattern: '[^/]+',
+                modifier: ''
+              });
+            }
+          });
+        } else {
+          paramNames.forEach(param => {
+            const paramName = sanitizeParam(param.substring(1));
+            if (paramName) {
+              keys.push({
+                name: paramName,
+                prefix: '/',
+                suffix: '',
+                pattern: '[^/]+',
+                modifier: ''
+              });
+            }
+          });
         }
-
-        paramNames.forEach(param => {
-          const paramName = sanitizeParam(param.substring(1));
-          if (paramName) {
-            keys.push({
-              name: paramName,
-              prefix: '/',
-              suffix: '',
-              pattern: '[^/]+',
-              modifier: ''
-            });
-          }
-        });
       }
 
       return new RegExp('.*');

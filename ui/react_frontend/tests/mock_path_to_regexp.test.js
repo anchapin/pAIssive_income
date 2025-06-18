@@ -1,7 +1,4 @@
 /**
- * @vitest-environment node
- */
-/**
  * Tests for mock path-to-regexp implementation
  * 
  * Validates that our mock implementation works correctly in CI environments
