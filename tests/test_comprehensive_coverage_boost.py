@@ -164,7 +164,10 @@ def test_comprehensive_ai_models():
     assert len(__version__) > 0
 
     # Test adapters
-    from ai_models.adapters.adapter_factory import get_adapter, UnsupportedServerTypeError
+    from ai_models.adapters.adapter_factory import (
+        UnsupportedServerTypeError,
+        get_adapter,
+    )
     from ai_models.adapters.exceptions import AdapterError
 
     # Test exception creation

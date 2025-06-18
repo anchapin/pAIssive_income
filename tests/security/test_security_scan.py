@@ -297,8 +297,8 @@ def test_sarif_file_handling() -> None:
         # Use Python's gzip module for better cross-platform compatibility
         try:
             import gzip
-            with open(sarif_file, 'rb') as f_in:
-                with gzip.open(compressed_file, 'wb') as f_out:
+            with open(sarif_file, "rb") as f_in:
+                with gzip.open(compressed_file, "wb") as f_out:
                     f_out.write(f_in.read())
             logger.info("Created compressed version: %s", compressed_file)
         except Exception as e:

@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 class ContentTemplate(BaseModel):
     """Schema for content templates."""
+
     title: str
     content: str
     template_type: str
@@ -17,6 +18,7 @@ class ContentTemplate(BaseModel):
 
 class MarketingCampaign(BaseModel):
     """Schema for marketing campaigns."""
+
     name: str
     description: str
     target_audience: str
