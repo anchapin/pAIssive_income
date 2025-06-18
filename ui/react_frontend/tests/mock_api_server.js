@@ -12,62 +12,11 @@ const http = require('http');
 const express = require('express');
 const cors = require('cors');
 
-// Import the mock path-to-regexp helper if available
-let mockPathToRegexp;
-let pathToRegexpAvailable = false;
-
 // CI environment detection
 const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
 const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true';
 const verboseLogging = process.env.VERBOSE_LOGGING === 'true' || false;
-
-// Set environment variables for maximum compatibility
-process.env.PATH_TO_REGEXP_MOCK = 'true';
-
-try {
-  // Try to load our fixed mock implementation first
-  mockPathToRegexp = require('./mock_path_to_regexp_fixed');
-  pathToRegexpAvailable = true;
-  console.log('Successfully loaded fixed mock path-to-regexp implementation');
-} catch (error) {
-  // If the fixed implementation fails, try the original mock
-  try {
-    mockPathToRegexp = require('./mock_path_to_regexp');
-    pathToRegexpAvailable = true;
-    console.log('Successfully loaded original mock path-to-regexp implementation');
-  } catch (fallbackError) {
-    // Create a basic fallback mock if both fail
-    console.warn('Failed to load mock path-to-regexp implementations, using fallback');
-    mockPathToRegexp = function(path, keys) {
-      if (Array.isArray(keys) && typeof path === 'string') {
-        const params = path.match(/:[a-zA-Z0-9_]+/g) || [];
-        params.forEach(param => {
-          keys.push({
-            name: param.substring(1),
-            prefix: '/',
-            suffix: '',
-            modifier: '',
-            pattern: '[^/]+'
-          });
-        });
-      }
-      return /.*/;
-    };
-    mockPathToRegexp.parse = () => [];
-    mockPathToRegexp.compile = () => () => '';
-    mockPathToRegexp.match = () => () => ({ path: '', params: {}, index: 0, isExact: false });
-    mockPathToRegexp.encode = value => String(value);
-    mockPathToRegexp.decode = value => String(value);
-    mockPathToRegexp.regexp = /.*/;
-    pathToRegexpAvailable = true;
-  }
-}
-
-// Always ensure path-to-regexp is available in CI
-if (isCI || isGitHubActions) {
-  pathToRegexpAvailable = true;
-}
 
 // Create a more robust URL parsing function that doesn't rely on path-to-regexp
 function parseUrl(pattern, url) {
@@ -179,91 +128,8 @@ function generateUrl(pattern, params) {
   }
 }
 
-// Monkey patch Express Router to avoid using path-to-regexp
-if (express && express.Router) {
-  const originalRouter = express.Router;
-  express.Router = function() {
-    const router = originalRouter.apply(this, arguments);
-
-    // Override route method to use simple string matching instead of path-to-regexp
-    const originalRoute = router.route;
-    router.route = function(path) {
-      console.log(`Creating route for path: ${path}`);
-
-      // Create a simple route handler that uses string comparison
-      const routeHandler = {
-        _path: path,
-        _handlers: {
-          get: [],
-          post: [],
-          put: [],
-          delete: [],
-          patch: [],
-          options: [],
-          head: []
-        },
-
-        // Add method handlers
-        get: function(handler) {
-          this._handlers.get.push(handler);
-          return this;
-        },
-        post: function(handler) {
-          this._handlers.post.push(handler);
-          return this;
-        },
-        put: function(handler) {
-          this._handlers.put.push(handler);
-          return this;
-        },
-        delete: function(handler) {
-          this._handlers.delete.push(handler);
-          return this;
-        },
-        patch: function(handler) {
-          this._handlers.patch.push(handler);
-          return this;
-        },
-        options: function(handler) {
-          this._handlers.options.push(handler);
-          return this;
-        },
-        head: function(handler) {
-          this._handlers.head.push(handler);
-          return this;
-        },
-        all: function(handler) {
-          Object.keys(this._handlers).forEach(method => {
-            this._handlers[method].push(handler);
-          });
-          return this;
-        }
-      };
-
-      // Add the route handler to the router's middleware stack
-      router.use(function(req, res, next) {
-        // Simple path matching logic
-        if (req.path === routeHandler._path) {
-          const method = req.method.toLowerCase();
-          const handlers = routeHandler._handlers[method];
-
-          if (handlers && handlers.length > 0) {
-            // Execute the first matching handler
-            handlers[0](req, res, next);
-            return;
-          }
-        }
-        next();
-      });
-
-      return routeHandler;
-    };
-
-    return router;
-  };
-
-  console.log('Successfully patched Express Router to avoid path-to-regexp');
-}
+// Simple Express app without complex routing - avoid path-to-regexp issues
+console.log('Using simple Express routing to avoid path-to-regexp dependency issues');
 
 // Create Express app
 const app = express();
