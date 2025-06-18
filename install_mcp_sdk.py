@@ -11,7 +11,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 # Set up logging
 logging.basicConfig(
@@ -20,9 +20,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def run_command(command, description="", check=True, capture_output=False):
+def run_command(command: str, description: str = "", check: bool = True, capture_output: bool = False) -> Union[str, bool, None]:
     """Run a command with error handling."""
-    logger.info(f"Running: {description or command}")
+    logger.info("Running: %s", description or command)
     try:
         if capture_output:
             result = subprocess.run(
@@ -37,13 +37,13 @@ def run_command(command, description="", check=True, capture_output=False):
         subprocess.run(command, shell=True, check=check, timeout=300)
         return True
     except subprocess.TimeoutExpired:
-        logger.error(f"Command timed out: {command}")
+        logger.exception("Command timed out: %s", command)
         return False
     except subprocess.CalledProcessError as e:
-        logger.warning(f"Command failed: {command}")
-        logger.warning(f"Return code: {e.returncode}")
+        logger.warning("Command failed: %s", command)
+        logger.warning("Return code: %s", e.returncode)
         if e.stderr:
-            logger.warning(f"Error output: {e.stderr}")
+            logger.warning("Error output: %s", e.stderr)
         if check:
             raise
         return False
