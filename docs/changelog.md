@@ -11,7 +11,13 @@ Track all major changes, releases, and fixes here.
   - Reduced regenerator helper size optimizations
   - Split regeneratorRuntime into multiple helpers for better performance
   - Various bug fixes for async generator functions and TypeScript compatibility
-
+- Updated cssnano from 6.1.2 to 7.0.7
+  - Updated browserslist for better browser support
+  - Fixed PostCSS peer dependency to version without vulnerabilities
+  - Updated TypeScript declarations for better type safety
+  - Performance improvements for default preset loading
+  - Added support for selector order preservation in postcss-minify-selectors
+  - Fixed percentage value preservation in at-rules with double quotes
 ## [Unreleased] - 2024-06-10
 
 - Tool registry now supports rich metadata for each tool, including `keywords` for intent matching and `input_preprocessor` for input adaptation, enabling agentic reasoning and autonomous tool selection.
