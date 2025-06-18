@@ -37,7 +37,7 @@ pnpm lint
 The project uses the recommended ESLint rules with some customizations:
 
 - Base configuration extends `eslint:recommended`
-- Test files have Jest environment enabled
+- Test files have Vitest environment enabled
 - Common build directories (`node_modules/`, `dist/`, `build/`) are ignored via `ignorePatterns`
 
 ## Integration with CI/CD

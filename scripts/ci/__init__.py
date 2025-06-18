@@ -1,5 +1,5 @@
 """
-CI Environment Detection Module
+CI Environment Detection Module.
 
 This module provides functions to detect and handle different environments:
 - Operating Systems: Windows, macOS, Linux, WSL

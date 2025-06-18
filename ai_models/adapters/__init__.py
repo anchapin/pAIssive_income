@@ -4,8 +4,7 @@
 from __future__ import annotations
 
 import importlib.util
-import sys
-from typing import Any, Type
+from typing import Any
 
 # Third-party imports
 # Local imports

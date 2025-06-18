@@ -56,8 +56,8 @@ const useFormValidation = (initialValues = {}, validationSchema = {}) => {
     // Validate each field
     Object.keys(validationSchema).forEach(fieldName => {
       const error = validateField(fieldName, values[fieldName]);
+      newErrors[fieldName] = error; // Set to null for valid fields, error message for invalid
       if (error) {
-        newErrors[fieldName] = error;
         hasErrors = true;
       }
     });

@@ -144,6 +144,7 @@ def write_sarif_file(path: Path, content: str) -> None:
     # If the file has a .json extension, use json.dump for proper formatting
     if path.suffix == ".json":
         import json
+
         try:
             # Parse the content as JSON
             json_content = json.loads(content)

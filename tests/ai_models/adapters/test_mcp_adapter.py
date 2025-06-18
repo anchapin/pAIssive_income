@@ -43,7 +43,7 @@ class TestMCPAdapter:
         with pytest.raises(
             ValueError, match="Port must be an integer between 1 and 65535"
         ):
-            MCPAdapter(host="localhost", port="9000")
+            MCPAdapter(host="localhost", port="9000")  # type: ignore[arg-type]
 
     def test_init_with_invalid_port_range(self, mock_mcp):  # noqa: ARG002
         """Test initialization with invalid port range."""

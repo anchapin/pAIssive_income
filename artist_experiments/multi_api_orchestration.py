@@ -50,7 +50,7 @@ class APITool:
 
         """
         # This is a mock implementation
-        logger.info(f"Searching for products with query: {query}, limit: {limit}")
+        logger.info("Searching for products with query: %s, limit: %s", query, limit)
 
         # Simulate API call
         mock_results = [
@@ -75,7 +75,7 @@ class APITool:
 
         """
         # This is a mock implementation
-        logger.info(f"Getting market trends for category: {category}")
+        logger.info("Getting market trends for category: %s", category)
 
         # Simulate API call
         mock_trends = {
@@ -104,7 +104,7 @@ class APITool:
 
         """
         # This is a mock implementation
-        logger.info(f"Analyzing competitors for company: {company_name}")
+        logger.info("Analyzing competitors for company: %s", company_name)
 
         # Simulate API call
         mock_analysis = {

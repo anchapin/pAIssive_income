@@ -53,6 +53,7 @@
 *.sarif
 !security-reports/*.sarif
 *.sarif.json
+*.tmp
 # Explicit ignore for security/test artifacts
 bandit-output.json
 bandit-results.json
@@ -70,6 +71,7 @@ security-reports/bandit-results-*.sarif
 coverage-*.xml
 junit/test-results-*.xml
 *-results-*.json
+*-results.json
 *-results-*.xml
 secrets.sarif.json
 create_bandit_files.sh
@@ -255,3 +257,32 @@ mypy_stubs/psycopg2/
 .nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json
+
+# ARTIST experiment outputs – exclude from version control
+artist_experiments/data/
+artist_experiments/models/
+artist_experiments/logs/
+
+# Environment reports that may contain sensitive information
+**/environment-report.json
+**/ci-reports/**/environment-report.json
+
+# New entries added by Cline
+paissive_income.egg-info/
+test-artifacts/
+test-results/
+requirements_logs/
+bandit_results.txt
+mypy_errors_summary.txt
+mypy_typing_report.txt
+ruff_typing_report.json
+ruff-baseline.txt
+pnpm-lock.yaml
+
+# MCP servers for VS Code extensions
+browser-tools-mcp/
+fetch-mcp/
+
+# Test artifacts
+test-report.txt
+test.txt

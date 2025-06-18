@@ -8,3 +8,6 @@ import logging
 # Local imports
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+# Initialize logger
+logger = logging.getLogger(__name__)

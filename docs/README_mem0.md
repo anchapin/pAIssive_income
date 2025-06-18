@@ -23,7 +23,8 @@ The mem0 integration has been successfully implemented with the following compon
 
 1. **Memory-Enhanced CrewAI Agents**: `MemoryEnhancedCrewAIAgentTeam` class in `agent_team/mem0_enhanced_agents.py`
 2. **Memory-Enhanced ADK Agents**: `MemoryEnhancedAgent`, `MemoryEnhancedDataGathererAgent`, and `MemoryEnhancedSummarizerAgent` classes in `adk_demo/mem0_enhanced_adk_agents.py`
-3. **Integration Tests**: Test script in `test_mem0_integration.py` to verify the integration
+3. **MemoryRAGCoordinator**: Unified middleware in `services/memory_rag_coordinator.py` that coordinates queries between mem0 and ChromaDB systems
+4. **Integration Tests**: Test script in `test_mem0_integration.py` to verify the integration
 
 ## Key Features
 
@@ -31,6 +32,9 @@ The mem0 integration has been successfully implemented with the following compon
 2. **Memory Search**: Retrieve relevant memories based on context and queries
 3. **Conversation Storage**: Store entire conversations for future reference
 4. **Memory-Enhanced Agents**: Both ADK and CrewAI agents are enhanced with memory capabilities
+5. **Unified Memory & RAG**: MemoryRAGCoordinator provides a single interface for both mem0 memory and ChromaDB vector search
+6. **Score Normalization**: Consistent relevance scoring across different memory systems for optimal result ranking
+7. **Performance Optimized**: Efficient initialization and query processing for production use
 
 ## Getting Started
 
@@ -80,6 +84,16 @@ To use mem0 in your project:
 
    agent = MemoryEnhancedDataGathererAgent(name="DataGatherer", user_id="user123")
    response = agent.handle_message(message)
+
+   # For direct MemoryRAGCoordinator usage
+   from services.memory_rag_coordinator import MemoryRAGCoordinator
+
+   coordinator = MemoryRAGCoordinator()
+   response = coordinator.query(
+       query="What is the project deadline?",
+       user_id="user123"
+   )
+   merged_results = response["merged_results"]
    ```
 
 ## Security and Compliance

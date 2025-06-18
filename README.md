@@ -17,10 +17,59 @@
 
 ---
 
+## 📋 Prerequisites
+
+Before getting started, ensure you have the following installed on your system:
+
+### Required Dependencies
+
+- **Python 3.8+** - Core runtime for the application
+- **Git** - Version control (for cloning the repository)
+- **Virtual Environment Tools** - For Python dependency isolation:
+  - [`uv`](https://github.com/astral-sh/uv) (recommended) - Fast Python package installer and resolver
+  - Or `venv` (built into Python 3.3+)
+- **Node.js 16.10+** - For UI components and frontend development
+- **pnpm** - Node.js package manager (preferred over npm/yarn)
+
+### Installation Quick Reference
+
+```bash
+# Install uv (Python package manager)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install pnpm (Node.js package manager)
+npm install -g pnpm
+
+# Verify installations
+python --version    # Should be 3.8+
+uv --version
+node --version      # Should be 16.10+
+pnpm --version
+git --version
+```
+
+### Optional Dependencies
+
+- **Docker & Docker Compose** - For containerized development
+- **VS Code** - Recommended IDE with project-specific configurations
+
+---
+
 ## 🚀 Quick Start
 
-- **Getting Started:**
-  See [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md) for installation and setup instructions.
+The easiest way to get your development environment set up is by using our new setup scripts:
+
+-   **For Linux/macOS:**
+    ```bash
+    bash setup.sh
+    ```
+-   **For Windows:**
+    ```bat
+    setup.bat
+    ```
+These scripts will guide you through the installation of dependencies, environment configuration, and other necessary setup tasks.
+
+For manual setup steps or more details, please refer to [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md).
 
 ---
 
@@ -62,7 +111,7 @@ See [LICENSE](LICENSE).
 
 ## JavaScript Testing and Coverage
 
-This project enforces at least **80% code coverage** for JavaScript files using [nyc (Istanbul)](https://github.com/istanbuljs/nyc) and [Mocha](https://mochajs.org/).
+This project enforces at least **80% code coverage** for JavaScript files using [Vitest](https://vitest.dev/) with V8 coverage provider.
 
 ### How to Run JavaScript Tests
 
@@ -97,13 +146,7 @@ You can find example JS source and tests in the `src/` directory.
 
 For more complex JavaScript code, such as React components, you can write tests to verify rendering, user interaction, and state updates.
 
-**Example: Testing a React Component with Mocha and Enzyme**
-
-First, install additional test utilities:
-
-```sh
-pnpm add --save-dev enzyme enzyme-adapter-react-16 @wojtekmaj/enzyme-adapter-react-17
-```
+**Example: Testing a React Component with Vitest and React Testing Library**
 
 Example component (`src/Hello.js`):
 
@@ -118,24 +161,19 @@ export function Hello({ name }) {
 Example test (`src/Hello.test.js`):
 
 ```js
-const React = require('react');
-const { shallow, configure } = require('enzyme');
-const Adapter = require('@wojtekmaj/enzyme-adapter-react-17');
-const { Hello } = require('./Hello');
-
-configure({ adapter: new Adapter() });
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { Hello } from './Hello';
 
 describe('Hello component', () => {
   it('renders the correct greeting', () => {
-    const wrapper = shallow(<Hello name="World" />);
-    if (!wrapper.text().includes('Hello, World!')) {
-      throw new Error('Greeting not rendered correctly');
-    }
+    render(<Hello name="World" />);
+    expect(screen.getByText('Hello, World!')).toBeInTheDocument();
   });
 });
 ```
 
-> **Tip:** For React projects, [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) is very popular and may offer a smoother setup for component and hook testing.
+> **Tip:** This project uses [Vitest](https://vitest.dev/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) for modern, fast testing with excellent React support and built-in mocking capabilities.
 
 **Best Practices:**
 - Test both rendering and user events/interactions.
@@ -267,6 +305,7 @@ For more details on the mem0 integration, see:
 - [README_mem0_integration.md](README_mem0_integration.md) - Main integration guide
 - [docs/README_mem0.md](docs/README_mem0.md) - Overview of mem0 investigation
 - [docs/mem0_core_apis.md](docs/mem0_core_apis.md) - Documentation of mem0's core APIs
+- [docs/memory_rag_coordinator.md](docs/memory_rag_coordinator.md) - MemoryRAGCoordinator documentation
 
 - [docs/05_sdk_and_integrations/mem0_integration.md](docs/05_sdk_and_integrations/mem0_integration.md) – Main integration guide (now includes best practices for mem0 + RAG)
 - [docs/mem0_rag_best_practices.md](docs/mem0_rag_best_practices.md) – Detailed guide on when and how to use mem0 and RAG, with examples
@@ -348,3 +387,6 @@ See [LICENSE](LICENSE) for license details.
 - Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
 - Enhanced GitHub workflow configurations for better cross-platform compatibility
 - Improved uv virtual environment handling and dependency management
+
+### JavaScript Dependencies
+- Updated react-router-dom from 7.6.0 to 7.6.2 (June 2025) - includes bug fixes and performance improvements

@@ -11,6 +11,7 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 # Configure logging
 logging.basicConfig(
@@ -18,7 +19,19 @@ logging.basicConfig(
 )
 
 
-def run_command(command: str | list, check: bool = True) -> str | None:
+# type: ignore[import, assignment]
+def _safe_subprocess_run(
+    cmd: list[str],
+    **kwargs: Any,  # noqa: ANN401
+) -> subprocess.CompletedProcess[str]:
+    cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
+    if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
+        kwargs["cwd"] = str(kwargs["cwd"])
+    filtered_kwargs = {k: v for k, v in kwargs.items() if v is not None}
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]
+
+
+def run_command(command: str | list[str], check: bool = True) -> str | None:
     """
     Run a command and return its output.
 
@@ -40,9 +53,7 @@ def run_command(command: str | list, check: bool = True) -> str | None:
 
         # Run the command with shell=False for security
         # Using a list for command and shell=False is secure
-        result = subprocess.run(
-            command, check=check, shell=False, capture_output=True, text=True
-        )
+        result = _safe_subprocess_run(command, capture_output=True, text=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         logger.exception("Command failed with exit code %d", e.returncode)

@@ -1,58 +1,62 @@
 #!/usr/bin/env python3
-"""
-Script to validate YAML syntax of GitHub workflow files
-"""
+"""Script to validate YAML syntax of GitHub workflow files."""
 
-import os
+import logging
 import sys
+from pathlib import Path
 
 import yaml
 
+logger = logging.getLogger(__name__)
 
-def check_workflow_files():
-    """Check all workflow files for YAML syntax errors"""
+
+def check_workflow_files() -> bool:
+    """Check all workflow files for YAML syntax errors."""
     workflow_dir = ".github/workflows"
     errors = []
     successes = []
 
-    if not os.path.exists(workflow_dir):
-        print(f"ERROR: Workflow directory {workflow_dir} not found")
+    if not Path(workflow_dir).exists():
+        logger.error("Workflow directory %s not found", workflow_dir)
         return False
 
     # Get all YAML files in the workflows directory
-    workflow_files = [f for f in os.listdir(workflow_dir) if f.endswith((".yml", ".yaml"))]
+    workflow_files = [
+        f.name for f in Path(workflow_dir).iterdir() if f.suffix in {".yml", ".yaml"}
+    ]
 
     if not workflow_files:
-        print("ERROR: No workflow files found")
+        logger.error("No workflow files found")
         return False
 
-    print(f"Checking {len(workflow_files)} workflow files...\n")
+    logger.info("Checking %d workflow files...", len(workflow_files))
 
     for filename in sorted(workflow_files):
-        filepath = os.path.join(workflow_dir, filename)
+        filepath = Path(workflow_dir) / filename
         try:
-            with open(filepath, encoding="utf-8") as f:
+            with filepath.open(encoding="utf-8") as f:
                 yaml.safe_load(f)
-            print(f"PASS: {filename}")
+            logger.info("PASS: %s", filename)
             successes.append(filename)
         except yaml.YAMLError as e:
-            print(f"FAIL: {filename}: {e}")
+            logger.exception("FAIL: %s", filename)
             errors.append((filename, str(e)))
-        except Exception as e:
-            print(f"FAIL: {filename}: {e}")
+        except OSError as e:
+            logger.exception("FAIL: %s", filename)
             errors.append((filename, str(e)))
 
-    print("\nSummary:")
-    print(f"   PASSED: {len(successes)} files")
-    print(f"   FAILED: {len(errors)} files")
+    logger.info("Summary:")
+    logger.info("   PASSED: %d files", len(successes))
+    logger.info("   FAILED: %d files", len(errors))
 
     if errors:
-        print("\nError Details:")
+        logger.info("Error Details:")
         for filename, error in errors:
-            print(f"   {filename}: {error}")
+            logger.error("   %s: %s", filename, error)
         return False
 
     return True
+
 
 if __name__ == "__main__":
     success = check_workflow_files()

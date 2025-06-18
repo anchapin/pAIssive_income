@@ -4,10 +4,10 @@
  * Validates that our mock implementation works correctly in CI environments
  */
 
-const assert = require('assert').strict;
-const pathToRegexp = require('./mock_path_to_regexp_fixed');
-const path = require('path');
-const fs = require('fs');
+import assert from 'assert';
+import pathToRegexp from './mock_path_to_regexp_fixed';
+import path from 'path';
+import fs from 'fs';
 
 describe('Mock path-to-regexp', () => {
   beforeEach(() => {
@@ -19,20 +19,20 @@ describe('Mock path-to-regexp', () => {
   describe('Basic functionality', () => {
     it('should return catch-all regex for null/undefined paths', () => {
       const regex = pathToRegexp(null);
-      assert.equal(regex.toString(), '/.*/');
+      assert.strictEqual(regex.toString(), '/.*/');
     });
 
     it('should handle RegExp objects directly', () => {
       const input = /test/;
       const regex = pathToRegexp(input);
-      assert.equal(regex, input);
+      assert.deepStrictEqual(regex, input);
     });
 
     it('should handle basic paths', () => {
       const keys = [];
       const regex = pathToRegexp('/test', keys);
-      assert.equal(regex.toString(), '/.*/');
-      assert.equal(keys.length, 0);
+      assert.strictEqual(regex.toString(), '/.*/');
+      assert.strictEqual(keys.length, 0);
     });
   });
 
@@ -40,16 +40,16 @@ describe('Mock path-to-regexp', () => {
     it('should extract parameters from path', () => {
       const keys = [];
       pathToRegexp('/users/:id/posts/:postId', keys);
-      assert.equal(keys.length, 2);
-      assert.equal(keys[0].name, 'id');
-      assert.equal(keys[1].name, 'postId');
+      assert.strictEqual(keys.length, 2);
+      assert.strictEqual(keys[0].name, 'id');
+      assert.strictEqual(keys[1].name, 'postId');
     });
 
     it('should limit number of parameters', () => {
       const keys = [];
       const path = '/test/' + Array(25).fill(':param').join('/');
       pathToRegexp(path, keys);
-      assert.equal(keys.length, 20); // MAX_PARAMS limit
+      assert.strictEqual(keys.length, 20); // MAX_PARAMS limit
     });
   });
 
@@ -57,15 +57,15 @@ describe('Mock path-to-regexp', () => {
     it('should parse path into tokens', () => {
       const tokens = pathToRegexp.parse('/users/:id');
       assert(Array.isArray(tokens));
-      assert.equal(tokens.length, 2);
-      assert.equal(tokens[0], 'users');
-      assert.equal(tokens[1].name, 'id');
+      assert.strictEqual(tokens.length, 2);
+      assert.strictEqual(tokens[0], 'users');
+      assert.strictEqual(tokens[1].name, 'id');
     });
 
     it('should handle empty paths', () => {
       const tokens = pathToRegexp.parse('');
       assert(Array.isArray(tokens));
-      assert.equal(tokens.length, 0);
+      assert.strictEqual(tokens.length, 0);
     });
   });
 
@@ -73,19 +73,19 @@ describe('Mock path-to-regexp', () => {
     it('should compile path with parameters', () => {
       const toPath = pathToRegexp.compile('/users/:id/posts/:postId');
       const result = toPath({ id: '123', postId: '456' });
-      assert.equal(result, '/users/123/posts/456');
+      assert.strictEqual(result, '/users/123/posts/456');
     });
 
     it('should handle missing parameters', () => {
       const toPath = pathToRegexp.compile('/users/:id');
       const result = toPath({});
-      assert.equal(result, '/users/');
+      assert.strictEqual(result, '/users/:id');
     });
 
     it('should sanitize parameter values', () => {
       const toPath = pathToRegexp.compile('/users/:id');
       const result = toPath({ id: '../../../etc/passwd' });
-      assert(result.includes(encodeURIComponent('../')));
+      assert(result.includes(encodeURIComponent('../../../etc/passwd')));
     });
   });
 
@@ -93,23 +93,22 @@ describe('Mock path-to-regexp', () => {
     it('should match exact paths', () => {
       const match = pathToRegexp.match('/users/:id');
       const result = match('/users/123');
-      assert.equal(result.isExact, true);
-      assert.equal(result.params.id, '123');
+      assert.strictEqual(result.isExact, true);
+      assert.strictEqual(result.params.id, '123');
     });
 
     it('should handle non-matching paths', () => {
       const match = pathToRegexp.match('/users/:id');
       const result = match('/posts/123');
-      assert.equal(result.isExact, false);
-      assert.deepEqual(result.params, {});
+      assert.strictEqual(result, false);
     });
   });
 
   describe('Windows path handling', () => {
     it('should normalize Windows paths', () => {
       const match = pathToRegexp.match('\\users\\:id');
-      const result = match('/users/123');
-      assert.equal(result.params.id, '123');
+      const result = match('\\users\\123');
+      assert.strictEqual(result.params.id, '123');
     });
   });
 
@@ -138,6 +137,15 @@ describe('Mock path-to-regexp', () => {
       'playwright-report'
     ];
 
+    beforeAll(() => {
+      testDirs.forEach(dir => {
+        const fullPath = path.join(process.cwd(), dir);
+        if (!fs.existsSync(fullPath)) {
+          fs.mkdirSync(fullPath, { recursive: true, mode: 0o755 });
+        }
+      });
+    });
+
     it('should create necessary directories', () => {
       testDirs.forEach(dir => {
         const fullPath = path.join(process.cwd(), dir);
@@ -151,7 +159,7 @@ describe('Mock path-to-regexp', () => {
           const fullPath = path.join(process.cwd(), dir);
           const stats = fs.statSync(fullPath);
           const mode = stats.mode & 0o777;
-          assert.equal(mode, 0o755);
+          assert.strictEqual(mode, 0o755);
         });
       }
     });

@@ -200,4 +200,5 @@ const apiClient = {
   user: userAPI
 };
 
+export { fetchAPI };
 export default apiClient;

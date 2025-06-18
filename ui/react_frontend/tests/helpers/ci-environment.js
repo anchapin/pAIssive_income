@@ -114,7 +114,7 @@ function detectCIEnvironmentType(options = {}) {
     }
 
     // Check for Azure Pipelines
-    if (env.isAzurePipelines) {
+    if (env.isAzure) {
       if (verbose) console.log('Azure Pipelines detected');
       return 'azure';
     }
@@ -1076,18 +1076,18 @@ function createCIReport(filePath, options = {}) {
     // Include detailed system info if requested
     if (includeSystemInfo) {
       reportObj.detailedSystemInfo = {
-        hostname: env.hostname,
-        username: env.username,
+        hostname: env.hostname || 'unknown',
+        username: env.username || 'unknown',
         memory: {
-          total: env.memory.total,
-          free: env.memory.free,
-          totalFormatted: formatBytes(env.memory.total),
-          freeFormatted: formatBytes(env.memory.free)
+          total: env.memory?.total || 0,
+          free: env.memory?.free || 0,
+          totalFormatted: formatBytes(env.memory?.total || 0),
+          freeFormatted: formatBytes(env.memory?.free || 0)
         },
-        cpus: env.cpus.length,
-        cpuInfo: env.cpus.map(cpu => ({
-          model: cpu.model,
-          speed: cpu.speed
+        cpus: env.cpus?.length || 0,
+        cpuInfo: (env.cpus || []).map(cpu => ({
+          model: cpu.model || 'unknown',
+          speed: cpu.speed || 0
         }))
       };
     }
@@ -1453,9 +1453,9 @@ Detailed System Information
 -------------------------
 Hostname: ${env.hostname || 'unknown'}
 Username: ${env.username || 'unknown'}
-Memory Total: ${env.memory ? formatBytes(env.memory.total) : 'N/A'}
-Memory Free: ${env.memory ? formatBytes(env.memory.free) : 'N/A'}
-CPUs: ${env.cpus ? env.cpus.length : 'N/A'}
+Memory Total: ${env.memory?.total ? formatBytes(env.memory.total) : 'N/A'}
+Memory Free: ${env.memory?.free ? formatBytes(env.memory.free) : 'N/A'}
+CPUs: ${env.cpus?.length || 'N/A'}
 `;
   }
 
@@ -1520,12 +1520,68 @@ function formatEnvironmentVariables() {
   return result;
 }
 
+/**
+ * Get CI environment information
+ * @returns {Object} CI environment information
+ */
+function getCIEnvironmentInfo() {
+  const env = detectEnvironment();
+  const ciType = detectCIEnvironmentType();
+
+  const info = {
+    ciType: ciType,  // Fixed: Use ciType instead of ci
+    isCI: env.isCI,
+    isGitHubActions: env.isGitHubActions,
+    isJenkins: env.isJenkins,
+    isGitLabCI: env.isGitLabCI,
+    isCircleCI: env.isCircleCI,
+    isTravis: env.isTravis,
+    isAzurePipelines: env.isAzurePipelines,
+    isTeamCity: env.isTeamCity,
+    isBitbucket: env.isBitbucket,
+    isAppVeyor: env.isAppVeyor,
+    platform: env.platform,
+    nodeVersion: env.nodeVersion,
+    architecture: env.architecture,
+    osType: env.osType,
+    osRelease: env.osRelease,
+    workingDir: env.workingDir,
+    hostname: env.hostname,
+    username: env.username,
+    memory: env.memory
+  };
+
+  // Add CI-specific information based on detected type
+  switch (ciType) {
+    case 'github':
+      info.github = {
+        workflow: process.env.GITHUB_WORKFLOW || 'unknown',
+        repository: process.env.GITHUB_REPOSITORY || 'unknown',
+        runId: process.env.GITHUB_RUN_ID || 'unknown'
+      };
+      break;
+    case 'jenkins':
+      info.jenkins = {
+        jobName: process.env.JOB_NAME || 'unknown',
+        buildNumber: process.env.BUILD_NUMBER || 'unknown',
+        url: process.env.JENKINS_URL || 'unknown'
+      };
+      break;
+    default:
+      // Generic CI info already included above
+      break;
+  }
+
+  return info;
+}
+
 module.exports = {
   detectCIEnvironmentType,
   createCIDirectories,
   createCIMarkerFiles,
   setupCIEnvironment,
   createCIReport,
+  getCIEnvironmentInfo,
   formatBytes,
   formatEnvironmentVariables
 };

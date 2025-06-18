@@ -10,24 +10,30 @@ import path from 'path';
 import os from 'os';
 
 // Mock the fs module
-jest.mock('fs', () => ({
-  existsSync: jest.fn(),
-  readFileSync: jest.fn(),
-  writeFileSync: jest.fn(),
-  mkdirSync: jest.fn()
-}));
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    existsSync: vi.fn(),
+    readFileSync: vi.fn(),
+    writeFileSync: vi.fn(),
+    mkdirSync: vi.fn()
+  }
+});
 
 // Mock the os module
-jest.mock('os', () => ({
-  platform: jest.fn(),
-  release: jest.fn(),
-  tmpdir: jest.fn(),
-  homedir: jest.fn(),
-  hostname: jest.fn(),
-  userInfo: jest.fn(),
-  totalmem: jest.fn(),
-  freemem: jest.fn(),
-  cpus: jest.fn()
+vi.mock('os', () => ({
+  default: {
+    platform: vi.fn(),
+    release: vi.fn(),
+    tmpdir: vi.fn(),
+    homedir: vi.fn(),
+    hostname: vi.fn(),
+    userInfo: vi.fn(),
+    totalmem: vi.fn(),
+    freemem: vi.fn(),
+    cpus: vi.fn()
+  }
 }));
 
 // Import the modules to test
@@ -46,16 +52,16 @@ describe('CI Environment Setup Module', () => {
   // Setup before each test
   beforeEach(() => {
     // Reset all mocks
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     // Reset environment variables
     process.env = { ...originalEnv };
 
-    // Default mock implementations
-    fs.existsSync.mockImplementation(() => false);
-    fs.readFileSync.mockImplementation(() => '');
-    fs.mkdirSync.mockImplementation(() => undefined);
-    fs.writeFileSync.mockImplementation(() => undefined);
+    // Default mock implementations using vi.fn()
+    fs.existsSync = vi.fn(() => false);
+    fs.readFileSync = vi.fn(() => '');
+    fs.mkdirSync = vi.fn(() => undefined);
+    fs.writeFileSync = vi.fn(() => undefined);
 
     // Mock os functions
     os.platform.mockImplementation(() => 'linux');

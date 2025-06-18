@@ -330,11 +330,11 @@ Temp Directory: ${env.tmpDir}
 
   createDockerReport: (filePath) => {
     const env = detectEnvironment();
-    const browserInfo = getBrowserInfo();
-    const networkInfo = getNetworkInfo();
-    const screenInfo = getScreenInfo();
-    const featureSupport = getFeatureSupport();
-    const performanceInfo = getPerformanceInfo();
+    const browserInfo = getBrowserInfo() || { name: 'node', version: 'N/A', userAgent: 'N/A', isMobile: false, isTablet: false, isDesktop: true };
+    const networkInfo = getNetworkInfo() || { online: false, effectiveType: 'unknown', downlink: 0, rtt: 0, saveData: false };
+    const screenInfo = getScreenInfo() || { width: 0, height: 0, availWidth: 0, availHeight: 0, colorDepth: 0, orientation: 'unknown', pixelRatio: 1 };
+    const featureSupport = getFeatureSupport() || { localStorage: false, sessionStorage: false, cookies: false, webWorkers: false, serviceWorkers: false, webGL: false, canvas: false, webAssembly: false, geolocation: false, webRTC: false };
+    const performanceInfo = getPerformanceInfo() || { memory: null, navigation: null, timing: null };
 
     const report = `Docker Environment Report
 ========================

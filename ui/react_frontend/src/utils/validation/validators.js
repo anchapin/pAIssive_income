@@ -21,22 +21,25 @@ export const validateString = (value, {
   required = false,
   trim = true
 } = {}) => {
-  // Check if value is required and missing
-  if (required && (value === undefined || value === null || value === '')) {
+  // Check if value is a string first
+  if (value !== undefined && value !== null && typeof value !== 'string') {
+    return { valid: false, error: 'Value must be a string' };
+  }
+
+  // Process the value (trim if needed)
+  const processedValue = (value !== undefined && value !== null && typeof value === 'string')
+    ? (trim ? value.trim() : value)
+    : value;
+
+  // Check if value is required and missing (after processing)
+  if (required && (processedValue === undefined || processedValue === null || processedValue === '')) {
     return { valid: false, error: 'This field is required' };
   }
 
   // If not required and empty, it's valid
-  if (!required && (value === undefined || value === null || value === '')) {
+  if (!required && (processedValue === undefined || processedValue === null || processedValue === '')) {
     return { valid: true, error: null };
   }
-
-  // Check if value is a string
-  if (typeof value !== 'string') {
-    return { valid: false, error: 'Value must be a string' };
-  }
-
-  const processedValue = trim ? value.trim() : value;
 
   // Check minimum length
   if (minLength !== undefined && processedValue.length < minLength) {
