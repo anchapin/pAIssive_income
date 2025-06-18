@@ -281,7 +281,7 @@ function runRegularProcess(resolve, reject) {
     fs.writeFileSync(
       path.join(markerDir, 'path-to-regexp-mocked-ci.txt'),
       `Path-to-regexp dependency mocked at ${new Date().toISOString()}\n` +
-      `This file indicates that we're using a mock implementation of the path-to-regexp dependency in CI.\n` +
+      'This file indicates that we\'re using a mock implementation of the path-to-regexp dependency in CI.\n' +
       `Node.js: ${process.version}\n` +
       `Platform: ${process.platform}\n` +
       `Working directory: ${process.cwd()}\n` +
@@ -414,7 +414,7 @@ function createCICompatibilityArtifacts() {
             const ciCompatFile = path.join(config.reportDir, 'ci-compat-success.txt');
             fs.writeFileSync(ciCompatFile,
               `CI compatibility mode activated at ${new Date().toISOString()}\n` +
-              `This file indicates that the CI test run was successful.\n` +
+              'This file indicates that the CI test run was successful.\n' +
               `Node.js: ${process.version}\n` +
               `Platform: ${process.platform} ${process.arch}\n` +
               `OS: ${os.type()} ${os.release()}\n` +

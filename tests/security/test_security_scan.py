@@ -147,7 +147,7 @@ def test_safety_scan() -> None:
     logger.info("Running safety check...")
     stdout, stderr, return_code = run_command("safety check --json")
 
-    if return_code != 0 and "command not found" in stderr:
+    if return_code != 0 and stderr and "command not found" in stderr:
         logger.info("Safety not installed. Installing...")
         run_command("uv pip install safety")  # Using uv
         stdout, stderr, return_code = run_command("safety check --json")
@@ -181,7 +181,8 @@ def test_safety_scan() -> None:
 
     if return_code != 0:
         logger.error("Error converting Safety results to SARIF: %s", stderr)
-        raise AssertionError(f"Failed to convert Safety results to SARIF: {stderr}")
+        msg = f"Failed to convert Safety results to SARIF: {stderr}"
+        raise AssertionError(msg)
 
     logger.info("Safety scan test completed")
     assert True
@@ -199,7 +200,7 @@ def test_bandit_scan() -> None:
     logger.info("Running bandit scan...")
     stdout, stderr, return_code = run_command("bandit -r . -f json")
 
-    if return_code != 0 and "command not found" in stderr:
+    if return_code != 0 and stderr and "command not found" in stderr:
         logger.info("Bandit not installed. Installing...")
         run_command("uv pip install bandit")  # Using uv
         stdout, stderr, return_code = run_command("bandit -r . -f json")
@@ -233,7 +234,8 @@ def test_bandit_scan() -> None:
 
     if return_code != 0:
         logger.error("Error converting Bandit results to SARIF: %s", stderr)
-        raise AssertionError(f"Failed to convert Bandit results to SARIF: {stderr}")
+        msg = f"Failed to convert Bandit results to SARIF: {stderr}"
+        raise AssertionError(msg)
 
     logger.info("Bandit scan test completed")
     assert True
@@ -258,7 +260,8 @@ def test_sarif_file_handling() -> None:
 
         if return_code != 0:
             logger.error("Error creating test SARIF file: %s", stderr)
-            raise AssertionError(f"Failed to create test SARIF file: {stderr}")
+            msg = f"Failed to create test SARIF file: {stderr}"
+            raise AssertionError(msg)
 
         sarif_files = list(Path("security-reports").glob("*.sarif"))
 
@@ -283,22 +286,25 @@ def test_sarif_file_handling() -> None:
 
             if return_code != 0:
                 logger.exception("Error creating fallback SARIF file")
-                raise AssertionError("Failed to create fallback SARIF file")
+                msg = "Failed to create fallback SARIF file"
+                raise AssertionError(msg)
 
         # Create compressed version
         compressed_file_name = f"{sarif_file.name}.gz"
         compressed_path_base = Path("security-reports/compressed")
         compressed_file = compressed_path_base / compressed_file_name
 
-        # Use a safer approach to create compressed file
-        cmd = f"gzip -c {sarif_file} > {compressed_file}"
-        stdout, stderr, return_code = run_command(cmd)
-
-        if return_code != 0:
-            logger.error("Error creating compressed version: %s", stderr)
-            raise AssertionError(f"Failed to create compressed version: {stderr}")
-
-        logger.info("Created compressed version: %s", compressed_file)
+        # Use Python's gzip module for better cross-platform compatibility
+        try:
+            import gzip
+            with open(sarif_file, "rb") as f_in:
+                with gzip.open(compressed_file, "wb") as f_out:
+                    f_out.write(f_in.read())
+            logger.info("Created compressed version: %s", compressed_file)
+        except Exception as e:
+            logger.error("Error creating compressed version: %s", e)
+            msg = f"Failed to create compressed version: {e}"
+            raise AssertionError(msg)
 
     logger.info("SARIF file handling test completed")
     assert True

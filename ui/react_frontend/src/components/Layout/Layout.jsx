@@ -165,7 +165,7 @@ export default function Layout({ children }) {
                 selected={location.pathname === item.path}
                 onClick={() => handleNavigation(item.path)}
                 aria-label={item.text}
-                aria-current={location.pathname === item.path ? "page" : undefined}
+                aria-current={location.pathname === item.path ? 'page' : undefined}
                 tabIndex={0}
               >
                 <ListItemIcon>

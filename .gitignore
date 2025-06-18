@@ -267,6 +267,13 @@ artist_experiments/logs/
 **/environment-report.json
 **/ci-reports/**/environment-report.json
 
+# New temporary/generated files
+=3.9.0
+bandit-report.json
+lint_baseline.json
+security-reports/current-bandit-results.json
+uv.lock
+
 # New entries added by Cline
 paissive_income.egg-info/
 test-artifacts/
@@ -283,6 +290,9 @@ pnpm-lock.yaml
 browser-tools-mcp/
 fetch-mcp/
 
-# Test artifacts
+# Test artifacts and reports (temporary files)
 test-report.txt
 test.txt
+
+# Compressed security reports (originals are already tracked)
+security-reports/compressed/

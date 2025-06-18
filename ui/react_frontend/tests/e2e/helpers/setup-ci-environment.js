@@ -55,7 +55,7 @@ function createMarkerFiles() {
       `Node.js version: ${process.version}\n` +
       `Platform: ${process.platform}\n` +
       `Working directory: ${process.cwd()}\n` +
-      `This file indicates that the CI environment was set up for running tests.`
+      'This file indicates that the CI environment was set up for running tests.'
     );
     
     // Create a marker file in the playwright-report directory
@@ -70,7 +70,7 @@ function createMarkerFiles() {
       `Node.js version: ${process.version}\n` +
       `Platform: ${process.platform}\n` +
       `Working directory: ${process.cwd()}\n` +
-      `This file indicates that the CI environment was set up for running tests.`
+      'This file indicates that the CI environment was set up for running tests.'
     );
     
     return true;

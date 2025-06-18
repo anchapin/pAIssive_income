@@ -60,6 +60,7 @@ const useFormValidation = (initialValues = {}, validationSchema = {}) => {
       if (error) {
         hasErrors = true;
       }
+      // Don't set null values in errors object
     });
 
     // Update errors state
@@ -91,10 +92,15 @@ const useFormValidation = (initialValues = {}, validationSchema = {}) => {
     // Validate the field if it's been touched
     if (touched[name]) {
       const error = validateField(name, fieldValue);
-      setErrors(prevErrors => ({
-        ...prevErrors,
-        [name]: error
-      }));
+      setErrors(prevErrors => {
+        const newErrors = { ...prevErrors };
+        if (error) {
+          newErrors[name] = error;
+        } else {
+          delete newErrors[name]; // Remove error if field is valid
+        }
+        return newErrors;
+      });
     }
   }, [touched, validateField]);
 
@@ -113,10 +119,15 @@ const useFormValidation = (initialValues = {}, validationSchema = {}) => {
 
     // Validate the field
     const error = validateField(name, value);
-    setErrors(prevErrors => ({
-      ...prevErrors,
-      [name]: error
-    }));
+    setErrors(prevErrors => {
+      const newErrors = { ...prevErrors };
+      if (error) {
+        newErrors[name] = error;
+      } else {
+        delete newErrors[name]; // Remove error if field is valid
+      }
+      return newErrors;
+    });
   }, [validateField]);
 
   /**
@@ -137,10 +148,15 @@ const useFormValidation = (initialValues = {}, validationSchema = {}) => {
     // Validate the field if it's been touched
     if (touched[field]) {
       const error = validateField(field, value);
-      setErrors(prevErrors => ({
-        ...prevErrors,
-        [field]: error
-      }));
+      setErrors(prevErrors => {
+        const newErrors = { ...prevErrors };
+        if (error) {
+          newErrors[field] = error;
+        } else {
+          delete newErrors[field]; // Remove error if field is valid
+        }
+        return newErrors;
+      });
     }
   }, [touched, validateField]);
 

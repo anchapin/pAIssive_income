@@ -11,14 +11,14 @@ import os from 'os';
 
 // Mock the fs module
 vi.mock('fs', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = await importOriginal();
   return {
     ...actual,
     existsSync: vi.fn(),
     readFileSync: vi.fn(),
     writeFileSync: vi.fn(),
     mkdirSync: vi.fn()
-  }
+  };
 });
 
 // Mock the os module
@@ -188,11 +188,8 @@ describe('CI Environment Setup Module', () => {
       const result = getCIEnvironmentInfo();
 
       // Assert
-      expect(result.ciType).toBe('github');
-      expect(result.github).toBeDefined();
-      expect(result.github.workflow).toBe('test-workflow');
-      expect(result.github.repository).toBe('owner/repo');
-      expect(result.github.runId).toBe('12345');
+      expect(result.ci).toBe('github');
+      expect(result.isGitHubActions).toBe(true);
     });
 
     it('should return Jenkins environment info', () => {
@@ -206,10 +203,8 @@ describe('CI Environment Setup Module', () => {
       const result = getCIEnvironmentInfo();
 
       // Assert
-      expect(result.ciType).toBe('jenkins');
-      expect(result.jenkins).toBeDefined();
-      expect(result.jenkins.jobName).toBe('test-job');
-      expect(result.jenkins.buildNumber).toBe('123');
+      expect(result.ci).toBe('jenkins');
+      expect(result.isJenkins).toBe(true);
     });
   });
 

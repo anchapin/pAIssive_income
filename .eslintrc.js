@@ -11,14 +11,22 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
   ignorePatterns: [
-    'node_modules/',
     'dist/',
+    'node_modules/',
     'build/',
+    '.venv/',
+    'venv/',
+    '*.min.js',
   ],
   rules: {
-    // Add any custom rules here
+    'quotes': ['error', 'single'],
+    'no-console': 'warn',
+    'no-unused-vars': 'warn',
   },
   overrides: [
     {
@@ -32,6 +40,17 @@ module.exports = {
         afterEach: 'readonly',
         beforeAll: 'readonly',
         afterAll: 'readonly',
+      },
+    },
+    {
+      files: ['ui/react_frontend/**/*.js'],
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      env: {
+        browser: true,
       },
     },
   ],
