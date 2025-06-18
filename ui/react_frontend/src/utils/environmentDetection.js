@@ -64,23 +64,19 @@ export function detectEnvironment() {
                  !!process.versions.electron;
 
     // WSL (Windows Subsystem for Linux) detection
-    if (typeof process !== 'undefined') {
+    if (isLinux) {
       try {
-        // Check for WSL-specific environment variables first (most reliable)
-        if (process.env.WSL_DISTRO_NAME) {
-          isWSL = true;
-        } else if (typeof require !== 'undefined') {
-          const fs = require('fs');
-          const os = require('os');
+        const fs = require('fs');
+        const os = require('os');
 
-          // Check for WSL-specific files or OS release information
-          isWSL = (fs.existsSync('/proc/version') &&
-                   fs.readFileSync('/proc/version', 'utf8').toLowerCase().includes('microsoft')) ||
-                  os.release().toLowerCase().includes('microsoft');
-        }
+        // Check for WSL-specific files or environment variables
+        isWSL = fs.existsSync('/proc/version') &&
+                fs.readFileSync('/proc/version', 'utf8').toLowerCase().includes('microsoft') ||
+                os.release().toLowerCase().includes('microsoft') ||
+                !!process.env.WSL_DISTRO_NAME;
       } catch (error) {
-        // fs module not available or error reading file, check env var only
-        isWSL = !!process.env.WSL_DISTRO_NAME;
+        // fs module not available or error reading file
+        isWSL = false;
       }
     }
   }
@@ -273,14 +269,12 @@ export function detectEnvironment() {
   // Node Environment Detection
   const isDevelopment = typeof process !== 'undefined' && process.env.NODE_ENV === 'development';
   const isProduction = typeof process !== 'undefined' && process.env.NODE_ENV === 'production';
-  const isStaging = typeof process !== 'undefined' && process.env.NODE_ENV === 'staging';
   const isTest = typeof process !== 'undefined' && (
     process.env.NODE_ENV === 'test' ||
-    (process.env.NODE_ENV !== 'development' && 
-     process.env.NODE_ENV !== 'production' && 
-     process.env.NODE_ENV !== 'staging' &&
-     (process.env.JEST_WORKER_ID !== undefined || process.env.VITEST !== undefined))
+    process.env.JEST_WORKER_ID !== undefined ||
+    process.env.VITEST !== undefined
   );
+  const isStaging = typeof process !== 'undefined' && process.env.NODE_ENV === 'staging';
 
   // Verbose Logging
   const verboseLogging = typeof process !== 'undefined' && (
@@ -364,8 +358,6 @@ export function detectEnvironment() {
     isContainerd,
     isCRIO,
     isSingularity,
-    // Kubernetes distributions
-    isGKE: isKubernetes && isGCP,
 
     // Cloud Environment
     isAWS,
@@ -381,10 +373,8 @@ export function detectEnvironment() {
 
     // Serverless Environment
     isLambda,
-    isAWSLambda: isLambda && isAWS,
     isAzureFunctions,
     isCloudFunctions,
-    isGCPCloudFunctions: isCloudFunctions && isGCP,
     isServerless,
 
     // Node Environment
@@ -682,92 +672,9 @@ export function getEnvironmentInfo() {
   return env;
 }
 
-/**
- * Creates an environment report
- * @returns {Object} Environment report
- */
-export function createEnvironmentReport(outputPath = null, options = {}) {
-  const env = detectEnvironment();
-  
-  if (options.formatJson) {
-    const report = {
-      timestamp: new Date().toISOString(),
-      operatingSystem: {
-        platform: env.platform,
-        isWindows: env.isWindows,
-        isMacOS: env.isMacOS,
-        isLinux: env.isLinux,
-        isWSL: env.isWSL
-      },
-      ciEnvironment: {
-        isCI: env.isCI,
-        isGitHubActions: env.isGitHubActions,
-        isJenkins: env.isJenkins,
-        isGitLabCI: env.isGitLabCI
-      },
-      containerEnvironment: {
-        isDocker: env.isDocker,
-        isKubernetes: env.isKubernetes,
-        isContainerized: env.isContainerized
-      },
-      cloudEnvironment: {
-        isAWS: env.isAWS,
-        isAzure: env.isAzure,
-        isGCP: env.isGCP,
-        isCloudEnvironment: env.isCloudEnvironment
-      },
-      nodeEnvironment: {
-        isDevelopment: env.isDevelopment,
-        isProduction: env.isProduction,
-        isTest: env.isTest,
-        isStaging: env.isStaging
-      },
-      environment: env
-    };
-    return JSON.stringify(report, null, 2);
-  }
-  
-  const lines = [
-    'CI Environment Report',
-    '=====================',
-    `Generated at: ${new Date().toISOString()}`,
-    '',
-    'Operating System:',
-    `- Platform: ${env.platform}`,
-    `- Windows: ${env.isWindows ? 'Yes' : 'No'}`,
-    `- macOS: ${env.isMacOS ? 'Yes' : 'No'}`,
-    `- Linux: ${env.isLinux ? 'Yes' : 'No'}`,
-    `- WSL: ${env.isWSL ? 'Yes' : 'No'}`,
-    '',
-    'CI Environment:',
-    `- CI: ${env.isCI ? 'Yes' : 'No'}`,
-    `- GitHub Actions: ${env.isGitHubActions ? 'Yes' : 'No'}`,
-    `- Jenkins: ${env.isJenkins ? 'Yes' : 'No'}`,
-    `- GitLab CI: ${env.isGitLabCI ? 'Yes' : 'No'}`,
-    '',
-    'Container Environment:',
-    `- Docker: ${env.isDocker ? 'Yes' : 'No'}`,
-    `- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}`,
-    `- Containerized: ${env.isContainerized ? 'Yes' : 'No'}`,
-    '',
-    'Cloud Environment:',
-    `- AWS: ${env.isAWS ? 'Yes' : 'No'}`,
-    `- Azure: ${env.isAzure ? 'Yes' : 'No'}`,
-    `- GCP: ${env.isGCP ? 'Yes' : 'No'}`,
-    '',
-    'Node Environment:',
-    `- Development: ${env.isDevelopment ? 'Yes' : 'No'}`,
-    `- Production: ${env.isProduction ? 'Yes' : 'No'}`,
-    `- Test: ${env.isTest ? 'Yes' : 'No'}`
-  ];
-  
-  return lines.join('\n');
-}
-
 // Export all functions
 export default {
   detectEnvironment,
-  createEnvironmentReport,
   useEnvironment,
   getPathSeparator,
   getPlatformPath,
