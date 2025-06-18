@@ -250,6 +250,7 @@ function detectEnvironment() {
     isJenkins: ci.providers.jenkins,
     isGitLabCI: ci.providers.gitLabCI,
     isCircleCI: ci.providers.circleCI,
+    isAzure: ci.providers.azure,
     isAzurePipelines: ci.providers.azure,
     isTravis: ci.providers.travis,
     isTeamCity: ci.providers.teamCity,
@@ -269,9 +270,11 @@ function detectEnvironment() {
     isContainerized: container.isContainer,
     isAWS: !!process.env.AWS_REGION,
     isAWSLambda: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
+    isLambda: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
     isAzureFunctions: !!process.env.AZURE_FUNCTIONS_ENVIRONMENT,
     isGCP: !!process.env.GOOGLE_CLOUD_PROJECT,
     isGCPCloudFunctions: !!(process.env.FUNCTION_NAME && process.env.FUNCTION_REGION),
+    isCloudFunctions: !!(process.env.FUNCTION_NAME && process.env.FUNCTION_REGION),
     isGKE: !!(process.env.KUBERNETES_SERVICE_HOST && process.env.GKE_CLUSTER_NAME),
     isCloudEnvironment: !!(process.env.AWS_REGION || process.env.AZURE_SUBSCRIPTION_ID || process.env.GOOGLE_CLOUD_PROJECT),
     isServerless: !!(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AZURE_FUNCTIONS_ENVIRONMENT || (process.env.FUNCTION_NAME && process.env.FUNCTION_REGION)),
@@ -283,10 +286,28 @@ function detectEnvironment() {
     isMacOS: process.platform === 'darwin',
     isLinux: process.platform === 'linux',
     platform: process.platform,
+    architecture: process.arch,
+    nodeVersion: process.version,
+    osType: os.type(),
+    osRelease: os.release(),
+    workingDir: process.cwd(),
+    hostname: os.hostname(),
+    username: os.userInfo().username,
+    memory: {
+      total: os.totalmem(),
+      free: os.freemem()
+    },
+    cpus: os.cpus(),
     ciProviders: ci.providers,
     container,
     directories: dirs,
-    env: process.env.NODE_ENV || 'development'
+    env: process.env.NODE_ENV || 'development',
+    // Additional container runtime detection
+    isRkt: false, // rkt is deprecated
+    isContainerd: container.type.containerd || false,
+    isCRIO: false, // CRI-O detection would need more complex logic
+    isSingularity: false, // Singularity detection would need file system checks
+    isDockerSwarm: !!process.env.DOCKER_SWARM_NODE_ID
   };
 }
 
