@@ -294,16 +294,17 @@ def test_sarif_file_handling() -> None:
         compressed_path_base = Path("security-reports/compressed")
         compressed_file = compressed_path_base / compressed_file_name
 
-        # Use a safer approach to create compressed file
-        cmd = f"gzip -c {sarif_file} > {compressed_file}"
-        stdout, stderr, return_code = run_command(cmd)
-
-        if return_code != 0:
-            logger.error("Error creating compressed version: %s", stderr)
-            msg = f"Failed to create compressed version: {stderr}"
+        # Use Python's gzip module for better cross-platform compatibility
+        try:
+            import gzip
+            with open(sarif_file, 'rb') as f_in:
+                with gzip.open(compressed_file, 'wb') as f_out:
+                    f_out.write(f_in.read())
+            logger.info("Created compressed version: %s", compressed_file)
+        except Exception as e:
+            logger.error("Error creating compressed version: %s", e)
+            msg = f"Failed to create compressed version: {e}"
             raise AssertionError(msg)
-
-        logger.info("Created compressed version: %s", compressed_file)
 
     logger.info("SARIF file handling test completed")
     assert True

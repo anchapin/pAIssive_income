@@ -164,7 +164,7 @@ def test_comprehensive_ai_models():
     assert len(__version__) > 0
 
     # Test adapters
-    from ai_models.adapters.adapter_factory import get_adapter
+    from ai_models.adapters.adapter_factory import get_adapter, UnsupportedServerTypeError
     from ai_models.adapters.exceptions import AdapterError
 
     # Test exception creation
@@ -177,15 +177,15 @@ def test_comprehensive_ai_models():
 
     for adapter_type in adapter_types:
         try:
-            adapter = get_adapter(adapter_type)
+            adapter = get_adapter(adapter_type, "localhost", 8000)
             assert adapter is not None
         except Exception:
             # Some adapters might not be available
             pass
 
     # Test unsupported adapter
-    with pytest.raises(ValueError):
-        get_adapter("unsupported_type")
+    with pytest.raises(UnsupportedServerTypeError):
+        get_adapter("unsupported_type", "localhost", 8000)
 
 
 def test_comprehensive_api():
