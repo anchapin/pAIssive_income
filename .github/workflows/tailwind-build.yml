@@ -37,7 +37,7 @@ jobs:
         with:
           node-version: '20.11.0'
           cache: 'pnpm'
-          cache-dependency-path: 'pnpm-lock.yaml'
+          cache-dependency-path: 'ui/react_frontend/package.json'
 
       - name: Install dependencies
         run: |
