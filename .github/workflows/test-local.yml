@@ -1,0 +1,13 @@
+name: Test Local
+
+on:
+  push:
+    branches: [ fix/test-coverage-15-percent ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+    with:
+      python-version: '3.12'
+      coverage-threshold: 15

@@ -48,7 +48,7 @@ class TestMemoryBackend:
         assert test_key not in str(args)
         assert test_key not in str(kwargs)
 
-    @patch("common_utils.secrets.memory_backend.logger")
+    @patch("common_utils.custom_secrets.memory_backend.logger")
     def test_set_secret_secure_logging(
         self, mock_logger, backend, test_key, test_value
     ):
@@ -72,7 +72,7 @@ class TestMemoryBackend:
         assert test_value not in str(args)
         assert test_value not in str(kwargs)
 
-    @patch("common_utils.secrets.memory_backend.logger")
+    @patch("common_utils.custom_secrets.memory_backend.logger")
     def test_delete_secret_secure_logging(self, mock_logger, backend, test_key):
         """Test that delete_secret uses secure logging."""
         # This should raise NotImplementedError
@@ -91,7 +91,7 @@ class TestMemoryBackend:
         assert test_key not in str(args)
         assert test_key not in str(kwargs)
 
-    @patch("common_utils.secrets.memory_backend.logger")
+    @patch("common_utils.custom_secrets.memory_backend.logger")
     def test_list_secrets_secure_logging(self, mock_logger, backend):
         """Test that list_secrets uses secure logging."""
         # This should raise NotImplementedError

@@ -1343,8 +1343,8 @@ try {
       createReport('simple-mock-server-started.txt',
         `Simple Mock API Server started at ${new Date().toISOString()}\n` +
         `Port: ${PORT}\n` +
-        `Environment Detection:\n` +
-        `------------------\n` +
+        'Environment Detection:\n' +
+        '------------------\n' +
         `CI Mode: ${CI_MODE ? 'Yes' : 'No'}\n` +
         `CI Type: ${ciType}\n` +
         `GitHub Actions: ${env.isGitHubActions ? 'Yes' : 'No'}\n` +
@@ -1353,28 +1353,28 @@ try {
         `CircleCI: ${env.isCircleCI ? 'Yes' : 'No'}\n` +
         `Travis CI: ${env.isTravis ? 'Yes' : 'No'}\n` +
         `Azure Pipelines: ${env.isAzurePipelines ? 'Yes' : 'No'}\n` +
-        `\nContainer Environment:\n` +
-        `------------------\n` +
+        '\nContainer Environment:\n' +
+        '------------------\n' +
         `Docker: ${env.isDocker ? 'Yes' : 'No'}\n` +
         `Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}\n` +
         `Docker Compose: ${env.isDockerCompose ? 'Yes' : 'No'}\n` +
         `Docker Swarm: ${env.isDockerSwarm ? 'Yes' : 'No'}\n` +
-        `\nOperating System:\n` +
-        `------------------\n` +
+        '\nOperating System:\n' +
+        '------------------\n' +
         `Platform: ${env.platform}\n` +
         `Windows: ${env.isWindows ? 'Yes' : 'No'}\n` +
         `macOS: ${env.isMacOS ? 'Yes' : 'No'}\n` +
         `Linux: ${env.isLinux ? 'Yes' : 'No'}\n` +
         `WSL: ${env.isWSL ? 'Yes' : 'No'}\n` +
-        `\nServer Configuration:\n` +
-        `------------------\n` +
+        '\nServer Configuration:\n' +
+        '------------------\n' +
         `Verbose Logging: ${VERBOSE_LOGGING ? 'Yes' : 'No'}\n` +
         `Skip Path-to-Regexp: ${SKIP_PATH_TO_REGEXP ? 'Yes' : 'No'}\n` +
         `Node.js version: ${process.version}\n` +
         `Architecture: ${process.arch}\n` +
         `Working Directory: ${process.cwd()}\n` +
-        `\nEnvironment Variables:\n` +
-        `------------------\n` +
+        '\nEnvironment Variables:\n' +
+        '------------------\n' +
         `${JSON.stringify({
           CI: process.env.CI,
           GITHUB_ACTIONS: process.env.GITHUB_ACTIONS,

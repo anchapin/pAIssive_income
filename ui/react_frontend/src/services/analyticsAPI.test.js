@@ -17,12 +17,12 @@ describe('analyticsAPI', () => {
 
   it('calls getSummary with correct default days', async () => {
     await analyticsAPI.getSummary();
-    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/summary?days=30', expect.any(Object));
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/summary?days=30');
   });
 
   it('calls getSummary with custom days', async () => {
     await analyticsAPI.getSummary(7);
-    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/summary?days=7', expect.any(Object));
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/summary?days=7');
   });
 
   it('calls getRequests with all params', async () => {
@@ -32,8 +32,7 @@ describe('analyticsAPI', () => {
       aggregate: 'daily', limit: 50, offset: 10
     });
     expect(apiClient.fetchAPI).toHaveBeenCalledWith(
-      expect.stringMatching(/^\/api\/v1\/analytics\/requests\?/),
-      expect.any(Object)
+      expect.stringMatching(/^\/api\/v1\/analytics\/requests\?/)
     );
     const url = apiClient.fetchAPI.mock.calls[0][0];
     expect(url).toContain('days=14');
@@ -49,23 +48,23 @@ describe('analyticsAPI', () => {
 
   it('calls getEndpointStats with correct default and custom days', async () => {
     await analyticsAPI.getEndpointStats();
-    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/endpoints?days=30', expect.any(Object));
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/endpoints?days=30');
     await analyticsAPI.getEndpointStats(60);
-    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/endpoints?days=60', expect.any(Object));
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/endpoints?days=60');
   });
 
   it('calls getUserStats with and without user_id', async () => {
     await analyticsAPI.getUserStats();
-    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/users?days=30', expect.any(Object));
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/users?days=30');
     await analyticsAPI.getUserStats(90, 'xyz');
-    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/users?days=90&user_id=xyz', expect.any(Object));
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/users?days=90&user_id=xyz');
   });
 
   it('calls getApiKeyStats with and without api_key_id', async () => {
     await analyticsAPI.getApiKeyStats();
-    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/api-keys?days=30', expect.any(Object));
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/api-keys?days=30');
     await analyticsAPI.getApiKeyStats(15, 'k10');
-    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/api-keys?days=15&api_key_id=k10', expect.any(Object));
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/api-keys?days=15&api_key_id=k10');
   });
 
   it('calls exportRequestsCSV with correct params and options', async () => {

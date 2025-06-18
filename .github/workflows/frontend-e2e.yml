@@ -2,6 +2,7 @@ name: Frontend E2E Tests
 
 on:
   pull_request:
+    branches: [ main, dev, master, develop, fix/test-coverage-15-percent ] # Standardized branch list
     paths:
       - "ui/react_frontend/**"
       - ".github/workflows/frontend-e2e.yml"
@@ -30,6 +31,11 @@ on:
     workflows: ["Auto Fix (Linting & CodeQL Issues)"]
     types:
       - completed
+
+# Prevent concurrent runs to avoid resource conflicts
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   e2e:
@@ -69,13 +75,14 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: '8'
+          run_install: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20.11.0' # Use consistent Node.js version across workflows
           cache: 'pnpm'
+          cache-dependency-path: './pnpm-lock.yaml'
 
       # Install global pnpm if needed (for Windows)
       - name: Install global pnpm (Windows)
@@ -89,14 +96,23 @@ jobs:
           }
           pnpm --version
 
-      - name: Install dependencies
+      - name: Install root dependencies first
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+
+      - name: Install frontend dependencies
+        working-directory: ui/react_frontend
         run: pnpm install
 
       - name: Build Tailwind CSS
+        working-directory: .
         run: pnpm tailwind:build
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: |
+          echo "Installing Playwright browsers..."
+          npx playwright install --with-deps chromium
+          echo "Playwright installation completed"
 
       # No Python setup needed since we're using the Node.js mock API server
 

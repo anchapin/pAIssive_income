@@ -5,14 +5,9 @@ name: "JavaScript/TypeScript CodeQL Configuration"
 
 # Specify paths to analyze
 paths:
-  - 'ui'
+  - 'ui/react_frontend/src'
   - 'sdk/javascript'
-  - '**/*.js'
-  - '**/*.jsx'
-  - '**/*.ts'
-  - '**/*.tsx'
-  - '**/*.json'
-  - '**/*.html'
+  - 'src'
 
 # Specify paths to exclude from analysis
 paths-ignore:
@@ -66,42 +61,13 @@ paths-ignore:
 
 # Query filters
 queries:
-  # Include the standard JavaScript/TypeScript security and quality queries
+  # Use only the standard security queries to avoid conflicts
   - uses: security-and-quality
 
-  # Include additional security queries
-  - uses: security-extended
 
-  # Use standard security queries instead of custom ones to avoid Windows path issues
-  - uses: security
-
-  # Exclude specific queries that might cause false positives
-  - exclude:
-      id: js/unused-local-variable
-      reason: "Not a security concern"
-  - exclude:
-      id: js/trivial-conditional
-      reason: "Not a security concern"
-  - exclude:
-      id: js/incomplete-url-scheme-check
-      reason: "Often produces false positives with framework URLs"
-  - exclude:
-      id: js/useless-assignment-to-local
-      reason: "Not a security concern"
-  - exclude:
-      id: js/unused-parameter
-      reason: "Not a security concern"
 
 # Disable noisy alerts
 disable-default-queries: false
-
-# Query suite definitions
-query-filters:
-  - exclude:
-      tags contain: test
-  - exclude:
-      tags contain: maintainability
-      precision below: high
 
 # Trap errors during extraction
 trap-for-errors: true

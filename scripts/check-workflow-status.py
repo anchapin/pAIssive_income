@@ -18,6 +18,7 @@ import yaml
 MAX_CONCURRENT_TRIGGERS = 5
 MAX_ISSUES_TO_DISPLAY = 5
 
+
 class WorkflowAnalyzer:
     """Analyze GitHub Actions workflows for issues and recommendations."""
 
@@ -339,8 +340,11 @@ def main() -> int:
     if results["invalid_files"] == 0 and len(results["issues"]) == 0:
         print("\n✅ All workflow files are valid!")
         return 0
-    print(f"\n❌ Found {results['invalid_files']} invalid files and {len(results['issues'])} issues")
+    print(
+        f"\n❌ Found {results['invalid_files']} invalid files and {len(results['issues'])} issues"
+    )
     return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

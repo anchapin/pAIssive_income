@@ -27,8 +27,8 @@ import {
  */
 const CohortRetentionChart = ({
   data = [],
-  title = "User Retention Analysis",
-  periodLabel = "Month",
+  title = 'User Retention Analysis',
+  periodLabel = 'Month',
   cohortLabels = []
 }) => {
   // If no data, return a message
