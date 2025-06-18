@@ -81,7 +81,8 @@ jobs:
           # Activate virtual environment
           source .venv/bin/activate
 
-          # Run tests with pytest
+          # Run tests with pytest (ensure we run from project root)
+          cd ${{ github.workspace }}
           pytest ${{ inputs.test-path }} \
             -n auto \
             -v \
