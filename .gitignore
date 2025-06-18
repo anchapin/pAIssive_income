@@ -282,3 +282,7 @@ pnpm-lock.yaml
 # MCP servers for VS Code extensions
 browser-tools-mcp/
 fetch-mcp/
+
+# Test artifacts
+test-report.txt
+test.txt
