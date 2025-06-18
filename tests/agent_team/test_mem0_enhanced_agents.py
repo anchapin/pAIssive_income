@@ -52,7 +52,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         self.crew_mock = MagicMock()
         self.crew_mock.kickoff.return_value = "Test workflow result"
         self.crew_patcher = patch(
-            "agent_team.mem0_enhanced_agents.Crew",
+            "agent_team.crewai_agents.Crew",
             return_value=self.crew_mock,
         )
         self.crew_patcher.start()
@@ -60,7 +60,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Patch the Agent class
         self.agent_mock = MagicMock()
         self.agent_patcher = patch(
-            "agent_team.mem0_enhanced_agents.Agent",
+            "agent_team.crewai_agents.Agent",
             return_value=self.agent_mock,
         )
         self.agent_patcher.start()
@@ -68,7 +68,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Patch the Task class
         self.task_mock = MagicMock()
         self.task_patcher = patch(
-            "agent_team.mem0_enhanced_agents.Task",
+            "agent_team.crewai_agents.Task",
             return_value=self.task_mock,
         )
         self.task_patcher.start()

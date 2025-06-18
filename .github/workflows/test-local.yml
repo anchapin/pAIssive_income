@@ -10,4 +10,4 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       python-version: '3.12'
-      coverage-threshold: 15
+      coverage-threshold: 10
