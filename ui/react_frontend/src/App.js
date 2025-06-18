@@ -3,6 +3,29 @@ import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
+// Context
+import { AppProvider, useAppContext } from './context/AppContext';
+
+// Layout
+import Layout from './components/Layout/Layout';
+
+// Components
+import Notifications from './components/UI/Notifications';
+
+// Pages
+import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
+import NicheAnalysisPage from './pages/NicheAnalysisPage';
+import DeveloperPage from './pages/DeveloperPage';
+import MonetizationPage from './pages/MonetizationPage';
+import MarketingPage from './pages/MarketingPage';
+import UserEngagementPage from './pages/UserEngagementPage';
+import ApiAnalyticsPage from './pages/ApiAnalyticsPage';
+import AboutPage from './pages/AboutPage';
+import NotFoundPage from './pages/NotFoundPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+
 // Try to import the external AgentUI package first, then fall back to local implementation
 // This ensures we always have a working component even if the external package is not available
 let AgentUI;
@@ -43,28 +66,7 @@ try {
   }
 }
 
-// Context
-import { AppProvider, useAppContext } from './context/AppContext';
 
-// Layout
-import Layout from './components/Layout/Layout';
-
-// Components
-import Notifications from './components/UI/Notifications';
-
-// Pages
-import HomePage from './pages/HomePage';
-import DashboardPage from './pages/DashboardPage';
-import NicheAnalysisPage from './pages/NicheAnalysisPage';
-import DeveloperPage from './pages/DeveloperPage';
-import MonetizationPage from './pages/MonetizationPage';
-import MarketingPage from './pages/MarketingPage';
-import UserEngagementPage from './pages/UserEngagementPage';
-import ApiAnalyticsPage from './pages/ApiAnalyticsPage';
-import AboutPage from './pages/AboutPage';
-import NotFoundPage from './pages/NotFoundPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
 
 // App wrapper with theme and context
 function AppWithProviders() {

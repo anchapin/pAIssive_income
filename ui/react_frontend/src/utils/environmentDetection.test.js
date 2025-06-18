@@ -35,6 +35,7 @@ import {
   getEnvironmentInfo
 } from './environmentDetection';
 
+// Only mock useEnvironment, not the other functions
 vi.mock('./environmentDetection', async (importOriginal) => {
   const actual = await importOriginal();
   return {
@@ -55,11 +56,12 @@ describe('Environment Detection Module', () => {
     process.env = { ...originalEnv };
 
     // Mock useEnvironment
-    useEnvironment.mockReturnValue({
+    const mockEnvironment = {
       isWindows: true,
       isMacOS: false,
       isLinux: false,
-    });
+    };
+    useEnvironment.mockReturnValue(mockEnvironment);
 
     // Mock window and navigator for browser tests
     global.window = {
@@ -224,49 +226,65 @@ describe('Environment Detection Module', () => {
 
   describe('getPathSeparator Function', () => {
     it('should return backslash for Windows', () => {
-      // Arrange
-      useEnvironment.mockReturnValue({ isWindows: true });
+      // Arrange - Mock navigator.userAgent to simulate Windows
+      const originalUserAgent = global.navigator.userAgent;
+      global.navigator.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
 
       // Act
       const result = getPathSeparator();
 
       // Assert
       expect(result).toBe('\\');
+
+      // Cleanup
+      global.navigator.userAgent = originalUserAgent;
     });
 
     it('should return forward slash for non-Windows', () => {
-      // Arrange
-      useEnvironment.mockReturnValue({ isWindows: false });
+      // Arrange - Mock navigator.userAgent to simulate Linux
+      const originalUserAgent = global.navigator.userAgent;
+      global.navigator.userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
 
       // Act
       const result = getPathSeparator();
 
       // Assert
       expect(result).toBe('/');
+
+      // Cleanup
+      global.navigator.userAgent = originalUserAgent;
     });
   });
 
   describe('getPlatformPath Function', () => {
     it('should convert paths for Windows', () => {
-      // Arrange
-      useEnvironment.mockReturnValue({ isWindows: true });
+      // Arrange - Mock navigator.userAgent to simulate Windows
+      const originalUserAgent = global.navigator.userAgent;
+      global.navigator.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
 
       // Act
       const result = getPlatformPath('/path/to/file');
 
       // Assert
       expect(result).toBe('\\path\\to\\file');
+
+      // Cleanup
+      global.navigator.userAgent = originalUserAgent;
     });
 
-it('should not convert paths for non-Windows', () => {
-      // Arrange
-      useEnvironment.mockReturnValue({ isWindows: false });
+    it('should not convert paths for non-Windows', () => {
+      // Arrange - Mock navigator.userAgent to simulate Linux
+      const originalUserAgent = global.navigator.userAgent;
+      global.navigator.userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
 
       // Act
       const result = getPlatformPath('/path/to/file');
 
       // Assert
       expect(result).toBe('/path/to/file');
+
+      // Cleanup
+      global.navigator.userAgent = originalUserAgent;
     });
   });
 
