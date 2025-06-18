@@ -289,3 +289,10 @@ pnpm-lock.yaml
 # MCP servers for VS Code extensions
 browser-tools-mcp/
 fetch-mcp/
+
+# Test artifacts and reports (temporary files)
+test-report.txt
+test.txt
+
+# Compressed security reports (originals are already tracked)
+security-reports/compressed/
