@@ -16,7 +16,11 @@ pathspec>=0.12.1,<1.0.0
 types-PyYAML>=6.0.0,<7.0.0
 pyyaml>=6.0.0,<7.0.0
 click>=8.0.0,<9.0.0  # Command line interface library
-modelcontextprotocol>=0.1.0,<1.0.0  # Required for MCP server integration
+
+# MCP integration - constrained to avoid heavy dependencies
+# Note: modelcontextprotocol pulls in airtrain which has complex dependency conflicts
+# For CI/development, we'll use a minimal approach and handle import errors gracefully
+# modelcontextprotocol>=0.1.0,<1.0.0  # Temporarily disabled due to dependency conflicts
 
 # Flask and database dependencies
 flask>=2.3.0,<4.0.0
