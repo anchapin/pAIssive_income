@@ -72,6 +72,10 @@ vi.mock('@mui/material', () => ({
     const { underline: _u, ...cleanProps } = props;
     return component ? React.createElement(component, { to, tabIndex, ...cleanProps }, children) : React.createElement('a', { tabIndex, ...cleanProps }, children);
   },
+  Paper: ({ children, elevation, sx, variant, component = 'div', ...props }: any) => {
+    const { elevation: _e, sx: _sx, variant: _v, ...cleanProps } = props;
+    return React.createElement(component, { 'data-elevation': elevation, 'data-variant': variant, ...cleanProps }, children);
+  },
 }));
 
 // Mock localStorage and sessionStorage
