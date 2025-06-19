@@ -37,17 +37,17 @@ class Config:
 
     # Force disable debug mode in container environments
     if os.environ.get("CONTAINER") == "true":
-        DEBUG = False
-        USE_RELOADER = False
+        DEBUG = False  # type: ignore[misc]
+        USE_RELOADER = False  # type: ignore[misc]
 
     # Database settings    # Get the database URI based on environment
     if os.environ.get("FLASK_ENV") == "development":
-        SQLALCHEMY_DATABASE_URI = os.environ.get(
+        SQLALCHEMY_DATABASE_URI = os.environ.get(  # type: ignore[misc]
             "DATABASE_URL",
             "sqlite:///:memory:",  # Safe default for development
         )
     else:
-        SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+        SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")  # type: ignore[misc]
         if SQLALCHEMY_DATABASE_URI is None:
             db_env_error = "DATABASE_URL environment variable must be set in production"
             raise ValueError(db_env_error)

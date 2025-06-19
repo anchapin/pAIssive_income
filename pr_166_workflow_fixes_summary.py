@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """
-Summary of workflow fixes applied for PR #166
+Summary of workflow fixes applied for PR #166.
+
 Documents all changes made and provides recommendations.
 """
 
-from datetime import datetime
+from __future__ import annotations
+
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -14,7 +17,18 @@ def log(message: str, level: str = "INFO") -> None:
     """Log messages with level."""
 
 
-def validate_workflow_files():
+def _validate_single_file(yaml_file: Path) -> tuple[str, str | None]:
+    """Validate a single YAML file and return result."""
+    try:
+        with yaml_file.open(encoding="utf-8") as f:
+            yaml.safe_load(f)
+    except (yaml.YAMLError, OSError) as e:
+        return yaml_file.name, str(e)[:100]
+    else:
+        return yaml_file.name, None
+
+
+def validate_workflow_files() -> tuple[list[str], list[tuple[str, str]]]:
     """Validate all workflow files and return summary."""
     workflow_dir = Path(".github/workflows")
     yaml_files = list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
@@ -23,26 +37,27 @@ def validate_workflow_files():
     invalid_files = []
 
     for yaml_file in yaml_files:
-        try:
-            with open(yaml_file, encoding="utf-8") as f:
-                yaml.safe_load(f)
-            valid_files.append(yaml_file.name)
-        except Exception as e:
-            invalid_files.append((yaml_file.name, str(e)[:100]))
+        filename, error = _validate_single_file(yaml_file)
+        if error is None:
+            valid_files.append(filename)
+        else:
+            invalid_files.append((filename, error))
 
     return valid_files, invalid_files
 
 
-def generate_summary_report() -> None:
-    """Generate a comprehensive summary report."""
+def _log_header() -> None:
+    """Log the report header."""
     log("PR #166 Workflow Fixes Summary Report")
     log("=" * 50)
-    log(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    log(f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}")
     log("")
 
-    # Validate current state
-    valid_files, invalid_files = validate_workflow_files()
 
+def _log_workflow_status(
+    valid_files: list[str], invalid_files: list[tuple[str, str]]
+) -> None:
+    """Log current workflow status."""
     log("CURRENT WORKFLOW STATUS")
     log("-" * 30)
     log(f"✅ Valid workflows: {len(valid_files)}")
@@ -50,6 +65,9 @@ def generate_summary_report() -> None:
     log(f"📊 Total workflows: {len(valid_files) + len(invalid_files)}")
     log("")
 
+
+def _log_fixes_applied() -> None:
+    """Log the fixes that were applied."""
     log("FIXES APPLIED")
     log("-" * 15)
     log("1. ✅ Fixed YAML syntax errors in 56+ workflow files")
@@ -77,23 +95,35 @@ def generate_summary_report() -> None:
     log("   - Frontend and testing workflows: Corrected YAML structure")
     log("")
 
+
+def _log_valid_files(valid_files: list[str]) -> None:
+    """Log valid workflow files."""
     log("VALID WORKFLOW FILES")
     log("-" * 20)
     for filename in sorted(valid_files):
         log(f"  ✅ {filename}")
     log("")
 
-    if invalid_files:
-        log("REMAINING ISSUES")
-        log("-" * 16)
-        log("The following files still have YAML syntax issues:")
-        for filename, error in invalid_files[:10]:  # Show first 10
-            log(f"  ❌ {filename}")
-            log(f"     Error: {error}...")
-        if len(invalid_files) > 10:
-            log(f"  ... and {len(invalid_files) - 10} more files")
-        log("")
 
+def _log_invalid_files(invalid_files: list[tuple[str, str]]) -> None:
+    """Log invalid workflow files."""
+    if not invalid_files:
+        return
+
+    log("REMAINING ISSUES")
+    log("-" * 16)
+    log("The following files still have YAML syntax issues:")
+    max_display_files = 10
+    for filename, error in invalid_files[:max_display_files]:
+        log(f"  ❌ {filename}")
+        log(f"     Error: {error}...")
+    if len(invalid_files) > max_display_files:
+        log(f"  ... and {len(invalid_files) - max_display_files} more files")
+    log("")
+
+
+def _log_recommendations() -> None:
+    """Log recommendations for PR #166."""
     log("RECOMMENDATIONS FOR PR #166")
     log("-" * 30)
     log("1. 🎯 USE THE CLEAN WORKFLOW")
@@ -120,6 +150,9 @@ def generate_summary_report() -> None:
     log("   - Monitor workflow runs for any remaining issues")
     log("")
 
+
+def _log_files_modified() -> None:
+    """Log files created/modified."""
     log("FILES CREATED/MODIFIED")
     log("-" * 22)
     log("  📄 pr-166-final-working.yml (NEW - Clean working workflow)")
@@ -128,6 +161,9 @@ def generate_summary_report() -> None:
     log("  📝 This summary report")
     log("")
 
+
+def _log_next_steps() -> None:
+    """Log next steps."""
     log("NEXT STEPS")
     log("-" * 10)
     log("1. Review and commit these changes")
@@ -137,10 +173,17 @@ def generate_summary_report() -> None:
     log("5. Gradually clean up remaining invalid workflows")
     log("")
 
+
+def _log_success_metrics(
+    valid_files: list[str], invalid_files: list[tuple[str, str]]
+) -> None:
+    """Log success metrics."""
     log("SUCCESS METRICS")
     log("-" * 15)
+    total_files = len(valid_files) + len(invalid_files)
+    success_rate = len(valid_files) / total_files * 100 if total_files > 0 else 0
     log(
-        f"✅ Improved workflow validity from ~25% to {len(valid_files)}/{len(valid_files) + len(invalid_files)} ({len(valid_files) / (len(valid_files) + len(invalid_files)) * 100:.1f}%)"
+        f"✅ Improved workflow validity from ~25% to {len(valid_files)}/{total_files} ({success_rate:.1f}%)"
     )
     log("✅ Created a reliable, working CI/CD pipeline")
     log("✅ Preserved all existing functionality")
@@ -151,8 +194,25 @@ def generate_summary_report() -> None:
     log("The repository now has a working CI/CD pipeline.")
 
 
+def generate_summary_report() -> None:
+    """Generate a comprehensive summary report."""
+    _log_header()
+
+    # Validate current state
+    valid_files, invalid_files = validate_workflow_files()
+
+    _log_workflow_status(valid_files, invalid_files)
+    _log_fixes_applied()
+    _log_valid_files(valid_files)
+    _log_invalid_files(invalid_files)
+    _log_recommendations()
+    _log_files_modified()
+    _log_next_steps()
+    _log_success_metrics(valid_files, invalid_files)
+
+
 def main() -> None:
-    """Main function."""
+    """Run the summary report generation."""
     generate_summary_report()
 
 

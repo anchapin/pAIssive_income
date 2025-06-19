@@ -32,9 +32,9 @@ try:
     from adk.memory import SimpleMemory
     from adk.skill import Skill
 
-    ADK_AVAILABLE = True
+    adk_available = True
 except ImportError:
-    ADK_AVAILABLE = False
+    adk_available = False
 
     # Define placeholder classes for type hints
     class Agent:
@@ -80,9 +80,9 @@ except ImportError:
 try:
     from mem0 import Memory
 
-    MEM0_AVAILABLE = True
+    mem0_available = True
 except ImportError:
-    MEM0_AVAILABLE = False
+    mem0_available = False
     Memory = None  # type: ignore[assignment]
 
 
@@ -105,7 +105,7 @@ class SummarizerSkill(Skill):
 
 
 # Try to import actual skills if ADK is available
-if ADK_AVAILABLE:
+if adk_available:
     try:
         from adk_demo.agents import DataGathererSkill as ActualDataGathererSkill
         from adk_demo.agents import SummarizerSkill as ActualSummarizerSkill
@@ -154,7 +154,7 @@ class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
         self.simple_memory = SimpleMemory()
 
         # Initialize mem0 memory if available
-        if MEM0_AVAILABLE and Memory is not None:
+        if mem0_available and Memory is not None:
             self.memory = Memory()
             logger.info("mem0 memory initialized for agent %s", name)
         else:

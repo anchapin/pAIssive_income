@@ -78,9 +78,11 @@ def run_secure_command(
     """Run a command securely with proper error handling."""
     try:
         # Use full path to executable if possible
-        if cmd_list and shutil.which(cmd_list[0]):
-            cmd_list[0] = shutil.which(cmd_list[0])  # Run with safe defaults
-        return subprocess.run(  # nosec B603 - This is a safe subprocess call with shell=False and validated arguments
+        if cmd_list:
+            full_path = shutil.which(cmd_list[0])
+            if full_path:
+                cmd_list[0] = full_path  # Run with safe defaults
+        return subprocess.run(  # noqa: S603  # nosec B603 - This is a safe subprocess call with shell=False and validated arguments
             cmd_list,
             check=False,
             shell=False,  # Never use shell=True for security

@@ -89,6 +89,7 @@ def _initialize_database_data() -> bool:
         # Create admin user
         admin = User(
             username="admin",
+            email="admin@example.com",
             password_hash=hash_credential(password),
         )
         db.session.add(admin)

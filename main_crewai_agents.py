@@ -30,14 +30,13 @@ class TeamProtocol(Protocol):
 # Import memory-enhanced agent team
 try:
     from agent_team.mem0_enhanced_agents import (
-        MEM0_AVAILABLE,
         MemoryEnhancedCrewAIAgentTeam,
     )
 
-    CREWAI_AVAILABLE = True
+    crewai_available = True
 except ImportError:
-    MEM0_AVAILABLE = False
-    CREWAI_AVAILABLE = False
+    mem0_available = False
+    crewai_available = False
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -45,9 +44,7 @@ logger = logging.getLogger(__name__)
 
 # Example: Assemble into a Crew (team)
 
-mem0_available = MEM0_AVAILABLE
-crewai_available = CREWAI_AVAILABLE
-memory_enhanced_team_cls = MemoryEnhancedCrewAIAgentTeam if CREWAI_AVAILABLE else None
+memory_enhanced_team_cls = MemoryEnhancedCrewAIAgentTeam if crewai_available else None
 
 
 def create_team(

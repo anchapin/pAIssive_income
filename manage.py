@@ -65,11 +65,11 @@ def run_script(
         result = run_command_securely(cmd, allow_shell=shell)
         sys.exit(result.returncode)
 
-    except SecurityError as e:
-        logger.exception("Security error running script: %s", e)
+    except SecurityError:
+        logger.exception("Security error running script")
         sys.exit(1)
-    except Exception as e:
-        logger.exception("Error running script: %s", e)
+    except Exception:
+        logger.exception("Error running script")
         sys.exit(1)
 
 
