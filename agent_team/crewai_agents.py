@@ -253,9 +253,7 @@ class CrewAIAgentTeam:
         self.agents.append(agent)
         return agent
 
-    def add_task(
-        self, description: str, agent: str | AgentProtocol
-    ) -> TaskProtocol:
+    def add_task(self, description: str, agent: str | AgentProtocol) -> TaskProtocol:
         """
         Add a task to the team.
 

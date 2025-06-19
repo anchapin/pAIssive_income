@@ -65,9 +65,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     - Team execution
     """
 
-    def __init__(
-        self, llm_provider: object = None, user_id: str | None = None
-    ) -> None:
+    def __init__(self, llm_provider: object = None, user_id: str | None = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
 
@@ -119,9 +117,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         return agent
 
-    def add_task(
-        self, description: str, agent: str | AgentProtocol
-    ) -> TaskProtocol:
+    def add_task(self, description: str, agent: str | AgentProtocol) -> TaskProtocol:
         """
         Add a task to the team with memory enhancement.
 

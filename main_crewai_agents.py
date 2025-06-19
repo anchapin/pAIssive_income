@@ -47,9 +47,7 @@ logger = logging.getLogger(__name__)
 memory_enhanced_team_cls = MemoryEnhancedCrewAIAgentTeam if crewai_available else None
 
 
-def create_team(
-    use_memory: bool = False, user_id: str | None = None
-) -> TeamProtocol:
+def create_team(use_memory: bool = False, user_id: str | None = None) -> TeamProtocol:
     """
     Create and return a CrewAI team, optionally using memory enhancement.
 
