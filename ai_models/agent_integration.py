@@ -6,7 +6,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ai_models.adapters.adapter_factory import AdapterError, get_adapter
 
@@ -50,7 +50,7 @@ def load_mcp_server_configs() -> list[dict[str, Any]]:
     return validated_servers
 
 
-def _load_settings_file() -> Optional[dict[str, Any]]:
+def _load_settings_file() -> dict[str, Any] | None:
     """
     Load and parse the settings file with security checks.
 

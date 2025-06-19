@@ -25,7 +25,6 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -55,7 +54,7 @@ def run(cmd: str, desc: str) -> None:
     # Use a helper to validate and run the command safely (addresses Ruff S603)
     def _safe_subprocess_run(
         cmd: list[str],
-        **kwargs: Any,  # noqa: ANN401
+        **kwargs: str | Path | None,
     ) -> subprocess.CompletedProcess:
         cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
         if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):

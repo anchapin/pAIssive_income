@@ -5,8 +5,9 @@ from __future__ import annotations
 import functools
 import re
 import time
+from collections.abc import Callable
 from logging import INFO, Logger, getLogger
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 from flask.globals import current_app, g
 from werkzeug.local import LocalProxy

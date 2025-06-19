@@ -59,9 +59,9 @@ from __future__ import annotations  # Already present, but good to ensure
 import logging  # Added logging import
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Protocol
+from typing import Protocol
 
-logger = logging.getLogger(__name__) # Added module-level logger
+logger = logging.getLogger(__name__)  # Added module-level logger
 
 
 class Mem0ClientProtocol(Protocol):
@@ -72,7 +72,9 @@ class Mem0ClientProtocol(Protocol):
     improving type safety and making the expected API explicit.
     """
 
-    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+    def search(
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """
         Search for memories based on query and user context.
 
@@ -87,7 +89,12 @@ class Mem0ClientProtocol(Protocol):
         """
         ...
 
-    def add(self, content: str | list[dict[str, str]], user_id: str, **kwargs: Any) -> Any:
+    def add(
+        self,
+        content: str | list[dict[str, str]],
+        user_id: str,
+        **kwargs: str | int | bool | None,
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Add new memory content.
 
@@ -111,7 +118,9 @@ class VectorClientProtocol(Protocol):
     improving type safety and making the expected API explicit.
     """
 
-    def query(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+    def query(
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """
         Query the vector database for relevant documents.
 
@@ -126,7 +135,9 @@ class VectorClientProtocol(Protocol):
         """
         ...
 
-    def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
+    def add(
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Add new content to the vector database.
 
@@ -145,11 +156,14 @@ class VectorClientProtocol(Protocol):
 class KnowledgeSource(ABC):
     """
     Abstract base class for a knowledge source (e.g., mem0, vector database).
+
     To add a new knowledge source, subclass this and implement all methods.
     """
 
     @abstractmethod
-    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+    def search(
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """
         Search for relevant information given a query and user context.
 
@@ -164,7 +178,9 @@ class KnowledgeSource(ABC):
         """
 
     @abstractmethod
-    def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
+    def add(
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Add new knowledge/content to the source.
 
@@ -178,7 +194,13 @@ class KnowledgeSource(ABC):
 
         """
 
-    def update(self, content_id: str, new_content: str, user_id: str, **kwargs: Any) -> Any:
+    def update(
+        self,
+        content_id: str,
+        new_content: str,
+        user_id: str,
+        **kwargs: str | int | bool | None,
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Update existing knowledge entry.
 
@@ -195,7 +217,9 @@ class KnowledgeSource(ABC):
         msg = "Update not implemented for this source."
         raise NotImplementedError(msg)
 
-    def delete(self, content_id: str, user_id: str, **kwargs: Any) -> Any:
+    def delete(
+        self, content_id: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Delete an entry.
 
@@ -213,11 +237,9 @@ class KnowledgeSource(ABC):
 
 
 class Mem0KnowledgeSource(KnowledgeSource):
-    """
-    Concrete implementation of KnowledgeSource for mem0 (Memory API).
-    """
+    """Concrete implementation of KnowledgeSource for mem0 (Memory API)."""
 
-    def __init__(self, mem0_client: Mem0ClientProtocol):
+    def __init__(self, mem0_client: Mem0ClientProtocol) -> None:
         """
         Initialize Mem0KnowledgeSource.
 
@@ -227,7 +249,9 @@ class Mem0KnowledgeSource(KnowledgeSource):
         """
         self.mem0_client = mem0_client
 
-    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+    def search(
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """Search mem0 for relevant memories."""
         try:
             return self.mem0_client.search(query, user_id, **kwargs)
@@ -235,7 +259,9 @@ class Mem0KnowledgeSource(KnowledgeSource):
             logger.exception("Error searching mem0 memories")
             return []
 
-    def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
+    def add(
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """Add new content to mem0."""
         try:
             return self.mem0_client.add(content, user_id, **kwargs)
@@ -245,11 +271,9 @@ class Mem0KnowledgeSource(KnowledgeSource):
 
 
 class VectorRAGKnowledgeSource(KnowledgeSource):
-    """
-    Concrete implementation of KnowledgeSource for vector database RAG (e.g., ChromaDB).
-    """
+    """Concrete implementation of KnowledgeSource for vector database RAG (e.g., ChromaDB)."""
 
-    def __init__(self, vector_client: VectorClientProtocol):
+    def __init__(self, vector_client: VectorClientProtocol) -> None:
         """
         Initialize VectorRAGKnowledgeSource.
 
@@ -259,7 +283,9 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
         """
         self.vector_client = vector_client
 
-    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+    def search(
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """Search vector DB for relevant documents."""
         try:
             return self.vector_client.query(query, user_id, **kwargs)
@@ -267,7 +293,9 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
             logger.exception("Error searching vector database")
             return []
 
-    def add(self, content: str, user_id: str, **kwargs: Any) -> Any:
+    def add(
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """Add new content to vector DB."""
         try:
             return self.vector_client.add(content, user_id, **kwargs)
@@ -297,7 +325,7 @@ class KnowledgeIntegrationLayer:
         self,
         sources: list[KnowledgeSource],
         strategy: KnowledgeStrategy = KnowledgeStrategy.FALLBACK,
-    ):
+    ) -> None:
         """
         Initialize KnowledgeIntegrationLayer.
 
@@ -313,16 +341,18 @@ class KnowledgeIntegrationLayer:
             # Accept string for backward compatibility, but prefer Enum usage
             try:
                 self.strategy = KnowledgeStrategy(strategy.lower())
-            except ValueError:
+            except ValueError as e:
                 msg = f"Unknown integration strategy: {strategy}"
-                raise ValueError(msg)
+                raise ValueError(msg) from e
         elif isinstance(strategy, KnowledgeStrategy):
             self.strategy = strategy
         else:
             msg = f"Invalid strategy type: {type(strategy)}"
             raise TypeError(msg)
 
-    def search(self, query: str, user_id: str, **kwargs: Any) -> list[dict[str, Any]]:
+    def search(
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """Search using the configured integration strategy."""
         if self.strategy == KnowledgeStrategy.FALLBACK:
             for source in self.sources:
@@ -331,16 +361,15 @@ class KnowledgeIntegrationLayer:
                     return results
             return []
         if self.strategy == KnowledgeStrategy.AGGREGATE:
-            aggregated: list[dict[str, Any]] = []
+            aggregated: list[dict[str, str | int | bool | None]] = []
             for source in self.sources:
                 aggregated.extend(source.search(query, user_id, **kwargs))
             return aggregated
         msg = f"Unknown integration strategy: {self.strategy}"
         raise ValueError(msg)
 
-    def add(self, content: str, user_id: str, **kwargs: Any) -> list[Any]:
+    def add(
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None] | str | None]:
         """Add content to all sources."""
-        results = []
-        for source in self.sources:
-            results.append(source.add(content, user_id, **kwargs))
-        return results
+        return [source.add(content, user_id, **kwargs) for source in self.sources]

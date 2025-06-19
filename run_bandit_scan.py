@@ -108,11 +108,11 @@ def create_empty_json_files() -> bool:
         with Path("security-reports/bandit-results-ini.sarif").open("w") as f:
             json.dump(empty_sarif, f, indent=2)
         logger.info("Created empty bandit-results-ini.sarif")
-
-        return True
-    except Exception as e:
-        logger.exception("Failed to create empty files: %s", e)
+    except Exception:
+        logger.exception("Failed to create empty files")
         return False
+    else:
+        return True
 
 
 def find_bandit_executable() -> str:
@@ -137,7 +137,7 @@ def find_bandit_executable() -> str:
     return "bandit"
 
 
-def run_bandit_scan(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:  # noqa: ANN401
+def run_bandit_scan(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
     """Run Bandit scan with trusted binaries only."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
@@ -160,7 +160,7 @@ def run_bandit_scan(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProces
 
 def _safe_subprocess_run(
     cmd: list[str],
-    **kwargs: Any,  # noqa: ANN401
+    **kwargs: Any,
 ) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
@@ -247,7 +247,7 @@ def run_bandit_with_config(bandit_path: str) -> None:
                 [
                     bandit_path,
                     "-c",
-                    bandit_config,
+                    str(bandit_config),
                     "-r",
                     ".",
                     "-f",

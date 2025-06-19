@@ -26,32 +26,33 @@ Requirements:
 
 from __future__ import annotations
 
+# Import CrewAI components
+import importlib.util
 import logging
 import sys
-from typing import Any, Optional, Union
-
-# Import CrewAI components
-try:
-    # Check if CrewAI is available without importing unused components
-    import crewai  # noqa: F401
-    CREWAI_AVAILABLE = True
-except ImportError:
-    CREWAI_AVAILABLE = False
-
-# Import mem0 components
-try:
-    from mem0 import Memory
-
-    MEM0_AVAILABLE = True
-except ImportError:
-    MEM0_AVAILABLE = False
-    Memory = None  # type: ignore[assignment]
+from typing import Any
 
 # Import base CrewAI agent team
 from agent_team.crewai_agents import AgentProtocol, CrewAIAgentTeam, TaskProtocol
 
 # Import MemoryRAGCoordinator for unified memory/RAG retrieval
 from services.memory_rag_coordinator import MemoryRAGCoordinator
+
+crewai_spec = importlib.util.find_spec("crewai")
+crewai_available = crewai_spec is not None
+
+# Import mem0 components
+try:
+    from mem0 import Memory
+
+    mem0_available = True
+except ImportError:
+    mem0_available = False
+    Memory = None  # type: ignore[assignment]
+
+# Export constants for testing (uppercase naming convention for constants)
+CREWAI_AVAILABLE = crewai_available
+MEM0_AVAILABLE = mem0_available
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -68,7 +69,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     - Team execution
     """
 
-    def __init__(self, llm_provider: object = None, user_id: Optional[str] = None) -> None:
+    def __init__(self, llm_provider: object = None, user_id: str | None = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
 
@@ -80,7 +81,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         super().__init__(llm_provider)
 
         # Initialize mem0 memory if available
-        if MEM0_AVAILABLE and Memory is not None:
+        if mem0_available and Memory is not None:
             self.memory = Memory()
             logger.info("mem0 memory initialized")
         else:
@@ -120,9 +121,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         return agent
 
-    def add_task(
-        self, description: str, agent: Union[str, AgentProtocol]
-    ) -> TaskProtocol:
+    def add_task(self, description: str, agent: str | AgentProtocol) -> TaskProtocol:
         """
         Add a task to the team with memory enhancement.
 
@@ -162,7 +161,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             The result of the workflow
 
         """
-        if not CREWAI_AVAILABLE:
+        if not crewai_available:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
 
@@ -211,7 +210,11 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         else:
             return result
 
-    def _store_memory(self, content: Union[str, list[dict[str, str]]], metadata: Optional[dict[str, str]] = None) -> None:
+    def _store_memory(
+        self,
+        content: str | list[dict[str, str]],
+        metadata: dict[str, str] | None = None,
+    ) -> None:
         """
         Store a memory using mem0.
 
@@ -233,7 +236,9 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         except Exception:
             logger.exception("Error storing memory")
 
-    def _retrieve_relevant_memories(self, query: Optional[str] = None, limit: int = 5) -> list[dict[str, Any]]:
+    def _retrieve_relevant_memories(
+        self, query: str | None = None, limit: int = 5
+    ) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories and RAG results for the current context.
 
@@ -308,8 +313,8 @@ Original context:
 
     def store_memory(
         self,
-        content: Union[str, list[dict[str, str]]],
-        metadata: Optional[dict[str, str]] = None,
+        content: str | list[dict[str, str]],
+        metadata: dict[str, str] | None = None,
     ) -> None:
         """
         Store memory content with optional metadata.
@@ -322,7 +327,7 @@ Original context:
         self._store_memory(content, metadata)
 
     def retrieve_relevant_memories(
-        self, query: Optional[str] = None, limit: int = 5
+        self, query: str | None = None, limit: int = 5
     ) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories based on a query and limit.
@@ -347,10 +352,10 @@ if __name__ == "__main__":
     )
 
     # Check if dependencies are available
-    if not CREWAI_AVAILABLE:
+    if not crewai_available:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
         sys.exit(1)
-    elif not MEM0_AVAILABLE:
+    elif not mem0_available:
         logger.error("mem0 is not installed. Install with: pip install mem0ai")
         sys.exit(1)
     else:

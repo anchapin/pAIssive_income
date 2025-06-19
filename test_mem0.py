@@ -40,16 +40,17 @@ def test_mem0_basic_operations() -> bool:
         # Search for the memory
         search_results = memory.search("test memory", user_id=user_id, limit=5)
 
-        if search_results:
-            logger.info("Memory search successful! Found results: %s", search_results)
-            return True
-
-        logger.warning("Memory search returned no results.")
-        return False
-
     except Exception:
         logger.exception("Error testing mem0")
         return False
+
+    # Check search results outside try block to avoid TRY300/RET505 conflict
+    if search_results:
+        logger.info("Memory search successful! Found results: %s", search_results)
+        return True
+
+    logger.warning("Memory search returned no results.")
+    return False
 
 
 if __name__ == "__main__":

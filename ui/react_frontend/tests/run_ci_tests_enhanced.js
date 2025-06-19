@@ -485,9 +485,9 @@ async function main() {
       PORT: MOCK_API_PORT.toString()
     };
 
-    // First try to start the mock_api_server.js
-    log('First trying to start mock_api_server.js...', 'info');
-    const mockApiProcess = spawn('node', ['tests/mock_api_server.js'], {
+    // First try to start the simple_mock_api_server.js
+    log('First trying to start simple_mock_api_server.js...', 'info');
+    const mockApiProcess = spawn('node', ['tests/simple_mock_api_server.js'], {
       detached: true,
       stdio: 'pipe', // Capture output for logging
       shell: true,
@@ -740,9 +740,24 @@ async function main() {
             return;
           }
 
-          // Parse the URL
-          const url = new URL(req.url, `http://${req.headers.host}`);
-          const pathname = url.pathname;
+          // Parse the URL safely
+          let pathname;
+          try {
+            // Validate and sanitize the host header
+            const host = req.headers.host || 'localhost:8000';
+            const sanitizedHost = host.replace(/[^a-zA-Z0-9.-:]/g, '');
+            
+            // Validate URL format
+            if (!req.url || typeof req.url !== 'string') {
+              pathname = '/';
+            } else {
+              const url = new URL(req.url, `http://${sanitizedHost}`);
+              pathname = url.pathname;
+            }
+          } catch (error) {
+            log(`Invalid URL parsing: ${error.message}`, 'warn');
+            pathname = '/';
+          }
 
           // Handle different endpoints
           if (pathname === '/health' || pathname === '/api/health') {

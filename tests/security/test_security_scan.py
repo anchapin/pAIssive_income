@@ -97,7 +97,7 @@ def _safe_subprocess_run(
             )
         )
     }
-    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]  # noqa: S603
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]
 
 
 def run_command(command: str) -> tuple[str, str, int]:
@@ -181,7 +181,8 @@ def test_safety_scan() -> None:
 
     if return_code != 0:
         logger.error("Error converting Safety results to SARIF: %s", stderr)
-        raise AssertionError(f"Failed to convert Safety results to SARIF: {stderr}")
+        msg = f"Failed to convert Safety results to SARIF: {stderr}"
+        raise AssertionError(msg)
 
     logger.info("Safety scan test completed")
     assert True
@@ -233,7 +234,8 @@ def test_bandit_scan() -> None:
 
     if return_code != 0:
         logger.error("Error converting Bandit results to SARIF: %s", stderr)
-        raise AssertionError(f"Failed to convert Bandit results to SARIF: {stderr}")
+        msg = f"Failed to convert Bandit results to SARIF: {stderr}"
+        raise AssertionError(msg)
 
     logger.info("Bandit scan test completed")
     assert True
@@ -258,7 +260,8 @@ def test_sarif_file_handling() -> None:
 
         if return_code != 0:
             logger.error("Error creating test SARIF file: %s", stderr)
-            raise AssertionError(f"Failed to create test SARIF file: {stderr}")
+            msg = f"Failed to create test SARIF file: {stderr}"
+            raise AssertionError(msg)
 
         sarif_files = list(Path("security-reports").glob("*.sarif"))
 
@@ -283,7 +286,8 @@ def test_sarif_file_handling() -> None:
 
             if return_code != 0:
                 logger.exception("Error creating fallback SARIF file")
-                raise AssertionError("Failed to create fallback SARIF file")
+                msg = "Failed to create fallback SARIF file"
+                raise AssertionError(msg) from None
 
         # Create compressed version
         compressed_file_name = f"{sarif_file.name}.gz"
@@ -296,7 +300,8 @@ def test_sarif_file_handling() -> None:
 
         if return_code != 0:
             logger.error("Error creating compressed version: %s", stderr)
-            raise AssertionError(f"Failed to create compressed version: {stderr}")
+            msg = f"Failed to create compressed version: {stderr}"
+            raise AssertionError(msg)
 
         logger.info("Created compressed version: %s", compressed_file)
 

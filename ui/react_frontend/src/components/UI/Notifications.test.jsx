@@ -4,26 +4,27 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
 import Notifications from './Notifications';
 
 // Mock AppContext
-jest.mock('../../context/AppContext', () => {
+vi.mock('../../context/AppContext', () => {
   return {
-    useAppContext: jest.fn()
+    useAppContext: vi.fn()
   };
 });
 
-const { useAppContext } = require('../../context/AppContext');
+const { useAppContext } = await vi.importActual('../../context/AppContext');
 
 describe('Notifications', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders nothing when there are no notifications', () => {
     useAppContext.mockReturnValue({
       notifications: [],
-      dispatch: jest.fn()
+      dispatch: vi.fn()
     });
     const { container } = render(<Notifications />);
     // Should not render any Snackbar or Alert
@@ -36,7 +37,7 @@ describe('Notifications', () => {
       notifications: [
         { id: 1, message: 'Test notification', type: 'success' }
       ],
-      dispatch: jest.fn()
+      dispatch: vi.fn()
     });
     render(<Notifications />);
     expect(screen.getByText(/Test notification/i)).toBeInTheDocument();
@@ -49,7 +50,7 @@ describe('Notifications', () => {
         { id: 1, message: 'Info message', type: 'info' },
         { id: 2, message: 'Warning message', type: 'warning' }
       ],
-      dispatch: jest.fn()
+      dispatch: vi.fn()
     });
     render(<Notifications />);
     expect(screen.getByText(/Info message/i)).toBeInTheDocument();
@@ -62,14 +63,14 @@ describe('Notifications', () => {
       notifications: [
         { id: 3, message: 'Default info message' }
       ],
-      dispatch: jest.fn()
+      dispatch: vi.fn()
     });
     render(<Notifications />);
     expect(screen.getByRole('alert')).toHaveClass('MuiAlert-filledInfo');
   });
 
   it('calls dispatch to remove notification when closed', () => {
-    const mockDispatch = jest.fn();
+    const mockDispatch = vi.fn();
     useAppContext.mockReturnValue({
       notifications: [
         { id: 4, message: 'Closable notification', type: 'error' }

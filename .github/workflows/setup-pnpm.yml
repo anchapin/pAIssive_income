@@ -31,6 +31,7 @@ on:
 jobs:
   setup-pnpm:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]

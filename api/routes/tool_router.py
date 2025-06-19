@@ -20,16 +20,29 @@ handler.setFormatter(formatter)
 if not logger.hasHandlers():
     logger.addHandler(handler)
 
+
 # --- Settings ---
-API_KEY = os.getenv("TOOL_API_KEY")
-if not API_KEY:
-    # Check if we're in a testing/CI environment where API key might not be set
-    if os.getenv("CI") == "true" or os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
-        API_KEY = "test-api-key-for-ci"
-        logger.warning("Using test API key for CI/testing environment")
-    else:
-        msg = "TOOL_API_KEY environment variable not set"
-        raise ValueError(msg)
+def get_api_key() -> str:
+    """Get the API key from environment or use test key for CI."""
+    api_key = os.getenv("TOOL_API_KEY")
+
+    if not api_key:
+        # Check if we're in a testing/CI environment where API key might not be set
+        if (
+            os.getenv("CI") == "true"
+            or os.getenv("PYTEST_CURRENT_TEST")
+            or os.getenv("TESTING")
+        ):
+            api_key = "test-api-key-for-ci"
+            logger.warning("Using test API key for CI/testing environment")
+        else:
+            msg = "TOOL_API_KEY environment variable not set"
+            raise ValueError(msg)
+
+    return api_key
+
+
+API_KEY = get_api_key()
 
 
 # --- API Key Auth Dependency ---

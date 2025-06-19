@@ -120,7 +120,7 @@ def safe_read_file(file_path: str) -> str | None:
         return None
 
 
-def detect_ci_environment() -> dict[str, Any]:  # noqa: C901, PLR0912, PLR0915
+def detect_ci_environment() -> dict[str, Any]:
     """
     Detect the current CI environment.
 
@@ -817,13 +817,13 @@ def create_ci_directories() -> list[dict[str, Any]]:
         try:
             Path(directory).mkdir(exist_ok=True)
             results.append({"directory": directory, "created": True, "error": None})
-        except (OSError, PermissionError) as e:  # noqa: PERF203
+        except (OSError, PermissionError) as e:
             results.append({"directory": directory, "created": False, "error": str(e)})
 
     return results
 
 
-def main() -> int:  # noqa: PLR0915
+def main() -> int:
     """
     Run the CI environment detection script.
 

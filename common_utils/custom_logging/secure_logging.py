@@ -4,13 +4,14 @@ Secure logging utilities to prevent sensitive information from being logged.
 This module provides functions to mask sensitive information in logs, such as access
 credentials, authentication materials, and other sensitive data.
 """
+# ruff: noqa: ANN002,ANN003
 
 from __future__ import annotations
 
 import logging
 import re
 from re import Pattern
-from typing import Any, Optional
+from typing import Any
 
 # List of sensitive field names to mask in logs
 SENSITIVE_FIELDS: list[str] = [
@@ -351,10 +352,10 @@ class SecureLogger:
         lno: int,
         msg: str,
         args: tuple,
-        exc_info: Optional[tuple],
-        func: Optional[str] = None,
-        extra: Optional[dict[str, Any]] = None,
-        sinfo: Optional[str] = None,
+        exc_info: tuple | None,
+        func: str | None = None,
+        extra: dict[str, Any] | None = None,
+        sinfo: str | None = None,
     ) -> logging.LogRecord:
         """
         Make a LogRecord.
@@ -388,9 +389,9 @@ class SecureLogger:
 
     def find_caller(
         self, stack_info: bool = False, stacklevel: int = 1
-    ) -> tuple[str, int, str, Optional[str]]:
+    ) -> tuple[str, int, str, str | None]:
         """Find the caller's source file and line number."""
-        result: tuple[str, int, str, Optional[str]] = self.logger.findCaller(
+        result: tuple[str, int, str, str | None] = self.logger.findCaller(
             stack_info, stacklevel
         )
         return result
@@ -398,7 +399,7 @@ class SecureLogger:
     # Standard logging compatibility aliases
     findCaller = find_caller  # noqa: N815
 
-    def debug(self, msg: str, *args: Any, **kwargs: Any) -> None:
+    def debug(self, msg: str, *args, **kwargs) -> None:
         """
         Log a debug message with sensitive information masked.
 
@@ -413,7 +414,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
         self.logger.debug(masked_msg, *args, **kwargs)
 
-    def info(self, msg: str, *args: Any, **kwargs: Any) -> None:
+    def info(self, msg: str, *args, **kwargs) -> None:
         """
         Log an info message with sensitive information masked.
 
@@ -428,7 +429,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
         self.logger.info(masked_msg, *args, **kwargs)
 
-    def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:
+    def warning(self, msg: str, *args, **kwargs) -> None:
         """
         Log a warning message with sensitive information masked.
 
@@ -446,7 +447,7 @@ class SecureLogger:
     # Alias for warning
     warn = warning
 
-    def error(self, msg: str, *args: Any, **kwargs: Any) -> None:
+    def error(self, msg: str, *args, **kwargs) -> None:
         """
         Log an error message with sensitive information masked.
 
@@ -461,7 +462,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
         self.logger.error(masked_msg, *args, **kwargs)
 
-    def critical(self, msg: str, *args: Any, **kwargs: Any) -> None:
+    def critical(self, msg: str, *args, **kwargs) -> None:
         """
         Log a critical message with sensitive information masked.
 
@@ -479,7 +480,7 @@ class SecureLogger:
     # Alias for critical
     fatal = critical
 
-    def exception(self, msg: str, *args: Any, **kwargs: Any) -> None:
+    def exception(self, msg: str, *args, **kwargs) -> None:
         """
         Log an exception message with sensitive information masked.
 
@@ -494,7 +495,7 @@ class SecureLogger:
             masked_msg = str(masked_msg)
         self.logger.exception(masked_msg, *args, **kwargs)
 
-    def log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:
+    def log(self, level: int, msg: str, *args, **kwargs) -> None:
         """
         Log with specified level.
 
