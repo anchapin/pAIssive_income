@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 
-
-
 class MockMCPClient:
     """Mock MCP client for testing."""
 
