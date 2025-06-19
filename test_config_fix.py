@@ -22,6 +22,6 @@ try:
     logger.info("DATABASE_URL: %s", Config.SQLALCHEMY_DATABASE_URI)
     logger.info("DEBUG: %s", Config.DEBUG)
     sys.exit(0)
-except (ImportError, ValueError, AttributeError) as e:
-    logger.exception("❌ Config failed to load: %s", e)
+except (ImportError, ValueError, AttributeError):
+    logger.exception("❌ Config failed to load")
     sys.exit(1)

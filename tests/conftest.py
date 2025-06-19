@@ -93,13 +93,13 @@ def app():
         try:
             db.session.remove()
             db.drop_all()
-        except Exception:
+        except Exception:  # noqa: BLE001
             logger.warning("Error during database cleanup")
         finally:
             # Clean up temporary directory
             try:
                 shutil.rmtree(temp_dir)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 logger.warning("Error cleaning up temp directory")
 
 
