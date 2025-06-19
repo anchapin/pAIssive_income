@@ -8,13 +8,13 @@ import subprocess
 from pathlib import Path
 
 
-def create_directory(path) -> None:
+def create_directory(path: str) -> None:
     """Create a directory if it doesn't exist."""
     Path(path).mkdir(parents=True, exist_ok=True)
     print(f"Created directory: {path}")
 
 
-def create_dummy_file(path, content="") -> None:
+def create_dummy_file(path: str, content: str = "") -> None:
     """Create a dummy file if it doesn't exist."""
     if not Path(path).exists():
         Path(path).write_text(content)

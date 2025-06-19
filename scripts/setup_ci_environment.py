@@ -8,17 +8,18 @@ import subprocess
 from pathlib import Path
 
 
-def run_command(command, cwd=None):
+def run_command(command: list[str], cwd: str | None = None) -> str:
     """Run a command and return its output."""
     try:
         result = subprocess.run(
             command, cwd=cwd, check=True, capture_output=True, text=True
         )
-        return result.stdout
     except subprocess.CalledProcessError as e:
         print(f"Error running command: {command}")
         print(f"Error output: {e.stderr}")
         raise
+    else:
+        return result.stdout
 
 
 def setup_ci_environment() -> None:
@@ -66,7 +67,7 @@ def setup_ci_environment() -> None:
     }
 
     # Write environment report
-    with open("ci-reports/ci-environment-report.json", "w") as f:
+    with Path("ci-reports/ci-environment-report.json").open("w") as f:
         json.dump(env_report, f, indent=2)
 
     # Set up environment variables
