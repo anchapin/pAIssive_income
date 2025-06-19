@@ -4,6 +4,24 @@ name: "CodeQL Analysis (Ubuntu)"
 # It's a specialized version of the main CodeQL workflow for Ubuntu-specific analysis
 
 on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - '.gitignore'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'SECURITY.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
   pull_request:
     branches: [ main ]
     paths-ignore:
@@ -106,7 +124,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
 
       # Display disk space before analysis
       - name: Check disk space
