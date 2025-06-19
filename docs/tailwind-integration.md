@@ -4,7 +4,16 @@ This document provides information about the Tailwind CSS integration in the pAI
 
 ## Overview
 
-Tailwind CSS is a utility-first CSS framework that allows for rapid UI development through composable utility classes. It has been integrated into the project to enhance the styling capabilities and provide a more modern approach to CSS.
+Tailwind CSS is a utility-first CSS framework that allows for rapid UI development through composable utility classes. This project uses **TailwindCSS v4.1.10**, which introduces a new architecture with separate CLI and PostCSS packages for improved performance and flexibility.
+
+## TailwindCSS v4 Architecture
+
+TailwindCSS v4 introduces significant changes to the build system:
+
+- **New CLI**: `@tailwindcss/cli` replaces the old `tailwindcss` CLI
+- **New PostCSS Plugin**: `@tailwindcss/postcss` provides improved PostCSS integration
+- **Enhanced Performance**: Faster builds and better caching
+- **Improved Configuration**: More flexible configuration options
 
 ## Files and Structure
 
@@ -18,10 +27,10 @@ Tailwind CSS is a utility-first CSS framework that allows for rapid UI developme
 
 ## Build Process
 
-The Tailwind CSS build process is integrated into the project's npm scripts:
+The Tailwind CSS build process uses the new v4 architecture and is integrated into the project's npm scripts:
 
 ```bash
-# Build Tailwind CSS (minified)
+# Build Tailwind CSS (minified) - uses @tailwindcss/cli
 npm run tailwind:build
 # or
 pnpm tailwind:build
@@ -42,6 +51,18 @@ pnpm tailwind:watch:react
 
 # Watch with custom configuration
 node ui/tailwind_watch.js --static-config ./path/to/config.js --static-input ./path/to/input.css --static-output ./path/to/output.css --react-config ./path/to/react-config.js --react-input ./path/to/react-input.css --react-output ./path/to/react-output.css
+```
+
+### TailwindCSS v4 Build Commands
+
+The build system now uses the new `@tailwindcss/cli` package:
+
+```bash
+# Direct CLI usage (v4)
+npx @tailwindcss/cli -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify
+
+# With PostCSS integration
+npx @tailwindcss/cli -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --postcss=./postcss.config.js
 ```
 
 ## CI/CD Integration
@@ -76,9 +97,28 @@ To use Tailwind CSS in your HTML templates:
 </div>
 ```
 
+## PostCSS Configuration (v4)
+
+TailwindCSS v4 uses a new PostCSS plugin. The `postcss.config.js` file has been updated:
+
+```javascript
+// PostCSS configuration for Tailwind CSS v4 and Autoprefixer
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+  },
+};
+```
+
+**Key Changes from v3:**
+- Plugin name changed from `'tailwindcss'` to `'@tailwindcss/postcss'`
+- Uses ES module syntax (`export default`)
+- Improved integration with other PostCSS plugins
+
 ## Customization
 
-To customize Tailwind CSS, edit the `tailwind.config.js` file. You can extend the theme, add plugins, or modify the content sources.
+To customize Tailwind CSS, edit the `tailwind.config.js` file. You can extend the theme, add plugins, or modify the content sources. The configuration format remains largely compatible with v3.
 
 ## Testing
 
@@ -138,9 +178,26 @@ export default MyComponent;
 
 If you encounter issues with the Tailwind CSS integration:
 
+### General Issues
 1. Make sure all dependencies are installed: `npm install` or `pnpm install`
 2. Rebuild the Tailwind CSS file: `npm run tailwind:build` or `pnpm tailwind:build`
 3. Check that the output file is being generated in the correct location
 4. Verify that the HTML templates are correctly linking to the output CSS file
-5. For React frontend issues, check that the `tailwind.config.js` file in the `ui/react_frontend` directory is properly configured
-6. Ensure that the `postcss.config.js` file is present in both the root directory and the `ui/react_frontend` directory
+
+### TailwindCSS v4 Specific Issues
+5. **CLI Not Found**: Ensure `@tailwindcss/cli` is installed: `pnpm add -D @tailwindcss/cli`
+6. **PostCSS Plugin Error**: Verify `postcss.config.js` uses `@tailwindcss/postcss` instead of `tailwindcss`
+7. **Build Command Fails**: Check that you're using the new CLI syntax: `npx @tailwindcss/cli` instead of `npx tailwindcss`
+8. **Configuration Issues**: Ensure your `tailwind.config.js` is compatible with v4 (most v3 configs work)
+
+### React Frontend Issues
+9. For React frontend issues, check that the `tailwind.config.js` file in the `ui/react_frontend` directory is properly configured
+10. Ensure that the `postcss.config.js` file is present in both the root directory and the `ui/react_frontend` directory
+11. Verify that the React frontend is using the correct PostCSS plugin (`@tailwindcss/postcss`)
+
+### Migration from v3 to v4
+If upgrading from TailwindCSS v3:
+- Update `postcss.config.js` to use `@tailwindcss/postcss`
+- Install the new CLI package: `@tailwindcss/cli`
+- Update build scripts to use the new CLI commands
+- Test all build processes to ensure compatibility

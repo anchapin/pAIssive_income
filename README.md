@@ -202,6 +202,12 @@ This project uses [Dependabot](https://docs.github.com/en/code-security/dependab
 - Ensure CI/tests pass before merging.
 - For major upgrades, review changelogs for breaking changes.
 
+**Recent Major Updates:**
+- **TailwindCSS v4 Upgrade**: Updated to TailwindCSS v4.1.10 with new CLI and PostCSS architecture
+  - New packages: `@tailwindcss/cli` and `@tailwindcss/postcss`
+  - Updated build process and configuration files
+  - See [TailwindCSS Integration Guide](docs/tailwind-integration.md) for details
+
 For more details, see `.github/dependabot.yml`.
 
 > **Tip for maintainers:**
