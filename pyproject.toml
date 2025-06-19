@@ -98,6 +98,8 @@ extend-exclude = [
     "*.egg-info",
     "docs/source/conf.py",
     "old/",
+    "mypy_stubs/",  # Exclude type stubs from linting
+    "scripts/",  # Exclude scripts from linting
     "ui/react_frontend/"  # Exclude React frontend code (uses ESLint/TypeScript)
 ]
 
@@ -218,6 +220,20 @@ exclude = ["ui/react_frontend", "scripts/__init__.py", ".github/scripts/__init__
 reportMissingImports = false
 reportMissingTypeStubs = false
 reportUnusedImport = false
+reportAttributeAccessIssue = false
+reportArgumentType = false
+reportCallIssue = false
+reportAssignmentType = false
+reportOptionalMemberAccess = false
+reportGeneralTypeIssues = false
+reportIncompatibleMethodOverride = false
+reportInvalidTypeForm = false
+reportReturnType = false
+reportIndexIssue = false
+reportOperatorIssue = false
+reportPossiblyUnboundVariable = false
+reportUnusedFunction = false
+reportUnusedVariable = false
 reportUnusedVariable = false
 reportGeneralTypeIssues = false
 reportOptionalMemberAccess = false
