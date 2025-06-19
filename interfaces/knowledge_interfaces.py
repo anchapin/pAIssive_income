@@ -59,7 +59,7 @@ from __future__ import annotations  # Already present, but good to ensure
 import logging  # Added logging import
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Protocol, Union
+from typing import Protocol
 
 logger = logging.getLogger(__name__)  # Added module-level logger
 
@@ -73,8 +73,8 @@ class Mem0ClientProtocol(Protocol):
     """
 
     def search(
-        self, query: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> list[dict[str, Union[str, int, bool, None]]]:
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """
         Search for memories based on query and user context.
 
@@ -93,8 +93,8 @@ class Mem0ClientProtocol(Protocol):
         self,
         content: str | list[dict[str, str]],
         user_id: str,
-        **kwargs: Union[str, int, bool, None],
-    ) -> Union[dict[str, Union[str, int, bool, None]], str, None]:
+        **kwargs: str | int | bool | None,
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Add new memory content.
 
@@ -119,8 +119,8 @@ class VectorClientProtocol(Protocol):
     """
 
     def query(
-        self, query: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> list[dict[str, Union[str, int, bool, None]]]:
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """
         Query the vector database for relevant documents.
 
@@ -136,8 +136,8 @@ class VectorClientProtocol(Protocol):
         ...
 
     def add(
-        self, content: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> Union[dict[str, Union[str, int, bool, None]], str, None]:
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Add new content to the vector database.
 
@@ -162,8 +162,8 @@ class KnowledgeSource(ABC):
 
     @abstractmethod
     def search(
-        self, query: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> list[dict[str, Union[str, int, bool, None]]]:
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """
         Search for relevant information given a query and user context.
 
@@ -179,8 +179,8 @@ class KnowledgeSource(ABC):
 
     @abstractmethod
     def add(
-        self, content: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> Union[dict[str, Union[str, int, bool, None]], str, None]:
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Add new knowledge/content to the source.
 
@@ -199,8 +199,8 @@ class KnowledgeSource(ABC):
         content_id: str,
         new_content: str,
         user_id: str,
-        **kwargs: Union[str, int, bool, None],
-    ) -> Union[dict[str, Union[str, int, bool, None]], str, None]:
+        **kwargs: str | int | bool | None,
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Update existing knowledge entry.
 
@@ -218,8 +218,8 @@ class KnowledgeSource(ABC):
         raise NotImplementedError(msg)
 
     def delete(
-        self, content_id: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> Union[dict[str, Union[str, int, bool, None]], str, None]:
+        self, content_id: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """
         Delete an entry.
 
@@ -250,8 +250,8 @@ class Mem0KnowledgeSource(KnowledgeSource):
         self.mem0_client = mem0_client
 
     def search(
-        self, query: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> list[dict[str, Union[str, int, bool, None]]]:
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """Search mem0 for relevant memories."""
         try:
             return self.mem0_client.search(query, user_id, **kwargs)
@@ -260,8 +260,8 @@ class Mem0KnowledgeSource(KnowledgeSource):
             return []
 
     def add(
-        self, content: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> Union[dict[str, Union[str, int, bool, None]], str, None]:
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """Add new content to mem0."""
         try:
             return self.mem0_client.add(content, user_id, **kwargs)
@@ -284,8 +284,8 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
         self.vector_client = vector_client
 
     def search(
-        self, query: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> list[dict[str, Union[str, int, bool, None]]]:
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """Search vector DB for relevant documents."""
         try:
             return self.vector_client.query(query, user_id, **kwargs)
@@ -294,8 +294,8 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
             return []
 
     def add(
-        self, content: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> Union[dict[str, Union[str, int, bool, None]], str, None]:
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> dict[str, str | int | bool | None] | str | None:
         """Add new content to vector DB."""
         try:
             return self.vector_client.add(content, user_id, **kwargs)
@@ -351,8 +351,8 @@ class KnowledgeIntegrationLayer:
             raise TypeError(msg)
 
     def search(
-        self, query: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> list[dict[str, Union[str, int, bool, None]]]:
+        self, query: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None]]:
         """Search using the configured integration strategy."""
         if self.strategy == KnowledgeStrategy.FALLBACK:
             for source in self.sources:
@@ -361,7 +361,7 @@ class KnowledgeIntegrationLayer:
                     return results
             return []
         if self.strategy == KnowledgeStrategy.AGGREGATE:
-            aggregated: list[dict[str, Union[str, int, bool, None]]] = []
+            aggregated: list[dict[str, str | int | bool | None]] = []
             for source in self.sources:
                 aggregated.extend(source.search(query, user_id, **kwargs))
             return aggregated
@@ -369,7 +369,7 @@ class KnowledgeIntegrationLayer:
         raise ValueError(msg)
 
     def add(
-        self, content: str, user_id: str, **kwargs: Union[str, int, bool, None]
-    ) -> list[Union[dict[str, Union[str, int, bool, None]], str, None]]:
+        self, content: str, user_id: str, **kwargs: str | int | bool | None
+    ) -> list[dict[str, str | int | bool | None] | str | None]:
         """Add content to all sources."""
         return [source.add(content, user_id, **kwargs) for source in self.sources]

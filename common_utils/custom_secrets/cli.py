@@ -13,9 +13,10 @@ import hashlib
 import os
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
 from secrets import compare_digest
-from typing import Callable, NoReturn, TypeVar, cast
+from typing import NoReturn, TypeVar, cast
 
 # Local imports
 from common_utils.custom_logging.secure_logging import (

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Set up the CI environment."""
+from __future__ import annotations
 
 import json
 import os

@@ -82,7 +82,7 @@ def run_secure_command(
             full_path = shutil.which(cmd_list[0])
             if full_path:
                 cmd_list[0] = full_path  # Run with safe defaults
-        return subprocess.run(  # noqa: S603  # nosec B603 - This is a safe subprocess call with shell=False and validated arguments
+        return subprocess.run(  # nosec B603 - This is a safe subprocess call with shell=False and validated arguments
             cmd_list,
             check=False,
             shell=False,  # Never use shell=True for security

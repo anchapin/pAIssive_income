@@ -137,7 +137,7 @@ def find_bandit_executable() -> str:
     return "bandit"
 
 
-def run_bandit_scan(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:  # noqa: ANN401
+def run_bandit_scan(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
     """Run Bandit scan with trusted binaries only."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
@@ -160,7 +160,7 @@ def run_bandit_scan(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProces
 
 def _safe_subprocess_run(
     cmd: list[str],
-    **kwargs: Any,  # noqa: ANN401
+    **kwargs: Any,
 ) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):

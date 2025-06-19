@@ -26,7 +26,7 @@ def isolated_settings_file(monkeypatch):
 
 
 @pytest.fixture
-def app(isolated_settings_file: Path):  # noqa: ARG001
+def app(isolated_settings_file: Path):
     app = Flask(__name__)
     app.config["TESTING"] = True
     app.config["DEBUG"] = True

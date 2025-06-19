@@ -7,8 +7,6 @@ error messages and better error handling throughout the project.
 
 from __future__ import annotations
 
-from typing import Optional
-
 
 class DirectoryPermissionError(PermissionError):
     """Exception raised when there are insufficient permissions to read a directory."""
@@ -29,7 +27,7 @@ class DirectoryPermissionError(PermissionError):
 class FilePermissionError(PermissionError):
     """Exception raised when there are insufficient permissions to read a file."""
 
-    def __init__(self, file_path: Optional[str] = None) -> None:
+    def __init__(self, file_path: str | None = None) -> None:
         """
         Initialize the exception.
 
@@ -46,7 +44,7 @@ class FilePermissionError(PermissionError):
 class DirectoryNotFoundError(FileNotFoundError):
     """Exception raised when a directory is not found."""
 
-    def __init__(self, directory: Optional[str] = None) -> None:
+    def __init__(self, directory: str | None = None) -> None:
         """
         Initialize the exception.
 
@@ -63,7 +61,7 @@ class DirectoryNotFoundError(FileNotFoundError):
 class FileNotPythonError(ValueError):
     """Exception raised when a file is not a Python file."""
 
-    def __init__(self, file_path: Optional[str] = None) -> None:
+    def __init__(self, file_path: str | None = None) -> None:
         """
         Initialize the exception.
 
@@ -80,7 +78,7 @@ class FileNotPythonError(ValueError):
 class MissingFileError(FileNotFoundError):
     """Exception raised when a file is not found."""
 
-    def __init__(self, file_path: Optional[str] = None) -> None:
+    def __init__(self, file_path: str | None = None) -> None:
         """
         Initialize the exception.
 

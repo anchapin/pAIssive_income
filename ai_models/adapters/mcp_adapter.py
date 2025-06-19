@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import re
 import urllib.parse
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 # Third-party imports
 try:
@@ -129,7 +129,7 @@ class MCPAdapter:
 
         self.host = host
         self.port = port
-        self.client: Optional[Client] = None
+        self.client: Client | None = None
         self.kwargs = kwargs
 
     def connect(self) -> None:

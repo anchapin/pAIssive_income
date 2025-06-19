@@ -200,7 +200,7 @@ class MemoryRAGCoordinator:
             )
 
             formatted = []
-            for doc, dist, doc_id, meta in zip(docs, dists, ids, metadatas):
+            for doc, dist, doc_id, meta in zip(docs, dists, ids, metadatas, strict=False):
                 entry = {
                     "content": doc,
                     "score": dist,

@@ -9,7 +9,10 @@ for use by agent wrappers.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # Tool registry: maps tool name to dict with 'func', optional 'keywords', optional 'input_preprocessor'
 _TOOL_REGISTRY: dict[str, dict[str, Any]] = {}
@@ -19,8 +22,8 @@ def register_tool(
     name: str,
     func: Callable[..., Any],
     *,
-    keywords: Optional[list[str]] = None,
-    input_preprocessor: Optional[Callable[[str], Any]] = None,
+    keywords: list[str] | None = None,
+    input_preprocessor: Callable[[str], Any] | None = None,
 ) -> None:
     """
     Register a callable tool with a name and optional metadata.

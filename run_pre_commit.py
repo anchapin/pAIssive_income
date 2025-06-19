@@ -15,13 +15,13 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Type alias for subprocess kwargs (for documentation purposes)
 SubprocessKwargs = dict[str, Any]
 
 
-def find_python_files(exclude_patterns: Optional[list[str]] = None) -> list[str]:
+def find_python_files(exclude_patterns: list[str] | None = None) -> list[str]:
     """
     Find all Python files in the repository, excluding those matching exclude patterns.
 
@@ -61,7 +61,7 @@ def find_python_files(exclude_patterns: Optional[list[str]] = None) -> list[str]
     return python_files
 
 
-def _safe_subprocess_run(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess:  # noqa: ANN401
+def _safe_subprocess_run(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])

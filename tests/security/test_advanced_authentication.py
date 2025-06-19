@@ -5,10 +5,13 @@ from __future__ import annotations
 import asyncio
 import unittest
 from datetime import datetime, timedelta, timezone
-from typing import Any, AsyncGenerator, Dict, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, Optional, Set
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from test_security import BaseSecurityTest
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 # Constants for token configuration
 TOKEN_EXPIRY = timedelta(minutes=30)
@@ -58,7 +61,7 @@ class TestAdvancedAuthentication(BaseSecurityTest, unittest.TestCase):
         self,
         refresh_token: str,  # noqa: ARG002
         access_token: str,
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Mock token refresh with validation."""
         if access_token not in self.active_tokens:
             return None

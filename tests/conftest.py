@@ -38,7 +38,7 @@ def is_git_tracked(path) -> bool:
         return True
 
 
-def pytest_collect_file(parent, file_path):  # noqa: ARG001
+def pytest_collect_file(parent, file_path):
     """
     Skip files that are not tracked by git (i.e., are git-ignored).
 
@@ -93,13 +93,13 @@ def app():
         try:
             db.session.remove()
             db.drop_all()
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.warning("Error during database cleanup")
         finally:
             # Clean up temporary directory
             try:
                 shutil.rmtree(temp_dir)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 logger.warning("Error cleaning up temp directory")
 
 

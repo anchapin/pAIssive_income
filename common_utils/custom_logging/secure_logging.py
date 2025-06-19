@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 import re
 from re import Pattern
-from typing import Any, Optional
+from typing import Any
 
 # List of sensitive field names to mask in logs
 SENSITIVE_FIELDS: list[str] = [
@@ -352,10 +352,10 @@ class SecureLogger:
         lno: int,
         msg: str,
         args: tuple,
-        exc_info: Optional[tuple],
-        func: Optional[str] = None,
-        extra: Optional[dict[str, Any]] = None,
-        sinfo: Optional[str] = None,
+        exc_info: tuple | None,
+        func: str | None = None,
+        extra: dict[str, Any] | None = None,
+        sinfo: str | None = None,
     ) -> logging.LogRecord:
         """
         Make a LogRecord.
@@ -389,9 +389,9 @@ class SecureLogger:
 
     def find_caller(
         self, stack_info: bool = False, stacklevel: int = 1
-    ) -> tuple[str, int, str, Optional[str]]:
+    ) -> tuple[str, int, str, str | None]:
         """Find the caller's source file and line number."""
-        result: tuple[str, int, str, Optional[str]] = self.logger.findCaller(
+        result: tuple[str, int, str, str | None] = self.logger.findCaller(
             stack_info, stacklevel
         )
         return result

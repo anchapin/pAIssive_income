@@ -18,7 +18,10 @@ import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 # Type alias for subprocess kwargs (for documentation purposes)
 SubprocessKwargs = dict[str, Any]
@@ -349,7 +352,7 @@ def check_venv_exists() -> bool:
 
 def _safe_subprocess_run(
     cmd: list[str],
-    **kwargs: Any,  # noqa: ANN401
+    **kwargs: Any,
 ) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):

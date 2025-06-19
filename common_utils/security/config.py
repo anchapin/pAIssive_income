@@ -6,7 +6,6 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Optional
 
 # Secure defaults
 ALLOWED_COMMANDS: set[str] = {
@@ -74,10 +73,10 @@ def validate_command(
 
 def run_command_securely(
     command: list[str],
-    cwd: Optional[str] = None,
-    env: Optional[dict[str, str]] = None,
+    cwd: str | None = None,
+    env: dict[str, str] | None = None,
     allow_shell: bool = False,
-    timeout: Optional[int] = None,
+    timeout: int | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """
     Run a command securely with proper validation and defaults.

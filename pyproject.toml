@@ -165,6 +165,19 @@ lines-between-types = 1
     "S607",     # Allow partial executable paths in test setup  
     "PTH123",   # Allow open() in setup scripts for compatibility
 ]
+# Script files with subprocess and Any usage patterns
+"**/run_*.py" = [
+    "ANN401",   # Any kwargs in subprocess runners
+    "S603",     # Subprocess usage in trusted scripts
+    "S607",     # Partial executable paths in scripts
+]
+"main_*.py" = ["ANN401", "S603", "S607"]
+"simple_*.py" = ["ANN401", "S603", "S607"]
+"**/test_*.py" = [
+    "S101",     # Allow assert in test files
+    "ARG001",   # Allow unused test fixture arguments
+    "BLE001",   # Allow bare except in test cleanup
+]
 # Stub files have different type hint conventions
 "**/*.pyi" = [
     "UP006",    # Allow older style type hints in stub files

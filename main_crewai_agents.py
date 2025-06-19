@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import Optional, Protocol
+from typing import Protocol
 
 # Import standard CrewAI components
 from crewai import Agent, Crew, Task
@@ -48,7 +48,7 @@ memory_enhanced_team_cls = MemoryEnhancedCrewAIAgentTeam if crewai_available els
 
 
 def create_team(
-    use_memory: bool = False, user_id: Optional[str] = None
+    use_memory: bool = False, user_id: str | None = None
 ) -> TeamProtocol:
     """
     Create and return a CrewAI team, optionally using memory enhancement.

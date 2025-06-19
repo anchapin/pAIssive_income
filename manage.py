@@ -21,7 +21,6 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
 
 from common_utils.security import SecurityError, run_command_securely
 
@@ -52,7 +51,7 @@ COMMAND_MAP = {
 
 
 def run_script(
-    script_path: str, extra_args: Optional[list[str]] = None, shell: bool = False
+    script_path: str, extra_args: list[str] | None = None, shell: bool = False
 ) -> None:
     """Run a script with Python."""
     try:

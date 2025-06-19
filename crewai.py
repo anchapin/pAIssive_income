@@ -7,8 +7,6 @@ when the actual CrewAI package is not installed.
 
 from __future__ import annotations
 
-from typing import Optional
-
 __version__ = "0.120.0"
 
 
@@ -72,8 +70,8 @@ class Crew:
 
     def __init__(
         self,
-        agents: Optional[list[Agent]] = None,
-        tasks: Optional[list[Task]] = None,
+        agents: list[Agent] | None = None,
+        tasks: list[Task] | None = None,
         **kwargs: dict,
     ) -> None:
         """

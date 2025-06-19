@@ -37,7 +37,7 @@ class BaseSecurityTest:
         return tmp_dir
 
     @staticmethod
-    def secure_temp_file(suffix: Union[str, None] = None) -> tuple[Path, Any]:
+    def secure_temp_file(suffix: str | None = None) -> tuple[Path, Any]:
         """
         Create a temporary file with secure permissions.
 
@@ -105,7 +105,7 @@ class BaseSecurityTest:
             f.write(content)
 
     @staticmethod
-    def read_secure_json(path: Union[Path, str]) -> Any:
+    def read_secure_json(path: Path | str) -> Any:
         """
         Read and parse JSON from a file, verifying permissions.
 
@@ -131,7 +131,7 @@ class BaseSecurityTest:
         with path.open("r", encoding=DEFAULT_ENCODING) as f:
             return json.loads(f.read())
 
-    def cleanup_temp_files(self, *paths: Union[Path, str]) -> None:
+    def cleanup_temp_files(self, *paths: Path | str) -> None:
         """
         Safely cleanup temporary files.
 
@@ -145,7 +145,7 @@ class BaseSecurityTest:
                 os.chmod(path, SECURE_FILE_PERMISSIONS)  # Ensure we can delete
                 path.unlink()
 
-    def cleanup_temp_dirs(self, *paths: Union[Path, str]) -> None:
+    def cleanup_temp_dirs(self, *paths: Path | str) -> None:
         """
         Safely cleanup temporary directories.
 
