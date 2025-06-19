@@ -289,8 +289,20 @@ def main() -> None:
 
         # Check if this is a dependabot PR - skip documentation check
         github_actor = os.getenv("GITHUB_ACTOR", "")
-        if github_actor == "dependabot[bot]" or "dependabot" in github_actor.lower():
+        github_head_ref = os.getenv("GITHUB_HEAD_REF", "")
+
+        # Check various ways to detect dependabot PRs
+        is_dependabot = (
+            github_actor == "dependabot[bot]" or
+            "dependabot" in github_actor.lower() or
+            github_head_ref.startswith("dependabot/") or
+            "dependabot" in github_head_ref.lower()
+        )
+
+        if is_dependabot:
             logger.info("✅ Documentation check skipped (dependabot PR)")
+            logger.info("  GitHub Actor: %s", github_actor)
+            logger.info("  Head Ref: %s", github_head_ref)
             sys.exit(0)
 
         # Get the list of changed files
