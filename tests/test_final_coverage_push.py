@@ -1,5 +1,7 @@
 """Final tests to push coverage over 15%."""
 
+import contextlib
+
 import pytest
 
 
@@ -11,10 +13,8 @@ def test_additional_config():
     attrs = dir(config)
     for attr in attrs:
         if not attr.startswith("_"):
-            try:
+            with contextlib.suppress(Exception):
                 getattr(config, attr)
-            except Exception:
-                pass
 
 
 def test_additional_main():
@@ -27,10 +27,8 @@ def test_additional_main():
 
     for attr in attrs:
         if not attr.startswith("_"):
-            try:
+            with contextlib.suppress(Exception):
                 getattr(main, attr)
-            except Exception:
-                pass
 
 
 def test_additional_crewai():
@@ -190,10 +188,8 @@ def test_all_import_coverage():
             attrs = dir(module)
             for attr in attrs[:5]:  # Just test first 5 to save time
                 if not attr.startswith("_"):
-                    try:
+                    with contextlib.suppress(Exception):
                         getattr(module, attr)
-                    except Exception:
-                        pass
         except ImportError:
             # Module might not be available
             pass

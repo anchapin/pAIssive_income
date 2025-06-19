@@ -302,7 +302,7 @@ def test_sarif_file_handling() -> None:
                     f_out.write(f_in.read())
             logger.info("Created compressed version: %s", compressed_file)
         except Exception as e:
-            logger.error("Error creating compressed version: %s", e)
+            logger.exception("Error creating compressed version: %s", e)
             msg = f"Failed to create compressed version: {e}"
             raise AssertionError(msg)
 

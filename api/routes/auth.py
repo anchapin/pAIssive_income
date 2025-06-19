@@ -9,15 +9,18 @@ import secrets
 import smtplib
 from datetime import datetime, timedelta, timezone
 from email.mime.text import MIMEText
+from typing import TYPE_CHECKING
 
 import bcrypt
 from flask import Blueprint, jsonify, request
-from flask.typing import ResponseReturnValue
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from sqlalchemy import Column, DateTime, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+if TYPE_CHECKING:
+    from flask.typing import ResponseReturnValue
 
 # Pattern for allowed characters in logs. Anything not matching this will be replaced.
 # Allows: a-z, A-Z, 0-9, space, period, underscore, @, :, /, =, -
