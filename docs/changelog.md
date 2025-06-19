@@ -2,6 +2,23 @@
 
 Track all major changes, releases, and fixes here.
 
+## [Unreleased] - 2025-06-19
+
+### Major Updates
+- **TailwindCSS v4 Upgrade**: Updated to TailwindCSS v4.1.10
+  - Added `@tailwindcss/cli@^4.1.10` for improved command-line interface
+  - Added `@tailwindcss/postcss@^4.1.10` for enhanced PostCSS integration
+  - Updated `postcss.config.js` to use new `@tailwindcss/postcss` plugin
+  - Updated `ui/tailwind_utils.js` to use new CLI commands
+  - Improved build performance and developer experience
+  - See [TailwindCSS v4 Migration Guide](./tailwind-v4-migration.md) for details
+
+### Documentation
+- Updated [TailwindCSS Integration Guide](./tailwind-integration.md) for v4 architecture
+- Added comprehensive [TailwindCSS v4 Migration Guide](./tailwind-v4-migration.md)
+- Updated README.md with TailwindCSS v4 information
+- Enhanced troubleshooting documentation for v4-specific issues
+
 ## [Unreleased] - 2025-06-17
 
 ### Dependencies

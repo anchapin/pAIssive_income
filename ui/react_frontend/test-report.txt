@@ -1,6 +1,6 @@
 CI Environment Report
 =====================
-Generated at: 2025-06-18T12:27:10.098Z
+Generated at: 2025-06-19T04:41:03.627Z
 
 CI Detection:
 - CI: Yes
@@ -58,19 +58,19 @@ Serverless: No
 
 System Information
 -----------------
-Node.js: undefined
+Node.js: v22.16.0
 Platform: linux
-Architecture: undefined
-OS: undefined undefined
-Working Directory: undefined
+Architecture: x64
+OS: Linux 5.15.153.1-microsoft-standard-WSL2
+Working Directory: /home/anchapin/pAIssive_income_main/pAIssive_income/ui/react_frontend
 
 Detailed System Information
 -------------------------
-Hostname: unknown
-Username: unknown
-Memory Total: N/A
-Memory Free: N/A
-CPUs: N/A
+Hostname: gaming-pc
+Username: anchapin
+Memory Total: 17.57 GB
+Memory Free: 4.72 GB
+CPUs: 10
 
 Environment Variables
 -------------------

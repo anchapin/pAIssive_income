@@ -254,8 +254,10 @@ describe('CI Environment Detection Module', () => {
     it('should create CI directories when specified', () => {
       // Arrange
       process.env.CI = 'true';
-      fs.existsSync = vi.fn(() => false);
-      fs.mkdirSync = vi.fn(() => undefined);
+      // Setup mocks to ensure they're called
+      fs.existsSync.mockReturnValue(false);
+      fs.mkdirSync.mockReturnValue(undefined);
+      fs.writeFileSync.mockReturnValue(undefined);
 
       // Act
       const result = setupCIEnvironment();
@@ -268,7 +270,10 @@ describe('CI Environment Detection Module', () => {
     it('should handle errors during setup', () => {
       // Arrange
       process.env.CI = 'true';
-      fs.mkdirSync = vi.fn(() => { throw new Error('Test error'); });
+      // Mock fs functions to trigger error in directory creation
+      fs.existsSync.mockReturnValue(false);
+      fs.mkdirSync.mockImplementation(() => { throw new Error('Test error'); });
+      fs.writeFileSync.mockReturnValue(undefined);
 
       // Act
       const result = setupCIEnvironment();
@@ -348,7 +353,10 @@ describe('CI Environment Detection Module', () => {
       // Arrange
       process.env.CI = 'true';
       const filename = 'test-report.txt';
-      fs.writeFileSync = vi.fn(() => undefined);
+      // Mock fs functions properly
+      fs.existsSync.mockReturnValue(true);
+      fs.mkdirSync.mockReturnValue(undefined);
+      fs.writeFileSync.mockReturnValue(undefined);
 
       // Act
       const result = createCIReport(filename, {
@@ -366,6 +374,10 @@ describe('CI Environment Detection Module', () => {
       // Arrange
       process.env.CI = 'true';
       const filename = 'test-report.json';
+      // Mock fs functions properly
+      fs.existsSync.mockReturnValue(true);
+      fs.mkdirSync.mockReturnValue(undefined);
+      fs.writeFileSync.mockReturnValue(undefined);
 
       // Act
       const result = createCIReport(filename, {
