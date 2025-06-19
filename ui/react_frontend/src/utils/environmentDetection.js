@@ -50,6 +50,11 @@ export function detectEnvironment() {
     else if (isLinux) platform = 'linux';
     else if (isIOS) platform = 'ios';
     else if (isAndroid) platform = 'android';
+    
+    // WSL detection in browser context (for test environments that have both window and process)
+    if (typeof process !== 'undefined' && process.env) {
+      isWSL = !!process.env.WSL_DISTRO_NAME;
+    }
   }
   // Node.js Detection
   else if (typeof process !== 'undefined' && process.platform) {
@@ -64,19 +69,22 @@ export function detectEnvironment() {
                  !!process.versions.electron;
 
     // WSL (Windows Subsystem for Linux) detection
-    if (isLinux) {
+    // Check environment variable first (works in all contexts)
+    isWSL = !!process.env.WSL_DISTRO_NAME;
+    
+    
+    // Additional checks only if on Linux platform
+    if (isLinux && !isWSL) {
       try {
         const fs = require('fs');
         const os = require('os');
 
-        // Check for WSL-specific files or environment variables
-        isWSL = fs.existsSync('/proc/version') &&
-                fs.readFileSync('/proc/version', 'utf8').toLowerCase().includes('microsoft') ||
-                os.release().toLowerCase().includes('microsoft') ||
-                !!process.env.WSL_DISTRO_NAME;
+        // Check for WSL-specific files or system info
+        isWSL = (fs.existsSync('/proc/version') &&
+                 fs.readFileSync('/proc/version', 'utf8').toLowerCase().includes('microsoft')) ||
+                os.release().toLowerCase().includes('microsoft');
       } catch (error) {
-        // fs module not available or error reading file
-        isWSL = false;
+        // fs module not available or error reading file - already checked env var above
       }
     }
   }
@@ -266,14 +274,20 @@ export function detectEnvironment() {
 
   const isServerless = isLambda || isAzureFunctions || isCloudFunctions;
 
-  // Node Environment Detection
+  // Additional derived properties for compatibility
+  const isAWSLambda = isLambda;
+  const isGCPCloudFunctions = isCloudFunctions;
+  const isGKE = isKubernetes && (isGCP || !!process.env.GKE_CLUSTER_NAME);
+
+  // Node Environment Detection - prioritize explicit NODE_ENV setting
   const isDevelopment = typeof process !== 'undefined' && process.env.NODE_ENV === 'development';
   const isProduction = typeof process !== 'undefined' && process.env.NODE_ENV === 'production';
-  const isTest = typeof process !== 'undefined' && (
-    process.env.NODE_ENV === 'test' ||
+  const isExplicitTest = typeof process !== 'undefined' && process.env.NODE_ENV === 'test';
+  const isImplicitTest = typeof process !== 'undefined' && (
     process.env.JEST_WORKER_ID !== undefined ||
     process.env.VITEST !== undefined
   );
+  const isTest = isExplicitTest || (!isDevelopment && !isProduction && isImplicitTest);
   const isStaging = typeof process !== 'undefined' && process.env.NODE_ENV === 'staging';
 
   // Verbose Logging
@@ -373,9 +387,12 @@ export function detectEnvironment() {
 
     // Serverless Environment
     isLambda,
+    isAWSLambda,
     isAzureFunctions,
     isCloudFunctions,
+    isGCPCloudFunctions,
     isServerless,
+    isGKE,
 
     // Node Environment
     isDevelopment,
@@ -672,6 +689,133 @@ export function getEnvironmentInfo() {
   return env;
 }
 
+/**
+ * Creates an environment report
+ * @param {string} [filePath] - Optional file path to write report to
+ * @param {Object} [options] - Report options
+ * @param {boolean} [options.formatJson=false] - Format as JSON
+ * @param {boolean} [options.includeEnvVars=false] - Include environment variables
+ * @returns {string} Environment report
+ */
+export function createEnvironmentReport(filePath, options = {}) {
+  const { formatJson = false, includeEnvVars = false } = options;
+  const env = detectEnvironment();
+
+  if (formatJson) {
+    const report = {
+      timestamp: new Date().toISOString(),
+      operatingSystem: {
+        platform: env.platform,
+        isWindows: env.isWindows,
+        isMacOS: env.isMacOS,
+        isLinux: env.isLinux,
+        isWSL: env.isWSL
+      },
+      ciEnvironment: {
+        isCI: env.isCI,
+        isGitHubActions: env.isGitHubActions,
+        isJenkins: env.isJenkins,
+        isGitLabCI: env.isGitLabCI,
+        isCircleCI: env.isCircleCI
+      },
+      containerEnvironment: {
+        isDocker: env.isDocker,
+        isKubernetes: env.isKubernetes,
+        isContainerized: env.isContainerized
+      },
+      cloudEnvironment: {
+        isAWS: env.isAWS,
+        isAzure: env.isAzure,
+        isGCP: env.isGCP,
+        isServerless: env.isServerless
+      },
+      nodeEnvironment: {
+        isDevelopment: env.isDevelopment,
+        isProduction: env.isProduction,
+        isTest: env.isTest,
+        nodeVersion: env.nodeVersion
+      }
+    };
+
+    if (includeEnvVars && typeof process !== 'undefined') {
+      report.environmentVariables = process.env;
+    }
+
+    const jsonString = JSON.stringify(report, null, 2);
+
+    if (filePath) {
+      try {
+        const fs = require('fs');
+        fs.writeFileSync(filePath, jsonString);
+      } catch (error) {
+        console.warn('Could not write report to file:', error.message);
+      }
+    }
+
+    return jsonString;
+  }
+
+  // Text format
+  let report = `Environment Report
+================
+Generated: ${new Date().toISOString()}
+
+Platform: ${env.platform}
+OS: ${env.osType} ${env.osRelease}
+Node.js: ${env.nodeVersion}
+Architecture: ${env.architecture}
+
+Operating System:
+- Windows: ${env.isWindows ? 'Yes' : 'No'}
+- macOS: ${env.isMacOS ? 'Yes' : 'No'}
+- Linux: ${env.isLinux ? 'Yes' : 'No'}
+- WSL: ${env.isWSL ? 'Yes' : 'No'}
+
+CI Environment:
+- CI: ${env.isCI ? 'Yes' : 'No'}
+- GitHub Actions: ${env.isGitHubActions ? 'Yes' : 'No'}
+- Jenkins: ${env.isJenkins ? 'Yes' : 'No'}
+- GitLab CI: ${env.isGitLabCI ? 'Yes' : 'No'}
+
+Container Environment:
+- Docker: ${env.isDocker ? 'Yes' : 'No'}
+- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}
+- Containerized: ${env.isContainerized ? 'Yes' : 'No'}
+
+Cloud Environment:
+- AWS: ${env.isAWS ? 'Yes' : 'No'}
+- Azure: ${env.isAzure ? 'Yes' : 'No'}
+- GCP: ${env.isGCP ? 'Yes' : 'No'}
+- Serverless: ${env.isServerless ? 'Yes' : 'No'}
+
+Node Environment:
+- Development: ${env.isDevelopment ? 'Yes' : 'No'}
+- Production: ${env.isProduction ? 'Yes' : 'No'}
+- Test: ${env.isTest ? 'Yes' : 'No'}
+`;
+
+  if (includeEnvVars && typeof process !== 'undefined') {
+    report += '\nEnvironment Variables:\n';
+    Object.keys(process.env).sort().forEach(key => {
+      const value = key.toLowerCase().includes('secret') || 
+                   key.toLowerCase().includes('password') || 
+                   key.toLowerCase().includes('key') ? '[REDACTED]' : process.env[key];
+      report += `${key}=${value}\n`;
+    });
+  }
+
+  if (filePath) {
+    try {
+      const fs = require('fs');
+      fs.writeFileSync(filePath, report);
+    } catch (error) {
+      console.warn('Could not write report to file:', error.message);
+    }
+  }
+
+  return report;
+}
+
 // Export all functions
 export default {
   detectEnvironment,
@@ -683,5 +827,6 @@ export default {
   getScreenInfo,
   getFeatureSupport,
   getPerformanceInfo,
-  getEnvironmentInfo
+  getEnvironmentInfo,
+  createEnvironmentReport
 };

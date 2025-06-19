@@ -50,19 +50,7 @@ function safelyCreateDirectory(dirPath) {
     return true;
   } catch (error) {
     console.error(`Failed to create directory at ${dirPath}: ${error.message}`);
-
-    // Try with absolute path as fallback
-    try {
-      const absolutePath = path.resolve(process.cwd(), dirPath);
-      if (!fs.existsSync(absolutePath)) {
-        fs.mkdirSync(absolutePath, { recursive: true });
-        console.log(`Created directory at absolute path: ${absolutePath}`);
-      }
-      return true;
-    } catch (fallbackError) {
-      console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
-      return false;
-    }
+    return false;
   }
 }
 
@@ -91,27 +79,7 @@ function safelyWriteFile(filePath, content, options = {}) {
     return true;
   } catch (error) {
     console.error(`Failed to write file at ${filePath}: ${error.message}`);
-
-    // Try with absolute path as fallback
-    try {
-      const absolutePath = path.resolve(process.cwd(), filePath);
-      const absoluteDirPath = path.dirname(absolutePath);
-      
-      // Ensure directory exists
-      safelyCreateDirectory(absoluteDirPath);
-      
-      // Write the file
-      if (append) {
-        fs.appendFileSync(absolutePath, content);
-      } else {
-        fs.writeFileSync(absolutePath, content);
-      }
-      console.log(`Wrote file at absolute path: ${absolutePath}`);
-      return true;
-    } catch (fallbackError) {
-      console.error(`Failed to write file with absolute path: ${fallbackError.message}`);
-      return false;
-    }
+    return false;
   }
 }
 

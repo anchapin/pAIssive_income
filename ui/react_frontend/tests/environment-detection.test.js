@@ -10,7 +10,7 @@
  * - Node.js environments
  */
 
-import { detectEnvironment } from '../src/utils/environmentDetection.js';
+import { detectEnvironment, createEnvironmentReport } from '../src/utils/environmentDetection.js';
 
 describe('Environment Detection', () => {
   // Save original environment variables
