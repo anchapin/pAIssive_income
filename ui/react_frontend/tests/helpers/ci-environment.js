@@ -1078,22 +1078,17 @@ function createCIReport(filePath, options = {}) {
       reportObj.detailedSystemInfo = {
         hostname: env.hostname || 'unknown',
         username: env.username || 'unknown',
-        memory: env.memory ? {
-          total: env.memory.total,
-          free: env.memory.free,
-          totalFormatted: formatBytes(env.memory.total),
-          freeFormatted: formatBytes(env.memory.free)
-        } : {
-          total: 0,
-          free: 0,
-          totalFormatted: 'N/A',
-          freeFormatted: 'N/A'
+        memory: {
+          total: env.memory?.total || 0,
+          free: env.memory?.free || 0,
+          totalFormatted: formatBytes(env.memory?.total || 0),
+          freeFormatted: formatBytes(env.memory?.free || 0)
         },
-        cpus: env.cpus ? env.cpus.length : 0,
-        cpuInfo: env.cpus ? env.cpus.map(cpu => ({
-          model: cpu.model,
-          speed: cpu.speed
-        })) : []
+        cpus: env.cpus?.length || 0,
+        cpuInfo: (env.cpus || []).map(cpu => ({
+          model: cpu.model || 'unknown',
+          speed: cpu.speed || 0
+        }))
       };
     }
 
@@ -1458,9 +1453,9 @@ Detailed System Information
 -------------------------
 Hostname: ${env.hostname || 'unknown'}
 Username: ${env.username || 'unknown'}
-Memory Total: ${env.memory ? formatBytes(env.memory.total) : 'N/A'}
-Memory Free: ${env.memory ? formatBytes(env.memory.free) : 'N/A'}
-CPUs: ${env.cpus ? env.cpus.length : 'N/A'}
+Memory Total: ${env.memory?.total ? formatBytes(env.memory.total) : 'N/A'}
+Memory Free: ${env.memory?.free ? formatBytes(env.memory.free) : 'N/A'}
+CPUs: ${env.cpus?.length || 'N/A'}
 `;
   }
 
@@ -1533,8 +1528,8 @@ function getCIEnvironmentInfo() {
   const env = detectEnvironment();
   const ciType = detectCIEnvironmentType();
 
-  return {
-    ci: ciType,
+  const info = {
+    ciType: ciType,  // Fixed: Use ciType instead of ci
     isCI: env.isCI,
     isGitHubActions: env.isGitHubActions,
     isJenkins: env.isJenkins,
@@ -1555,6 +1550,29 @@ function getCIEnvironmentInfo() {
     username: env.username,
     memory: env.memory
   };
+
+  // Add CI-specific information based on detected type
+  switch (ciType) {
+    case 'github':
+      info.github = {
+        workflow: process.env.GITHUB_WORKFLOW || 'unknown',
+        repository: process.env.GITHUB_REPOSITORY || 'unknown',
+        runId: process.env.GITHUB_RUN_ID || 'unknown'
+      };
+      break;
+    case 'jenkins':
+      info.jenkins = {
+        jobName: process.env.JOB_NAME || 'unknown',
+        buildNumber: process.env.BUILD_NUMBER || 'unknown',
+        url: process.env.JENKINS_URL || 'unknown'
+      };
+      break;
+    default:
+      // Generic CI info already included above
+      break;
+  }
+
+  return info;
 }
 
 module.exports = {

@@ -262,8 +262,8 @@ function buildTailwind(options = {}) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    // Build the command
-    let baseCommand = `tailwindcss -c ${configPath} -i ${inputPath} -o ${outputPath}`;
+    // Build the command for TailwindCSS v4
+    let baseCommand = `@tailwindcss/cli -c ${configPath} -i ${inputPath} -o ${outputPath}`;
 
     // Add PostCSS config if specified
     if (postcss.useConfigFile && postcss.configPath) {
@@ -286,7 +286,7 @@ function buildTailwind(options = {}) {
       { name: 'npx', command: `npx ${command}` },
       { name: 'pnpm', command: `pnpm exec ${command}` },
       { name: 'npm', command: `npm exec -- ${command}` },
-      { name: 'direct', command: `"${directPath}" -c "${configPath}" -i "${inputPath}" -o "${outputPath}" ${sanitizedFlags.join(' ')}` }
+      { name: 'direct', command: `npx @tailwindcss/cli -c ${configPath} -i ${inputPath} -o ${outputPath}${minify ? ' --minify' : ''}${watch ? ' --watch' : ''}` }
     ];
 
     // Track attempts for retry logic
@@ -998,16 +998,16 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 
 /**
- * Find the tailwindcss binary
+ * Find the tailwindcss binary (v4 uses @tailwindcss/cli)
  *
  * @returns {string|null} - Path to the tailwindcss binary or null if not found
  */
 function findTailwindBinary() {
   const isWindows = process.platform === 'win32';
   const possiblePaths = [
-    // Local project installation
+    // Local project installation (v4)
     isWindows ? 'node_modules\\.bin\\tailwindcss.cmd' : 'node_modules/.bin/tailwindcss',
-    // Global installation
+    // Global installation (v4)
     isWindows ? '%USERPROFILE%\\AppData\\Roaming\\npm\\tailwindcss.cmd' : '/usr/local/bin/tailwindcss'
   ];
 
@@ -1021,11 +1021,11 @@ function findTailwindBinary() {
     }
   }
 
-  // If no binary found, try to use npx/pnpm/npm
+  // For TailwindCSS v4, use @tailwindcss/cli
   if (isWindows) {
-    return 'npx.cmd tailwindcss';
+    return 'npx.cmd @tailwindcss/cli';
   } else {
-    return 'npx tailwindcss';
+    return 'npx @tailwindcss/cli';
   }
 }
 
@@ -1110,15 +1110,15 @@ function buildSingleFile(options = {}) {
 
       return true; // Return success immediately for watch mode
     } else {
-      // For one-time builds, use execSync
+      // For one-time builds, use execSync with the correct v4 command
       log(`Building Tailwind CSS: ${inputPath} -> ${outputPath}`, 'info', {
         minify,
         configPath
       });
 
-      // Use safer command execution with proper argument sanitization
-      const sanitizedArgs = args.filter(arg => typeof arg === 'string' && arg.length > 0);
-      execSync(`"${tailwindBin}" ${sanitizedArgs.join(' ')}`, {
+      // For TailwindCSS v4, use the @tailwindcss/cli directly
+      const v4Command = `npx @tailwindcss/cli ${args.join(' ')}`;
+      execSync(v4Command, {
         stdio: ['ignore', 'pipe', 'pipe'],
         encoding: 'utf8'
       });
