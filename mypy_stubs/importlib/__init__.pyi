@@ -1,4 +1,3 @@
-
 import types
 from typing import Any, Optional
 
@@ -11,11 +10,8 @@ class _util:
 util = _util()
 
 def import_module(name: str, package: Optional[str] = None) -> types.ModuleType: ...
-
 def invalidate_caches() -> None: ...
-
 def reload(module: types.ModuleType) -> types.ModuleType: ...
-
 def __import__(
     name: str,
     globals: Optional[dict[str, Any]] = None,

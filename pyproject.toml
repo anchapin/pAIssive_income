@@ -147,10 +147,6 @@ lines-between-types = 1
     "F401",     # Allow unused imports in tests
     "S101",     # Allow assert statements in tests (pytest style)
 ]
-"**/test_*.py" = [
-    "PLR0915",  # Allow long test functions
-    "S101",     # Allow assert statements in tests (pytest style)
-]
 "artist_experiments/test_artist_experiments.py" = ["S101"]
 "artist_experiments\\test_artist_experiments.py" = ["S101"]
 "artist_experiments/**/test_*.py" = ["S101"]
@@ -174,7 +170,8 @@ lines-between-types = 1
 "main_*.py" = ["ANN401", "S603", "S607"]
 "simple_*.py" = ["ANN401", "S603", "S607"]
 "**/test_*.py" = [
-    "S101",     # Allow assert in test files
+    "PLR0915",  # Allow long test functions
+    "S101",     # Allow assert statements in tests (pytest style)
     "ARG001",   # Allow unused test fixture arguments
     "BLE001",   # Allow bare except in test cleanup
 ]

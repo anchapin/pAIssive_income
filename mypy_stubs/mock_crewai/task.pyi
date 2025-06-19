@@ -1,13 +1,11 @@
-
 from typing import Any, Callable, Optional, TypeVar
 
 # Define forward references
 class Agent: ...
+
 AgentType = TypeVar("AgentType", bound=Agent)
 
 class Task:
-
-
     def __init__(
         self,
         description: str,
@@ -18,12 +16,11 @@ class Task:
         output: Optional[str] = None,
         context: Optional[str] = None,
         callback: Optional[Callable[[str], None]] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None: ...
-
-    def execute(self, agent: Optional[AgentType] = None, context: Optional[str] = None) -> str: ...
-
+    def execute(
+        self, agent: Optional[AgentType] = None, context: Optional[str] = None
+    ) -> str: ...
     def to_dict(self) -> dict[str, Any]: ...
-
     @classmethod
     def from_dict(cls, task_dict: dict[str, Any]) -> Task: ...

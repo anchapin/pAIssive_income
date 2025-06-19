@@ -63,6 +63,9 @@ def get_sanitized_env() -> dict[str, str]:
     ]:
         env.pop(var, None)
 
+    # Set FLASK_ENV to development for tests to ensure proper database configuration
+    env["FLASK_ENV"] = "development"
+
     return env
 
 
@@ -352,7 +355,7 @@ def check_venv_exists() -> bool:
 
 def _safe_subprocess_run(
     cmd: list[str],
-    **kwargs: Any,
+    **kwargs: str | int | bool | Path | None,
 ) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):

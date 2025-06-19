@@ -1,4 +1,3 @@
-
 from typing import Any, TypeVar
 
 from typing_extensions import TypeAlias
@@ -15,11 +14,6 @@ CrewDict: TypeAlias = dict[str, Any]
 
 # These empty class definitions are just for type checking
 # and will be replaced by the actual implementations
-class Agent:
-    ...
-
-class Task:
-    ...
-
-class Crew:
-    ...
+class Agent: ...
+class Task: ...
+class Crew: ...

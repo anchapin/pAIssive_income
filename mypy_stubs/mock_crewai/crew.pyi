@@ -1,15 +1,13 @@
-
 from typing import Any, TypeVar
 
 # Define forward references
 class Agent: ...
 class Task: ...
+
 AgentType = TypeVar("AgentType", bound=Agent)
 TaskType = TypeVar("TaskType", bound=Task)
 
 class Crew:
-
-
     def __init__(
         self,
         agents: list[AgentType],
@@ -18,14 +16,10 @@ class Crew:
         process: str = "sequential",
         memory: bool = False,
         cache: bool = False,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None: ...
-
     def kickoff(self) -> str: ...
-
     def run(self) -> str: ...
-
     def to_dict(self) -> dict[str, Any]: ...
-
     @classmethod
     def from_dict(cls, crew_dict: dict[str, Any]) -> Crew: ...

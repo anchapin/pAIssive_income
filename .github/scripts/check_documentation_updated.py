@@ -241,10 +241,10 @@ def main() -> None:
 
         # Check various ways to detect dependabot PRs
         is_dependabot = (
-            github_actor == "dependabot[bot]" or
-            "dependabot" in github_actor.lower() or
-            github_head_ref.startswith("dependabot/") or
-            "dependabot" in github_head_ref.lower()
+            github_actor == "dependabot[bot]"
+            or "dependabot" in github_actor.lower()
+            or github_head_ref.startswith("dependabot/")
+            or "dependabot" in github_head_ref.lower()
         )
 
         if is_dependabot:

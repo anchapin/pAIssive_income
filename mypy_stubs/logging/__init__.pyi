@@ -1,8 +1,18 @@
-
 from typing import Any, Optional
 
 class LogRecord:
-    def __init__(self, name: str, level: int, pathname: str, lineno: int, msg: Any, args: Any, exc_info: Any, func: Optional[str] = None, sinfo: Optional[str] = None) -> None: ...
+    def __init__(
+        self,
+        name: str,
+        level: int,
+        pathname: str,
+        lineno: int,
+        msg: Any,
+        args: Any,
+        exc_info: Any,
+        func: Optional[str] = None,
+        sinfo: Optional[str] = None,
+    ) -> None: ...
     name: str
     levelno: int
     levelname: str
@@ -27,10 +37,14 @@ class LogRecord:
     message: str
 
 class Formatter:
-    def __init__(self, fmt: Optional[str] = None, datefmt: Optional[str] = None, style: str = "%") -> None: ...
+    def __init__(
+        self, fmt: Optional[str] = None, datefmt: Optional[str] = None, style: str = "%"
+    ) -> None: ...
     def format(self, record: LogRecord) -> str: ...
     def formatTime(self, record: LogRecord, datefmt: Optional[str] = None) -> str: ...
-    def formatException(self, ei: tuple[type[BaseException], BaseException, Any]) -> str: ...
+    def formatException(
+        self, ei: tuple[type[BaseException], BaseException, Any]
+    ) -> str: ...
     def formatStack(self, stack_info: str) -> str: ...
 
 class Filter:
@@ -70,9 +84,23 @@ class Logger:
     def log(self, level: int, msg: Any, *args: Any, **kwargs: Any) -> None: ...
     def addHandler(self, hdlr: Handler) -> None: ...
     def removeHandler(self, hdlr: Handler) -> None: ...
-    def findCaller(self, stack_info: bool = False, stacklevel: int = 1) -> tuple[str, int, str, Optional[str]]: ...
+    def findCaller(
+        self, stack_info: bool = False, stacklevel: int = 1
+    ) -> tuple[str, int, str, Optional[str]]: ...
     def handle(self, record: LogRecord) -> None: ...
-    def makeRecord(self, name: str, level: int, fn: str, lno: int, msg: Any, args: Any, exc_info: Any, func: Optional[str] = None, extra: Optional[dict[str, Any]] = None, sinfo: Optional[str] = None) -> LogRecord: ...
+    def makeRecord(
+        self,
+        name: str,
+        level: int,
+        fn: str,
+        lno: int,
+        msg: Any,
+        args: Any,
+        exc_info: Any,
+        func: Optional[str] = None,
+        extra: Optional[dict[str, Any]] = None,
+        sinfo: Optional[str] = None,
+    ) -> LogRecord: ...
 
 def getLogger(name: Optional[str] = None) -> Logger: ...
 def debug(msg: Any, *args: Any, **kwargs: Any) -> None: ...
