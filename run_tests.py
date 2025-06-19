@@ -361,7 +361,7 @@ def _safe_subprocess_run(
     # Set default check=False if not provided
     if "check" not in filtered_kwargs:
         filtered_kwargs["check"] = False
-    return subprocess.run(cmd, **filtered_kwargs, check=False)  # type: ignore[return-value]  # noqa: S603
+    return subprocess.run(cmd, **filtered_kwargs)  # type: ignore[return-value]  # noqa: S603,PLW1510
 
 
 def ensure_pytest_xdist_installed() -> None:
