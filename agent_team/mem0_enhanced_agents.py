@@ -26,12 +26,17 @@ Requirements:
 
 from __future__ import annotations
 
+# Import CrewAI components
+import importlib.util
 import logging
 import sys
 from typing import Any, Optional, Union
 
-# Import CrewAI components
-import importlib.util
+# Import base CrewAI agent team
+from agent_team.crewai_agents import AgentProtocol, CrewAIAgentTeam, TaskProtocol
+
+# Import MemoryRAGCoordinator for unified memory/RAG retrieval
+from services.memory_rag_coordinator import MemoryRAGCoordinator
 
 crewai_spec = importlib.util.find_spec("crewai")
 crewai_available = crewai_spec is not None
@@ -44,12 +49,6 @@ try:
 except ImportError:
     mem0_available = False
     Memory = None  # type: ignore[assignment]
-
-# Import base CrewAI agent team
-from agent_team.crewai_agents import AgentProtocol, CrewAIAgentTeam, TaskProtocol
-
-# Import MemoryRAGCoordinator for unified memory/RAG retrieval
-from services.memory_rag_coordinator import MemoryRAGCoordinator
 
 # Configure logging
 logger = logging.getLogger(__name__)

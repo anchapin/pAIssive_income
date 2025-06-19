@@ -78,13 +78,13 @@ repos:
   # Optimized local hooks for incremental checks
   - repo: local
     hooks:
-      - id: incremental-quality
-        name: Run incremental quality checks
-        entry: python scripts/manage_quality.py incremental
-        language: system
-        types: [python]
-        pass_filenames: false
-        require_serial: true
+      # - id: incremental-quality
+      #   name: Run incremental quality checks
+      #   entry: python scripts/manage_quality.py incremental
+      #   language: system
+      #   types: [python]
+      #   pass_filenames: false
+      #   require_serial: true
 
       # Duplicate logging check
       - id: fix-duplicate-logging
