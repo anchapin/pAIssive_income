@@ -5,7 +5,7 @@ This module allows registration and retrieval of callable tools (functions, APIs
 for use by agent wrappers.
 """
 
-# ruff: noqa: C901, N802
+# ruff: noqa: N802
 
 from __future__ import annotations
 
