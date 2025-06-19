@@ -103,7 +103,7 @@ def test_fetch_user_data_with_monkeypatch(monkeypatch):
             pass
 
     # Define a replacement for requests.get
-    def mock_get(_url, timeout=None):
+    def mock_get(_url, timeout=None):  # noqa: ARG001
         return MockResponse({"id": 456, "name": "Jane Smith"})
 
     # Apply the monkeypatch

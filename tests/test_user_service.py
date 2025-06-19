@@ -78,7 +78,7 @@ def user_service():
 
 
 @patch("users.services.hash_credential", return_value="hashed_credential")
-def test_create_user(mock_hash):
+def test_create_user(mock_hash):  # noqa: ARG001
     """Test creating a user."""
     # Create a mock user instance (not used but kept for clarity)
     _ = MockUser(
