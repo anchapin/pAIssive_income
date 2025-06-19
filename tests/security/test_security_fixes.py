@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
-from fix_security_issues import run_security_scan
+from scripts.fix.fix_security_issues import run_security_scan
 
 from common_utils.custom_secrets.audit import generate_report
 from common_utils.custom_secrets.cli import handle_list

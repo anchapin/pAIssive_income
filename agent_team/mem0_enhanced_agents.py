@@ -50,6 +50,10 @@ except ImportError:
     mem0_available = False
     Memory = None  # type: ignore[assignment]
 
+# Export constants for testing (uppercase naming convention for constants)
+CREWAI_AVAILABLE = crewai_available
+MEM0_AVAILABLE = mem0_available
+
 # Configure logging
 logger = logging.getLogger(__name__)
 

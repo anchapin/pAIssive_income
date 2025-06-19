@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Dict, Optional, Set
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from test_security import BaseSecurityTest
+from tests.security.test_security import BaseSecurityTest
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator

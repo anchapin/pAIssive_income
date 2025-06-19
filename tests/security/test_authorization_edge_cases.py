@@ -10,7 +10,7 @@ from enum import Enum, auto
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from test_security import BaseSecurityTest
+from tests.security.test_security import BaseSecurityTest
 
 
 class Permission(Enum):
