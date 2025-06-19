@@ -26,9 +26,14 @@ function runCommand(command, options = {}) {
 }
 
 function ensureDirectoryExists(dirPath) {
-  if (!fs.existsSync(dirPath)) {
+  try {
     fs.mkdirSync(dirPath, { recursive: true });
-    console.log(`Created directory: ${dirPath}`);
+    console.log(`Ensured directory exists: ${dirPath}`);
+  } catch (err) {
+    // Directory might already exist or there was an error creating it
+    if (err.code !== 'EEXIST') {
+      console.log(`Could not create directory ${dirPath}:`, err.message);
+    }
   }
 }
 
@@ -63,7 +68,7 @@ function main() {
   const jsonPath = './coverage/coverage-final.json';
 
   // Check for JSON coverage first (vitest generates this)
-  if (fs.existsSync(jsonPath)) {
+  try {
     const stats = fs.statSync(jsonPath);
     console.log(`\n✓ Coverage JSON file generated: ${jsonPath} (${stats.size} bytes)`);
 
@@ -76,9 +81,11 @@ function main() {
     } catch (err) {
       console.log('Could not parse JSON coverage:', err.message);
     }
+  } catch (err) {
+    console.log(`JSON coverage file not found: ${jsonPath}`);
   }
 
-  if (fs.existsSync(lcovPath)) {
+  try {
     const stats = fs.statSync(lcovPath);
     console.log(`\n✓ Coverage LCOV file generated: ${lcovPath} (${stats.size} bytes)`);
 
@@ -97,16 +104,21 @@ function main() {
     } else {
       console.log('LCOV file exists but appears to be empty or placeholder');
     }
-  } else {
+  } catch (err) {
     console.log(`\n✗ Coverage LCOV file not found: ${lcovPath}`);
     // Create an empty LCOV file to prevent workflow failures
-    fs.writeFileSync(lcovPath, '# Empty coverage file\n');
-    console.log('Created empty LCOV file for workflow compatibility');
+    try {
+      fs.writeFileSync(lcovPath, '# Empty coverage file\n');
+      console.log('Created empty LCOV file for workflow compatibility');
+    } catch (writeErr) {
+      console.log('Could not create empty LCOV file:', writeErr.message);
+    }
   }
   
-  if (fs.existsSync(htmlPath)) {
-    console.log(`✓ Coverage HTML report generated: ${htmlPath}`);
-  } else {
+  try {
+    const stats = fs.statSync(htmlPath);
+    console.log(`✓ Coverage HTML report generated: ${htmlPath} (${stats.size} bytes)`);
+  } catch (err) {
     console.log(`✗ Coverage HTML report not found: ${htmlPath}`);
   }
   
