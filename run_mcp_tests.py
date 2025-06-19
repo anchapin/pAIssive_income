@@ -76,7 +76,8 @@ def _get_test_script_path() -> tuple[Path, bool]:
     Get the path to the test script.
 
     Returns:
-        tuple: (script_path, is_valid) where is_valid is True if the script exists and is valid
+        tuple: (script_path,
+        is_valid) where is_valid is True if the script exists and is valid
 
     """
     script_path = Path(__file__).parent / "scripts" / "run" / "run_mcp_tests.py"
@@ -130,7 +131,7 @@ def _handle_ci_environment() -> int:
 
 def _safe_subprocess_run(
     cmd: list[str],
-    **kwargs: Any,  # noqa: ANN401
+    **kwargs: Any,
 ) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
@@ -182,13 +183,12 @@ def _run_test_script(script_path: Path) -> int:
         if result.stdout:
             logger.info(result.stdout)
         if result.stderr:
-            logger.error(result.stderr)
-
-        # In CI environments, always return success
+            logger.error(result.stderr)  # In CI environments, always return success
         if os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true":
             if result.returncode != 0:
                 logger.warning(
-                    "Tests failed with code %d, but returning success in CI environment",
+                    "Tests failed with code %d, "
+                    "but returning success in CI environment",
                     result.returncode,
                 )
             return 0

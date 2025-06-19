@@ -1,0 +1,69 @@
+{
+    "report_meta": {
+        "scan_target": "files",
+        "scanned": [
+            "requirements.txt"
+        ],
+        "scanned_full_path": [
+            "/home/anchapin/pAIssive_income_main/pAIssive_income2/pAIssive_income/requirements.txt"
+        ],
+        "target_languages": [
+            "python"
+        ],
+        "policy_file": null,
+        "policy_file_source": "local",
+        "audit_and_monitor": false,
+        "api_key": false,
+        "account": "",
+        "local_database_path": null,
+        "safety_version": "3.5.2",
+        "timestamp": "2025-06-16 16:17:18",
+        "packages_found": 0,
+        "vulnerabilities_found": 0,
+        "vulnerabilities_ignored": 0,
+        "remediations_recommended": 0,
+        "telemetry": {
+            "safety_options": {
+                "files": {
+                    "-r": 1
+                },
+                "output": {
+                    "--output": 1
+                },
+                "save_json": {
+                    "--save-json": 1
+                }
+            },
+            "safety_version": "3.5.2",
+            "safety_source": "cli",
+            "os_type": "Linux",
+            "os_release": "5.15.153.1-microsoft-standard-WSL2",
+            "os_description": "Linux-5.15.153.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+            "python_version": "3.12.3",
+            "safety_command": "check"
+        },
+        "git": {
+            "branch": "fix/test-coverage-15-percent",
+            "tag": "",
+            "commit": "d4666232f2bcdb99c45b1bf0a1c07a6a681a481a",
+            "dirty": "True",
+            "origin": "https://github.com/anchapin/pAIssive_income.git"
+        },
+        "project": null,
+        "json_version": "1.1",
+        "remediations_attempted": 0,
+        "remediations_completed": 0,
+        "remediation_mode": "NON_INTERACTIVE"
+    },
+    "scanned_packages": {},
+    "affected_packages": {},
+    "announcements": [],
+    "vulnerabilities": [],
+    "ignored_vulnerabilities": [],
+    "remediations": {},
+    "remediations_results": {
+        "vulnerabilities_fixed": [],
+        "remediations_applied": {},
+        "remediations_skipped": {}
+    }
+}

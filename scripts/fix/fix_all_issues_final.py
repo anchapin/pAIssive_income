@@ -107,7 +107,9 @@ def _process_directory(
     # Only process directories we have access to
     norm_root = os.path.normpath(root)
     if not os.access(norm_root, os.R_OK | os.X_OK):
-        logger.warning(f"Permission denied for directory: {norm_root}")
+        logger.warning(
+            "Permission denied for directory: ", extra={"norm_root": norm_root}
+        )
         return []
 
     # Filter out ignored directories in-place
@@ -134,7 +136,7 @@ def _process_directory(
                 if (
                     len(python_files_in_dir) <= max_early_log_files
                 ):  # Keep this check for early logging
-                    logger.debug(f"Found Python file: {file_path}")
+                    logger.debug("Found Python file: ", extra={"file_path": file_path})
 
             except OSError as e:
                 error_files.append((file, str(e)))
@@ -240,8 +242,8 @@ def _log_file_errors(error_files: list[tuple[str, str]]) -> None:
             f"Found {len(error_files)} files with access issues. "
             "See debug log for details."
         )
-        for file_path, error in error_files:
-            logger.debug(f"File access error - {file_path}: {error}")
+        for _file_path, error in error_files:
+            logger.debug("File access error - %s: %s", _file_path, error)
 
 
 def find_python_files(specific_files: Optional[list[str]] = None) -> list[str]:
@@ -292,7 +294,9 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
 
                 cmd_path = shutil.which(command[0])
                 if cmd_path is None:
-                    logger.warning(f"Command not found: {command[0]}")
+                    logger.warning(
+                        "Command not found: ", extra={"command[0]": command[0]}
+                    )
                     return 0, "", f"Command '{command[0]}' not found. Skipped."
 
             except (subprocess.SubprocessError, FileNotFoundError):
@@ -303,7 +307,7 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
 
         # Log command for debugging
         cmd_str = " ".join(command)
-        logger.debug(f"Running command: {cmd_str}")
+        logger.debug("Running command: ", extra={"cmd_str": cmd_str})
 
         try:
             # Try using subprocess.run first (more reliable)
@@ -566,7 +570,7 @@ def run_ruff_format(file_path: str, check_mode: bool = False) -> bool:
         command.append("--check")
     command.append(file_path)
 
-    exit_code, stdout, stderr = run_command(command)
+    exit_code, _stdout, _stderr = run_command(command)
     return exit_code == 0
 
 
@@ -589,7 +593,7 @@ def run_ruff(file_path: str, check_mode: bool = False) -> bool:
         command.append("--fix")
     command.append(file_path)
 
-    exit_code, stdout, stderr = run_command(command)
+    exit_code, _stdout, _stderr = run_command(command)
 
     # Also run ruff format
     format_command = ["ruff", "format"]
@@ -597,7 +601,7 @@ def run_ruff(file_path: str, check_mode: bool = False) -> bool:
         format_command.append("--check")
     format_command.append(file_path)
 
-    format_exit_code, format_stdout, format_stderr = run_command(format_command)
+    format_exit_code, _format_stdout, _format_stderr = run_command(format_command)
 
     return exit_code == 0 and format_exit_code == 0
 
@@ -618,10 +622,10 @@ def _fix_syntax_issues(file_path: str, args: argparse.Namespace) -> bool:
         return True
 
     if args.verbose:
-        logger.debug(f"Fixing syntax errors in {file_path}")
+        logger.debug("Fixing syntax errors in ", extra={"file_path": file_path})
 
     if not fix_syntax_errors(file_path):
-        logger.error(f"Failed to fix syntax errors in {file_path}")
+        logger.error("Failed to fix syntax errors in ", extra={"file_path": file_path})
         return False
 
     return True
@@ -643,10 +647,12 @@ def _fix_formatting_issues(file_path: str, args: argparse.Namespace) -> bool:
         return True
 
     if args.verbose:
-        logger.debug(f"Fixing line length issues in {file_path}")
+        logger.debug("Fixing line length issues in ", extra={"file_path": file_path})
 
     if not fix_line_length_issues(file_path):
-        logger.error(f"Failed to fix line length issues in {file_path}")
+        logger.error(
+            "Failed to fix line length issues in ", extra={"file_path": file_path}
+        )
         return False
 
     return True
@@ -674,10 +680,10 @@ def _run_single_formatter(
 
     """
     if verbose:
-        logger.debug(f"Running {formatter_name} on {file_path}")
+        logger.debug("Running {formatter_name} on ", extra={"file_path": file_path})
 
     if not formatter_func(file_path, check_mode):
-        logger.error(f"{formatter_name} failed on {file_path}")
+        logger.error("{formatter_name} failed on ", extra={"file_path": file_path})
         return False
 
     return True
@@ -750,9 +756,9 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
 def _log_environment_info() -> None:
     """Log information about the environment."""
     logger.info("Running fix_all_issues_final.py")
-    logger.debug(f"Platform: {sys.platform}")
-    logger.debug(f"Python version: {sys.version}")
-    logger.debug(f"Current working directory: {os.getcwd()}")
+    logger.debug("Platform: ", extra={"sys.platform": sys.platform})
+    logger.debug("Python version: ", extra={"sys.version": sys.version})
+    logger.debug("Current working directory: ", extra={"os.getcwd()": os.getcwd()})
 
 
 def _get_required_tools(args: argparse.Namespace) -> list[str]:
@@ -787,22 +793,24 @@ def _check_tool_availability(tool: str) -> bool:
 
     """
     try:
-        shell = sys.platform == "win32"
         # For Windows, use where command to check if tool exists
-        check_cmd = ["where", tool] if shell else ["which", tool]
+        if sys.platform == "win32":
+            check_cmd = ["where", tool]
+        else:
+            check_cmd = ["which", tool]
 
         result = subprocess.run(
             check_cmd,
             capture_output=True,
             text=True,
-            shell=shell,
+            shell=False,  # Always use shell=False for security
             check=False,
         )
 
         if result.returncode == 0:
             logger.info("Tool %s found: %s", tool, result.stdout.strip())
             return True
-        logger.warning(f"Tool {tool} not found in PATH")
+        logger.warning("Tool %s not found in PATH", tool)
         return False
     except (subprocess.SubprocessError, FileNotFoundError):
         logger.exception("Tool check failed: %s", tool)
@@ -870,7 +878,7 @@ def _process_files(
                 logger.info("Successfully processed: %s", file_path)
             else:
                 failed_files.append(file_path)
-                logger.error(f"Failed to process: {file_path}")
+                logger.error("Failed to process: ", extra={"file_path": file_path})
         except Exception:
             logger.exception(
                 "Error processing file",

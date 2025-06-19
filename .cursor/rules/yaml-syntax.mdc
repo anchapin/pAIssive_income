@@ -1,0 +1,206 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# YAML Syntax and Formatting Guidelines
+
+This rule ensures proper YAML syntax and prevents common formatting errors that cause parsing failures.
+
+## **Core YAML Syntax Rules**
+
+- **Indentation**: Use exactly 2 spaces per level, never tabs
+- **Key-Value Pairs**: Always use space after colon (`key: value`)
+- **List Items**: Use hyphen with space (`- item`)
+- **Quotes**: Use quotes for strings with special characters
+- **Multiline**: Use `|` for literal blocks, `>` for folded blocks
+
+## **Critical Syntax Patterns**
+
+```yaml
+# ✅ DO: Proper YAML structure
+name: My Workflow
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run script
+        run: |
+          echo "Multi-line script"
+          echo "Second line"
+```
+
+## **Environment Variable Syntax**
+
+```yaml
+# ✅ DO: Correct environment variable syntax
+run: |
+  echo "VALUE=test" >> $GITHUB_ENV
+  echo "OUTPUT=result" >> $GITHUB_OUTPUT
+
+# Windows PowerShell
+run: |
+  echo "VALUE=test" >> $env:GITHUB_ENV
+  echo "OUTPUT=result" >> $env:GITHUB_OUTPUT
+
+# ❌ DON'T: Incorrect spacing
+run: |
+  echo "VALUE=test" >> $env: GITHUB_ENV  # Space after env:
+  echo "OUTPUT=result" >> $env: GITHUB_OUTPUT
+```
+
+## **String Quoting Rules**
+
+```yaml
+# ✅ DO: Proper string quoting
+if: github.ref == 'refs/heads/main'
+run: echo "Hello, world!"
+command: 'echo "nested quotes"'
+
+# ✅ DO: Multiline strings
+script: |
+  echo "Line 1"
+  echo "Line 2"
+
+# ❌ DON'T: Unquoted special characters
+if: github.ref == refs/heads/main  # Missing quotes
+run: echo '{"key": "value"}' > file.json  # Unescaped JSON
+```
+
+## **Common YAML Errors to Avoid**
+
+### **Indentation Errors**
+```yaml
+# ❌ DON'T: Inconsistent indentation
+jobs:
+  test:
+  runs-on: ubuntu-latest  # Wrong indentation
+    steps:
+      - name: Test
+
+# ✅ DO: Consistent 2-space indentation
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+```
+
+### **Mapping vs Sequence Errors**
+```yaml
+# ❌ DON'T: Mixed mapping and sequence syntax
+steps:
+- name: Step 1
+  run: command1
+name: Step 2  # This breaks the sequence
+
+# ✅ DO: Consistent sequence syntax
+steps:
+  - name: Step 1
+    run: command1
+  - name: Step 2
+    run: command2
+```
+
+### **Multiline String Errors**
+```yaml
+# ❌ DON'T: Broken multiline strings
+run: '#!/bin/bash
+  echo "This breaks YAML"
+  exit 0'
+
+# ✅ DO: Proper multiline strings
+run: |
+  #!/bin/bash
+  echo "This works correctly"
+  exit 0
+```
+
+## **JSON in YAML**
+
+```yaml
+# ✅ DO: Properly escaped JSON
+run: |
+  echo '{"results": [], "errors": []}' > results.json
+  cat results.json
+
+# ❌ DON'T: Unescaped JSON causing YAML errors
+run: echo '{"results": [], "errors": []}' > results.json
+```
+
+## **Conditional Syntax**
+
+```yaml
+# ✅ DO: Proper conditional formatting
+if: |
+  github.event_name == 'push' && 
+  (github.ref == 'refs/heads/main' || 
+   github.ref == 'refs/heads/develop')
+
+# ✅ DO: Simple conditions with quotes
+if: "github.ref == 'refs/heads/main'"
+
+# ❌ DON'T: Unquoted complex conditions
+if: github.event_name == push && github.ref == refs/heads/main
+```
+
+## **Matrix Strategy Syntax**
+
+```yaml
+# ✅ DO: Proper matrix definition
+strategy:
+  matrix:
+    os: [ubuntu-latest, windows-latest, macos-latest]
+    node-version: ['16', '18', '20']
+  fail-fast: false
+
+# ❌ DON'T: Malformed matrix
+strategy:
+  matrix:
+    os:
+    - ubuntu-latest
+    - windows-latest
+  node-version: [16, 18]  # Mixed syntax
+```
+
+## **Validation Checklist**
+
+Before committing YAML files:
+
+1. **Indentation Check**: Verify 2-space indentation throughout
+2. **Colon Spacing**: Ensure space after every colon
+3. **Quote Consistency**: Check string quoting is appropriate
+4. **Multiline Blocks**: Verify `|` or `>` usage for multiline content
+5. **Special Characters**: Escape or quote strings with special chars
+6. **Syntax Validation**: Use YAML linter or validator
+
+## **Tools for Validation**
+
+- **Online Validators**: yamllint.com, yaml-online-parser.appspot.com
+- **CLI Tools**: `yamllint`, `yq`
+- **Editor Extensions**: YAML language support with syntax highlighting
+
+## **File References**
+
+- GitHub Actions workflows: [.github/workflows/](mdc:.github/workflows/)
+- Docker Compose files: [docker-compose.yml](mdc:docker-compose.yml)
+- Configuration files: [pyproject.toml](mdc:pyproject.toml)
+
+## **Emergency Fixes**
+
+If YAML parsing fails:
+1. Check indentation with visible whitespace
+2. Validate quotes and escape sequences
+3. Verify multiline string formatting
+4. Use online YAML validator for quick checks
+5. Compare with working YAML examples

@@ -60,7 +60,7 @@ def test_average_empty_list():
 
 
 @pytest.mark.parametrize(
-    "endpoint,payload",
+    ("endpoint", "payload"),
     [
         ("/tools/add", {"a": 2}),  # missing b
         ("/tools/subtract", {"a": 2}),

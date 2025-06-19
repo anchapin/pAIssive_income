@@ -11,9 +11,9 @@ import '@testing-library/jest-dom';
 import Layout from './Layout';
 
 // Improved mock for react-router-dom hooks
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   useLocation: () => ({ pathname: '/dashboard' }),
 }));

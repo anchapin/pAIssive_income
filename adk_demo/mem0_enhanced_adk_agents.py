@@ -32,9 +32,9 @@ try:
     from adk.memory import SimpleMemory
     from adk.skill import Skill
 
-    ADK_AVAILABLE = True
+    adk_available = True
 except ImportError:
-    ADK_AVAILABLE = False
+    adk_available = False
 
     # Define placeholder classes for type hints
     class Agent:
@@ -54,9 +54,11 @@ except ImportError:
     class Message:  # Inherit from object explicitly
         """Placeholder for Message class when ADK is not installed."""
 
-        def __init__(self, type: str, payload: dict[str, Any], sender: str) -> None:
+        def __init__(
+            self, message_type: str, payload: dict[str, Any], sender: str
+        ) -> None:
             """Initialize placeholder message."""
-            self.type = type
+            self.type = message_type
             self.payload = payload
             self.sender = sender
 
@@ -69,7 +71,7 @@ except ImportError:
     class Skill:  # Inherit from object explicitly
         """Run the skill (placeholder)."""
 
-        def run(self, *args: Any, **kwargs: Any) -> Any:
+        def run(self, *_args: object, **_kwargs: object) -> object:
             """Run placeholder skill."""
             return None
 
@@ -78,10 +80,11 @@ except ImportError:
 try:
     from mem0 import Memory
 
-    MEM0_AVAILABLE = True
+    mem0_available = True
 except ImportError:
-    MEM0_AVAILABLE = False
+    mem0_available = False
     Memory = None  # type: ignore[assignment]
+
 
 # Import existing skills from adk_demo
 # Define placeholder skills that work regardless of ADK availability
@@ -102,7 +105,7 @@ class SummarizerSkill(Skill):
 
 
 # Try to import actual skills if ADK is available
-if ADK_AVAILABLE:
+if adk_available:
     try:
         from adk_demo.agents import DataGathererSkill as ActualDataGathererSkill
         from adk_demo.agents import SummarizerSkill as ActualSummarizerSkill
@@ -151,7 +154,7 @@ class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
         self.simple_memory = SimpleMemory()
 
         # Initialize mem0 memory if available
-        if MEM0_AVAILABLE and Memory is not None:
+        if mem0_available and Memory is not None:
             self.memory = Memory()
             logger.info("mem0 memory initialized for agent %s", name)
         else:
@@ -324,9 +327,7 @@ class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
                 query=query, user_id=self.user_id, limit=limit
             )
             # Ensure we return a list of dictionaries
-            if isinstance(search_result, list):
-                return search_result
-            return []
+            return search_result if isinstance(search_result, list) else []
         except Exception:
             logger.exception("Error retrieving memories")
             return []

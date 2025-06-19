@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Optional
 
 import httpx
 
@@ -26,7 +25,7 @@ logger = logging.getLogger(__name__)
 class APITool:
     """API tool for ARTIST experiments."""
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         """
         Initialize the API tool.
 
@@ -141,7 +140,7 @@ class APITool:
 class MultiAPIAgent(ArtistAgent):
     """Enhanced ARTIST agent for multi-API orchestration."""
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         """
         Initialize the multi-API agent.
 
@@ -187,7 +186,7 @@ class MultiAPIAgent(ArtistAgent):
         return ""
 
 
-def run_experiment(prompt: str, api_key: Optional[str] = None) -> str:
+def run_experiment(prompt: str, api_key: str | None = None) -> str:
     """
     Run the multi-API orchestration experiment.
 

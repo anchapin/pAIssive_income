@@ -134,9 +134,9 @@ def _is_module_available(module_name: str) -> bool:
 class TestMem0Integration(unittest.TestCase):
     """Test suite for mem0 integration."""
 
-    patcher: Optional[Any] = None
-    user_id: Optional[str] = None
-    agent: Optional[MemoryEnhancedAgent] = None
+    patcher: Any | None = None
+    user_id: str | None = None
+    agent: MemoryEnhancedAgent | None = None
 
     @classmethod
     def setUpClass(cls):

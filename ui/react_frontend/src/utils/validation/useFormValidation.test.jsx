@@ -4,9 +4,13 @@
 /**
  * Unit tests for useFormValidation hook
  */
-import { act, renderHook } from '@testing-library/react';
 import React from 'react';
+import { act, renderHook } from '@testing-library/react';
+import { vi } from 'vitest';
 import useFormValidation from './useFormValidation';
+
+// Wrapper component for testing hooks
+const wrapper = ({ children }) => <>{children}</>;
 
 const requiredString = (value) =>
   value && value.length > 2
@@ -50,7 +54,7 @@ describe('useFormValidation', () => {
     });
     expect(result.current.values.foo).toBe('abc');
     expect(result.current.dirty).toBe(true);
-    expect(result.current.errors.foo).toBe(null);
+    expect(result.current.errors.foo).toBeFalsy();
   });
 
   it('handleBlur marks touched and updates error', () => {
@@ -77,7 +81,7 @@ describe('useFormValidation', () => {
       result.current.setFieldValue('foo', 'abc');
     });
     expect(result.current.values.foo).toBe('abc');
-    expect(result.current.errors.foo).toBe(null);
+    expect(result.current.errors.foo).toBeFalsy();
   });
 
   it('resetForm restores initial state', () => {

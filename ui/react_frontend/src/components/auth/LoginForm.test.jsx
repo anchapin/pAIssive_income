@@ -7,23 +7,23 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginForm from './LoginForm';
 
 // Mock useAppContext and useFormValidation
-jest.mock('../../context/AppContext', () => ({
-  useAppContext: jest.fn()
+vi.mock('../../context/AppContext', () => ({
+  useAppContext: vi.fn()
 }));
-jest.mock('../../utils/validation', () => ({
-  useFormValidation: jest.fn(),
+vi.mock('../../utils/validation', () => ({
+  useFormValidation: vi.fn(),
   validationSchemas: { login: {} }
 }));
 
-const { useAppContext } = require('../../context/AppContext');
-const { useFormValidation } = require('../../utils/validation');
+import { useAppContext } from '../../context/AppContext';
+import { useFormValidation } from '../../utils/validation';
 
 describe('LoginForm', () => {
   let loginMock;
   let formState;
 
   beforeEach(() => {
-    loginMock = jest.fn();
+    loginMock = vi.fn();
     useAppContext.mockReturnValue({ login: loginMock });
 
     // Default form state
@@ -31,8 +31,8 @@ describe('LoginForm', () => {
       values: { username: '', credentials: '' },
       errors: {},
       touched: {},
-      handleChange: jest.fn(),
-      handleBlur: jest.fn(),
+      handleChange: vi.fn(),
+      handleBlur: vi.fn(),
       handleSubmit: (cb) => (e) => { e.preventDefault(); cb(formState.values); },
       isValid: false
     };
@@ -40,7 +40,7 @@ describe('LoginForm', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders username and credentials fields, login button, and helper text', () => {
@@ -70,7 +70,7 @@ describe('LoginForm', () => {
 
     loginMock.mockResolvedValueOnce(undefined);
 
-    render(<LoginForm onSuccess={jest.fn()} />);
+    render(<LoginForm onSuccess={vi.fn()} />);
     const button = screen.getByRole('button', { name: /Log In/i });
     fireEvent.click(button);
 
@@ -99,7 +99,7 @@ describe('LoginForm', () => {
     formState.isValid = true;
     useFormValidation.mockReturnValue(formState);
 
-    const onSuccess = jest.fn();
+    const onSuccess = vi.fn();
     loginMock.mockResolvedValueOnce(undefined);
 
     render(<LoginForm onSuccess={onSuccess} />);

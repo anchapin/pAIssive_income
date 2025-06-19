@@ -18,6 +18,7 @@ import yaml
 MAX_CONCURRENT_TRIGGERS = 5
 MAX_ISSUES_TO_DISPLAY = 5
 
+
 class WorkflowAnalyzer:
     """Analyze GitHub Actions workflows for issues and recommendations."""
 
@@ -96,7 +97,7 @@ class WorkflowAnalyzer:
 
         return result
 
-    def analyze_workflow_structure(  # noqa: C901, PLR0912
+    def analyze_workflow_structure(
         self, workflow: dict[str, Any], file_path: str
     ) -> dict[str, Any]:
         """Analyze the structure of a workflow."""
@@ -182,7 +183,7 @@ class WorkflowAnalyzer:
                         f"{file_path}: Consider updating {action_name} from {version} to {recommended}"
                     )
 
-    def analyze_workflow_conflicts(self, workflow_files: list[str]) -> None:  # noqa: C901
+    def analyze_workflow_conflicts(self, workflow_files: list[str]) -> None:
         """Analyze potential conflicts between workflows."""
         workflow_names = []
         trigger_analysis = {"push": [], "pull_request": [], "schedule": []}
@@ -339,8 +340,11 @@ def main() -> int:
     if results["invalid_files"] == 0 and len(results["issues"]) == 0:
         print("\n✅ All workflow files are valid!")
         return 0
-    print(f"\n❌ Found {results['invalid_files']} invalid files and {len(results['issues'])} issues")
+    print(
+        f"\n❌ Found {results['invalid_files']} invalid files and {len(results['issues'])} issues"
+    )
     return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

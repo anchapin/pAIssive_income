@@ -18,7 +18,10 @@ import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 # Type alias for subprocess kwargs (for documentation purposes)
 SubprocessKwargs = dict[str, Any]
@@ -103,7 +106,7 @@ def validate_args(args: Sequence[str]) -> list[str]:
             continue
 
         # If the argument is a file path, check for directory traversal attempts
-        if Path(arg).is_absolute() or Path(arg).parts: # Check if it looks like a path
+        if Path(arg).is_absolute() or Path(arg).parts:  # Check if it looks like a path
             # Additional check for path traversal attempts
             try:
                 # Resolve to an absolute path to properly check parts
@@ -113,7 +116,7 @@ def validate_args(args: Sequence[str]) -> list[str]:
                     validated_args.append(arg)
                 else:
                     logger.warning("Skipping path with directory traversal: %s", arg)
-            except OSError as e: # Path resolution can fail
+            except OSError as e:  # Path resolution can fail
                 logger.warning("Could not normalize path %s, skipping: %s", arg, e)
         else:
             # If we get here, the argument passed all checks
@@ -174,7 +177,6 @@ def count_tests(validated_args: list[str]) -> int:
         logger.info("Collecting tests...")
         result = _safe_subprocess_run(
             [sys.executable, "-m", "pytest", "--collect-only", *validated_args],
-            check=False,
             capture_output=True,
             text=True,
             shell=False,
@@ -231,7 +233,6 @@ def run_pytest_with_workers(validated_args: list[str], num_workers: int) -> int:
             env=get_sanitized_env(),
             timeout=3600,
             capture_output=True,
-            check=False,  # Explicitly set check
         )
         if result.returncode not in [0, 1, 2, 3, 4, 5]:
             logger.warning(
@@ -307,7 +308,6 @@ def _try_create_symlink(target: Path, link_name: str) -> None:
                     ],
                     capture_output=True,
                     shell=False,
-                    check=False,  # Explicitly set check
                 )
         else:
             os.symlink(target, link_name)
@@ -352,7 +352,7 @@ def check_venv_exists() -> bool:
 
 def _safe_subprocess_run(
     cmd: list[str],
-    **kwargs: Any,  # noqa: ANN401
+    **kwargs: Any,
 ) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):

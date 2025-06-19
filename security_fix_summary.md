@@ -26,7 +26,9 @@ logger.info(f"Found {total_secrets} potential secrets in {len(results)} files")
 
 **After:**
 ```python
-logger.info(f"Found potential secrets in files", extra={"count": total_secrets, "file_count": len(results)})
+logger.info(f"Found potential secrets in files",
+extra={"count": total_secrets,
+"file_count": len(results)})
 ```
 
 #### Issue 2: Clear-text storage of sensitive information (Line 328)

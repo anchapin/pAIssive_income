@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Logger initialization checker script.
+
 Validates Python files for proper logger setup patterns.
 """
 
@@ -17,6 +18,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s: %(messa
 
 
 class LoggerChecker(ast.NodeVisitor):
+    """AST visitor to check for logger initialization patterns."""
+
     def __init__(self, filename: str) -> None:
         """Initialize LoggerChecker."""
         self.filename = filename
@@ -31,7 +34,7 @@ class LoggerChecker(ast.NodeVisitor):
         self.first_import_line = None
         self.last_import_line = None
 
-    def visit_Import(self, node: ast.Import) -> None:
+    def visit_Import(self, node: ast.Import) -> None:  # noqa: N802
         """Visit an Import node."""
         if self.first_import_line is None:
             self.first_import_line = node.lineno
@@ -40,9 +43,11 @@ class LoggerChecker(ast.NodeVisitor):
         for alias in node.names:
             if alias.name == "logging":
                 self.has_logging_import = True
-            elif not alias.name.startswith(".") and "." not in alias.name:
-                # Check for third-party imports (simplified heuristic)
-                if alias.name not in [
+            elif (
+                not alias.name.startswith(".")
+                and "." not in alias.name
+                and alias.name
+                not in [
                     "os",
                     "sys",
                     "json",
@@ -55,11 +60,13 @@ class LoggerChecker(ast.NodeVisitor):
                     "itertools",
                     "functools",
                     "typing",
-                ]:
-                    self.has_third_party_imports = True
+                ]
+            ):
+                # Check for third-party imports (simplified heuristic)
+                self.has_third_party_imports = True
         self.generic_visit(node)
 
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:  # noqa: N802
         """Visit an ImportFrom node."""
         if self.first_import_line is None:
             self.first_import_line = node.lineno
@@ -67,9 +74,11 @@ class LoggerChecker(ast.NodeVisitor):
 
         if node.module == "logging":
             self.has_logging_import = True
-        elif node.module and not node.module.startswith("."):
-            # Check for third-party imports
-            if node.module.split(".")[0] not in [
+        elif (
+            node.module
+            and not node.module.startswith(".")
+            and node.module.split(".")[0]
+            not in [
                 "os",
                 "sys",
                 "json",
@@ -82,11 +91,13 @@ class LoggerChecker(ast.NodeVisitor):
                 "itertools",
                 "functools",
                 "typing",
-            ]:
-                self.has_third_party_imports = True
+            ]
+        ):
+            # Check for third-party imports
+            self.has_third_party_imports = True
         self.generic_visit(node)
 
-    def visit_Assign(self, node: ast.Assign) -> None:
+    def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
         """Visit an Assign node."""
         # Check for logger initialization patterns
         if (
@@ -100,7 +111,7 @@ class LoggerChecker(ast.NodeVisitor):
             self.logger_init_line = node.lineno
         self.generic_visit(node)
 
-    def visit_Try(self, node: ast.Try) -> None:
+    def visit_Try(self, node: ast.Try) -> None:  # noqa: N802
         """Visit a Try node."""
         self.has_exception_handling = True
 
@@ -179,20 +190,21 @@ class LoggerChecker(ast.NodeVisitor):
 def check_file(filepath: Path) -> list[tuple[str, int, str]]:
     """Check a single Python file for logger initialization issues."""
     try:
-        with open(filepath, encoding="utf-8") as f:
+        with filepath.open(encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content, filename=str(filepath))
         checker = LoggerChecker(str(filepath))
         checker.visit(tree)
         checker.check_issues()
-        return checker.issues
     except (SyntaxError, UnicodeDecodeError) as e:
         return [("PARSE_ERROR", 1, f"Failed to parse file: {e}")]
+    else:
+        return checker.issues
 
 
 def main() -> None:
-    """Main function to check all Python files in the repository."""
+    """Check all Python files in the repository for logger initialization issues."""
     root_dir = Path()
     python_files = list(root_dir.rglob("*.py"))
 
@@ -226,7 +238,9 @@ def main() -> None:
             for issue_type, line_no, message in issues:
                 logger.info("  Line %s: %s - %s", line_no, issue_type, message)
 
-    logger.info("\nSummary: Found %s issues in %s files", total_issues, files_with_issues)
+    logger.info(
+        "\nSummary: Found %s issues in %s files", total_issues, files_with_issues
+    )
 
     # Exit with error code if issues found (for CI/CD)
     if total_issues > 0:

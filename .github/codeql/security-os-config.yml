@@ -1,139 +1,66 @@
-name: "Unified CodeQL Configuration for All Platforms"
+name: "Unified CodeQL Configuration"
 
-# This configuration file provides a unified configuration for CodeQL analysis
-# across all platforms (Windows, macOS, Linux)
-# Updated for better Windows compatibility
+# This configuration file provides unified settings for CodeQL analysis
+# across all operating systems and languages
 
-# Specify paths to analyze
-paths:
-  # JavaScript/TypeScript paths
-  - 'ui'
-  - 'sdk/javascript'
-  - '**/*.js'
-  - '**/*.jsx'
-  - '**/*.ts'
-  - '**/*.tsx'
-  - '**/*.json'
-  - '**/*.html'
+# Query filters
+queries:
+  # Include the standard security and quality queries
+  - uses: security-and-quality
 
-  # Python paths
-  - '**/*.py'
-  - '**/*.pyw'
-  - '**/*.pyi'
+  # Include additional security queries
+  - uses: security-extended
 
-# Specify paths to exclude from analysis
+  # Use standard security queries
+  - uses: security
+
+# Disable noisy alerts
+disable-default-queries: false
+
+# Paths to ignore during analysis
 paths-ignore:
-  # Package management
+  # Dependencies and build artifacts
   - '**/node_modules/**'
-  # Don't ignore lock files for CodeQL analysis
-  # - '**/package-lock.json'
-  # - '**/yarn.lock'
-  # - '**/pnpm-lock.yaml'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/coverage/**'
   - '**/.venv/**'
   - '**/venv/**'
   - '**/env/**'
-  - '**/.env/**'
-  - '**/pip-wheel-metadata/**'
-
-  # Build artifacts
-  - '**/dist/**'
-  - '**/build/**'
-  - '**/out/**'
-  - '**/vendor/**'
-  - '**/.next/**'
   - '**/__pycache__/**'
-  - '**/*.egg-info/**'
   - '**/.pytest_cache/**'
   - '**/.mypy_cache/**'
   - '**/.ruff_cache/**'
 
   # Test files
-  - '**/*.test.js'
-  - '**/*.test.jsx'
-  - '**/*.test.ts'
-  - '**/*.test.tsx'
-  - '**/*.spec.js'
-  - '**/*.spec.jsx'
-  - '**/*.spec.ts'
-  - '**/*.spec.tsx'
-  - '**/__tests__/**'
-  - '**/__mocks__/**'
   - '**/test/**'
   - '**/tests/**'
-  - '**/jest.config.js'
-  - '**/jest.setup.js'
-  - '**/cypress/**'
-  - '**/playwright-report/**'
-  - '**/pytest.ini'
-  - '**/conftest.py'
+  - '**/__tests__/**'
+  - '**/*.test.js'
+  - '**/*.test.ts'
+  - '**/*.test.jsx'
+  - '**/*.test.tsx'
+  - '**/*.spec.js'
+  - '**/*.spec.ts'
+  - '**/*.spec.jsx'
+  - '**/*.spec.tsx'
+  - '**/*.test.py'
+  - '**/*.spec.py'
+  - 'test_mem0_integration.py'
 
-  # Minified files and type definitions
-  - '**/*.min.js'
-  - '**/*.d.ts'
-
-  # Configuration files
-  - '**/.eslintrc.*'
-  - '**/.prettierrc.*'
-  - '**/tsconfig.json'
-  - '**/babel.config.js'
-  - '**/webpack.config.js'
-  - '**/rollup.config.js'
-  - '**/setup.py'
-  - '**/setup.cfg'
-  - '**/pyproject.toml'
-  - '**/.flake8'
-  - '**/.pylintrc'
-  - '**/tox.ini'
-  - '**/.coveragerc'
-
-  # Documentation
-  - '**/*.md'
-  - '**/*.mdx'
-  - '**/*.rst'
+  # Documentation and configuration
   - '**/docs/**'
-  - '**/sphinx/**'
+  - '**/*.md'
+  - '**/*.rst'
+  - '**/.github/**'
+  - '**/.vscode/**'
+  - '**/.idea/**'
 
   # Generated files
   - '**/playwright-report/**'
-  - '**/generated/**'
-  - '**/mock_path_to_regexp.js'
-  - '**/mock_api_server.js'
-  - '**/simple_mock_server.js'
-  - '**/node_modules/path-to-regexp/**'
-# Query filters
-queries:
-  # Use only the standard security-and-quality query suite to avoid conflicts and Windows path issues
-  # This provides a comprehensive set of security and quality checks in a single suite
-  - uses: security-and-quality
-
-# Disable noisy alerts
-disable-default-queries: false
-
-# Query suite definitions
-query-filters:
-  - exclude:
-      tags contain: test
-  - exclude:
-      tags contain: maintainability
-      precision below: high
-  - exclude:
-      tags contain: correctness
-      precision below: high
+  - '**/sarif-results/**'
+  - '**/*.sarif'
+  - '**/*.sarif.json'
 
 # Trap errors during extraction
 trap-for-errors: true
-
-# Database extraction settings
-database:
-  # Exclude files that are too large to analyze effectively
-  max-file-size-mb: 10
-  # Exclude files with too many lines
-  max-lines-of-code: 25000
-  # Exclude files with too many AST nodes
-  max-ast-nodes: 500000
-  # Extraction timeout per file
-  extraction-timeout: 300
-  # Windows-specific settings
-  windows:
-    # Increase timeout for Windows
-    extraction-timeout: 600

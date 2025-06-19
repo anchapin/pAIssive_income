@@ -3,7 +3,8 @@ Check documentation updates in pull requests and commits.
 
 This script is designed to be used as part of a GitHub Actions workflow.
 It ensures that whenever code or non-documentation files are changed in a pull request or push,
-at least one documentation file is also updated. If not, the script exits with a nonzero status,
+at least one documentation file is also updated. If not,
+the script exits with a nonzero status,
 causing the workflow to fail.
 
 Documentation files are defined as:
@@ -49,7 +50,7 @@ def get_git_executable() -> str:
     return "git"
 
 
-def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
+def get_changed_files() -> list[str]:  # noqa: PLR0915, C901
     """
     Return a list of files changed in the current PR or commit range.
 
