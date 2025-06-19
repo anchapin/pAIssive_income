@@ -287,7 +287,7 @@ def test_sarif_file_handling() -> None:
             if return_code != 0:
                 logger.exception("Error creating fallback SARIF file")
                 msg = "Failed to create fallback SARIF file"
-                raise AssertionError(msg)
+                raise AssertionError(msg) from None
 
         # Create compressed version
         compressed_file_name = f"{sarif_file.name}.gz"
