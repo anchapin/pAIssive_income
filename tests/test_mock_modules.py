@@ -198,10 +198,15 @@ class TestMockModuleCompatibility(unittest.TestCase):
         """Test various import patterns that might be used."""
         # Test direct imports
         try:
-            from mem0 import Memory
-            from modelcontextprotocol import Client
+            import mem0
+            import modelcontextprotocol
+            import crewai
 
-            from crewai import Agent, Crew, Task
+            Memory = mem0.Memory
+            Client = modelcontextprotocol.Client
+            Agent = crewai.Agent
+            Crew = crewai.Crew
+            Task = crewai.Task
 
             # Test that classes can be instantiated
             client = Client()

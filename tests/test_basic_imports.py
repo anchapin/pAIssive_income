@@ -1,7 +1,5 @@
 """Test basic imports and module initialization."""
 
-import pytest
-
 
 def test_ai_models_import():
     """Test that ai_models module can be imported."""

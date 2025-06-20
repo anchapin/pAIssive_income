@@ -1,7 +1,5 @@
 """Test basic functionality across modules."""
 
-from unittest.mock import Mock, patch
-
 import pytest
 
 

@@ -1,7 +1,5 @@
 """Simple tests to boost coverage to 15%."""
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 
@@ -163,7 +161,7 @@ def test_common_utils_secure_logging():
     from common_utils.custom_logging.secure_logging import SecureLogger
 
     # Test that SecureLogger can be instantiated
-    logger = SecureLogger()
+    logger = SecureLogger("test_secure_logger")
     assert logger is not None
     assert hasattr(logger, "log_secure")
     assert hasattr(logger, "log_audit")
