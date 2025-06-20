@@ -41,7 +41,7 @@ def check_dependencies() -> bool:
     try:
         from crewai import Agent, Crew  # noqa: F401
     except ImportError:
-        logger.error("CrewAI is not installed. Install with: uv pip install crewai")
+        logger.exception("CrewAI is not installed. Install with: uv pip install crewai")
         return False
 
     if not MEM0_AVAILABLE:
@@ -128,7 +128,7 @@ def run_example() -> None:
         logger.info("Workflow completed successfully")
         logger.info(f"Result: {result}")
     except Exception as e:
-        logger.error(f"Error running workflow: {e}")
+        logger.exception(f"Error running workflow: {e}")
 
     # Demonstrate memory retrieval
     if team.memory is not None:

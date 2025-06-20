@@ -223,8 +223,8 @@ function detectCIEnvironmentType(options = {}) {
 
     // Check for container environments if includeContainers is true
     if (includeContainers) {
-      // Docker environment
-      if (env.isDocker) {
+      // Docker environment - check for DOCKER_ENVIRONMENT env var or isDocker
+      if (process.env.DOCKER_ENVIRONMENT || env.isDocker) {
         if (verbose) console.log('Docker environment detected');
         return 'docker';
       }
@@ -235,6 +235,7 @@ function detectCIEnvironmentType(options = {}) {
         return 'kubernetes';
       }
     }
+
 
     // If no specific CI platform is detected, but CI is true
     if (verbose) console.log('Generic CI environment detected');
@@ -1529,7 +1530,8 @@ function getCIEnvironmentInfo() {
   const ciType = detectCIEnvironmentType();
 
   const info = {
-    ciType: ciType,  // Fixed: Use ciType instead of ci
+    ci: ciType,  // Use 'ci' property as expected by tests
+    ciType: ciType,
     isCI: env.isCI,
     isGitHubActions: env.isGitHubActions,
     isJenkins: env.isJenkins,

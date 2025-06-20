@@ -64,62 +64,122 @@ jobs:
           restore-keys: |
             codeql-javascript-
 
-      # Set up pnpm
+      # Set up pnpm with fallback
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        continue-on-error: true
         with:
-          version: '8'
+          run_install: false
+
+      # Fallback pnpm installation if action fails
+      - name: Install pnpm via npm (fallback)
+        if: failure()
+        shell: bash
+        run: |
+          echo "pnpm action failed, installing via npm..."
+          npm install -g pnpm@8
+          pnpm --version
 
       # Add pnpm to PATH (Linux/macOS)
       - name: Add pnpm to PATH (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          export PATH=$(pnpm bin):$PATH
-          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
-          echo "Current PATH: $PATH"
-          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
+          # Check if pnpm is available
+          if command -v pnpm &> /dev/null; then
+            echo "pnpm found in PATH"
+            pnpm --version
+          else
+            echo "pnpm not found, installing via npm..."
+            npm install -g pnpm@8
+          fi
 
       # Add pnpm to PATH (Windows)
       - name: Add pnpm to PATH (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $pnpmPath = (& pnpm bin)
-          $env:PATH = "$pnpmPath;$env:PATH"
-          echo "PATH=$pnpmPath;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
-          Write-Host "Current PATH: $env:PATH"
-          if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-            Write-Host "Error: pnpm is not in PATH."
-            exit 1
+          # Check if pnpm is available
+          if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+            Write-Host "pnpm found in PATH"
+            pnpm --version
+          } else {
+            Write-Host "pnpm not found, installing via npm..."
+            npm install -g pnpm@8
           }
 
       # Set up Node.js for better JavaScript/TypeScript analysis
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: '20.11.0' # Use consistent Node.js version across workflows
+          cache: 'pnpm'  # Use pnpm cache for consistency
+          cache-dependency-path: './pnpm-lock.yaml'
 
       # Verify pnpm installation
       - name: Check pnpm version
         shell: bash
-        run: pnpm --version
+        run: |
+          if command -v pnpm &> /dev/null; then
+            pnpm --version
+          else
+            echo "pnpm not available, will use npm as fallback"
+            npm --version
+          fi
 
       # Install dependencies if package.json exists
       - name: Install dependencies
         shell: bash
         run: |
+          # Function to install dependencies with fallback
+          install_deps() {
+            local dir=$1
+            local original_dir=$(pwd)
+
+            if [ -n "$dir" ]; then
+              cd "$dir" || return 1
+            fi
+
+            echo "Installing dependencies in $(pwd)..."
+
+            # Try with pnpm first (preferred)
+            if command -v pnpm &>/dev/null; then
+              echo "Using pnpm to install dependencies..."
+              pnpm install || {
+                echo "pnpm install failed, trying with npm..."
+                npm install || {
+                  echo "Both pnpm and npm installation failed in $(pwd)"
+                  cd "$original_dir"
+                  return 1
+                }
+              }
+            else
+              # Fallback to npm if pnpm is not available
+              echo "pnpm not found, using npm to install dependencies..."
+              npm install || {
+                echo "npm installation failed in $(pwd)"
+                cd "$original_dir"
+                return 1
+              }
+            fi
+
+            if [ -n "$dir" ]; then
+              cd "$original_dir"
+            fi
+
+            return 0
+          }
+
           # Check for package.json in the root directory
           if [ -f package.json ]; then
-            echo "Installing dependencies with pnpm in root directory..."
-            pnpm install
+            echo "Found package.json in root directory"
+            install_deps
           else
             echo "No package.json found in root directory, checking ui/react_frontend..."
             # Check for package.json in ui/react_frontend
             if [ -f ui/react_frontend/package.json ]; then
-              echo "Installing dependencies with pnpm in ui/react_frontend..."
-              cd ui/react_frontend && pnpm install
+              echo "Found package.json in ui/react_frontend"
+              install_deps "ui/react_frontend"
             else
               echo "No package.json found in ui/react_frontend, skipping dependency installation."
             fi
@@ -323,7 +383,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.12.7' # Use consistent Python version across workflows
           cache: 'pip'
 
       # Ensure tar is available on Windows
@@ -355,7 +415,9 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          python -m pip install --upgrade uv
+          # Install specific version of uv for consistency
+          curl -LsSf https://astral.sh/uv/0.5.4/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           if [ -f requirements.txt ]; then
             echo "Installing pip dependencies from requirements.txt using 'uv pip'..."
             uv pip install -r requirements.txt || {
@@ -390,7 +452,9 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          python -m pip install --upgrade uv
+          # Install specific version of uv for consistency
+          iwr -useb https://astral.sh/uv/0.5.4/install.ps1 | iex
+          echo "$HOME\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           if (Test-Path "requirements.txt") {
             Write-Host "Installing pip dependencies from requirements.txt using 'uv pip'..."
             try {

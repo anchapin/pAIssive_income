@@ -49,5 +49,7 @@ def find_yaml_error() -> None:
 
     except OSError:
         logger.exception("Error reading file")
+
+
 if __name__ == "__main__":
     find_yaml_error()

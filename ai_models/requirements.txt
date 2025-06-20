@@ -1,2 +1,3 @@
 # AI model dependencies
-modelcontextprotocol>=0.1.0  # Required for MCP server integration
+# modelcontextprotocol>=0.1.0  # Required for MCP server integration
+# Note: Disabled due to heavy dependencies causing CI failures. Install separately if needed.

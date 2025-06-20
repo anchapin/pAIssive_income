@@ -142,15 +142,13 @@ def create_team(
         agent=analyzer,
     )
     task_report = Task(
-        description="Write a summary report based on analysis.",
-        agent=writer
+        description="Write a summary report based on analysis.", agent=writer
     )
 
-    reporting_team = Crew(
+    return Crew(
         agents=[data_gatherer, analyzer, writer],
         tasks=[task_collect, task_analyze, task_report],
     )
-    return reporting_team
 
 
 if __name__ == "__main__":

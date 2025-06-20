@@ -80,9 +80,12 @@ class MemoryRAGCoordinator:
         self._mem0_memory = None
         try:
             from mem0 import Memory
+
             self._mem0_memory = Memory()
         except ImportError:
-            logger.warning("mem0ai package is not installed. Install with: uv pip install mem0ai")
+            logger.warning(
+                "mem0ai package is not installed. Install with: uv pip install mem0ai"
+            )
         except Exception:
             logger.exception("Failed to initialize mem0 Memory")
 
@@ -252,7 +255,9 @@ class MemoryRAGCoordinator:
                 # Ensure mem0 scores are in 0-1 range for consistency
                 # If score is already > 1, normalize it (some systems might use different scales)
                 if current_relevance_value > 1.0:
-                    current_relevance_value = min(current_relevance_value / 100.0, 1.0)  # Assume 0-100 scale
+                    current_relevance_value = min(
+                        current_relevance_value / 100.0, 1.0
+                    )  # Assume 0-100 scale
             else:
                 # Unknown source, default to 0.0
                 current_relevance_value = 0.0

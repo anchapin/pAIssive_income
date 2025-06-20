@@ -4,6 +4,24 @@ name: "CodeQL Analysis (Ubuntu)"
 # It's a specialized version of the main CodeQL workflow for Ubuntu-specific analysis
 
 on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - '.gitignore'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'SECURITY.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
   pull_request:
     branches: [ main ]
     paths-ignore:
@@ -60,7 +78,6 @@ jobs:
         if: matrix.language == 'javascript-typescript'
         uses: pnpm/action-setup@v4
         with:
-          version: '8.15.4'
           run_install: false
 
       # Set up Node.js for JavaScript/TypeScript analysis
@@ -69,6 +86,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: './pnpm-lock.yaml'
 
       # Add pnpm to PATH for Linux/macOS
       - name: Add pnpm to PATH
@@ -105,7 +124,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
 
       # Display disk space before analysis
       - name: Check disk space
@@ -337,7 +355,7 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           config-file: .github/codeql/security-os-ubuntu.yml
-          debug: true
+          debug: false
 
       # Autobuild attempts to build any compiled languages
       - name: Autobuild

@@ -1,13 +1,6 @@
 name: "CodeQL Configuration for Ubuntu"
 
 # This configuration file customizes the CodeQL analysis for Ubuntu
-# It inherits settings from the unified configuration and adds Ubuntu-specific settings
-
-# Inherit from the unified configuration
-extends: security-os-config.yml
-
-# Ubuntu-specific settings
-os: ubuntu-latest
 
 # Additional Ubuntu-specific paths to exclude
 paths-ignore:

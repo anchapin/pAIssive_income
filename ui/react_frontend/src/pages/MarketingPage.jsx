@@ -132,23 +132,23 @@ const MarketingPage = () => {
             {
               platform: 'Twitter',
               posts: [
-                "Tired of manual [task]? Our new AI tool automates the entire process. Try it free: [link] #AI #Productivity",
-                "Save 5+ hours every week with [Product Name]. Our users are reporting incredible time savings and better results. Learn more: [link]",
-                "\"I can't believe how much time this saves me\" - actual customer quote about [Product Name]. See what the buzz is about: [link]"
+                'Tired of manual [task]? Our new AI tool automates the entire process. Try it free: [link] #AI #Productivity',
+                'Save 5+ hours every week with [Product Name]. Our users are reporting incredible time savings and better results. Learn more: [link]',
+                '"I can\'t believe how much time this saves me" - actual customer quote about [Product Name]. See what the buzz is about: [link]'
               ]
             },
             {
               platform: 'LinkedIn',
               posts: [
-                "Introducing [Product Name]: The AI-powered solution professionals are using to automate [task] and improve results by up to 40%. Learn more in the comments!",
-                "We analyzed 1,000+ user workflows and discovered the biggest time-wasters in [industry]. Here's how our AI tool solves them: [link]",
+                'Introducing [Product Name]: The AI-powered solution professionals are using to automate [task] and improve results by up to 40%. Learn more in the comments!',
+                'We analyzed 1,000+ user workflows and discovered the biggest time-wasters in [industry]. Here\'s how our AI tool solves them: [link]',
               ]
             }
           ],
           emailMarketing: [
             {
-              type: "Welcome Email",
-              subject: "Welcome to [Product Name]! Here's How to Get Started",
+              type: 'Welcome Email',
+              subject: 'Welcome to [Product Name]! Here\'s How to Get Started',
               content: `Hi [Name],
 
 Thank you for signing up for [Product Name]! We're excited to have you on board.
@@ -182,7 +182,7 @@ The [Product Name] Team`
           ],
           blogPosts: [
             {
-              title: `How [Industry Professionals] Are Saving 5+ Hours Per Week With AI`,
+              title: 'How [Industry Professionals] Are Saving 5+ Hours Per Week With AI',
               outline: [
                 'Introduction: The time challenges facing [industry professionals]',
                 'The hidden costs of manual [task]',
@@ -194,8 +194,8 @@ The [Product Name] Team`
             }
           ],
           landingPage: {
-            headline: `Save Time and Improve Results with AI-Powered [Solution]`,
-            subheadline: `Automate [task] and focus on what matters most`,
+            headline: 'Save Time and Improve Results with AI-Powered [Solution]',
+            subheadline: 'Automate [task] and focus on what matters most',
             keyFeatures: [
               'Feature 1: [Benefit statement]',
               'Feature 2: [Benefit statement]',

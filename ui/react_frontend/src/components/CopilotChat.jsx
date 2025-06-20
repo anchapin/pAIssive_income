@@ -1,7 +1,7 @@
-import React from "react";
-import { CopilotKitProvider } from "@copilotkit/react-core";
-import { CopilotChat } from "@copilotkit/react-ui";
-import "./CopilotChat.styles.css";
+import React from 'react';
+import { CopilotKitProvider } from '@copilotkit/react-core';
+import { CopilotChat } from '@copilotkit/react-ui';
+import './CopilotChat.styles.css';
 
 /**
  * Minimal CopilotKit + CrewAI Chat Demo

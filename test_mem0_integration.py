@@ -21,7 +21,7 @@ def test_mem0_import() -> bool | None:
         logger.info("Successfully imported mem0 version %s", mem0.__version__)
         return True
     except ImportError as e:
-        logger.error("Failed to import mem0: %s", e)
+        logger.exception("Failed to import mem0: %s", e)
         return False
 
 
