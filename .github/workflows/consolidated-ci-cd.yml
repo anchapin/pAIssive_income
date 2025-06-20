@@ -94,7 +94,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          run_install: false # We will run install manually later
+          run_install: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -123,8 +123,8 @@ jobs:
           set -e
           echo "Installing root Node.js dependencies..."
 
-          # Install root dependencies with fallback
-          pnpm install --frozen-lockfile || pnpm install || npm install
+          # Install root dependencies
+          pnpm install --frozen-lockfile
 
           # Install frontend dependencies
           cd ui/react_frontend
@@ -133,8 +133,8 @@ jobs:
             exit 1
           fi
 
-          # Install frontend dependencies with fallback
-          pnpm install || npm install
+          # Install frontend dependencies
+          pnpm install --frozen-lockfile
 
           # Build Tailwind CSS with error handling
           echo "Building Tailwind CSS..."
@@ -251,7 +251,7 @@ jobs:
         run: |
           set -ex
           if [ -f "requirements-dev.txt" ]; then
-            uv pip install -r requirements-dev.txt || python -m pip install -r requirements-dev.txt
+            uv pip install -r requirements-dev.txt
           else
             echo "requirements-dev.txt not found, skipping."
           fi
@@ -261,7 +261,7 @@ jobs:
         run: |
           set -ex
           if [ -f "requirements.txt" ]; then
-            uv pip install -r requirements.txt || python -m pip install -r requirements.txt
+            uv pip install -r requirements.txt
           else
             echo "requirements.txt not found, skipping."
           fi
@@ -497,7 +497,6 @@ jobs:
 
       - name: Run other tests (Unix)
         if: runner.os != 'Windows'
-        # continue-on-error: true # Temporarily disabled for debugging
         run: |
           set -ex
           # Run all tests except MCP adapter tests and CrewAI tests
@@ -519,7 +518,6 @@ jobs:
 
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
-        # continue-on-error: true # Temporarily disabled for debugging
         shell: pwsh
         run: |
           Set-PSDebug -Trace 1
@@ -543,7 +541,6 @@ jobs:
           }
 
       - name: Validate Setup Scripts
-        # continue-on-error: true # Temporarily disabled for debugging
         run: |
           echo "Validating setup scripts..."
           # Run setup script validation tests
