@@ -200,6 +200,7 @@ class TestMockModuleCompatibility(unittest.TestCase):
         try:
             import mem0
             import modelcontextprotocol
+
             import crewai
 
             Memory = mem0.Memory
