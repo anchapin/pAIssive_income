@@ -1,23 +1,21 @@
 """Tests for GraphQL math tool endpoints."""
 
-import os
-
 import pytest
 from fastapi.testclient import TestClient
-import requests
+from httpx import Response
 
 from api.app import app
 
 client = TestClient(app)
 
-API_KEY_HEADER = {"x-api-key": os.getenv("TOOL_API_KEY", "test-api-key-for-ci")}
+API_KEY_HEADER = {"x-api-key": "test-api-key-for-ci"}
 
 @pytest.fixture(autouse=True)
 def set_tool_api_key(monkeypatch):
-    """Fixture to set TOOL_API_KEY environment variable for tests."""
-    monkeypatch.setenv("TOOL_API_KEY", "test-api-key-for-ci")
+    """Patch API_KEY constant so auth succeeds in tests."""
+    monkeypatch.setattr("api.routes.tool_router.API_KEY", "test-api-key-for-ci")
 
-def graphql_query(query: str, variables: dict | None = None) -> requests.Response:
+def graphql_query(query: str, variables: dict | None = None) -> Response:
     """
     Helper to POST a GraphQL query and return the Response object.
 
@@ -26,7 +24,7 @@ def graphql_query(query: str, variables: dict | None = None) -> requests.Respons
         variables (dict | None): Optional variables for the query.
 
     Returns:
-        requests.Response: The HTTP response from the server.
+        Response: The HTTP response from the server.
     """
     resp = client.post(
         "/graphql",

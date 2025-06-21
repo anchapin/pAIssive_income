@@ -1,7 +1,5 @@
 """Tests for REST math tool endpoints."""
 
-import os
-
 import pytest
 from fastapi.testclient import TestClient
 
@@ -9,13 +7,13 @@ from api.app import app
 
 client = TestClient(app)
 
-API_KEY_HEADER = {"x-api-key": os.getenv("TOOL_API_KEY", "test-api-key-for-ci")}
+API_KEY_HEADER = {"x-api-key": "test-api-key-for-ci"}
 
 
 @pytest.fixture(autouse=True)
 def set_tool_api_key(monkeypatch):
-    """Fixture to set TOOL_API_KEY environment variable for tests."""
-    monkeypatch.setenv("TOOL_API_KEY", "test-api-key-for-ci")
+    """Patch API_KEY constant so auth succeeds in tests."""
+    monkeypatch.setattr("api.routes.tool_router.API_KEY", "test-api-key-for-ci")
 
 def test_add_success() -> None:
     """Test /tools/add happy path."""
