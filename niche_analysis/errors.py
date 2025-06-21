@@ -1,7 +1,17 @@
-"""errors.py - Module for .niche_analysis."""
+"""Centralised error definitions for the niche_analysis package."""
 
-# Standard library imports
 
-# Third-party imports
+class NicheAnalysisError(Exception):
+    """Base class for all custom errors in niche_analysis."""
 
-# Local imports
+
+class InvalidInputError(NicheAnalysisError):
+    """Raised when a user passes invalid data or types to an analysis function."""
+
+
+class DataNotFoundError(NicheAnalysisError):
+    """Raised when requested data cannot be found in internal knowledge bases."""
+
+
+class ScoringError(NicheAnalysisError):
+    """Raised when an error occurs during opportunity scoring."""
