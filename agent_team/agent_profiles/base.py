@@ -3,7 +3,7 @@ Base agent profile class for agent_team.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 from agent_team.schemas import AgentProfileSchema
 
 @dataclass
@@ -11,7 +11,7 @@ class BaseAgent:
     """Base class for agent profiles."""
     profile: AgentProfileSchema
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Return dictionary representation of the agent profile."""
         return self.profile.model_dump()
 

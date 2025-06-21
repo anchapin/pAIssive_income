@@ -2,7 +2,6 @@
 Configuration utilities for agent_team.
 """
 
-from typing import Optional
 from agent_team.schemas import TeamConfigSchema
 
 DEFAULT_TEAM_CONFIG = {
@@ -16,7 +15,7 @@ DEFAULT_TEAM_CONFIG = {
     }
 }
 
-def load_config(path: Optional[str] = None) -> TeamConfigSchema:
+def load_config(path: str | None = None) -> TeamConfigSchema:
     """
     Load a TeamConfigSchema from a file or defaults.
 
@@ -28,7 +27,7 @@ def load_config(path: Optional[str] = None) -> TeamConfigSchema:
     from pydantic import ValidationError
 
     try:
-        with open(path, "r") as f:
+        with open(path) as f:
             data = json.load(f)
         return TeamConfigSchema.model_validate(data)
     except (FileNotFoundError, json.JSONDecodeError, ValidationError) as exc:

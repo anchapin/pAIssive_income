@@ -4,7 +4,6 @@ DeveloperAgent profile.
 
 from agent_team.agent_profiles.base import BaseAgent
 from agent_team.schemas import AgentProfileSchema
-from typing import Dict
 
 class DeveloperAgent(BaseAgent):
     """Agent responsible for development tasks."""
@@ -13,7 +12,7 @@ class DeveloperAgent(BaseAgent):
         profile = AgentProfileSchema(role="developer", goal=goal, backstory=backstory)
         super().__init__(profile=profile)
 
-    def design_solution(self, niche: str) -> Dict[str, str]:
+    def design_solution(self, niche: str) -> dict[str, str]:
         """Return a deterministic stubbed solution design for a given niche."""
         return {
             "niche": niche,

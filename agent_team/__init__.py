@@ -33,10 +33,21 @@ except ImportError:
     MemoryEnhancedCrewAIAgentTeam = None
 
 __all__ = [
-    "AgentTeamError", "DependencyNotInstalledError", "AgentNotFoundError", "TaskAssignmentError",
-    "AgentProfileSchema", "TaskSchema", "TeamConfigSchema",
-    "BaseAgent", "DeveloperAgent", "ResearcherAgent", "MonetizationAgent",
-    "MarketingAgent", "FeedbackAgent",
-    "DEFAULT_TEAM_CONFIG", "load_config",
-    "CrewAIAgentTeam", "MemoryEnhancedCrewAIAgentTeam",
+    "DEFAULT_TEAM_CONFIG",
+    "AgentNotFoundError",
+    "AgentProfileSchema",
+    "AgentTeamError",
+    "BaseAgent",
+    "CrewAIAgentTeam",
+    "DependencyNotInstalledError",
+    "DeveloperAgent",
+    "FeedbackAgent",
+    "MarketingAgent",
+    "MemoryEnhancedCrewAIAgentTeam",
+    "MonetizationAgent",
+    "ResearcherAgent",
+    "TaskAssignmentError",
+    "TaskSchema",
+    "TeamConfigSchema",
+    "load_config",
 ]
