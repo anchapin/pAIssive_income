@@ -77,21 +77,16 @@ class OpportunityScorer:
         )
 
         # Monetization potential – uses market & severity heuristics
-        market_score = factor_scores["market_size"]
-        if market_score >= 0.8:
-            market_bonus = 0.2
-        elif market_score >= 0.6:
-            market_bonus = 0.1
-        else:
-            market_bonus = -0.1
+        def _get_score_bonus(score: float) -> float:
+            """Calculate a bonus based on a score threshold."""
+            if score >= 0.8:
+                return 0.2
+            if score >= 0.6:
+                return 0.1
+            return -0.1
 
-        growth_score = factor_scores["growth_rate"]
-        if growth_score >= 0.8:
-            growth_bonus = 0.2
-        elif growth_score >= 0.6:
-            growth_bonus = 0.1
-        else:
-            growth_bonus = -0.1
+        market_bonus = _get_score_bonus(factor_scores["market_size"])
+        growth_bonus = _get_score_bonus(factor_scores["growth_rate"])
 
         severity_bonus = 0.1 if factor_scores["problem_severity"] > 0.7 else 0.0
         business_bonus = 0.1 if any(k in niche.lower() for k in ("business", "enterprise")) else 0.0
