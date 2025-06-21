@@ -78,7 +78,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
  */
 const RevenueProjectionChart = ({
   data = [],
-  title = "Revenue Projection",
+  title = 'Revenue Projection',
   additionalScenarios = null,
   height = 400
 }) => {
@@ -269,13 +269,13 @@ const RevenueProjectionChart = ({
 
     if (format === 'csv') {
       // Create CSV content with active scenarios
-      let csvContent = "data:text/csv;charset=utf-8,Month,Date";
+      let csvContent = 'data:text/csv;charset=utf-8,Month,Date';
 
       // Add column headers for each active scenario
       activeScenarios.forEach(scenario => {
         csvContent += `,${scenario.charAt(0).toUpperCase() + scenario.slice(1)}`;
       });
-      csvContent += "\n";
+      csvContent += '\n';
 
       // Add data rows
       data.forEach((item, index) => {
@@ -286,14 +286,14 @@ const RevenueProjectionChart = ({
           row.push(scenarioData ? scenarioData.revenue : '');
         });
 
-        csvContent += row.join(',') + "\n";
+        csvContent += row.join(',') + '\n';
       });
 
       // Create download link
       const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_projections.csv`);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_projections.csv`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup
@@ -314,9 +314,9 @@ const RevenueProjectionChart = ({
       // Create download link
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_projections.json`);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_projections.json`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup
@@ -443,14 +443,14 @@ const RevenueProjectionChart = ({
               <Button
                 startIcon={<TuneIcon />}
                 onClick={() => setShowForecastPanel(!showForecastPanel)}
-                color={showForecastPanel ? "primary" : "inherit"}
+                color={showForecastPanel ? 'primary' : 'inherit'}
               >
                 Parameters
               </Button>
               <Button
                 startIcon={<TableChartIcon />}
                 onClick={() => setShowTable(!showTable)}
-                color={showTable ? "primary" : "inherit"}
+                color={showTable ? 'primary' : 'inherit'}
               >
                 Table
               </Button>

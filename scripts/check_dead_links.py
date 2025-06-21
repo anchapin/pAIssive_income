@@ -56,9 +56,14 @@ def should_exclude(path: Path, ignore_patterns: List[str]) -> bool:
     return False
 
 
+<<<<<<< HEAD
+def find_markdown_files(root, ignore_patterns):
+    for dirpath, dirnames, filenames in os.walk(root):
+=======
 def find_markdown_files(root: Path, ignore_patterns: List[str]) -> Generator[Path, None, None]:
     """Find all markdown files in the repository, excluding gitignored files."""
     for dirpath, dirnames, filenames in root.walk():
+>>>>>>> main
         # Exclude .git and virtualenvs quickly
         if should_exclude(dirpath, ignore_patterns):
             dirnames[:] = []
@@ -69,6 +74,13 @@ def find_markdown_files(root: Path, ignore_patterns: List[str]) -> Generator[Pat
                 if not should_exclude(full, ignore_patterns):
                     yield full
 
+<<<<<<< HEAD
+
+LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+INLINE_LINK_RE = re.compile(r"<(https?://[^>]+)>")
+
+=======
+>>>>>>> main
 
 LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 INLINE_LINK_RE = re.compile(r"<(https?://[^>]+)>")
@@ -88,8 +100,12 @@ def extract_links(markdown: str) -> List[str]:
     return links
 
 
+<<<<<<< HEAD
+def check_http_link(url):
+=======
 def check_http_link(url: str) -> bool:
     """Check if an HTTP/HTTPS link is accessible."""
+>>>>>>> main
     try:
         resp = requests.head(url, allow_redirects=True, timeout=TIMEOUT)
         if resp.status_code < HTTP_OK_THRESHOLD:
@@ -101,7 +117,11 @@ def check_http_link(url: str) -> bool:
         return False
 
 
+<<<<<<< HEAD
+def anchors_in_markdown(content):
+=======
 def anchors_in_markdown(content: str) -> Set[str]:
+>>>>>>> main
     """Return a set of valid anchor names in the file, following GitHub's anchor logic."""
     headers = re.findall(r"^#+\s*(.+)$", content, flags=re.MULTILINE)
     anchors: Set[str] = set()
@@ -114,8 +134,12 @@ def anchors_in_markdown(content: str) -> Set[str]:
     return anchors
 
 
+<<<<<<< HEAD
+def check_file_link(url, basepath) -> bool:
+=======
 def check_file_link(url: str, basepath: Path) -> bool:
     """Check if a file link exists and optionally if its anchor exists."""
+>>>>>>> main
     # Remove anchor
     path_str, anchor = urldefrag(url)
     path = (basepath.parent / path_str).resolve()

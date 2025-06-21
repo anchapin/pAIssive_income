@@ -9,6 +9,7 @@ import secrets
 import smtplib
 from datetime import datetime, timedelta, timezone
 from email.mime.text import MIMEText
+from typing import TYPE_CHECKING
 
 import bcrypt
 from flask import Blueprint, jsonify, request
@@ -17,6 +18,9 @@ from flask_limiter.util import get_remote_address
 from sqlalchemy import Column, DateTime, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+if TYPE_CHECKING:
+    from flask.typing import ResponseReturnValue
 
 # Pattern for allowed characters in logs. Anything not matching this will be replaced.
 # Allows: a-z, A-Z, 0-9, space, period, underscore, @, :, /, =, -
@@ -120,7 +124,7 @@ def sanitize_log_data(data: str | None) -> str:
 
 @auth_bp.route("/forgot-password", methods=["POST"])
 @limiter.limit("5 per minute")
-def forgot_password() -> tuple[dict, int]:
+def forgot_password() -> ResponseReturnValue:
     """Handle forgot password requests with proper security measures."""
     data = request.get_json() or {}
     email = data.get("email", "").strip().lower() if data.get("email") else ""
@@ -197,7 +201,7 @@ def forgot_password() -> tuple[dict, int]:
 
 @auth_bp.route("/reset-password", methods=["POST"])
 @limiter.limit("5 per minute")
-def reset_password() -> tuple[object, int]:
+def reset_password() -> ResponseReturnValue:
     """Handle password reset with proper security measures."""
     data = request.get_json() or {}
     token = data.get("token", "")
@@ -228,7 +232,7 @@ def reset_password() -> tuple[object, int]:
         # Use parameterized query to prevent SQL injection
         prt = session.query(PasswordResetToken).filter_by(token=token).first()
 
-        if not prt or prt.expires_at < datetime.now(timezone.utc):
+        if prt is None or prt.expires_at < datetime.now(timezone.utc):
             logger.warning(
                 "[AUDIT][%s] Password reset failed (invalid/expired token) from %s token_prefix=%s...",
                 datetime.now(timezone.utc).isoformat(),

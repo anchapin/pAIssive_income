@@ -65,7 +65,7 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
  */
 const TierRevenueStackedBarChart = ({
   data,
-  title = "Revenue by Subscription Tier",
+  title = 'Revenue by Subscription Tier',
   height = 400,
   showQuarterly = false
 }) => {
@@ -84,10 +84,10 @@ const TierRevenueStackedBarChart = ({
   const [referenceLines, setReferenceLines] = useState([]);
   const [showReferenceLineDialog, setShowReferenceLineDialog] = useState(false);
   const [newReferenceLine, setNewReferenceLine] = useState({
-    position: isQuarterly ? "Q2" : "Month 6",
-    label: "Break Even",
+    position: isQuarterly ? 'Q2' : 'Month 6',
+    label: 'Break Even',
     value: 5000,
-    color: "#f44336"
+    color: '#f44336'
   });
 
   // Settings dialog state
@@ -435,10 +435,10 @@ const TierRevenueStackedBarChart = ({
     setShowReferenceLineDialog(false);
     // Reset the form
     setNewReferenceLine({
-      position: isQuarterly ? "Q2" : "Month 6",
-      label: "Break Even",
+      position: isQuarterly ? 'Q2' : 'Month 6',
+      label: 'Break Even',
       value: 5000,
-      color: "#f44336"
+      color: '#f44336'
     });
   };
 
@@ -452,17 +452,17 @@ const TierRevenueStackedBarChart = ({
 
     if (format === 'csv') {
       // Create CSV content
-      let csvContent = "data:text/csv;charset=utf-8,";
+      let csvContent = 'data:text/csv;charset=utf-8,';
 
       // Add headers
-      const headers = [isQuarterly ? "Quarter" : "Month", "Total Revenue"];
+      const headers = [isQuarterly ? 'Quarter' : 'Month', 'Total Revenue'];
 
       // Add tier names as headers
       tierNames.forEach(tier => {
         headers.push(tier);
       });
 
-      csvContent += headers.join(",") + "\n";
+      csvContent += headers.join(',') + '\n';
 
       // Add data rows
       chartData.forEach(item => {
@@ -476,14 +476,14 @@ const TierRevenueStackedBarChart = ({
           row.push(item[tier].toFixed(2));
         });
 
-        csvContent += row.join(",") + "\n";
+        csvContent += row.join(',') + '\n';
       });
 
       // Create download link
       const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.csv`);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_data.csv`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup
@@ -496,9 +496,9 @@ const TierRevenueStackedBarChart = ({
       // Create download link
       const blob = new Blob([jsonContent], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.json`);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_data.json`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup
@@ -517,8 +517,8 @@ const TierRevenueStackedBarChart = ({
             <MuiTooltip title="Toggle Data Comparison">
               <Button
                 onClick={() => setShowComparison(!showComparison)}
-                color={showComparison ? "primary" : "inherit"}
-                variant={showComparison ? "contained" : "outlined"}
+                color={showComparison ? 'primary' : 'inherit'}
+                variant={showComparison ? 'contained' : 'outlined'}
                 startIcon={<CompareArrowsIcon />}
               >
                 Compare
@@ -591,8 +591,8 @@ const TierRevenueStackedBarChart = ({
                 <Chip
                   key={tier}
                   label={tier}
-                  color={visibleTiers[tier] ? "primary" : "default"}
-                  variant={visibleTiers[tier] ? "filled" : "outlined"}
+                  color={visibleTiers[tier] ? 'primary' : 'default'}
+                  variant={visibleTiers[tier] ? 'filled' : 'outlined'}
                   onClick={() => toggleTier(tier)}
                   sx={{
                     opacity: visibleTiers[tier] ? 1 : 0.6,
@@ -674,7 +674,7 @@ const TierRevenueStackedBarChart = ({
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
           {chartSettings.showGridLines && <CartesianGrid strokeDasharray="3 3" />}
-          <XAxis dataKey={isQuarterly ? "quarterLabel" : "monthLabel"} />
+          <XAxis dataKey={isQuarterly ? 'quarterLabel' : 'monthLabel'} />
           <YAxis
             tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`}
             domain={['auto', 'auto']}
@@ -689,7 +689,7 @@ const TierRevenueStackedBarChart = ({
                 key={tier}
                 dataKey={tier}
                 name={tier}
-                stackId={chartSettings.stacked ? "a" : null}
+                stackId={chartSettings.stacked ? 'a' : null}
                 fill={tierColors[tier] || `#${Math.floor(Math.random()*16777215).toString(16)}`}
                 fillOpacity={chartSettings.barOpacity}
                 radius={chartSettings.stacked ? [0, 0, 0, 0] : [chartSettings.barRadius, chartSettings.barRadius, 0, 0]}
@@ -740,7 +740,7 @@ const TierRevenueStackedBarChart = ({
           ))}
 
           <Brush
-            dataKey={isQuarterly ? "quarterLabel" : "monthLabel"}
+            dataKey={isQuarterly ? 'quarterLabel' : 'monthLabel'}
             height={30}
             stroke="#8884d8"
             onChange={({ startIndex, endIndex }) => {

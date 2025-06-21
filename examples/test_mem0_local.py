@@ -12,7 +12,6 @@ Note: This script requires an OpenAI API key to be set as an environment variabl
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 from typing import Any, Optional
@@ -25,6 +24,7 @@ except ImportError:
 
 def print_json(data: Any) -> None:
     """Print data as formatted JSON."""
+    import json
     import sys
 
     sys.stdout.write(json.dumps(data, indent=2, default=str) + "\n")

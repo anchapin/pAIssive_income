@@ -50,19 +50,7 @@ function safelyCreateDirectory(dirPath) {
     return true;
   } catch (error) {
     console.error(`Failed to create directory at ${dirPath}: ${error.message}`);
-
-    // Try with absolute path as fallback
-    try {
-      const absolutePath = path.resolve(process.cwd(), dirPath);
-      if (!fs.existsSync(absolutePath)) {
-        fs.mkdirSync(absolutePath, { recursive: true });
-        console.log(`Created directory at absolute path: ${absolutePath}`);
-      }
-      return true;
-    } catch (fallbackError) {
-      console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
-      return false;
-    }
+    return false;
   }
 }
 

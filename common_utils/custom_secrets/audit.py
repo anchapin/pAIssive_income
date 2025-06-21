@@ -533,7 +533,8 @@ def generate_json_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
     """
     json_results = {}
     for file_path, secrets in results.items():
-        masked_file_path = mask_sensitive_data(file_path)
+        # Ensure the masked file path is always a string (hashable) for use as dict key
+        masked_file_path = str(mask_sensitive_data(file_path))
         json_results[masked_file_path] = [
             {
                 "type": pattern_name,
@@ -570,9 +571,9 @@ def generate_text_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
     ]
 
     for file_path, secrets in results.items():
-        masked_file_path = mask_sensitive_data(file_path)
+        masked_file_path = str(mask_sensitive_data(file_path))
         lines.append(f"File: {masked_file_path}")
-        lines.append("-" * (len(str(masked_file_path)) + 6))
+        lines.append("-" * (len(masked_file_path) + 6))
 
         for pattern_name, line_number, line, _ in secrets:
             masked_line = mask_sensitive_data(line)
@@ -630,8 +631,7 @@ def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
         del key_material
         if derived_key is not None:
             del derived_key
-        if encoded_key is not None:
-            del encoded_key
+        # encoded_key is automatically cleaned up when function exits
 
 
 def save_encrypted_report(path: str, salt: bytes, encrypted_content: bytes) -> None:

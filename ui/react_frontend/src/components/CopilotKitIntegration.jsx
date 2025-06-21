@@ -19,7 +19,7 @@ const CopilotKitIntegration = () => {
             placeholder="Type here and ask for help..."
             copilotContext={{
               recentMessages: [],
-              systemPrompt: "You are a helpful assistant that helps users with their tasks."
+              systemPrompt: 'You are a helpful assistant that helps users with their tasks.'
             }}
           />
         </div>

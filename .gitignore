@@ -63,6 +63,12 @@ artist_experiments/logs/
 **/environment-report.json
 **/ci-reports/**/environment-report.json
 
+# New temporary/generated files
+bandit-report.json
+lint_baseline.json
+security-reports/current-bandit-results.json
+uv.lock
+
 # Translations
 *.mo
 *.pot
@@ -201,7 +207,6 @@ mypy_errors_summary.txt
 mypy_typing_report.txt
 ruff_typing_report.json
 ruff-baseline.txt
-pnpm-lock.yaml
 
 # Frontend test artifacts and reports
 ui/react_frontend/ci-reports/
@@ -222,6 +227,10 @@ playwright-report/
 browser-tools-mcp/
 fetch-mcp/
 
-# Test artifacts
+# Test artifacts and reports (temporary files)
 test-report.txt
 test.txt
+
+# Compressed security reports (originals are already tracked)
+security-reports/compressed/
+test-report.json
