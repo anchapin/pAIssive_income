@@ -118,8 +118,8 @@ max_concurrent_conversations = 5
 # AWS secret access key
 #aws_secret_access_key = ""
 
-# API key to use (For Headless / CLI only -  In Web this is overridden by Session Init)
-api_key = "AIzaSyBNnOzOE-WDyp8Tm0B1qQntBTcaJ30OLO8"
+# API key to use (For Headless / CLI only - In Web this is overridden by Session Init)
+# api_key = "${GOOGLE_API_KEY}"  # Set via environment variable; do not commit secrets. Ensure GOOGLE_API_KEY is set before running the application.
 
 # API base URL (For Headless / CLI only -  In Web this is overridden by Session Init)
 #base_url = ""
