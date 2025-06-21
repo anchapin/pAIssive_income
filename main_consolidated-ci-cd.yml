@@ -63,8 +63,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run linting
         run: |
           ruff check .
@@ -90,11 +90,11 @@ jobs:
         run: |
           cd ui/react_frontend
           ls -la
-          npm install
+          pnpm install
       - name: Run tests
         run: |
           cd ui/react_frontend
-          npm test -- --coverage
+          pnpm test -- --coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -183,8 +183,8 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run docker-compose tests
         run: |
           docker-compose -f docker-compose.ci.yml up -d --build
@@ -203,8 +203,8 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run auto-fix
         run: |
           ruff --fix .
