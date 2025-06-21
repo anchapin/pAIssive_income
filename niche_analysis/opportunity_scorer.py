@@ -77,20 +77,22 @@ class OpportunityScorer:
         )
 
         # Monetization potential – uses market & severity heuristics
-        market_bonus = (
-            0.2
-            if factor_scores["market_size"] >= 0.8
-            else 0.1
-            if factor_scores["market_size"] >= 0.6
-            else -0.1
-        )
-        growth_bonus = (
-            0.2
-            if factor_scores["growth_rate"] >= 0.8
-            else 0.1
-            if factor_scores["growth_rate"] >= 0.6
-            else -0.1
-        )
+        market_score = factor_scores["market_size"]
+        if market_score >= 0.8:
+            market_bonus = 0.2
+        elif market_score >= 0.6:
+            market_bonus = 0.1
+        else:
+            market_bonus = -0.1
+
+        growth_score = factor_scores["growth_rate"]
+        if growth_score >= 0.8:
+            growth_bonus = 0.2
+        elif growth_score >= 0.6:
+            growth_bonus = 0.1
+        else:
+            growth_bonus = -0.1
+
         severity_bonus = 0.1 if factor_scores["problem_severity"] > 0.7 else 0.0
         business_bonus = 0.1 if any(k in niche.lower() for k in ("business", "enterprise")) else 0.0
         factor_scores["monetization_potential"] = max(

@@ -138,6 +138,6 @@ class OpportunityScore(BaseModel):
 class OpportunityComparison(BaseModel):
     """Comparison of multiple opportunities."""
     ranked_opportunities: List[OpportunityScore]
-    top_recommendation: Optional[OpportunityScore]
+    top_recommendation: OpportunityScore
     comparison_factors: Dict[str, Any]
     recommendations: List[str]
