@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Any
 
 from .schemas import OpportunityScore, OpportunityComparison, Problem
 from .errors import InvalidInputError, ScoringError
@@ -40,8 +40,8 @@ class OpportunityScorer:
     def score_opportunity(
         self,
         niche: str,
-        market_data: Dict[str, Any],
-        problems: List[Problem],
+        market_data: dict[str, Any],
+        problems: list[Problem],
     ) -> OpportunityScore:
         """Return a scoring object for a single *niche*."""
 
@@ -50,7 +50,7 @@ class OpportunityScorer:
 
         # 1. Derive factor scores ------------------------------------------------
 
-        factor_scores: Dict[str, float] = {}
+        factor_scores: dict[str, float] = {}
 
         # Qualitative mappings
         for cat in ("market_size", "growth_rate", "competition"):
@@ -134,7 +134,7 @@ class OpportunityScorer:
 
     # .....................................................................
 
-    def compare_opportunities(self, opportunities: List[OpportunityScore]) -> OpportunityComparison:
+    def compare_opportunities(self, opportunities: list[OpportunityScore]) -> OpportunityComparison:
         """Rank and compare multiple OpportunityScore objects."""
 
         if not opportunities:
