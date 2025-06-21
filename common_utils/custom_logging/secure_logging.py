@@ -4,7 +4,6 @@ Secure logging utilities to prevent sensitive information from being logged.
 This module provides functions to mask sensitive information in logs, such as access
 credentials, authentication materials, and other sensitive data.
 """
-# ruff: noqa: ANN002,ANN003
 
 from __future__ import annotations
 

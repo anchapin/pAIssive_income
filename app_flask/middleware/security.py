@@ -1,5 +1,4 @@
 """Security middleware for Flask application."""
-# ruff: noqa: ANN001,ANN002,ANN003,ANN202
 
 from __future__ import annotations
 
