@@ -1,11 +1,18 @@
-"""FastAPI application with CORS middleware and tool router."""
+"""FastAPI application with CORS middleware, tool router, and GraphQL."""
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes.tool_router import router as tool_router
+from api.errors import http_exception_handler
+from api.routes.tool_router import api_key_auth
+
+# GraphQL Setup
+from api.graphql.schema_builder import schema
+from strawberry.fastapi import GraphQLRouter
+from fastapi import APIRouter
 
 # Create FastAPI app
 app = FastAPI(
@@ -13,6 +20,9 @@ app = FastAPI(
     description="API for exposing mathematical tools and other services",
     version="1.0.0",
 )
+
+# Register global HTTPException handler
+app.add_exception_handler(HTTPException, http_exception_handler)
 
 # Add CORS middleware for development
 app.add_middleware(
@@ -25,6 +35,12 @@ app.add_middleware(
 
 # Include routers
 app.include_router(tool_router)
+
+# Secure GraphQL endpoint using same API key auth
+graphql_app = GraphQLRouter(schema)
+graphql_router = APIRouter(prefix="/graphql", dependencies=[Depends(api_key_auth)])
+graphql_router.include_router(graphql_app, prefix="")
+app.include_router(graphql_router)
 
 
 @app.get("/")
