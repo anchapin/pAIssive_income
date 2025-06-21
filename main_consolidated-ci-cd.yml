@@ -63,13 +63,8 @@ jobs:
 
       - name: Install dependencies (with uv)
         run: |
-          if [ -f uv.lock ]; then
-            uv pip install -r requirements.txt
-            uv pip install -r requirements-dev.txt
-          else
-            uv pip install -r requirements.txt
-            uv pip install -r requirements-dev.txt
-          fi
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run linting
         run: |
           ruff check .
@@ -93,8 +88,13 @@ jobs:
           node-version: '20.x'
       - name: Set up pnpm
         run: |
-          corepack enable
-          corepack prepare pnpm@latest --activate
+          if command -v corepack >/dev/null 2>&1; then
+            corepack enable
+            corepack prepare pnpm@latest --activate
+          else
+            echo "corepack not found, please install it"
+            exit 1
+          fi
       - name: Install dependencies
         run: |
           cd ui/react_frontend
@@ -192,13 +192,8 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies (with uv)
         run: |
-          if [ -f uv.lock ]; then
-            uv pip install -r requirements.txt
-            uv pip install -r requirements-dev.txt
-          else
-            uv pip install -r requirements.txt
-            uv pip install -r requirements-dev.txt
-          fi
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run docker-compose tests
         run: |
           docker-compose -f docker-compose.ci.yml up -d --build
@@ -217,13 +212,8 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies (with uv)
         run: |
-          if [ -f uv.lock ]; then
-            uv pip install -r requirements.txt
-            uv pip install -r requirements-dev.txt
-          else
-            uv pip install -r requirements.txt
-            uv pip install -r requirements-dev.txt
-          fi
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run auto-fix
         run: |
           ruff --fix .
