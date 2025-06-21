@@ -20,7 +20,7 @@ def test_health(client):
     body = resp.get_json()
     assert body == {"status": "ok"}
     # CORS header present
-    assert resp.headers.get("Access-Control-Allow-Origin") == "*"
+    assert resp.headers.get("Access-Control-Allow-Origin") == "http://localhost:3000"
 
 def test_get_agent(client):
     resp = client.get("/api/agent")

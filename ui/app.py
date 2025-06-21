@@ -1,6 +1,7 @@
 """Flask application for UI backend exposing health, agent, and agent action endpoints."""
 
 import os
+import threading
 import logging
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional
@@ -13,6 +14,7 @@ __all__ = ["create_app", "Agent"]
 # In-memory storage for actions (as a placeholder)
 _ACTIONS: List[Dict[str, Any]] = []
 _ACTION_ID_COUNTER: int = 1
+_ACTION_LOCK = threading.Lock()
 
 @dataclass
 class Agent:
@@ -39,7 +41,8 @@ def get_agent() -> Agent:
 def create_app() -> Flask:
     """Create and configure Flask app with routes and CORS."""
     app = Flask(__name__)
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    CORS(app, resources={r"/*": {"origins": allowed_origins}})
 
     # Configure logging
     logging.basicConfig(level=logging.INFO)
@@ -60,25 +63,26 @@ def create_app() -> Flask:
     def agent_action() -> Any:
         """Accept and store/log an agent action."""
         global _ACTION_ID_COUNTER, _ACTIONS
-        try:
-            data = request.get_json(force=True)
-        except Exception:
+        data = request.get_json(silent=True)
+        if data is None:
             return jsonify({"error": "Invalid JSON"}), 400
 
         # Basic validation: must have 'type' (and optionally agentId, payload)
         if not isinstance(data, dict) or "type" not in data:
             return jsonify({"error": "Missing required field 'type'"}), 400
 
-        action = {
-            "id": _ACTION_ID_COUNTER,
-            "type": data["type"],
-            "agentId": data.get("agentId", get_agent().id),
-            "payload": data.get("payload"),
-        }
-        _ACTIONS.append(action)
-        logger.info("Action received and stored: %s", action)
-        resp = {"status": "success", "action_id": _ACTION_ID_COUNTER}
-        _ACTION_ID_COUNTER += 1
+        with _ACTION_LOCK:
+            action_id = _ACTION_ID_COUNTER
+            _ACTION_ID_COUNTER += 1
+            action = {
+                "id": action_id,
+                "type": data["type"],
+                "agentId": data.get("agentId", get_agent().id),
+                "payload": data.get("payload"),
+            }
+            _ACTIONS.append(action)
+            logger.info("Action received and stored: %s", action)
+        resp = {"status": "success", "action_id": action_id}
         return jsonify(resp), 200
 
     return app

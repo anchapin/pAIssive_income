@@ -18,6 +18,20 @@ This directory contains the Flask-based backend for the UI MVP.
     PORT=8080 python -m ui.run_ui
     ```
 
+### Production Deployment
+
+For production, use Gunicorn (recommended):
+
+```bash
+gunicorn ui.app:create_app --bind 0.0.0.0:8000
+```
+
+Set the `CORS_ALLOWED_ORIGINS` environment variable to restrict allowed origins for security (comma-separated if multiple):
+
+```bash
+export CORS_ALLOWED_ORIGINS="https://yourdomain.com"
+```
+
 ## Endpoints
 
 - `GET /health`  

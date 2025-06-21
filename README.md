@@ -489,6 +489,16 @@ python -m ui.run_ui
   - `POST /api/agent/action`: Accepts `{type, agentId?, payload?}` JSON, logs action in memory, returns incremental action_id.
 
 See `ui/README.md` for more details.
+
+```
+
+- Server will start on port 8000 by default, or use `$PORT` if set.
+- Endpoints:
+  - `GET /health`: Health check.
+  - `GET /api/agent`: Returns agent object.
+  - `POST /api/agent/action`: Accepts `{type, agentId?, payload?}` JSON, logs action in memory, returns incremental action_id.
+
+See `ui/README.md` for more details.
 - Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
 - Enhanced GitHub workflow configurations for better cross-platform compatibility
 - Improved uv virtual environment handling and dependency management
