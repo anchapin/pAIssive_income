@@ -5,7 +5,7 @@ Thank you for your contribution! Please review and check the following before su
 - [ ] My branch name follows the guidelines (e.g., `feature/123-short-desc`).
 - [ ] This PR is linked to an existing issue using closing keywords (e.g., `Fixes #123`).
 - [ ] All required CI checks have passed (tests, linting, type checks).
-- [ ] At least 2 reviewers will review this PR (1 senior + 1 peer).
+- [ ] I have requested reviews from at least 1 senior developer and 1 peer.
 - [ ] I have reviewed and followed the [Claude Agentic Coding Best Practices](../claude_coding_best_practices.md).
 - [ ] I have completed the contributor checklist in [CONTRIBUTING.md](../CONTRIBUTING.md).
 - [ ] All code has explicit, documented inputs and outputs.

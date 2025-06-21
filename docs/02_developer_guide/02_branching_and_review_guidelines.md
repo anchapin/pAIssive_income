@@ -18,10 +18,10 @@ Clear development guidelines are essential to maintain code quality, enable effi
 - **Branch Rules:**
   - Always branch off the latest `main` (or default) branch.
   - Keep branches focused and small—one logical change per branch.
-  - Prefer `rebase` over `merge` to keep history clean (unless coordinated otherwise).
+  - Prefer `rebase` over `merge` when updating your branch from `main` to keep the commit history clean (unless coordinated otherwise).
   - Delete branches after merging to reduce clutter.
 
-> **Tip:** Use descriptive, concise branch names. Include the issue ID if applicable.
+> **Tip:** Use descriptive, concise branch names. Always include the issue ID.
 
 ## 3. Issue Tracking
 
@@ -56,7 +56,7 @@ Clear development guidelines are essential to maintain code quality, enable effi
   - Documentation (inline and external) is updated as needed.
   - The change aligns with architectural principles and module boundaries.
 
-- **Review Checklist (include in PR or review):**
+- **Reviewer's Checklist:**
   - [ ] Code is easy to understand and follows style guides
   - [ ] No obvious performance or security issues
   - [ ] All public functions/types are documented
@@ -76,7 +76,7 @@ Clear development guidelines are essential to maintain code quality, enable effi
 - **PR template:** Always use the provided PR template and fill out all sections.
 - **CI/CD:** All status checks (tests, linting, type checks) must pass before merging.
 - **Merge policy:** Use **squash-merge** only. Do not use rebase-merge or merge commits.
-- **Commit messages:** Squash commit message should summarize the change and reference the issue (e.g., `feat(auth): add login endpoint (#123)`).
+- **Commit messages:** Squash commit messages should follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard, summarizing the change and referencing the issue (e.g., `feat(auth): add login endpoint (#123)`).
 - **Re-approval:** If new commits are pushed after approval, reviewers must re-approve.
 - **Branch protection:** Main branch is protected—requires PR review, passing CI, and up-to-date with base before merge.
 
@@ -85,7 +85,7 @@ Clear development guidelines are essential to maintain code quality, enable effi
 ## 7. Coding Standards
 
 - **Linting, formatting, and dependency management:** Follow [Development Workflow](01_development_workflow.md) for details on using `uv`, `pnpm`, and `ruff`.
-- See [LINTING.md](../../../LINTING.md) and [formatting_guide.md](../../../formatting_guide.md) for style rules.
+- See the [Linting & Formatting section in the Development Workflow](01_development_workflow.md#linting--formatting) for style rules.
 
 ## 8. Testing Expectations
 
