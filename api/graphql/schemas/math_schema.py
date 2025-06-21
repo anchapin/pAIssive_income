@@ -5,7 +5,7 @@ from __future__ import annotations
 import strawberry
 from typing import List
 
-from utils.math_utils import add, subtract, multiply, divide, average
+from utils import math_utils as mu
 
 @strawberry.type
 class Query:
@@ -23,7 +23,7 @@ class Query:
         Returns:
             Sum of a and b.
         """
-        return add(a, b)
+        return mu.add(a, b)
 
     @strawberry.field(description="Subtract two numbers")
     def subtract(self, a: float, b: float) -> float:
@@ -37,7 +37,7 @@ class Query:
         Returns:
             Difference of a and b.
         """
-        return subtract(a, b)
+        return mu.subtract(a, b)
 
     @strawberry.field(description="Multiply two numbers")
     def multiply(self, a: float, b: float) -> float:
@@ -51,7 +51,7 @@ class Query:
         Returns:
             Product of a and b.
         """
-        return multiply(a, b)
+        return mu.multiply(a, b)
 
     @strawberry.field(description="Divide a by b")
     def divide(self, a: float, b: float) -> float:
@@ -69,7 +69,7 @@ class Query:
             ValueError: If dividing by zero.
         """
         try:
-            return divide(a, b)
+            return mu.divide(a, b)
         except ZeroDivisionError:
             raise ValueError("Cannot divide by zero")
 
@@ -87,4 +87,4 @@ class Query:
         Raises:
             ValueError: If the list is empty.
         """
-        return average(numbers)
+        return mu.average(numbers)
