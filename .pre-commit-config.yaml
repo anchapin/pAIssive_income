@@ -51,6 +51,13 @@ repos:
         types: [python]
         files: \.py$
         exclude: ^(scripts/|mypy_stubs/)
+  # Black formatting (as alternative/companion to Ruff)
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        language_version: python3.10
+        args: ["--line-length", "100"]
 
   # Security checking with Bandit
   - repo: https://github.com/PyCQA/bandit

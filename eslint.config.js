@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import pluginPrettier from "eslint-plugin-prettier";
 
 export default [
   js.configs.recommended,
@@ -63,8 +64,8 @@ export default [
     rules: {
       // Relax some rules for development
       'no-unused-vars': ['warn', {
-        argsIgnorePattern: '^_|^error$|^e$',
-        varsIgnorePattern: '^_|^error$|^e$'
+        argsIgnorePattern: '^_|^error$|^e,
+        varsIgnorePattern: '^_|^error$|^e
       }],
       'no-undef': 'warn',
       'no-control-regex': 'warn',
@@ -129,5 +130,11 @@ export default [
       '*.bak',
       'tatus', // Seems to be a git status output file
     ],
+  },
+  // --- Prettier Integration (global) ---
+  {
+    plugins: { prettier: pluginPrettier },
+    rules: { "prettier/prettier": "error" },
+    extends: ["plugin:prettier/recommended"],
   },
 ];
