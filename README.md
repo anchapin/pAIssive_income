@@ -441,7 +441,30 @@ All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](h
 linting,
 and the contribution checklist.
 
-### OpenHands Development Environment
+### OpenHands
+
+...
+
+## UI Flask Backend
+
+**Location:** `ui/app.py`
+
+- Simple Flask REST API for action storage and CORS.
+- Endpoints:
+  - `GET /health`: Health check.
+  - `POST /actions`: Add action (JSON body).
+  - `GET /actions`: List all actions.
+- CORS allowed origins configured via `CORS_ALLOWED_ORIGINS` env var (comma-separated, defaults to `http://localhost:3000`).
+- Start locally:
+  ```bash
+  cd ui
+  uv pip install -r requirements.txt
+  uvicorn app:app
+  ```
+
+## JavaScript Dependencies
+
+... Development Environment
 
 This project includes automated setup for [OpenHands](https://github.com/All-Hands-AI/OpenHands) development environments. The `.openhands/setup.sh` script automatically configures all required dependencies (Node.js, pnpm, uv) with pinned versions for reproducible builds. See the [Development Workflow](docs/02_developer_guide/01_development_workflow.md#openhands-development-environment) for details.
 

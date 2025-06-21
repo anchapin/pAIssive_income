@@ -2,6 +2,68 @@
 
 import os
 import threading
+import time
+import logging
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+from urllib.parse import urlparse
+
+app = Flask(__name__)
+
+def _parse_allowed_origins():
+    """Parse and validate allowed origins from the CORS_ALLOWED_ORIGINS environment variable."""
+    origins_raw = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
+    origins = []
+    for origin in origins_raw.split(","):
+        o = origin.strip()
+        if not o:
+            continue
+        parsed = urlparse(o)
+        if parsed.scheme in {"http", "https"} and parsed.netloc:
+            origins.append(o)
+        else:
+            logging.warning(f"Ignoring malformed CORS origin: {o!r}")
+    return origins
+
+allowed_origins = _parse_allowed_origins()
+
+CORS(app, origins=allowed_origins, supports_credentials=True)
+
+# Simulated shared action storage (thread safe)
+class ActionStore:
+    """Thread-safe action store with id counter."""
+    def __init__(self):
+        self.actions = []
+        self.lock = threading.Lock()
+        self.counter = 0
+
+    def add_action(self, data):
+        with self.lock:
+            self.counter += 1
+            data["id"] = self.counter
+            self.actions.append(data)
+            return data
+
+    def get_actions(self):
+        with self.lock:
+            return list(self.actions)
+
+actions_store = ActionStore()
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"})
+
+@app.route("/actions", methods=["POST"])
+def post_action():
+    data = request.get_json(force=True)
+    action = actions_store.add_action(data)
+    return jsonify(action), 201
+
+@app.route("/actions", methods=["GET"])
+def get_actions():
+    return jsonify(actions_store.get_actions())
+import threading
 import logging
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional

@@ -1,22 +1,16 @@
 # UI Flask Backend
 
-This directory contains the Flask-based backend for the UI MVP.
+This is a minimal Flask REST API for storing UI actions and providing CORS.
 
-## Quickstart
+## CORS
 
-1. Install dependencies (using `uv`):
-    ```bash
-    uv pip install -r requirements.txt
-    ```
+CORS is enabled via Flask-CORS. By default, only `http://localhost:3000` is allowed for CORS requests. You can override this with the `CORS_ALLOWED_ORIGINS` environment variable (comma-separated list of allowed origins).
 
-2. Run the server:
-    ```bash
-    python -m ui.run_ui
-    ```
-    - Or set custom port:
-    ```bash
-    PORT=8080 python -m ui.run_ui
-    ```
+Example:
+
+```bash
+export CORS_ALLOWED_ORIGINS="http://localhost:3000,https://yourdomain.com"
+```
 
 ### Production Deployment
 

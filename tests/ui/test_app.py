@@ -1,26 +1,28 @@
 """Tests for ui.app Flask application."""
 
 import pytest
-from flask import Flask
-from ui.app import create_app
+import os
+from ui.app import app
 
-@pytest.fixture(name="app")
-def fixture_app() -> Flask:
-    """Flask app fixture."""
-    return create_app()
-
-@pytest.fixture(name="client")
-def fixture_client(app: Flask):
-    """Flask client fixture."""
-    return app.test_client()
+@pytest.fixture
+def client():
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
 def test_health(client):
     resp = client.get("/health")
     assert resp.status_code == 200
-    body = resp.get_json()
-    assert body == {"status": "ok"}
-    # CORS header present
-    assert resp.headers.get("Access-Control-Allow-Origin") == "http://localhost:3000"
+    assert resp.json == {"status": "ok"}
+
+def test_cors_headers(client):
+    resp = client.options("/actions", headers={
+        "Origin": "http://localhost:3000",
+        "Access-Control-Request-Method": "POST",
+    })
+    assert resp.status_code == 200
+    expected_origin = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")[0].strip()
+    assert resp.headers.get("Access-Control-Allow-Origin") == expected_origin
 
 def test_get_agent(client):
     resp = client.get("/api/agent")
