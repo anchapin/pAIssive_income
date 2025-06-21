@@ -1,7 +1,6 @@
 """Implements ProblemIdentifier for niche problem discovery and severity analysis."""
 
 from __future__ import annotations
-from typing import List, Dict
 from datetime import datetime
 
 from .schemas import Problem, ProblemSeverityAnalysis
@@ -11,7 +10,7 @@ class ProblemIdentifier:
     """Identifies problems and pain points in a niche."""
 
     # Pre-defined problems for some known niches (case-insensitive keys)
-    _NICHE_PROBLEMS: Dict[str, List[Dict]] = {
+    _NICHE_PROBLEMS: dict[str, list[dict]] = {
         "inventory management for small e-commerce": [
             {
                 "name": "Overstocking",
@@ -130,7 +129,7 @@ class ProblemIdentifier:
         ]
     }
 
-    def identify_problems(self, niche: str) -> List[Problem]:
+    def identify_problems(self, niche: str) -> list[Problem]:
         """Identify problems and pain points in a given niche.
 
         Returns a list of Problem models.

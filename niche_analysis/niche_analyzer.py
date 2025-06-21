@@ -1,6 +1,5 @@
 """Orchestrator for full niche opportunity analysis."""
 
-from typing import List
 from .market_analyzer import MarketAnalyzer
 from .problem_identifier import ProblemIdentifier
 from .opportunity_scorer import OpportunityScorer
@@ -14,12 +13,12 @@ class NicheAnalyzer:
         self.problem_identifier = ProblemIdentifier()
         self.opportunity_scorer = OpportunityScorer()
 
-    def run_analysis(self, market_segments: List[str]) -> List[OpportunityScore]:
+    def run_analysis(self, market_segments: list[str]) -> list[OpportunityScore]:
         """Run end-to-end analysis for all potential niches in provided segments.
 
         Returns a flat list of scored opportunities.
         """
-        opportunities: List[OpportunityScore] = []
+        opportunities: list[OpportunityScore] = []
         for segment in market_segments:
             segment_analysis = self.market_analyzer.analyze_segment(segment)
             potential_niches = segment_analysis.potential_niches
