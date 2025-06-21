@@ -908,11 +908,11 @@ jobs:
         run: |
           cd ui/react_frontend
           ls -la
-          npm install --no-optional --no-optional
+          npm install --no-optional --no-optional --no-optional
 
           # Install path-to-regexp explicitly first with a specific version
           echo "Installing path-to-regexp explicitly..."
-          pnpm add -D path-to-regexp@6.0.0 || npm install path-to-regexp@6.0.0 --no-save --no-optional || true
+          pnpm add -D path-to-regexp@6.0.0 || npm install path-to-regexp@6.0.0 --no-save || true
 
           # Run the mock path-to-regexp scripts with improved conditional execution
           echo "Running mock path-to-regexp scripts with improved conditional execution..."
