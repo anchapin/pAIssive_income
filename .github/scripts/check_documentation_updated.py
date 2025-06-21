@@ -50,7 +50,7 @@ def get_git_executable() -> str:
     return "git"
 
 
-def get_changed_files() -> list[str]:  # noqa: PLR0915, C901
+def get_changed_files() -> list[str]:  # noqa: PLR0915
     """
     Return a list of files changed in the current PR or commit range.
 

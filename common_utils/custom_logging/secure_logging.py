@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import logging
 import re
-from re import Pattern
 from typing import Any
 
 # List of sensitive field names to mask in logs

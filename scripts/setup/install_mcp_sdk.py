@@ -14,14 +14,13 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import sys
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
-def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])
@@ -41,7 +40,7 @@ def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProces
     return subprocess.run(cmd, check=False, **filtered_kwargs)
 
 
-def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str, str]:
+def run_command(command: list[str], cwd: str | None = None) -> tuple[int, str, str]:
     """
     Run a command and return the exit code, stdout, and stderr.
 
