@@ -1,7 +1,13 @@
-"""__init__.py - Module for .niche_analysis."""
+"""Public API for niche_analysis package."""
 
-# Standard library imports
+from .market_analyzer import MarketAnalyzer
+from .problem_identifier import ProblemIdentifier
+from .opportunity_scorer import OpportunityScorer
+from .niche_analyzer import NicheAnalyzer
 
-# Third-party imports
-
-# Local imports
+__all__ = [
+    "MarketAnalyzer",
+    "ProblemIdentifier",
+    "OpportunityScorer",
+    "NicheAnalyzer",
+]
