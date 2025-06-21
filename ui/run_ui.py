@@ -1,7 +1,12 @@
-"""run_ui - Module for ui.run_ui."""
+"""Entrypoint for running the Flask UI server."""
 
-# Standard library imports
+import os
+from ui.app import create_app
 
-# Third-party imports
+# For production deployment, prefer Gunicorn:
+#   gunicorn ui.app:create_app --bind 0.0.0.0:8000
 
-# Local imports
+if __name__ == "__main__":
+    app = create_app()
+    port = int(os.environ.get("PORT", "8000"))
+    app.run(host="0.0.0.0", port=port)
