@@ -89,12 +89,8 @@ def extract_links(markdown: str) -> List[str]:
     return links
 
 
-<<<<<<< HEAD
-def check_http_link(url):
-=======
 def check_http_link(url: str) -> bool:
     """Check if an HTTP/HTTPS link is accessible."""
->>>>>>> main
     try:
         resp = requests.head(url, allow_redirects=True, timeout=TIMEOUT)
         if resp.status_code < HTTP_OK_THRESHOLD:
@@ -106,11 +102,7 @@ def check_http_link(url: str) -> bool:
         return False
 
 
-<<<<<<< HEAD
-def anchors_in_markdown(content):
-=======
 def anchors_in_markdown(content: str) -> Set[str]:
->>>>>>> main
     """Return a set of valid anchor names in the file, following GitHub's anchor logic."""
     headers = re.findall(r"^#+\s*(.+)$", content, flags=re.MULTILINE)
     anchors: Set[str] = set()
@@ -123,12 +115,8 @@ def anchors_in_markdown(content: str) -> Set[str]:
     return anchors
 
 
-<<<<<<< HEAD
-def check_file_link(url, basepath) -> bool:
-=======
 def check_file_link(url: str, basepath: Path) -> bool:
     """Check if a file link exists and optionally if its anchor exists."""
->>>>>>> main
     # Remove anchor
     path_str, anchor = urldefrag(url)
     path = (basepath.parent / path_str).resolve()
