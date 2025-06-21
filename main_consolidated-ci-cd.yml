@@ -90,7 +90,7 @@ jobs:
         run: |
           cd ui/react_frontend
           ls -la
-          npm install
+          npm install --no-optional --no-optional
       - name: Run tests
         run: |
           cd ui/react_frontend
