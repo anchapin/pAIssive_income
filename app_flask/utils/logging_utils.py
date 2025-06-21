@@ -5,8 +5,9 @@ from __future__ import annotations
 import functools
 import re
 import time
+from collections.abc import Callable
 from logging import INFO, Logger, getLogger
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 from flask.globals import current_app, g
 from werkzeug.local import LocalProxy
@@ -69,7 +70,7 @@ def sanitize_log_data(data: object) -> object:
     if isinstance(data, dict):
         # Recursively sanitize dictionary values
         return {k: sanitize_log_data(v) for k, v in data.items()}
-    if isinstance(data, (list, tuple)):
+    if isinstance(data, list | tuple):
         # Recursively sanitize sequence items
         return type(data)(sanitize_log_data(x) for x in data)
     return data

@@ -108,7 +108,7 @@ def create_research_team(user_id: str) -> MemoryEnhancedCrewAIAgentTeam:
     return team
 
 
-def run_example() -> None:
+def run_example() -> None:  # noqa: C901
     """Run the example workflow with memory-enhanced agents."""
     # Check dependencies
     if not check_dependencies():
@@ -126,9 +126,13 @@ def run_example() -> None:
     try:
         result = team.run()
         logger.info("Workflow completed successfully")
-        logger.info(f"Result: {result}")
+        logger.info("Result: %s", result)
     except Exception as e:
+<<<<<<< HEAD
         logger.exception(f"Error running workflow: {e}")
+=======
+        logger.exception("Error running workflow: %s", e)
+>>>>>>> main
 
     # Demonstrate memory retrieval
     if team.memory is not None:
@@ -140,7 +144,7 @@ def run_example() -> None:
                 limit=5,
             )
 
-            logger.info(f"Retrieved {len(memories)} memories:")
+            logger.info("Retrieved %d memories:", len(memories))
             for i, memory in enumerate(memories):
                 logger.info(
                     "Memory %d: %s...", i + 1, memory.get("text", "No text")[:100]

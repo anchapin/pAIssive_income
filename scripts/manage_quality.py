@@ -21,13 +21,12 @@ import sys
 import time
 from pathlib import Path
 from typing import Any, Optional, cast
-
-# Maximum time to wait for any single check
-TIMEOUT_SECONDS = 300
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
+
+# Maximum time to wait for any single check
+TIMEOUT_SECONDS = 300
 
 
 class CheckResult:

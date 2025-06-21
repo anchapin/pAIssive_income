@@ -44,9 +44,9 @@ def test_forgot_password_success(client: FlaskClient) -> None:
     resp = client.post(
         "/api/auth/forgot-password", json={"email": "e2euser@example.com"}
     )
-    assert resp.status_code == HTTP_OK  # noqa: S101
+    assert resp.status_code == HTTP_OK
     data = resp.get_json()
-    assert "reset link will be sent" in data["message"].lower()  # noqa: S101
+    assert "reset link will be sent" in data["message"].lower()
 
     # Check that a token was generated in the database
     session = SessionLocal()
@@ -56,7 +56,7 @@ def test_forgot_password_success(client: FlaskClient) -> None:
             .filter_by(email="e2euser@example.com")
             .first()
         )
-        assert token is not None  # noqa: S101
+        assert token is not None
     finally:
         session.close()
 
@@ -72,9 +72,9 @@ def test_forgot_password_unknown_email(client: FlaskClient) -> None:
     resp = client.post(
         "/api/auth/forgot-password", json={"email": "notarealuser@fake.com"}
     )
-    assert resp.status_code == HTTP_OK  # noqa: S101
+    assert resp.status_code == HTTP_OK
     data = resp.get_json()
-    assert "reset link will be sent" in data["message"].lower()  # noqa: S101
+    assert "reset link will be sent" in data["message"].lower()
 
 
 def test_reset_password_success(client: FlaskClient) -> None:
@@ -96,7 +96,7 @@ def test_reset_password_success(client: FlaskClient) -> None:
             .filter_by(email="e2euser@example.com")
             .first()
         )
-        assert token_record is not None  # noqa: S101
+        assert token_record is not None
         token = token_record.token
     finally:
         session.close()
@@ -105,15 +105,15 @@ def test_reset_password_success(client: FlaskClient) -> None:
         "/api/auth/reset-password",
         json={"token": token, "new_password": "MyNewSecurePassword123!"},
     )
-    assert resp.status_code == HTTP_OK  # noqa: S101
+    assert resp.status_code == HTTP_OK
     data = resp.get_json()
-    assert "password has been reset" in data["message"].lower()  # noqa: S101
+    assert "password has been reset" in data["message"].lower()
 
     # Verify token was deleted from database
     session = SessionLocal()
     try:
         token_record = session.query(PasswordResetToken).filter_by(token=token).first()
-        assert token_record is None  # noqa: S101
+        assert token_record is None
     finally:
         session.close()
 
@@ -130,9 +130,9 @@ def test_reset_password_invalid_token(client: FlaskClient) -> None:
         "/api/auth/reset-password",
         json={"token": "not-a-real-token", "new_password": "irrelevant"},
     )
-    assert resp.status_code == HTTP_BAD_REQUEST  # noqa: S101
+    assert resp.status_code == HTTP_BAD_REQUEST
     data = resp.get_json()
-    assert "invalid" in data["message"].lower()  # noqa: S101
+    assert "invalid" in data["message"].lower()
 
 
 def test_reset_password_missing_fields(client: FlaskClient) -> None:
@@ -144,6 +144,6 @@ def test_reset_password_missing_fields(client: FlaskClient) -> None:
 
     """
     resp = client.post("/api/auth/reset-password", json={})
-    assert resp.status_code == HTTP_BAD_REQUEST  # noqa: S101
+    assert resp.status_code == HTTP_BAD_REQUEST
     data = resp.get_json()
-    assert "missing" in data["message"].lower()  # noqa: S101
+    assert "missing" in data["message"].lower()

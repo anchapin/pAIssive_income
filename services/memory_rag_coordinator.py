@@ -200,7 +200,9 @@ class MemoryRAGCoordinator:
             )
 
             formatted = []
-            for doc, dist, doc_id, meta in zip(docs, dists, ids, metadatas):
+            for doc, dist, doc_id, meta in zip(
+                docs, dists, ids, metadatas, strict=False
+            ):
                 entry = {
                     "content": doc,
                     "score": dist,
@@ -215,71 +217,69 @@ class MemoryRAGCoordinator:
         else:
             return formatted
 
-    def _merge_results(
-        self, mem0_results: list[dict], chroma_results: list[dict]
-    ) -> list[dict]:
-        """
-        Merge, deduplicate, and resolve conflicts between mem0 and ChromaDB results.
+    def _normalize_chroma_score(self, original_score: float | None) -> float:
+        """Normalize ChromaDB distance score to relevance (higher is better)."""
+        if original_score is not None:
+            # For distance metrics (0 to ~2 for L2, 0 to 1 for cosine distance):
+            # Use 1/(1+distance) to convert to relevance (0 to 1 scale)
+            # This ensures that distance 0 -> relevance 1.0, and larger distances -> smaller relevance
+            return 1.0 / (1.0 + original_score)
+        # If no score available, assign lowest relevance
+        return 0.0
 
-        Preference is given to more recent or more relevant information when duplicates/conflicts arise.
-        Normalizes scores so that higher is always better, regardless of source.
-        """
+    def _normalize_mem0_score(
+        self, original_score: float | None, original_relevance: float | None
+    ) -> float:
+        """Normalize mem0 score to relevance (higher is better)."""
+        # mem0 typically returns relevance/similarity scores where higher is better
+        # Use score first, then relevance, then default to 0.0
+        current_relevance_value = (
+            original_score
+            if original_score is not None
+            else (original_relevance if original_relevance is not None else 0.0)
+        )
+        # Ensure mem0 scores are in 0-1 range for consistency
+        # If score is already > 1, normalize it (some systems might use different scales)
+        if current_relevance_value > 1.0:
+            current_relevance_value = min(
+                current_relevance_value / 100.0, 1.0
+            )  # Assume 0-100 scale
+        return current_relevance_value
 
-        def norm_result(r: dict, source: str) -> dict:
-            text_content = r.get("text") or r.get("content") or ""
-            timestamp = r.get("timestamp")
-            original_score = r.get("score")
-            original_relevance = r.get("relevance")
+    def _normalize_result(self, r: dict, source: str) -> dict:
+        """Normalize a single result from any source to a consistent format."""
+        text_content = r.get("text") or r.get("content") or ""
+        timestamp = r.get("timestamp")
+        original_score = r.get("score")
+        original_relevance = r.get("relevance")
 
-            # Normalize scores to a consistent scale where 'higher is better' for all sources
+        # Normalize scores to a consistent scale where 'higher is better' for all sources
+        if source == "chroma":
+            current_relevance_value = self._normalize_chroma_score(original_score)
+        elif source == "mem0":
+            current_relevance_value = self._normalize_mem0_score(
+                original_score, original_relevance
+            )
+        else:
+            # Unknown source, default to 0.0
             current_relevance_value = 0.0
-            if source == "chroma":
-                # ChromaDB typically returns distance scores where lower is better
-                # Convert to relevance where higher is better
-                if original_score is not None:
-                    # For distance metrics (0 to ~2 for L2, 0 to 1 for cosine distance):
-                    # Use 1/(1+distance) to convert to relevance (0 to 1 scale)
-                    # This ensures that distance 0 -> relevance 1.0, and larger distances -> smaller relevance
-                    current_relevance_value = 1.0 / (1.0 + original_score)
-                else:
-                    # If no score available, assign lowest relevance
-                    current_relevance_value = 0.0
-            elif source == "mem0":
-                # mem0 typically returns relevance/similarity scores where higher is better
-                # Use score first, then relevance, then default to 0.0
-                current_relevance_value = (
-                    original_score
-                    if original_score is not None
-                    else (original_relevance if original_relevance is not None else 0.0)
-                )
-                # Ensure mem0 scores are in 0-1 range for consistency
-                # If score is already > 1, normalize it (some systems might use different scales)
-                if current_relevance_value > 1.0:
-                    current_relevance_value = min(
-                        current_relevance_value / 100.0, 1.0
-                    )  # Assume 0-100 scale
-            else:
-                # Unknown source, default to 0.0
-                current_relevance_value = 0.0
-            return {
-                "text": text_content,
-                "source": source,
-                "timestamp": timestamp,
-                "relevance": current_relevance_value,
-                **{
-                    k: v
-                    for k, v in r.items()
-                    if k not in ("text", "content", "timestamp", "score", "relevance")
-                },
-            }
 
-        canonical_mem0 = [norm_result(r, "mem0") for r in mem0_results]
-        canonical_chroma = [norm_result(r, "chroma") for r in chroma_results]
+        return {
+            "text": text_content,
+            "source": source,
+            "timestamp": timestamp,
+            "relevance": current_relevance_value,
+            **{
+                k: v
+                for k, v in r.items()
+                if k not in ("text", "content", "timestamp", "score", "relevance")
+            },
+        }
 
-        # Deduplicate: Use text as key; prefer more relevant, then more recent
-        combined = canonical_mem0 + canonical_chroma
+    def _deduplicate_results(self, combined_results: list[dict]) -> dict[str, dict]:
+        """Deduplicate results using text as key, preferring more relevant and recent."""
         deduped = {}
-        for r in combined:
+        for r in combined_results:
             key = r["text"].strip()
             if not key:
                 continue
@@ -295,6 +295,23 @@ class MemoryRAGCoordinator:
                         deduped[key] = r
             else:
                 deduped[key] = r
+        return deduped
+
+    def _merge_results(
+        self, mem0_results: list[dict], chroma_results: list[dict]
+    ) -> list[dict]:
+        """
+        Merge, deduplicate, and resolve conflicts between mem0 and ChromaDB results.
+
+        Preference is given to more recent or more relevant information when duplicates/conflicts arise.
+        Normalizes scores so that higher is always better, regardless of source.
+        """
+        canonical_mem0 = [self._normalize_result(r, "mem0") for r in mem0_results]
+        canonical_chroma = [self._normalize_result(r, "chroma") for r in chroma_results]
+
+        # Deduplicate: Use text as key; prefer more relevant, then more recent
+        combined = canonical_mem0 + canonical_chroma
+        deduped = self._deduplicate_results(combined)
 
         # Sort by descending relevance, then most recent timestamp
         merged = list(deduped.values())

@@ -1,51 +1,61 @@
 name: Reusable Python Setup
-
 on:
   workflow_call:
     inputs:
       python-version:
-        description: 'The Python version to use'
+        description: The Python version to use
         required: false
         default: '3.12'
         type: string
       requirements-file:
-        description: 'Path to requirements file'
+        description: Path to requirements file
         required: false
-        default: 'requirements.txt'
+        default: requirements.txt
         type: string
-
     outputs:
       venv-path:
-        description: 'Path to the created virtual environment'
+        description: Path to the created virtual environment
         value: ${{ jobs.setup-python.outputs.venv-path }}
-
 jobs:
   setup-python:
     runs-on: ubuntu-latest
     outputs:
       venv-path: ${{ steps.save-venv-path.outputs.venv-path }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: '~/.cache/pip
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
+          ~/.cache/uv
 
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          .pytest_cache'
+        key: ${{ runner.os }}-deps-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: ${{ runner.os }}-deps-
+    - name: Install uv
+      run: 'curl -LsSf https://astral.sh/uv/install.sh |
+        sh
 
-      - name: Create venv with uv
-        run: uv venv .venv
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Install dependencies with uv
-        run: |
-          source .venv/bin/activate
-          uv pip install -r "${{ inputs.requirements-file }}"
+        '
+    - name: Create venv with uv
+      run: uv venv .venv
+    - name: Install dependencies with uv
+      run: 'python -m pip install --upgrade pip
 
-      - name: Save venv path output
-        id: save-venv-path
-        run: echo "venv-path=$(pwd)/.venv" >> $GITHUB_OUTPUT
+        source .venv/bin/activate
+
+        uv pip install -r "${{ inputs.requirements-file }}"
+
+        '
+    - name: Save venv path output
+      id: save-venv-path
+      run: echo "venv-path=$(pwd)/.venv" >> $GITHUB_OUTPUT
+    timeout-minutes: 30

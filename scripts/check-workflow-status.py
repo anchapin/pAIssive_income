@@ -97,7 +97,7 @@ class WorkflowAnalyzer:
 
         return result
 
-    def analyze_workflow_structure(  # noqa: C901, PLR0912
+    def analyze_workflow_structure(
         self, workflow: dict[str, Any], file_path: str
     ) -> dict[str, Any]:
         """Analyze the structure of a workflow."""
@@ -183,7 +183,7 @@ class WorkflowAnalyzer:
                         f"{file_path}: Consider updating {action_name} from {version} to {recommended}"
                     )
 
-    def analyze_workflow_conflicts(self, workflow_files: list[str]) -> None:  # noqa: C901
+    def analyze_workflow_conflicts(self, workflow_files: list[str]) -> None:
         """Analyze potential conflicts between workflows."""
         workflow_names = []
         trigger_analysis = {"push": [], "pull_request": [], "schedule": []}

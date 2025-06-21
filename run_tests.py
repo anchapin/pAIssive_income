@@ -18,7 +18,10 @@ import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 # Type alias for subprocess kwargs (for documentation purposes)
 SubprocessKwargs = dict[str, Any]
@@ -59,6 +62,9 @@ def get_sanitized_env() -> dict[str, str]:
         "DYLD_LIBRARY_PATH",
     ]:
         env.pop(var, None)
+
+    # Set FLASK_ENV to development for tests to ensure proper database configuration
+    env["FLASK_ENV"] = "development"
 
     return env
 
@@ -174,7 +180,6 @@ def count_tests(validated_args: list[str]) -> int:
         logger.info("Collecting tests...")
         result = _safe_subprocess_run(
             [sys.executable, "-m", "pytest", "--collect-only", *validated_args],
-            check=False,
             capture_output=True,
             text=True,
             shell=False,
@@ -231,7 +236,6 @@ def run_pytest_with_workers(validated_args: list[str], num_workers: int) -> int:
             env=get_sanitized_env(),
             timeout=3600,
             capture_output=True,
-            check=False,  # Explicitly set check
         )
         if result.returncode not in [0, 1, 2, 3, 4, 5]:
             logger.warning(
@@ -307,7 +311,6 @@ def _try_create_symlink(target: Path, link_name: str) -> None:
                     ],
                     capture_output=True,
                     shell=False,
-                    check=False,  # Explicitly set check
                 )
         else:
             os.symlink(target, link_name)
@@ -352,16 +355,20 @@ def check_venv_exists() -> bool:
 
 def _safe_subprocess_run(
     cmd: list[str],
-    **kwargs: Any,  # noqa: ANN401
+    **kwargs: str | int | bool | Path | None,
 ) -> subprocess.CompletedProcess[str]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])
     filtered_kwargs = {k: v for k, v in kwargs.items() if v is not None}
+<<<<<<< HEAD
     # Set default check=False if not provided
     if "check" not in filtered_kwargs:
         filtered_kwargs["check"] = False
     return subprocess.run(cmd, **filtered_kwargs)  # type: ignore[return-value]  # noqa: S603,PLW1510
+=======
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[return-value]
+>>>>>>> main
 
 
 def ensure_pytest_xdist_installed() -> None:

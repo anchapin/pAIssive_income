@@ -1,61 +1,112 @@
-# Script to ensure fixed versions of CodeQL workflow files are used
+#!/usr/bin/env pwsh
+# PowerShell script to ensure fixed CodeQL workflow files are used
+# This script validates and fixes CodeQL workflow configurations
 
-# Define the workflow files
-$CODEQL_WORKFLOW = ".github/workflows/codeql.yml"
-$CODEQL_WINDOWS_WORKFLOW = ".github/workflows/codeql-windows.yml"
-$CODEQL_MACOS_WORKFLOW = ".github/workflows/codeql-macos.yml"
-$CODEQL_UBUNTU_WORKFLOW = ".github/workflows/codeql-ubuntu.yml"
+param(
+    [switch]$Verbose = $false
+)
 
-# Define the fixed workflow files
-$CODEQL_FIXED_WORKFLOW = ".github/workflows/codeql-fixed.yml"
-$CODEQL_WINDOWS_FIXED_WORKFLOW = ".github/workflows/codeql-windows-fixed.yml"
-$CODEQL_MACOS_FIXED_WORKFLOW = ".github/workflows/codeql-macos-fixed.yml"
-$CODEQL_UBUNTU_FIXED_WORKFLOW = ".github/workflows/codeql-ubuntu-fixed.yml"
+# Set error action preference
+$ErrorActionPreference = "Continue"
 
-# Function to log messages
-function Log {
-    param (
-        [string]$message
-    )
-    Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] $message"
+Write-Host "=== Ensuring Fixed CodeQL Workflow Files ==="
+
+# Function to write verbose output
+function Write-VerboseOutput {
+    param([string]$Message)
+    if ($Verbose) {
+        Write-Host "[VERBOSE] $Message" -ForegroundColor Cyan
+    }
 }
 
-# Function to check and replace a workflow file with its fixed version
-function Replace-Workflow {
-    param (
-        [string]$originalFile,
-        [string]$fixedFile,
-        [string]$description
-    )
+# Check if CodeQL configuration directory exists
+$codeqlConfigDir = ".github/codeql"
+if (-not (Test-Path $codeqlConfigDir)) {
+    Write-Host "Creating CodeQL configuration directory: $codeqlConfigDir" -ForegroundColor Yellow
+    New-Item -ItemType Directory -Path $codeqlConfigDir -Force | Out-Null
+}
 
-    if (Test-Path $fixedFile) {
-        Log "Fixed $description workflow file exists: $fixedFile"
+# Check if security-os-config.yml exists
+$securityConfigFile = "$codeqlConfigDir/security-os-config.yml"
+if (-not (Test-Path $securityConfigFile)) {
+    Write-Host "Creating missing security-os-config.yml" -ForegroundColor Yellow
+    
+    $configContent = @"
+name: "Security and Quality Analysis"
+disable-default-queries: false
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+paths-ignore:
+  - "**/*.md"
+  - "**/*.txt"
+  - "**/*.rst"
+  - "**/docs/**"
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/__pycache__/**"
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/.github/workflows/archive/**"
+"@
+    
+    Set-Content -Path $securityConfigFile -Value $configContent -Encoding UTF8
+    Write-Host "Created $securityConfigFile" -ForegroundColor Green
+}
+
+# Validate CodeQL workflow files
+$workflowFiles = @(
+    ".github/workflows/codeql-windows.yml",
+    ".github/workflows/codeql-ubuntu.yml", 
+    ".github/workflows/codeql-macos.yml",
+    ".github/workflows/codeql.yml"
+)
+
+foreach ($workflowFile in $workflowFiles) {
+    if (Test-Path $workflowFile) {
+        Write-VerboseOutput "Validating $workflowFile"
         
-        if (Test-Path $originalFile) {
-            Log "Replacing $originalFile with $fixedFile"
-            Copy-Item -Path $fixedFile -Destination $originalFile -Force
-            Log "Successfully replaced $description workflow file"
+        # Check if the workflow file references the correct config
+        $content = Get-Content $workflowFile -Raw
+        if ($content -match "security-os-config\.yml") {
+            Write-VerboseOutput "$workflowFile references correct config file"
+        } else {
+            Write-Host "WARNING: $workflowFile may not reference the correct config file" -ForegroundColor Yellow
         }
-        else {
-            Log "Original $description workflow file does not exist: $originalFile"
-            Log "Creating $originalFile from $fixedFile"
-            Copy-Item -Path $fixedFile -Destination $originalFile -Force
-            Log "Successfully created $description workflow file"
-        }
-    }
-    else {
-        Log "Fixed $description workflow file does not exist: $fixedFile"
-        Log "Cannot replace $description workflow file"
+    } else {
+        Write-VerboseOutput "$workflowFile not found (may be expected)"
     }
 }
 
-# Main script
-Log "Starting workflow file replacement..."
+# Check for SARIF results directory
+$sarifDir = "sarif-results"
+if (-not (Test-Path $sarifDir)) {
+    Write-Host "Creating SARIF results directory: $sarifDir" -ForegroundColor Yellow
+    New-Item -ItemType Directory -Path $sarifDir -Force | Out-Null
+}
 
-# Replace the workflow files
-Replace-Workflow -originalFile $CODEQL_WORKFLOW -fixedFile $CODEQL_FIXED_WORKFLOW -description "CodeQL"
-Replace-Workflow -originalFile $CODEQL_WINDOWS_WORKFLOW -fixedFile $CODEQL_WINDOWS_FIXED_WORKFLOW -description "CodeQL Windows"
-Replace-Workflow -originalFile $CODEQL_MACOS_WORKFLOW -fixedFile $CODEQL_MACOS_FIXED_WORKFLOW -description "CodeQL macOS"
-Replace-Workflow -originalFile $CODEQL_UBUNTU_WORKFLOW -fixedFile $CODEQL_UBUNTU_FIXED_WORKFLOW -description "CodeQL Ubuntu"
+# Validate that required CodeQL queries exist
+$queryFiles = @(
+    "$codeqlConfigDir/javascript-security-queries.qls",
+    "$codeqlConfigDir/python-security-queries.qls"
+)
 
-Log "Workflow file replacement completed"
+foreach ($queryFile in $queryFiles) {
+    if (-not (Test-Path $queryFile)) {
+        Write-Host "Creating missing query file: $queryFile" -ForegroundColor Yellow
+        
+        $language = if ($queryFile -match "javascript") { "javascript" } else { "python" }
+        $queryContent = @"
+- description: Security and quality queries for $language
+- queries: .
+- from: codeql/$language-queries
+"@
+        Set-Content -Path $queryFile -Value $queryContent -Encoding UTF8
+        Write-Host "Created $queryFile" -ForegroundColor Green
+    }
+}
+
+Write-Host "=== CodeQL Workflow Files Check Complete ===" -ForegroundColor Green
+
+# Return success
+exit 0

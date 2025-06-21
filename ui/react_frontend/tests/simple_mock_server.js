@@ -31,11 +31,10 @@ const path = require('path');
 const url = require('url');
 
 // Import the enhanced environment detection module
-const { detectEnvironment } = require('../src/utils/environmentDetection');
+const { detectEnvironment } = require('./helpers/environment-detection');
 const {
   detectCIEnvironmentType,
   setupCIEnvironment,
-  getCIEnvironmentInfo,
   createCIReport
 } = require('./helpers/ci-environment');
 
@@ -373,7 +372,6 @@ const mockData = {
 
     // Add additional information
     ciType: detectCIEnvironmentType(),
-    ciInfo: getCIEnvironmentInfo(),
 
     // Update timestamp
     timestamp: new Date().toISOString(),
@@ -564,11 +562,9 @@ async function handleRequest(req, res) {
     if (pathname === '/api/environment/ci') {
       // Update CI information with the latest detection
       const ciType = detectCIEnvironmentType();
-      const ciInfo = getCIEnvironmentInfo();
 
       // Update the mock data
       mockData.ci.type = ciType;
-      mockData.ci.info = ciInfo;
       mockData.ci.timestamp = new Date().toISOString();
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -1035,7 +1031,6 @@ async function handleRequest(req, res) {
       // Get the latest environment information
       const latestEnv = detectEnvironment();
       const ciType = detectCIEnvironmentType();
-      const ciInfo = getCIEnvironmentInfo();
 
       // Create a detailed error report in JSON format for better debugging
       const errorReport = {
@@ -1338,7 +1333,6 @@ try {
 
       // Create a startup report with more detailed information using enhanced environment detection
       const ciType = detectCIEnvironmentType();
-      const ciInfo = getCIEnvironmentInfo();
 
       createReport('simple-mock-server-started.txt',
         `Simple Mock API Server started at ${new Date().toISOString()}\n` +

@@ -6,7 +6,7 @@ import time
 import traceback
 import uuid
 from logging import ERROR, INFO, Logger, getLogger
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
     from flask import Flask, Response
@@ -203,7 +203,7 @@ def _setup_error_handler(app: Flask) -> None:
     @app.errorhandler(Exception)
     def log_exception(
         error: Exception,
-    ) -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+    ) -> tuple[Response, int] | tuple[WerkzeugResponse, int]:
         """
         Log unhandled exceptions.
 

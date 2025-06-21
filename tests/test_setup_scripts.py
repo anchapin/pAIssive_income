@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -46,8 +47,12 @@ class TestSetupScripts:
         setup_sh = PROJECT_ROOT / "setup.sh"
 
         # Use bash -n to check syntax without executing
+        bash_cmd = shutil.which("bash")
+        if bash_cmd is None:
+            pytest.skip("bash not found in PATH")
+
         result = subprocess.run(
-            ["bash", "-n", str(setup_sh)],
+            [bash_cmd, "-n", str(setup_sh)],
             capture_output=True,
             text=True,
             timeout=10,
@@ -180,8 +185,12 @@ class TestSetupScripts:
             # Run just the syntax and initial checks
             # Note: This would require modifications to the script for proper testing
             # For now, we just verify the script can be parsed
+            bash_cmd = shutil.which("bash")
+            if bash_cmd is None:
+                pytest.skip("bash not found in PATH")
+
             result = subprocess.run(
-                ["bash", "-n", str(temp_setup)],
+                [bash_cmd, "-n", str(temp_setup)],
                 capture_output=True,
                 text=True,
                 timeout=10,

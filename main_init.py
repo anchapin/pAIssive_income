@@ -3,7 +3,7 @@
 # Standard library imports
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 # Third-party imports
 from flask import Flask
@@ -22,7 +22,7 @@ migrate = Migrate()
 FlaskApp = Flask
 
 
-def create_app(test_config: Optional[dict[str, Any]] = None) -> Flask:
+def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     """
     Create and configure the Flask application.
 

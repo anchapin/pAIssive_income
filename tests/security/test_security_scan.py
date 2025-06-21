@@ -97,7 +97,7 @@ def _safe_subprocess_run(
             )
         )
     }
-    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]  # noqa: S603
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]
 
 
 def run_command(command: str) -> tuple[str, str, int]:
@@ -287,13 +287,18 @@ def test_sarif_file_handling() -> None:
             if return_code != 0:
                 logger.exception("Error creating fallback SARIF file")
                 msg = "Failed to create fallback SARIF file"
+<<<<<<< HEAD
                 raise AssertionError(msg)
+=======
+                raise AssertionError(msg) from None
+>>>>>>> main
 
         # Create compressed version
         compressed_file_name = f"{sarif_file.name}.gz"
         compressed_path_base = Path("security-reports/compressed")
         compressed_file = compressed_path_base / compressed_file_name
 
+<<<<<<< HEAD
         # Use Python's gzip module for better cross-platform compatibility
         try:
             import gzip
@@ -305,6 +310,18 @@ def test_sarif_file_handling() -> None:
             logger.exception("Error creating compressed version: %s", e)
             msg = f"Failed to create compressed version: {e}"
             raise AssertionError(msg)
+=======
+        # Use a safer approach to create compressed file
+        cmd = f"gzip -c {sarif_file} > {compressed_file}"
+        stdout, stderr, return_code = run_command(cmd)
+
+        if return_code != 0:
+            logger.error("Error creating compressed version: %s", stderr)
+            msg = f"Failed to create compressed version: {stderr}"
+            raise AssertionError(msg)
+
+        logger.info("Created compressed version: %s", compressed_file)
+>>>>>>> main
 
     logger.info("SARIF file handling test completed")
     assert True

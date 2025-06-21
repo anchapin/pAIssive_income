@@ -26,18 +26,20 @@ Requirements:
 
 from __future__ import annotations
 
+# Import CrewAI components
+import importlib.util
 import logging
 import sys
-from typing import Any, Optional, Union
+from typing import Any
 
-# Import CrewAI components
-try:
-    # Check if CrewAI is available without importing unused components
-    import crewai  # noqa: F401
+# Import base CrewAI agent team
+from agent_team.crewai_agents import AgentProtocol, CrewAIAgentTeam, TaskProtocol
 
-    crewai_available = True
-except ImportError:
-    crewai_available = False
+# Import MemoryRAGCoordinator for unified memory/RAG retrieval
+from services.memory_rag_coordinator import MemoryRAGCoordinator
+
+crewai_spec = importlib.util.find_spec("crewai")
+crewai_available = crewai_spec is not None
 
 # Import mem0 components
 try:
@@ -48,11 +50,9 @@ except ImportError:
     mem0_available = False
     Memory = None  # type: ignore[assignment]
 
-# Import base CrewAI agent team
-from agent_team.crewai_agents import AgentProtocol, CrewAIAgentTeam, TaskProtocol
-
-# Import MemoryRAGCoordinator for unified memory/RAG retrieval
-from services.memory_rag_coordinator import MemoryRAGCoordinator
+# Export constants for testing (uppercase naming convention for constants)
+CREWAI_AVAILABLE = crewai_available
+MEM0_AVAILABLE = mem0_available
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -69,9 +69,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     - Team execution
     """
 
-    def __init__(
-        self, llm_provider: object = None, user_id: Optional[str] = None
-    ) -> None:
+    def __init__(self, llm_provider: object = None, user_id: str | None = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
 
@@ -123,9 +121,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         return agent
 
-    def add_task(
-        self, description: str, agent: Union[str, AgentProtocol]
-    ) -> TaskProtocol:
+    def add_task(self, description: str, agent: str | AgentProtocol) -> TaskProtocol:
         """
         Add a task to the team with memory enhancement.
 
@@ -216,8 +212,8 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
     def _store_memory(
         self,
-        content: Union[str, list[dict[str, str]]],
-        metadata: Optional[dict[str, str]] = None,
+        content: str | list[dict[str, str]],
+        metadata: dict[str, str] | None = None,
     ) -> None:
         """
         Store a memory using mem0.
@@ -241,7 +237,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             logger.exception("Error storing memory")
 
     def _retrieve_relevant_memories(
-        self, query: Optional[str] = None, limit: int = 5
+        self, query: str | None = None, limit: int = 5
     ) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories and RAG results for the current context.
@@ -317,8 +313,8 @@ Original context:
 
     def store_memory(
         self,
-        content: Union[str, list[dict[str, str]]],
-        metadata: Optional[dict[str, str]] = None,
+        content: str | list[dict[str, str]],
+        metadata: dict[str, str] | None = None,
     ) -> None:
         """
         Store memory content with optional metadata.
@@ -331,7 +327,7 @@ Original context:
         self._store_memory(content, metadata)
 
     def retrieve_relevant_memories(
-        self, query: Optional[str] = None, limit: int = 5
+        self, query: str | None = None, limit: int = 5
     ) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories based on a query and limit.

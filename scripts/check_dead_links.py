@@ -13,25 +13,28 @@ Requires: Python 3.8+, requests
 """
 
 import fnmatch
-import os
 import re
 import sys
+from pathlib import Path
+from typing import Generator, List, Set, Tuple
 from urllib.parse import urldefrag, urlparse
 
 import requests
 
 # Config
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+REPO_ROOT = Path(__file__).resolve().parent.parent
 TIMEOUT = 7  # seconds
-EXCLUDE_PATTERNS = []
+HTTP_OK_THRESHOLD = 400  # HTTP status codes below this are considered OK
+EXCLUDE_PATTERNS: List[str] = []
 
 
-def load_gitignore(root):
-    ignore = []
-    path = os.path.join(root, ".gitignore")
-    if not os.path.isfile(path):
+def load_gitignore(root: Path) -> List[str]:
+    """Load gitignore patterns from the repository root."""
+    ignore: List[str] = []
+    path = root / ".gitignore"
+    if not path.is_file():
         return ignore
-    with open(path) as f:
+    with path.open(encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith("#"):
@@ -39,37 +42,53 @@ def load_gitignore(root):
     return ignore
 
 
-def should_exclude(path, ignore_patterns) -> bool:
-    rel_path = os.path.relpath(path, REPO_ROOT)
+def should_exclude(path: Path, ignore_patterns: List[str]) -> bool:
+    """Check if a path should be excluded based on gitignore patterns."""
+    rel_path = path.relative_to(REPO_ROOT)
+    rel_path_str = str(rel_path)
     for pat in ignore_patterns:
         if pat.endswith("/"):
             # Directory pattern
-            if rel_path.startswith(pat):
+            if rel_path_str.startswith(pat):
                 return True
-        if fnmatch.fnmatch(rel_path, pat):
+        if fnmatch.fnmatch(rel_path_str, pat):
             return True
     return False
 
 
+<<<<<<< HEAD
 def find_markdown_files(root, ignore_patterns):
     for dirpath, dirnames, filenames in os.walk(root):
+=======
+def find_markdown_files(root: Path, ignore_patterns: List[str]) -> Generator[Path, None, None]:
+    """Find all markdown files in the repository, excluding gitignored files."""
+    for dirpath, dirnames, filenames in root.walk():
+>>>>>>> main
         # Exclude .git and virtualenvs quickly
         if should_exclude(dirpath, ignore_patterns):
             dirnames[:] = []
             continue
         for fname in filenames:
             if fname.lower().endswith(".md"):
-                full = os.path.join(dirpath, fname)
+                full = dirpath / fname
                 if not should_exclude(full, ignore_patterns):
                     yield full
 
+<<<<<<< HEAD
+
+LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+INLINE_LINK_RE = re.compile(r"<(https?://[^>]+)>")
+
+=======
+>>>>>>> main
 
 LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 INLINE_LINK_RE = re.compile(r"<(https?://[^>]+)>")
 
 
-def extract_links(markdown):
-    links = []
+def extract_links(markdown: str) -> List[str]:
+    """Extract all links from markdown content."""
+    links: List[str] = []
     for m in LINK_RE.finditer(markdown):
         url = m.group(2).strip()
         if url.startswith("mailto:"):
@@ -81,22 +100,31 @@ def extract_links(markdown):
     return links
 
 
+<<<<<<< HEAD
 def check_http_link(url):
+=======
+def check_http_link(url: str) -> bool:
+    """Check if an HTTP/HTTPS link is accessible."""
+>>>>>>> main
     try:
         resp = requests.head(url, allow_redirects=True, timeout=TIMEOUT)
-        if resp.status_code < 400:
+        if resp.status_code < HTTP_OK_THRESHOLD:
             return True
         # Some hosts block HEAD; try GET
         resp = requests.get(url, stream=True, timeout=TIMEOUT)
-        return resp.status_code < 400
-    except Exception:
+        return resp.status_code < HTTP_OK_THRESHOLD
+    except requests.RequestException:
         return False
 
 
+<<<<<<< HEAD
 def anchors_in_markdown(content):
+=======
+def anchors_in_markdown(content: str) -> Set[str]:
+>>>>>>> main
     """Return a set of valid anchor names in the file, following GitHub's anchor logic."""
     headers = re.findall(r"^#+\s*(.+)$", content, flags=re.MULTILINE)
-    anchors = set()
+    anchors: Set[str] = set()
     for h in headers:
         # Basic GitHub-style anchor: lowercase, spaces to -, remove some punctuation
         anchor = h.strip().lower()
@@ -106,15 +134,20 @@ def anchors_in_markdown(content):
     return anchors
 
 
+<<<<<<< HEAD
 def check_file_link(url, basepath) -> bool:
+=======
+def check_file_link(url: str, basepath: Path) -> bool:
+    """Check if a file link exists and optionally if its anchor exists."""
+>>>>>>> main
     # Remove anchor
-    path, anchor = urldefrag(url)
-    path = os.path.normpath(os.path.join(os.path.dirname(basepath), path))
-    if not os.path.exists(path):
+    path_str, anchor = urldefrag(url)
+    path = (basepath.parent / path_str).resolve()
+    if not path.exists():
         return False
     # Anchor: check if anchor exists in file
     if anchor:
-        with open(path, encoding="utf-8", errors="ignore") as f:
+        with path.open(encoding="utf-8", errors="ignore") as f:
             txt = f.read()
             anchors = anchors_in_markdown(txt)
             anchor_fmt = anchor.lower().replace(" ", "-")

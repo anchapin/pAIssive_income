@@ -3,12 +3,19 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import { MemoryRouter } from 'react-router-dom';
 
+// Test wrapper component with just Router (Material-UI is mocked in setup)
+const TestWrapper = ({ children }) => (
+  <MemoryRouter>
+    {children}
+  </MemoryRouter>
+);
+
 describe('ForgotPasswordForm', () => {
   it('renders form and submits email', async () => {
     render(
-      <MemoryRouter>
+      <TestWrapper>
         <ForgotPasswordForm />
-      </MemoryRouter>
+      </TestWrapper>
     );
     expect(screen.getByRole('heading', { name: /forgot password/i })).toBeInTheDocument();
     const emailInput = screen.getByLabelText(/email/i);
@@ -22,9 +29,9 @@ describe('ForgotPasswordForm', () => {
 
   it('shows error if email is empty and disables button', () => {
     render(
-      <MemoryRouter>
+      <TestWrapper>
         <ForgotPasswordForm />
-      </MemoryRouter>
+      </TestWrapper>
     );
     const button = screen.getByRole('button', { name: /send reset link/i });
     expect(button).toBeDisabled();
@@ -32,9 +39,9 @@ describe('ForgotPasswordForm', () => {
 
   it('shows "Back to login" link', () => {
     render(
-      <MemoryRouter>
+      <TestWrapper>
         <ForgotPasswordForm />
-      </MemoryRouter>
+      </TestWrapper>
     );
     expect(screen.getByRole('link', { name: /back to login/i })).toBeInTheDocument();
   });

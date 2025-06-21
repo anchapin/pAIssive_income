@@ -241,8 +241,8 @@ safelyWriteFile(path.join(reportDir, 'mock-api-start-attempt.txt'),
   `${env.getEnvironmentInfo()}\n`
 );
 
-// Spawn the mock API server process with enhanced environment
-const mockApiServer = spawn('node', [path.join(__dirname, 'mock_api_server.js')], {
+// Spawn the simple mock API server process with enhanced environment
+const mockApiServer = spawn('node', [path.join(__dirname, 'simple_mock_api_server.js')], {
   stdio: 'pipe',
   detached: true,
   env: mockApiEnv

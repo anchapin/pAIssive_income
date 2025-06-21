@@ -230,43 +230,39 @@ jobs:
           find . -name "node_modules" -type d -prune -exec rm -rf {} \; 2>/dev/null || true
         continue-on-error: true
 
-      # Ensure CodeQL configuration files exist
-      - name: Ensure CodeQL configuration files
-        shell: bash
-        continue-on-error: true
-        run: |
-          if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
-            echo "Running ensure-codeql-configs.sh script..."
-            bash .github/scripts/ensure-codeql-configs.sh
-          else
-            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
-
-            # Ensure directory exists
-            mkdir -p .github/codeql
-
-            # Create minimal Ubuntu configuration using a single heredoc
-            cat > .github/codeql/security-os-ubuntu.yml << 'EOF'
-name: "CodeQL Configuration for Ubuntu"
-os: ubuntu-latest
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
-
-            # Create minimal unified configuration using a single heredoc
-            cat > .github/codeql/security-os-config.yml << 'EOF'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
-          fi
+#      # Ensure CodeQL configuration files exist
+#      - name: Ensure CodeQL configuration files
+#        shell: bash
+#        run: |
+#          if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
+#            echo "Running ensure-codeql-configs.sh script..."
+#            bash .github/scripts/ensure-codeql-configs.sh
+#          else
+#            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
+#
+#            # Ensure directory exists
+#            mkdir -p .github/codeql
+#            cat > .github/codeql/security-os-ubuntu.yml << 'HEREDOC_DELIMITER_UBUNTU'
+#name: "CodeQL Configuration for Ubuntu"
+#os: ubuntu-latest
+#queries:
+#  - uses: security-and-quality
+#  - uses: security-extended
+#  - uses: security
+#disable-default-queries: false
+#trap-for-errors: true
+#            HEREDOC_DELIMITER_UBUNTU
+#            cat > .github/codeql/security-os-config.yml << 'HEREDOC_DELIMITER_UNIFIED'
+#name: "Unified CodeQL Configuration"
+#queries:
+#  - uses: security-and-quality
+#  - uses: security-extended
+#  - uses: security
+#disable-default-queries: false
+#trap-for-errors: true
+#            HEREDOC_DELIMITER_UNIFIED
+#          fi
+#        continue-on-error: true
 
       # Removed automatic fix script execution to prevent auto-fixing CodeQL issues
       # Instead, we'll just create a .codeqlignore file
@@ -336,7 +332,7 @@ EOF
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
-          config-file: .github/codeql/security-os-ubuntu.yml
+          config-file: .github/codeql/security-os-config.yml
           debug: true
 
       # Autobuild attempts to build any compiled languages

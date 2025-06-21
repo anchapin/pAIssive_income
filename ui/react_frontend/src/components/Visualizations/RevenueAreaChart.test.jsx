@@ -57,6 +57,25 @@ describe('RevenueAreaChart', () => {
     expect(cumulativeCheckbox).not.toBeChecked();
 
     // Both toggled off: legend present, but area not rendered (visual test)
+    // Verify that when both checkboxes are unchecked, the SVG paths for areas are hidden/reduced
+    const { container: updatedContainer } = render(<RevenueAreaChart data={mockData} />);
+    const initialSvgPaths = updatedContainer.querySelectorAll('path');
+    const initialVisibleAreaPaths = Array.from(initialSvgPaths).filter(path =>
+      path.getAttribute('fill') &&
+      path.getAttribute('fill') !== 'none' &&
+      !path.getAttribute('d')?.includes('M0,0')
+    );
+    
+    // After toggling both off, check that the visible area paths are reduced
+    const finalSvgPaths = container.querySelectorAll('path');
+    const finalVisibleAreaPaths = Array.from(finalSvgPaths).filter(path =>
+      path.getAttribute('fill') &&
+      path.getAttribute('fill') !== 'none' &&
+      !path.getAttribute('d')?.includes('M0,0')
+    );
+    
+    // When both areas are toggled off, there should be fewer visible area paths than initially
+    expect(finalVisibleAreaPaths.length).toBeLessThan(initialVisibleAreaPaths.length);
   });
 
   it('renders milestone reference lines if milestones prop provided', () => {

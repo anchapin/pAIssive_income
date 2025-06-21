@@ -24,6 +24,10 @@ except ImportError:
 
 def print_json(data: Any) -> None:
     """Print data as formatted JSON."""
+    import json
+    import sys
+
+    sys.stdout.write(json.dumps(data, indent=2, default=str) + "\n")
 
 
 def test_basic_memory_operations() -> None:

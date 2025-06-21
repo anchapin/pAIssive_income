@@ -17,7 +17,6 @@ import hashlib
 import json
 import logging
 import unicodedata
-from typing import Optional
 
 import chromadb
 from chromadb.config import Settings
@@ -67,9 +66,9 @@ def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
 
 def prepare_document(
     doc: dict,
-    user_id: Optional[str] = None,
-    default_metadata: Optional[dict] = None,
-    embedding: Optional[list[float]] = None,
+    user_id: str | None = None,
+    default_metadata: dict | None = None,
+    embedding: list[float] | None = None,
 ) -> dict:
     """
     Ensure the document follows the unified schema.
@@ -218,8 +217,8 @@ logger.info(
 def query_with_metadata_filter(
     collection: chromadb.Collection,
     query: str,
-    user_id: Optional[str] = None,
-    metadata_filter: Optional[dict] = None,
+    user_id: str | None = None,
+    metadata_filter: dict | None = None,
     n_results: int = 3,
 ) -> dict:
     """
@@ -253,7 +252,7 @@ docs = results.get("documents")
 metas = results.get("metadatas")
 dists = results.get("distances")
 if docs is not None and metas is not None and dists is not None:
-    for doc, meta, dist in zip(docs[0], metas[0], dists[0]):
+    for doc, meta, dist in zip(docs[0], metas[0], dists[0], strict=False):
         logger.info("- %s [meta: %s] (distance: %.4f)", doc, meta, dist)
 
 # Show how context propagation works: fetch all 'fact' type for a user

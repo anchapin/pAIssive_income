@@ -1,22 +1,10 @@
 name: "CodeQL Configuration for Ubuntu"
 
 # This configuration file customizes the CodeQL analysis for Ubuntu
+# It inherits settings from the unified configuration and adds Ubuntu-specific settings
 
-# Additional Ubuntu-specific paths to exclude
-paths-ignore:
-  # Linux specific files
-  - '**/lost+found/**'
-  - '**/proc/**'
-  - '**/sys/**'
-  - '**/var/tmp/**'
-  - '**/tmp/**'
-  - '**/.bash_history'
-  - '**/.bashrc'
-  - '**/.profile'
-  - '**/.ssh/**'
-  - '**/core.*'
-  - '**/*.so'
-  - '**/*.o'
+# Ubuntu-specific settings
+os: ubuntu-latest
 
 # Query filters
 queries:
@@ -32,13 +20,55 @@ queries:
 # Disable noisy alerts
 disable-default-queries: false
 
-# Query suite definitions
-query-filters:
-  - exclude:
-      tags contain: test
-  - exclude:
-      tags contain: maintainability
-      precision below: high
+# Paths to ignore during analysis
+paths-ignore:
+  # Dependencies and build artifacts
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/coverage/**'
+  - '**/.venv/**'
+  - '**/venv/**'
+  - '**/env/**'
+  - '**/__pycache__/**'
+  - '**/.pytest_cache/**'
+  - '**/.mypy_cache/**'
+  - '**/.ruff_cache/**'
+
+  # Test files
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/__tests__/**'
+  - '**/*.test.js'
+  - '**/*.test.ts'
+  - '**/*.test.jsx'
+  - '**/*.test.tsx'
+  - '**/*.spec.js'
+  - '**/*.spec.ts'
+  - '**/*.spec.jsx'
+  - '**/*.spec.tsx'
+  - '**/*.test.py'
+  - '**/*.spec.py'
+  - 'test_mem0_integration.py'
+
+  # Documentation and configuration
+  - '**/docs/**'
+  - '**/*.md'
+  - '**/*.rst'
+  - '**/.github/**'
+  - '**/.vscode/**'
+  - '**/.idea/**'
+
+  # Generated files
+  - '**/playwright-report/**'
+  - '**/sarif-results/**'
+  - '**/*.sarif'
+  - '**/*.sarif.json'
+
+  # Ubuntu-specific paths to exclude
+  - '**/tmp/**'
+  - '**/var/tmp/**'
+  - '**/var/cache/**'
 
 # Trap errors during extraction
 trap-for-errors: true

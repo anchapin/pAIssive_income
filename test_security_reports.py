@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # Helper for safe subprocess execution (addresses Ruff S603)
 def _safe_subprocess_run(
     cmd: list[str],
-    **kwargs: Any,  # noqa: ANN401
+    **kwargs: Any,
 ) -> subprocess.CompletedProcess[str]:
     """Safely run a subprocess command, only allowing trusted binaries."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]

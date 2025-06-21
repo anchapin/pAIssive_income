@@ -145,20 +145,18 @@ const useFormValidation = (initialValues = {}, validationSchema = {}) => {
     // Mark form as dirty
     setDirty(true);
 
-    // Validate the field if it's been touched
-    if (touched[field]) {
-      const error = validateField(field, value);
-      setErrors(prevErrors => {
-        const newErrors = { ...prevErrors };
-        if (error) {
-          newErrors[field] = error;
-        } else {
-          delete newErrors[field]; // Remove error if field is valid
-        }
-        return newErrors;
-      });
-    }
-  }, [touched, validateField]);
+    // Always validate the field when setting programmatically
+    const error = validateField(field, value);
+    setErrors(prevErrors => {
+      const newErrors = { ...prevErrors };
+      if (error) {
+        newErrors[field] = error;
+      } else {
+        delete newErrors[field]; // Remove error if field is valid
+      }
+      return newErrors;
+    });
+  }, [validateField]);
 
   /**
    * Reset the form to its initial state

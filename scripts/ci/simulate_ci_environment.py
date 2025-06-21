@@ -111,7 +111,7 @@ def setup_github_actions() -> dict[str, str]:
         "GITHUB_API_URL": "https://api.github.com",
         "GITHUB_GRAPHQL_URL": "https://api.github.com/graphql",
         "RUNNER_OS": platform.system().upper(),
-        "RUNNER_TEMP": "/tmp",  # noqa: S108
+        "RUNNER_TEMP": "/tmp",
         "RUNNER_TOOL_CACHE": "/opt/hostedtoolcache",
     }
 
@@ -706,7 +706,7 @@ def setup_glitch() -> dict[str, str]:
     }
 
 
-def get_ci_env_vars(ci_type: str) -> dict[str, str]:  # noqa: C901, PLR0912, PLR0911
+def get_ci_env_vars(ci_type: str) -> dict[str, str]:
     """
         Get environment variables for a specific CI platform.
 
@@ -822,7 +822,7 @@ def setup_crio() -> dict[str, str]:
     }
 
 
-def get_container_env_vars(container_type: str) -> dict[str, str]:  # noqa: PLR0911
+def get_container_env_vars(container_type: str) -> dict[str, str]:
     """
         Get environment variables for a specific container environment.
 
@@ -957,7 +957,7 @@ def setup_cloudflare() -> dict[str, str]:
     }
 
 
-def get_cloud_env_vars(cloud_type: str) -> dict[str, str]:  # noqa: C901, PLR0911
+def get_cloud_env_vars(cloud_type: str) -> dict[str, str]:
     """
         Get environment variables for a specific cloud environment.
 
@@ -996,7 +996,7 @@ def get_cloud_env_vars(cloud_type: str) -> dict[str, str]:  # noqa: C901, PLR091
     return {}
 
 
-def main() -> int:  # noqa: C901
+def main() -> int:
     """
     Run the main function.
 

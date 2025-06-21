@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Optional, Protocol, Union, runtime_checkable
+from typing import Protocol, runtime_checkable
+
+from common_utils.tooling import list_tools
 
 
 # Protocols for type safety
@@ -32,10 +34,10 @@ class TaskProtocol(Protocol):
     """Protocol for CrewAI Task."""
 
     description: str
-    agent: Optional[AgentProtocol]
+    agent: AgentProtocol | None
 
     def __init__(
-        self, description: str = "", agent: Optional[AgentProtocol] = None
+        self, description: str = "", agent: AgentProtocol | None = None
     ) -> None:
         """Initialize the Task with description and optional agent."""
 
@@ -49,8 +51,8 @@ class CrewProtocol(Protocol):
 
     def __init__(
         self,
-        agents: Optional[list[AgentProtocol]] = None,
-        tasks: Optional[list[TaskProtocol]] = None,
+        agents: list[AgentProtocol] | None = None,
+        tasks: list[TaskProtocol] | None = None,
     ) -> None:
         """Initialize the Crew with agents and tasks."""
 
@@ -62,8 +64,6 @@ class CrewProtocol(Protocol):
 
 
 crewai_available = False
-
-from common_utils.tooling import list_tools
 
 try:
     from crewai import Agent as RealAgent
@@ -106,8 +106,8 @@ except ImportError:
 
         def __init__(
             self,
-            agents: Optional[list[AgentProtocol]] = None,
-            tasks: Optional[list[TaskProtocol]] = None,
+            agents: list[AgentProtocol] | None = None,
+            tasks: list[TaskProtocol] | None = None,
         ) -> None:
             """Initialize the placeholder Crew with agents and tasks."""
             self.agents = agents or []
@@ -253,9 +253,7 @@ class CrewAIAgentTeam:
         self.agents.append(agent)
         return agent
 
-    def add_task(
-        self, description: str, agent: Union[str, AgentProtocol]
-    ) -> TaskProtocol:
+    def add_task(self, description: str, agent: str | AgentProtocol) -> TaskProtocol:
         """
         Add a task to the team.
 

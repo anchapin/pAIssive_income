@@ -14,7 +14,7 @@ import re
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 
 # Third-party imports
 from cryptography.fernet import Fernet
@@ -159,7 +159,7 @@ def is_example_code(content: str, line: str) -> bool:
     return ('"""' in content or "'''" in content) and line.startswith("    ")
 
 
-def should_exclude(file_path: str, exclude_dirs: Optional[set[str]] = None) -> bool:
+def should_exclude(file_path: str, exclude_dirs: set[str] | None = None) -> bool:
     """
     Check if a file should be excluded from scanning.
 
@@ -338,7 +338,7 @@ def find_potential_secrets(
 
 
 def process_file(
-    file_path: str, exclude_dirs: Optional[set[str]] = None
+    file_path: str, exclude_dirs: set[str] | None = None
 ) -> list[tuple[str, int, str, str]]:
     """
     Process a single file for potential secrets.
@@ -382,7 +382,7 @@ def handle_file_error(file_path: str, error: Exception) -> dict[str, str]:
 
 
 def scan_directory(
-    directory: str, exclude_dirs: Optional[set[str]] = None
+    directory: str, exclude_dirs: set[str] | None = None
 ) -> dict[str, list[tuple[str, int, str, str]]]:
     """
     Scan a directory recursively for potential secrets.
@@ -655,7 +655,7 @@ def save_encrypted_report(path: str, salt: bytes, encrypted_content: bytes) -> N
 
 def generate_report(
     results: dict[str, list[tuple[str, int, str, str]]],
-    output_file: Optional[str] = None,
+    output_file: str | None = None,
     json_format: bool = False,
 ) -> None:
     """
@@ -714,7 +714,7 @@ class SecretsAuditor:
     """Utility for auditing code for hardcoded secrets."""
 
     def __init__(
-        self, exclude_dirs: Optional[set[str]] = None, patterns: Optional[dict] = None
+        self, exclude_dirs: set[str] | None = None, patterns: dict | None = None
     ) -> None:
         """
         Initialize the secrets auditor.
@@ -748,7 +748,7 @@ class SecretsAuditor:
     def generate_report(
         self,
         results: dict[str, list[tuple[str, int, str, str]]],
-        output_file: Optional[str] = None,
+        output_file: str | None = None,
         json_format: bool = False,
     ) -> dict[str, list[tuple[str, int, str, str]]]:
         """
@@ -775,7 +775,7 @@ class SecretsAuditor:
     def audit(
         self,
         directory: str,
-        output_file: Optional[str] = None,
+        output_file: str | None = None,
         json_format: bool = False,
     ) -> dict[str, list[tuple[str, int, str, str]]]:
         """
