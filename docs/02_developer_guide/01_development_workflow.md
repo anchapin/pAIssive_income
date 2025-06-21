@@ -54,12 +54,12 @@ For developers using [Jules](https://jules.google/docs/environment/) VM environm
 This script provides a streamlined setup experience specifically designed for Jules VM environments:
 
 **Features:**
-- **Automatic Tool Installation:** Installs `uv` and `pnpm` if not present
+- **System Package Installation:** Installs Python 3.10+, Node.js 20+, and development tools
+- **Automatic Tool Installation:** Installs `uv` and `pnpm` package managers
 - **Virtual Environment Creation:** Uses `uv` for fast virtual environment setup
-- **Dependency Installation:** Handles both Python and Node.js dependencies
-- **Environment Configuration:** Sets up `.env` files from examples
-- **Validation Testing:** Runs basic tests to verify the setup
-- **Status Reporting:** Provides clear feedback with environment summary
+- **Comprehensive Dependency Installation:** Installs all project extras and additional required packages
+- **Build Process:** Builds Tailwind CSS and creates necessary directories
+- **CI Environment Configuration:** Sets up environment variables for automated testing
 
 **Usage:**
 ```bash

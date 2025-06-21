@@ -25,13 +25,13 @@ The enhanced setup script automates the setup of a development environment for t
 
 The Jules setup script (`setup-jules.sh`) is specifically optimized for Jules VM environments and provides:
 
-1. Streamlined dependency checking and installation
-2. Automatic installation of `uv` and `pnpm` if not present
+1. System package installation (Python 3.10+, Node.js 20+)
+2. Automatic installation of `uv` and `pnpm` package managers
 3. Virtual environment creation using `uv`
-4. Python and Node.js dependency installation
-5. Environment configuration (.env setup)
-6. Basic validation testing
-7. Environment summary and status reporting
+4. Python and Node.js dependency installation with all project extras
+5. Tailwind CSS build process
+6. Directory structure creation for testing and reports
+7. CI environment configuration
 
 ## Usage
 
@@ -59,46 +59,42 @@ enhanced_setup_dev_environment.bat [options]
 
 The `setup-jules.sh` script is specifically designed for Jules VM environments and provides a streamlined setup experience. Here's what it does:
 
-### Prerequisites Check
-- Verifies Python 3 is installed
-- Verifies Node.js is installed
-- Exits with clear error messages if prerequisites are missing
+### System Package Installation
+- Updates system packages using `apt-get update`
+- Installs Python 3.10+ and development tools (`python3`, `python3-pip`, `python3-venv`, `python3-dev`)
+- Installs Node.js 20+ from NodeSource repository
+- Installs `pnpm` globally via npm
 
-### Automatic Tool Installation
-- Installs `uv` (fast Python package installer) if not present
-- Installs `pnpm` (fast Node.js package manager) if not present
-- Updates PATH to include newly installed tools
+### Tool Installation
+- Installs `uv` Python package manager from official installer
+- Adds `uv` to PATH via `$HOME/.profile`
+- Configures shell environment variables
 
 ### Environment Setup
-- Creates a Python virtual environment using `uv venv`
-- Activates the virtual environment for the session
-- Installs Python dependencies from `requirements.txt` and `requirements-dev.txt`
+- Creates a Python virtual environment using `uv venv .venv`
+- Activates environment and adds activation to `$HOME/.profile`
+- Installs project dependencies with all extras: `[dev,agents,memory,ml]`
+- Installs additional required packages: `flask-migrate`, `sqlalchemy`, `psycopg2-binary`, `bcrypt`, `cryptography`, `sympy`, `requests`, `PyJWT`
 - Installs Node.js dependencies using `pnpm install`
+- Installs development tools: `nyc` and `mocha`
 
-### Configuration
-- Copies `.env.example` to `.env` if it doesn't exist
-- Preserves existing `.env` files
+### Build Process
+- Builds Tailwind CSS using `pnpm tailwind:build`
+- Creates necessary directories: `security-reports`, `coverage`, `test-results`, `logs`
 
-### Validation Testing
-- Tests Python environment with basic imports
-- Checks for common packages (PyYAML, requests)
-- Validates Node.js environment
-- Runs existing tests if available
-- Reports pytest availability
-
-### Status Reporting
-- Provides clear status messages with emojis
-- Shows environment summary with versions
-- Confirms successful setup completion
+### CI Environment Configuration
+- Sets environment variables for CI compatibility: `PYTHONNOUSERSITE=1`, `SKIP_VENV_CHECK=1`, `CI=1`
+- Configures shell environment for automated testing
 
 ### When to Use Jules Setup
 
 Use `setup-jules.sh` when:
 - Working in a Jules VM environment
-- You want a quick, streamlined setup
-- You prefer automatic tool installation
-- You don't need extensive configuration options
-- You're setting up for the first time
+- You need a complete system setup including Python and Node.js installation
+- You want automatic package manager installation (`uv` and `pnpm`)
+- You need all project extras and dependencies installed
+- You're setting up a CI/testing environment
+- You want Tailwind CSS built and directories created automatically
 
 Use the enhanced setup script when:
 - You need custom configuration options
