@@ -104,7 +104,7 @@ class MarketAnalyzer:
                 "target_users": [],
             }
 
-        return MarketSegmentAnalysis(name=segment.title(), **data)  # type: ignore[arg-type]
+        return MarketSegmentAnalysis(name=segment.title(), **data)
 
     # ..................................................................
 

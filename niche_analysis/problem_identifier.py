@@ -146,7 +146,7 @@ class ProblemIdentifier:
                     name=p["name"],
                     description=p["description"],
                     consequences=p["consequences"],
-                    severity=p["severity"],  # type: ignore
+                    severity=p["severity"],
                     current_solutions=p["current_solutions"],
                     solution_gaps=p["solution_gaps"],
                     timestamp=now,
@@ -171,7 +171,7 @@ class ProblemIdentifier:
                 name=p["name"],
                 description=p["description"],
                 consequences=p["consequences"],
-                severity=p["severity"],  # type: ignore
+                severity=p["severity"],
                 current_solutions=p["current_solutions"],
                 solution_gaps=p["solution_gaps"],
                 timestamp=now,
