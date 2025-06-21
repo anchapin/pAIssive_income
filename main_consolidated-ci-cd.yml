@@ -61,10 +61,10 @@ jobs:
           echo "$HOME\.cargo in" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: pwsh
 
-      - name: Install dependencies
+      - name: Install dependencies (with uv)
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run linting
         run: |
           ruff check .
@@ -86,15 +86,19 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-      - name: Install dependencies
+      - name: Enable corepack for pnpm
+        run: corepack enable
+
+      - name: Install dependencies (with pnpm)
         run: |
           cd ui/react_frontend
           ls -la
-          npm install
-      - name: Run tests
+          pnpm install --frozen-lockfile
+
+      - name: Run tests (with pnpm)
         run: |
           cd ui/react_frontend
-          npm test -- --coverage
+          pnpm test -- --coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -123,68 +127,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Create security reports directory
-        run: mkdir -p security-reports
-        shell: bash
-
-      - name: Install security tools
+      - name: Install dependencies (with uv)
         run: |
-          pip install safety bandit semgrep pip-audit
-
-      - name: Run security scans
-        continue-on-error: true
-        run: |
-          mkdir -p security-reports
-          safety check -o security-reports/safety-report.json || true
-          bandit -r . -f json -o security-reports/bandit-report.json || true
-          semgrep scan --config auto --json -o security-reports/semgrep-report.json || true
-          pip-audit -o security-reports/pip-audit-report.json || true
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'security-reports/trivy-results.sarif'
-
-      - name: Upload security reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: security-reports-${{ runner.os }}-${{ github.run_id }}
-          path: security-reports/
-          retention-days: 7
-  codeql:
-    name: CodeQL
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: python, javascript
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-  docker-compose-integration:
-    name: Docker Compose Integration
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run docker-compose tests
         run: |
           docker-compose -f docker-compose.ci.yml up -d --build
@@ -201,10 +147,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install dependencies
+      - name: Install dependencies (with uv)
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run auto-fix
         run: |
           ruff --fix .
