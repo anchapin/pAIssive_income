@@ -4,14 +4,16 @@ import pytest
 import os
 from ui.app import create_app
 
+import pytest
+import os
+from ui.app import create_app
+
 @pytest.fixture
 def client():
-    # Reset global state from ui.app to ensure test isolation
-    import ui.app
-    ui.app._ACTIONS.clear()
-    ui.app._ACTION_ID_COUNTER = 1
-
+    # Reset per-test action store
     app = create_app()
+    if hasattr(app, "_action_store"):
+        app._action_store.reset()  # type: ignore
     app.config['TESTING'] = True
     with app.test_client() as client:
         yield client
@@ -21,15 +23,26 @@ def test_health(client):
     assert resp.status_code == 200
     assert resp.json == {"status": "ok"}
 
-def test_cors_headers(client):
-    # Test CORS for the primary POST endpoint
-    origin = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")[0].strip()
-    resp = client.options("/api/agent/action", headers={
-        "Origin": origin,
-        "Access-Control-Request-Method": "POST",
-    })
-    assert resp.status_code == 200
-    assert resp.headers.get("Access-Control-Allow-Origin") == origin
+import pytest
+
+@pytest.mark.parametrize("origin_list", [
+    "http://localhost:3000",
+    "http://localhost:3000,https://foo.com",
+    "https://mydomain.com,http://localhost:3000",
+])
+def test_cors_headers(client, monkeypatch, origin_list):
+    monkeypatch.setenv("CORS_ALLOWED_ORIGINS", origin_list)
+    # Recreate app with new CORS origins
+    app = create_app()
+    app.config['TESTING'] = True
+    test_client = app.test_client()
+    for origin in [o.strip() for o in origin_list.split(",") if o.strip()]:
+        resp = test_client.options("/api/agent/action", headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "POST",
+        })
+        assert resp.status_code == 200
+        assert resp.headers.get("Access-Control-Allow-Origin") == origin
 
 def test_get_agent(client):
     resp = client.get("/api/agent")

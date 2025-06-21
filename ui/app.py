@@ -27,10 +27,29 @@ def _parse_allowed_origins() -> list[str]:
             logging.warning("Ignoring malformed CORS origin: %r", o)
     return origins
 
-# In-memory storage for actions (thread-safe)
-_ACTIONS: List[Dict[str, Any]] = []
-_ACTION_ID_COUNTER: int = 1
-_ACTION_LOCK = threading.Lock()
+class ActionStore:
+    """Thread-safe in-memory action store."""
+    def __init__(self) -> None:
+        self.actions: List[Dict[str, Any]] = []
+        self.counter: int = 1
+        self.lock = threading.Lock()
+
+    def add_action(self, action: Dict[str, Any]) -> int:
+        with self.lock:
+            action_id = self.counter
+            self.counter += 1
+            action["id"] = action_id
+            self.actions.append(action)
+            return action_id
+
+    def reset(self) -> None:
+        with self.lock:
+            self.actions.clear()
+            self.counter = 1
+
+    def all(self) -> List[Dict[str, Any]]:
+        with self.lock:
+            return list(self.actions)
 
 @dataclass
 class Agent:
@@ -57,6 +76,8 @@ def create_app() -> Flask:
     CORS(app, resources={r"/*": {"origins": _parse_allowed_origins()}})
     logger = logging.getLogger(__name__)
 
+    action_store = ActionStore()
+
     @app.route("/health", methods=["GET"])
     def health() -> Any:
         """Health check endpoint."""
@@ -71,7 +92,6 @@ def create_app() -> Flask:
     @app.route("/api/agent/action", methods=["POST"])
     def agent_action() -> Any:
         """Accept and store/log an agent action."""
-        global _ACTION_ID_COUNTER, _ACTIONS
         data = request.get_json(silent=True)
         if data is None:
             return jsonify({"error": "Invalid JSON"}), 400
@@ -82,19 +102,17 @@ def create_app() -> Flask:
 
         # Fetch agent_id outside the lock to avoid holding it during potential I/O.
         agent_id = data.get("agentId", get_agent().id)
-
-        with _ACTION_LOCK:
-            action_id = _ACTION_ID_COUNTER
-            _ACTION_ID_COUNTER += 1
-            action = {
-                "id": action_id,
-                "type": data["type"],
-                "agentId": agent_id,
-                "payload": data.get("payload"),
-            }
-            _ACTIONS.append(action)
-            logger.info("Action received and stored: %s", action)
+        action = {
+            "type": data["type"],
+            "agentId": agent_id,
+            "payload": data.get("payload"),
+        }
+        action_id = action_store.add_action(action)
+        logger.info("Action received and stored: %s", action)
         resp = {"status": "success", "action_id": action_id}
         return jsonify(resp), 200
+
+    # For test reset: attach store for monkeypatching
+    app._action_store = action_store  # type: ignore
 
     return app
