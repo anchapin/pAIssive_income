@@ -2,6 +2,10 @@
 
 Thank you for your contribution! Please review and check the following before submitting:
 
+- [ ] My branch name follows the guidelines (e.g., `feature/123-short-desc`).
+- [ ] This PR is linked to an existing issue using closing keywords (e.g., `Fixes #123`).
+- [ ] All required CI checks have passed (tests, linting, type checks).
+- [ ] At least 2 reviewers will review this PR (1 senior + 1 peer).
 - [ ] I have reviewed and followed the [Claude Agentic Coding Best Practices](../claude_coding_best_practices.md).
 - [ ] I have completed the contributor checklist in [CONTRIBUTING.md](../CONTRIBUTING.md).
 - [ ] All code has explicit, documented inputs and outputs.
@@ -16,4 +20,4 @@ Thank you for your contribution! Please review and check the following before su
 
 **If any checklist item is not applicable, please explain why.**
 
-See [claude_coding_best_practices.md](../claude_coding_best_practices.md) for details and guidance.
+See [claude_coding_best_practices.md](../claude_coding_best_practices.md) and [Branching & Review Guidelines](../docs/02_developer_guide/02_branching_and_review_guidelines.md) for details and guidance.
