@@ -13,6 +13,9 @@ from typing import Any
 
 from flask import Blueprint, Response, jsonify, request
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Use a safer path construction with Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 MCP_SETTINGS_FILE = BASE_DIR / "cline_mcp_settings.json"
@@ -26,9 +29,6 @@ MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
 
 # Thread safety
 _LOCK = threading.Lock()
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 
 # Custom exceptions

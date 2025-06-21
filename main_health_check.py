@@ -59,7 +59,7 @@ def run(cmd: str, desc: str) -> None:
         cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
         if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
             kwargs["cwd"] = str(kwargs["cwd"])
-        return subprocess.run(cmd, check=False, **kwargs)  # noqa: S603
+        return subprocess.run(cmd, check=False, **kwargs)
 
     res = _safe_subprocess_run(cmd_list)  # Safe: command is validated and shell=False
     if res.returncode != 0:

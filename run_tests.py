@@ -361,7 +361,7 @@ def _safe_subprocess_run(
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])
     filtered_kwargs = {k: v for k, v in kwargs.items() if v is not None}
-    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[return-value]  # noqa: S603
+    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[return-value]
 
 
 def ensure_pytest_xdist_installed() -> None:

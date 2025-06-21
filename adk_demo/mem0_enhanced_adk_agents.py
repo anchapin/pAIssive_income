@@ -122,7 +122,8 @@ if adk_available:
 logger = logging.getLogger(__name__)
 
 # Export constants for tests
-# Note: ADK_AVAILABLE and MEM0_AVAILABLE are already defined above
+ADK_AVAILABLE = adk_available
+MEM0_AVAILABLE = mem0_available
 
 
 class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
