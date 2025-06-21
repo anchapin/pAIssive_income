@@ -4,17 +4,30 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
+import requests
 
 from api.app import app
 
-os.environ["TOOL_API_KEY"] = "test-api-key-for-ci"
 client = TestClient(app)
 
-API_KEY_HEADER = {"x-api-key": os.environ["TOOL_API_KEY"]}
+API_KEY_HEADER = {"x-api-key": os.getenv("TOOL_API_KEY", "test-api-key-for-ci")}
 
+@pytest.fixture(autouse=True)
+def set_tool_api_key(monkeypatch):
+    """Fixture to set TOOL_API_KEY environment variable for tests."""
+    monkeypatch.setenv("TOOL_API_KEY", "test-api-key-for-ci")
 
-def graphql_query(query: str, variables: dict | None = None) -> dict:
-    """Helper to POST a GraphQL query and return the response JSON."""
+def graphql_query(query: str, variables: dict | None = None) -> requests.Response:
+    """
+    Helper to POST a GraphQL query and return the Response object.
+
+    Args:
+        query (str): The GraphQL query string.
+        variables (dict | None): Optional variables for the query.
+
+    Returns:
+        requests.Response: The HTTP response from the server.
+    """
     resp = client.post(
         "/graphql",
         headers=API_KEY_HEADER,
@@ -46,10 +59,8 @@ def test_graphql_divide_by_zero() -> None:
     # Strawberry returns error in "errors", not data
     body = resp.json()
     assert "errors" in body
-    assert (
-        body["errors"][0]["message"] == "Cannot divide by zero"
-        or "ZeroDivisionError" in body["errors"][0]["message"]
-    )
+    # Assert exact error message
+    assert body["errors"][0]["message"] == "Cannot divide by zero"
 
 
 def test_graphql_average_empty_list() -> None:
@@ -62,10 +73,8 @@ def test_graphql_average_empty_list() -> None:
     resp = graphql_query(query)
     body = resp.json()
     assert "errors" in body
-    assert (
-        "empty list" in body["errors"][0]["message"].lower()
-        or "ValueError" in body["errors"][0]["message"]
-    )
+    # Assert exact error message
+    assert body["errors"][0]["message"] == "Cannot calculate average of empty list"
 
 
 @pytest.mark.parametrize(

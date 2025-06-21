@@ -87,4 +87,7 @@ class Query:
         Raises:
             ValueError: If the list is empty.
         """
-        return mu.average(numbers)
+        try:
+            return mu.average(numbers)
+        except ValueError:
+            raise ValueError("Cannot calculate average of empty list")

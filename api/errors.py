@@ -15,12 +15,12 @@ class ErrorResponse(BaseModel):
     code: int = Field(..., description="HTTP status code")
 
 
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+async def http_exception_handler(_request: Request, exc: HTTPException) -> JSONResponse:
     """
     Convert HTTPException into a consistent JSON error response.
 
     Args:
-        request: The request that caused the exception.
+        _request: The request that caused the exception (unused).
         exc: The HTTPException instance.
 
     Returns:

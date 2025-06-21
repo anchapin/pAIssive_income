@@ -7,12 +7,15 @@ from fastapi.testclient import TestClient
 
 from api.app import app
 
-os.environ["TOOL_API_KEY"] = "test-api-key-for-ci"
-
 client = TestClient(app)
 
-API_KEY_HEADER = {"x-api-key": os.environ["TOOL_API_KEY"]}
+API_KEY_HEADER = {"x-api-key": os.getenv("TOOL_API_KEY", "test-api-key-for-ci")}
 
+
+@pytest.fixture(autouse=True)
+def set_tool_api_key(monkeypatch):
+    """Fixture to set TOOL_API_KEY environment variable for tests."""
+    monkeypatch.setenv("TOOL_API_KEY", "test-api-key-for-ci")
 
 def test_add_success() -> None:
     """Test /tools/add happy path."""
