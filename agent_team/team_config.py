@@ -1,7 +1,34 @@
-"""team_config - Module for agent_team.team_config."""
+"""
+Configuration utilities for agent_team.
+"""
 
-# Standard library imports
+from agent_team.schemas import TeamConfigSchema
 
-# Third-party imports
+DEFAULT_TEAM_CONFIG = {
+    "model": {
+        "name": "gpt-3.5-turbo",
+        "temperature": 0.2,
+        "max_tokens": 2048,
+    },
+    "workflow": {
+        "steps": ["research", "design", "monetize", "market", "feedback"]
+    }
+}
 
-# Local imports
+def load_config(path: str | None = None) -> TeamConfigSchema:
+    """
+    Load a TeamConfigSchema from a file or defaults.
+
+    If path is None, returns the default config.
+    """
+    if path is None:
+        return TeamConfigSchema.model_validate(DEFAULT_TEAM_CONFIG)
+    import json
+    from pydantic import ValidationError
+
+    try:
+        with open(path) as f:
+            data = json.load(f)
+        return TeamConfigSchema.model_validate(data)
+    except (FileNotFoundError, json.JSONDecodeError, ValidationError) as exc:
+        raise RuntimeError(f"Failed to load config: {exc}") from exc
