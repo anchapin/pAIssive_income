@@ -543,6 +543,10 @@ see [docs/07_troubleshooting_and_faq/troubleshooting.md](docs/07_troubleshooting
 
 See [LICENSE](LICENSE) for license details.
 
+## 📈 Roadmap & Ongoing Work
+
+- [PR262_MVP_CORE_REFACTOR_PLAN.md](./PR262_MVP_CORE_REFACTOR_PLAN.md): MVP Core Refactor planning document for Issue #262.
+
 ## Recent Changes
 
 ### uv and pnpm Implementation Updates
