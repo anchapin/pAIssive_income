@@ -4,22 +4,23 @@
 
 import React from 'react';
 import { render, screen, act, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import { AppProvider, useAppContext, ActionTypes } from './AppContext';
 
 // Mock apiClient
-jest.mock('../services/apiClient', () => ({
+vi.mock('../services/apiClient', () => ({
   user: {
-    getCurrentUser: jest.fn(),
-    login: jest.fn(),
-    logout: jest.fn(),
-    register: jest.fn()
+    getCurrentUser: vi.fn(),
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn()
   },
   dashboard: {
-    getProjectsOverview: jest.fn()
+    getProjectsOverview: vi.fn()
   }
 }));
 
-const apiClient = require('../services/apiClient');
+const apiClient = await vi.importActual('../services/apiClient');
 
 const TestConsumer = ({ callback }) => {
   const ctx = useAppContext();
@@ -38,13 +39,13 @@ const TestConsumer = ({ callback }) => {
 
 describe('AppContext', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   it('provides initial state and updates dark mode', () => {
@@ -76,7 +77,7 @@ describe('AppContext', () => {
     expect(screen.getByText(/notifications:1/i)).toBeInTheDocument();
     // Fast-forward timer for auto-removal
     act(() => {
-      jest.advanceTimersByTime(200);
+      vi.advanceTimersByTime(200);
     });
     await waitFor(() => expect(screen.getByText(/notifications:0/i)).toBeInTheDocument());
   });

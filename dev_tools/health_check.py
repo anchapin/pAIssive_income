@@ -53,7 +53,7 @@ def run(cmd: str, desc: str) -> None:
 
         # Run the command with the full path to the executable
         # nosec S603 - executable is validated via shutil.which, shell=False, no user input
-        res = subprocess.run([executable] + cmd_parts[1:], check=False)  # noqa: S603
+        res = subprocess.run([executable] + cmd_parts[1:], check=False)
 
         if res.returncode != 0:
             message = f"FAILED: {desc}"

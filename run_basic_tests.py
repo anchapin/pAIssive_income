@@ -136,7 +136,7 @@ def _safe_subprocess_run(
     if "check" not in filtered_kwargs:
         filtered_kwargs["check"] = False
     # Security note: Only trusted commands should be passed here. No user input.
-    return subprocess.run(  # noqa: S603
+    return subprocess.run(
         cmd,
         **filtered_kwargs,
         check=filtered_kwargs.get("check", False),  # type: ignore[call-arg]
@@ -156,7 +156,7 @@ def run_subprocess(
     if "check" not in filtered_kwargs:
         filtered_kwargs["check"] = False
     # Security note: Only trusted commands should be passed here. No user input.
-    return subprocess.run(  # noqa: S603
+    return subprocess.run(
         cmd,
         **filtered_kwargs,
         check=filtered_kwargs.get("check", False),  # type: ignore[call-arg]

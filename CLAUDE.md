@@ -52,10 +52,17 @@ pytest tests/ -v --cov=.             # Direct pytest
 pytest -m unit                       # Unit tests only
 pytest -m integration               # Integration tests only
 
-# Frontend tests
-pnpm test                           # Run JS tests with coverage
+# Frontend tests (from ui/react_frontend/)
+pnpm start                          # Start React development server
+pnpm build                          # Build React app for production
+pnpm test                           # Run Jest/React tests with coverage
+pnpm test:unit                      # Run Vitest unit tests
+pnpm test:e2e                       # Run Playwright e2e tests
 pnpm test:ci                        # CI-optimized tests
+pnpm test:environments              # Test multiple environment configurations
+pnpm test:mock-api                  # Run mock API server tests
 pnpm tailwind:build                 # Build Tailwind CSS
+pnpm tailwind:watch                 # Watch Tailwind changes for development
 ```
 
 ### Running the Application
@@ -122,7 +129,7 @@ docker-compose -f docker-compose.yml -f docker-compose.ci.yml up
 
 **Monetization Module** (`monetization/`): Multiple subscription models, payment gateway abstraction, usage tracking with metered billing, revenue analytics, subscription management, invoice generation
 
-**UI Module** (`ui/`): Web-based interface designed for tech-savvy users, intuitive dashboards, data visualization, forms for input, user-friendly navigation for non-experts in marketing/AI
+**UI Module** (`ui/react_frontend/`): React-based frontend with CopilotKit AI chat integration, Material-UI components, comprehensive testing infrastructure (Jest, Vitest, Playwright), environment-aware testing, mock API server architecture, Tailwind CSS styling, TypeScript support
 
 ## Development Guidelines
 
@@ -165,10 +172,26 @@ Always add new settings to the Config class with proper Pydantic validation. Use
 - Secrets management through the dedicated `common_utils/secrets/` module
 
 ### Testing Strategy
+
+**Python Testing:**
 - Write tests for new features (the project has extensive CI/CD)
 - Use the test categorization system: `@pytest.mark.unit`, `@pytest.mark.integration`, `@pytest.mark.api`
 - Mock external dependencies appropriately
 - Follow the test patterns in `tests/` directory
+
+**React Frontend Testing:**
+- **Multi-Framework Setup**: Jest for React components, Vitest for utility functions, Playwright for e2e
+- **Environment-Aware Testing**: Tests adapt to CI, Docker, Kubernetes, cloud environments
+- **Mock API Architecture**: Comprehensive mock server system for isolated frontend testing
+- **Component Testing**: Test React components with @testing-library/react
+- **E2E Testing**: Playwright tests for user workflows and interactions
+- **Visual Regression**: Screenshots and visual comparisons for UI changes
+- **Test Commands**:
+  - `pnpm test` - Run all Jest/React tests
+  - `pnpm test:unit` - Run Vitest unit tests
+  - `pnpm test:e2e` - Run Playwright e2e tests
+  - `pnpm test:environments` - Test environment detection logic
+  - `pnpm test:mock-api` - Test mock server functionality
 
 ### Cursor Rules Integration
 The project includes comprehensive Cursor rules in `.cursor/rules/`:
@@ -180,7 +203,10 @@ The project includes comprehensive Cursor rules in `.cursor/rules/`:
 ## Key Configuration Files
 
 - `pyproject.toml`: Python dependencies, tool configuration (Ruff, pyright, pytest) - **Primary configuration source**
-- `package.json`: Node.js dependencies, Tailwind build scripts, test coverage settings
+- `ui/react_frontend/package.json`: React dependencies, frontend build scripts, comprehensive test configurations
+- `ui/react_frontend/vitest.config.js`: Vitest configuration for unit testing
+- `ui/react_frontend/playwright.config.ts`: Playwright configuration for e2e testing
+- `ui/react_frontend/tailwind.config.js`: Tailwind CSS configuration
 - `docker-compose.yml`: Multi-service orchestration with PostgreSQL, optional Redis
 - `Makefile`: Unified command interface for all quality operations
 - `.cursor/rules/*.mdc`: Development workflow and coding standards
@@ -199,6 +225,31 @@ Ruff configuration is centralized in `pyproject.toml` to avoid confusion. The se
 6. Update configuration if needed
 7. Document in module README
 
+### React Frontend Development
+1. **Component Development**:
+   - Create component in `ui/react_frontend/src/components/`
+   - Add corresponding test file with `.test.jsx` extension
+   - Use Material-UI components for consistency
+   - Follow existing component patterns for props and styling
+
+2. **Adding New Pages**:
+   - Create page component in `ui/react_frontend/src/pages/`
+   - Add route in main App.js router configuration
+   - Include authentication guards if needed (`AuthGuard`, `ProtectedRoute`)
+   - Add navigation links in Layout component
+
+3. **Testing New Features**:
+   - Run `pnpm tailwind:build` before testing to ensure styles are compiled
+   - Use `pnpm test:unit` for isolated component testing
+   - Use `pnpm test:e2e` for full user workflow testing
+   - Add mock API responses in `tests/mock_api_server.js` if needed
+   - Test across different environments using `pnpm test:environments`
+
+4. **CopilotKit Integration**:
+   - Extend existing CopilotKit components in `src/components/`
+   - Follow patterns in `CopilotChat.jsx` and `CopilotKitIntegration.jsx`
+   - Test AI chat functionality with backend agent integration
+
 ### Working with Memory-Enhanced Agents
 1. Ensure mem0 dependencies are installed
 2. Set `OPENAI_API_KEY` environment variable (required by mem0)
@@ -214,3 +265,38 @@ Ruff configuration is centralized in `pyproject.toml` to avoid confusion. The se
 ## Tool Preferences
 - Use 'uv' and 'pnpm' for this project
 - Use pyright instead of pyrefly
+- For React frontend work, always run from `ui/react_frontend/` directory
+- Use Tailwind CSS classes instead of custom CSS when possible
+- Prefer Material-UI components for consistent design system
+- Use Playwright for e2e tests over other testing frameworks
+
+## Frontend Technology Stack
+
+### Core Technologies
+- **React 18.3+**: Modern React with hooks and concurrent features
+- **TypeScript**: Mixed JS/TS environment with gradual adoption
+- **Material-UI v7**: Component library for consistent UI design
+- **Tailwind CSS**: Utility-first CSS framework for custom styling
+- **React Router v6**: Client-side routing and navigation
+
+### AI Integration
+- **CopilotKit**: AI chat interface and copilot functionality
+- **Backend Agent Integration**: Connected to CrewAI agents via API
+
+### Testing Infrastructure
+- **Jest**: React component testing with @testing-library/react
+- **Vitest**: Fast unit testing for utilities and services
+- **Playwright**: End-to-end testing with multiple browser support
+- **Mock API Server**: Comprehensive mocking for isolated testing
+
+### Development Tools
+- **React App Rewired**: Custom webpack configuration
+- **PostCSS**: CSS processing with Tailwind integration
+- **ESBuild**: Fast JavaScript bundling and compilation
+
+### Environment Detection
+The frontend includes sophisticated environment detection capabilities:
+- **CI Environment**: GitHub Actions, Jenkins, other CI platforms
+- **Container Environment**: Docker, Kubernetes deployment detection
+- **Cloud Platforms**: AWS, Azure, GCP environment detection
+- **Development Environment**: Local development server detection

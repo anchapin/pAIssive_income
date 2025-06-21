@@ -1,16 +1,56 @@
 name: "CodeQL Configuration for Windows"
 
 # This configuration file customizes the CodeQL analysis for Windows
-# It inherits settings from the unified configuration and adds Windows-specific settings
-
-# Inherit from the unified configuration
-extends: security-os-config.yml
+# It provides Windows-specific settings and path exclusions
 
 # Windows-specific settings
 os: windows-latest
 
-# Additional Windows-specific paths to exclude
+# Paths to ignore during analysis
 paths-ignore:
+  # Dependencies and build artifacts
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/coverage/**'
+  - '**/.venv/**'
+  - '**/venv/**'
+  - '**/env/**'
+  - '**/__pycache__/**'
+  - '**/.pytest_cache/**'
+  - '**/.mypy_cache/**'
+  - '**/.ruff_cache/**'
+
+  # Test files
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/__tests__/**'
+  - '**/*.test.js'
+  - '**/*.test.ts'
+  - '**/*.test.jsx'
+  - '**/*.test.tsx'
+  - '**/*.spec.js'
+  - '**/*.spec.ts'
+  - '**/*.spec.jsx'
+  - '**/*.spec.tsx'
+  - '**/*.test.py'
+  - '**/*.spec.py'
+  - 'test_mem0_integration.py'
+
+  # Documentation and configuration
+  - '**/docs/**'
+  - '**/*.md'
+  - '**/*.rst'
+  - '**/.github/**'
+  - '**/.vscode/**'
+  - '**/.idea/**'
+
+  # Generated files
+  - '**/playwright-report/**'
+  - '**/sarif-results/**'
+  - '**/*.sarif'
+  - '**/*.sarif.json'
+
   # Windows specific files
   - '**/*.exe'
   - '**/*.dll'

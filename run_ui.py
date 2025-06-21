@@ -14,7 +14,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from queue import Queue
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from flask.globals import current_app
 from werkzeug.local import LocalProxy
@@ -35,7 +35,7 @@ logger = LocalProxy(lambda: current_app.logger)
 class CompressedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
     """Extended handler that compresses rotated logs."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: object, **kwargs: object) -> None:
         """Initialize with compression delay."""
         self.compress_delay = int(kwargs.pop("compress_delay", 60))
         super().__init__(*args, **kwargs)

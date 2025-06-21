@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 def find_yaml_error() -> None:
     """Find and analyze YAML syntax errors in workflow files."""
     file_path = ".github/workflows/codeql.yml"
+    content = ""
 
     try:
         with Path(file_path).open(encoding="utf-8") as f:
@@ -31,7 +32,7 @@ def find_yaml_error() -> None:
 
     except yaml.YAMLError as e:
         logger.exception("YAML Error")
-        if hasattr(e, "problem_mark"):
+        if hasattr(e, "problem_mark") and content:
             mark = e.problem_mark
             logger.exception(
                 "Error at line %d, column %d", mark.line + 1, mark.column + 1
@@ -49,5 +50,7 @@ def find_yaml_error() -> None:
 
     except OSError:
         logger.exception("Error reading file")
+
+
 if __name__ == "__main__":
     find_yaml_error()

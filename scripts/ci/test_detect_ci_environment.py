@@ -77,7 +77,7 @@ class TestDetectCIEnvironment(unittest.TestCase):
 
     @patch.dict(os.environ, {"WSL_DISTRO_NAME": "Ubuntu"})
     @patch("platform.system", return_value="Linux")
-    def test_detect_wsl_environment(self, _mock_system: Any) -> None:  # noqa: ANN401, PT019
+    def test_detect_wsl_environment(self, _mock_system: Any) -> None:  # noqa: PT019
         """Test WSL environment detection."""
         env_info = detect_ci_environment()
 
@@ -158,7 +158,7 @@ class TestDetectCIEnvironment(unittest.TestCase):
     )
     def test_detect_docker_environment(
         self,
-        mock_file_exists: Any,  # noqa: ANN401
+        mock_file_exists: Any,
     ) -> None:
         """Test Docker environment detection."""
         # Mock the file exists check to return True only for specific paths

@@ -11,9 +11,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Initialize logger
-logger = logging.getLogger(__name__)
-
 # Import the memory-enhanced ADK agents
 from adk_demo.mem0_enhanced_adk_agents import (
     ADK_AVAILABLE,
@@ -21,6 +18,9 @@ from adk_demo.mem0_enhanced_adk_agents import (
     MemoryEnhancedDataGathererAgent,
     MemoryEnhancedSummarizerAgent,
 )
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(

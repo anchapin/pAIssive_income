@@ -9,7 +9,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import NoReturn, Optional
+from typing import NoReturn, Optional, cast
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
@@ -20,7 +20,19 @@ logger = logging.getLogger(__name__)
 def run_command(
     command: list[str], cwd: Optional[str] = None, capture_output: bool = True
 ) -> Optional[str]:
-    """Run a command and return its output."""
+    """
+    Run a command and return its output.
+
+    Args:
+        command: The command to run as a list of strings
+        cwd: Optional working directory for the command
+        capture_output: Whether to capture and return command output
+
+    Returns:
+        The command output as a string if capture_output is True and command succeeds,
+        None if the command fails or output is not captured
+
+    """
     logger.info("Running command: %s", " ".join(command))
     try:
         # Ensure the first item in command is a full path to the executable
@@ -51,28 +63,30 @@ def run_command(
                 stderr_content = process_result.stderr.strip()
                 logger.error("STDERR: %s", stderr_content)
             return None
-        # Store result in a variable to avoid TRY300 error
-        result = ""
+
         if capture_output and process_result.stdout is not None:
-            result = process_result.stdout.strip()
+            return cast("str", process_result.stdout.strip())
+        return ""
 
     except FileNotFoundError:
-        logger.exception(  # TRY401
+        logger.exception(
             "Command not found: %s. Please ensure it is installed and in your PATH.",
             command[0],
         )
         return None
-    except Exception:  # TRY401
-        logger.exception(  # Removed str(e) from message
-            "Error running command '%s'", " ".join(command)
-        )
+    except Exception:
+        logger.exception("Error running command '%s'", " ".join(command))
         return None
-    else:
-        return result
 
 
 def is_venv_active() -> bool:
-    """Check if a virtual environment is active."""
+    """
+    Check if a virtual environment is active.
+
+    Returns:
+        True if a virtual environment is active, False otherwise
+
+    """
     return hasattr(sys, "real_prefix") or (
         hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
     )
@@ -83,7 +97,7 @@ def check_venv_status() -> bool:
     Check if we're in a virtual environment.
 
     Returns:
-        bool: True if it's safe to proceed, False otherwise
+        True if it's safe to proceed, False otherwise
 
     """
     if is_venv_active():
@@ -96,28 +110,33 @@ def check_venv_status() -> bool:
 
 def remove_venv_windows(
     venv_dir: str,
-) -> tuple[bool, str]:  # ARG001: Removed unused python_exe
+) -> tuple[bool, str]:
     """
     Remove virtual environment on Windows.
 
     Args:
-        venv_dir: Path to the virtual environment
+        venv_dir: Path to the virtual environment directory to remove
 
     Returns:
-        tuple: (success, venv_dir_to_use)
+        tuple[bool, str]: A tuple containing (success, venv_directory_to_use)
+            where venv_directory_to_use might be a temporary directory if
+            the original could not be removed.
 
     """
     try:
         shutil.rmtree(venv_dir, ignore_errors=True)
-        if Path(venv_dir).exists():
+        venv_path = Path(venv_dir)
+        if venv_path.exists():
             logger.info("Using Windows 'rd' command to force-remove directory...")
             # Use full path to rd.exe if possible, otherwise fall back to partial path
             rd_executable = shutil.which("rd") or "rd"
             subprocess.run(
-                [rd_executable, "/s", "/q", venv_dir], check=False, capture_output=True
+                [rd_executable, "/s", "/q", str(venv_path)],
+                check=False,
+                capture_output=True,
             )  # nosec B607
 
-        if not Path(venv_dir).exists():
+        if not venv_path.exists():
             logger.info("Virtual environment at %s removed successfully.", venv_dir)
             return True, venv_dir
     except (OSError, shutil.Error):
@@ -125,17 +144,20 @@ def remove_venv_windows(
             "Error removing virtual environment at %s with shutil/rd", venv_dir
         )
 
-    if Path(venv_dir).exists():
+    venv_path = Path(venv_dir)
+    if venv_path.exists():
         logger.warning(
             "Failed to remove %s. It might be in use. "
             "Attempting to create a new virtual environment with a different name (.venv_new).",
             venv_dir,
         )
-        venv_parent = Path(venv_dir).parent
+        venv_parent = venv_path.parent
         temp_venv_dir = str(venv_parent / ".venv_new")
-        if Path(temp_venv_dir).exists():
+        temp_venv_path = Path(temp_venv_dir)
+
+        if temp_venv_path.exists():
             shutil.rmtree(temp_venv_dir, ignore_errors=True)
-            if Path(temp_venv_dir).exists():
+            if temp_venv_path.exists():
                 # Use full path to rd.exe if possible, otherwise fall back to partial path
                 rd_executable = shutil.which("rd") or "rd"
                 subprocess.run(
@@ -144,7 +166,7 @@ def remove_venv_windows(
                     capture_output=True,
                 )  # nosec B607
         try:
-            Path(temp_venv_dir).mkdir(parents=True, exist_ok=True)
+            temp_venv_path.mkdir(parents=True, exist_ok=True)
             logger.info(
                 "Using temporary directory %s for the new virtual environment.",
                 temp_venv_dir,
@@ -155,7 +177,7 @@ def remove_venv_windows(
                 "applications that might be using the old virtual environment.",
                 venv_dir,
                 temp_venv_dir,
-                Path(venv_dir).name,
+                venv_path.name,
             )
         except OSError:
             logger.exception("Could not create temporary directory %s", temp_venv_dir)
@@ -166,7 +188,16 @@ def remove_venv_windows(
 
 
 def remove_venv_unix(venv_dir: str) -> bool:
-    """Remove virtual environment on Unix-like systems."""
+    """
+    Remove virtual environment on Unix-like systems.
+
+    Args:
+        venv_dir: Path to the virtual environment directory to remove
+
+    Returns:
+        bool: True if removal was successful, False otherwise
+
+    """
     try:
         shutil.rmtree(venv_dir)
         logger.info("Virtual environment at %s removed successfully.", venv_dir)
@@ -179,8 +210,19 @@ def remove_venv_unix(venv_dir: str) -> bool:
 
 def remove_existing_venv(
     venv_dir: str,
-) -> tuple[bool, str]:  # ARG001: Removed python_exe
-    """Remove the existing virtual environment."""
+) -> tuple[bool, str]:
+    """
+    Remove the existing virtual environment.
+
+    Args:
+        venv_dir: Path to the virtual environment directory to remove
+
+    Returns:
+        tuple[bool, str]: A tuple containing (success, venv_directory_to_use)
+            where venv_directory_to_use might be a temporary directory if
+            the original could not be removed.
+
+    """
     if not Path(venv_dir).exists():
         logger.info("No existing virtual environment found at %s.", venv_dir)
         return True, venv_dir

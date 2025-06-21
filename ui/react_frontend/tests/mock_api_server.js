@@ -9,65 +9,13 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
-const express = require('express');
-const cors = require('cors');
-
-// Import the mock path-to-regexp helper if available
-let mockPathToRegexp;
-let pathToRegexpAvailable = false;
+const url = require('url');
 
 // CI environment detection
 const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
 const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true';
 const verboseLogging = process.env.VERBOSE_LOGGING === 'true' || false;
-
-// Set environment variables for maximum compatibility
-process.env.PATH_TO_REGEXP_MOCK = 'true';
-
-try {
-  // Try to load our fixed mock implementation first
-  mockPathToRegexp = require('./mock_path_to_regexp_fixed');
-  pathToRegexpAvailable = true;
-  console.log('Successfully loaded fixed mock path-to-regexp implementation');
-} catch (error) {
-  // If the fixed implementation fails, try the original mock
-  try {
-    mockPathToRegexp = require('./mock_path_to_regexp');
-    pathToRegexpAvailable = true;
-    console.log('Successfully loaded original mock path-to-regexp implementation');
-  } catch (fallbackError) {
-    // Create a basic fallback mock if both fail
-    console.warn('Failed to load mock path-to-regexp implementations, using fallback');
-    mockPathToRegexp = function(path, keys) {
-      if (Array.isArray(keys) && typeof path === 'string') {
-        const params = path.match(/:[a-zA-Z0-9_]+/g) || [];
-        params.forEach(param => {
-          keys.push({
-            name: param.substring(1),
-            prefix: '/',
-            suffix: '',
-            modifier: '',
-            pattern: '[^/]+'
-          });
-        });
-      }
-      return /.*/;
-    };
-    mockPathToRegexp.parse = () => [];
-    mockPathToRegexp.compile = () => () => '';
-    mockPathToRegexp.match = () => () => ({ path: '', params: {}, index: 0, isExact: false });
-    mockPathToRegexp.encode = value => String(value);
-    mockPathToRegexp.decode = value => String(value);
-    mockPathToRegexp.regexp = /.*/;
-    pathToRegexpAvailable = true;
-  }
-}
-
-// Always ensure path-to-regexp is available in CI
-if (isCI || isGitHubActions) {
-  pathToRegexpAvailable = true;
-}
 
 // Create a more robust URL parsing function that doesn't rely on path-to-regexp
 function parseUrl(pattern, url) {
@@ -178,12 +126,6 @@ function generateUrl(pattern, params) {
     return pattern;
   }
 }
-
-// Monkey patch Express Router to avoid using path-to-regexp
-if (express && express.Router) {
-  const originalRouter = express.Router;
-  express.Router = function() {
-    const router = originalRouter.apply(this, arguments);
 
     // Override route method to use simple string matching instead of path-to-regexp
     const originalRoute = router.route;

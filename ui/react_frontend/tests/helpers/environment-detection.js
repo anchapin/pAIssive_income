@@ -67,51 +67,114 @@ function safelyCreateDirectory(dirPath) {
 }
 
 /**
- * Safely write a file with error handling
+ * Safely write a file with error handling and path validation
  * @param {string} filePath - File path to write
  * @param {string} content - Content to write
  * @param {Object} [options] - Options for writing
  * @param {boolean} [options.append=false] - Whether to append to the file
+ * @param {string} [options.allowedRoot] - Root directory to restrict writes to
  * @returns {boolean} True if file was written successfully
  */
 function safelyWriteFile(filePath, content, options = {}) {
-  const { append = false } = options;
-  
+  const { append = false, allowedRoot } = options;
+
+  // Validate and sanitize the file path
+  const sanitizedPath = sanitizeFilePath(filePath, allowedRoot);
+  if (!sanitizedPath) {
+    console.error(`Invalid or unsafe file path: ${filePath}`);
+    return false;
+  }
+
   try {
     // Ensure directory exists
-    const dirPath = path.dirname(filePath);
+    const dirPath = path.dirname(sanitizedPath);
     safelyCreateDirectory(dirPath);
 
     // Write the file
     if (append) {
-      fs.appendFileSync(filePath, content);
+      fs.appendFileSync(sanitizedPath, content);
     } else {
-      fs.writeFileSync(filePath, content);
+      fs.writeFileSync(sanitizedPath, content);
     }
     return true;
   } catch (error) {
-    console.error(`Failed to write file at ${filePath}: ${error.message}`);
+    console.error(`Failed to write file at ${sanitizedPath}: ${error.message}`);
 
-    // Try with absolute path as fallback
+    // Try with absolute path as fallback (with validation)
     try {
-      const absolutePath = path.resolve(process.cwd(), filePath);
-      const absoluteDirPath = path.dirname(absolutePath);
-      
+      const absolutePath = path.resolve(process.cwd(), sanitizedPath);
+      const validatedAbsolutePath = sanitizeFilePath(absolutePath, allowedRoot || process.cwd());
+
+      if (!validatedAbsolutePath) {
+        console.error(`Invalid absolute path: ${absolutePath}`);
+        return false;
+      }
+
+      const absoluteDirPath = path.dirname(validatedAbsolutePath);
+
       // Ensure directory exists
       safelyCreateDirectory(absoluteDirPath);
-      
+
       // Write the file
       if (append) {
-        fs.appendFileSync(absolutePath, content);
+        fs.appendFileSync(validatedAbsolutePath, content);
       } else {
-        fs.writeFileSync(absolutePath, content);
+        fs.writeFileSync(validatedAbsolutePath, content);
       }
-      console.log(`Wrote file at absolute path: ${absolutePath}`);
+      console.log(`Wrote file at absolute path: ${validatedAbsolutePath}`);
       return true;
     } catch (fallbackError) {
       console.error(`Failed to write file with absolute path: ${fallbackError.message}`);
       return false;
     }
+  }
+}
+
+/**
+ * Sanitize and validate file path to prevent path traversal attacks
+ * @param {string} filePath - The file path to sanitize
+ * @param {string} [allowedRoot] - Root directory to restrict access to
+ * @returns {string|null} Sanitized path or null if invalid
+ */
+function sanitizeFilePath(filePath, allowedRoot) {
+  if (!filePath || typeof filePath !== 'string') {
+    return null;
+  }
+
+  try {
+    // Remove any null bytes and normalize the path
+    const cleanPath = filePath.replace(/\0/g, '');
+
+    // Resolve the path to handle .. and . segments
+    const resolvedPath = path.resolve(cleanPath);
+
+    // If allowedRoot is specified, ensure the path is within it
+    if (allowedRoot) {
+      const normalizedRoot = path.resolve(allowedRoot);
+      if (!resolvedPath.startsWith(normalizedRoot + path.sep) && resolvedPath !== normalizedRoot) {
+        console.error(`Path ${resolvedPath} is outside allowed root ${normalizedRoot}`);
+        return null;
+      }
+    }
+
+    // Additional validation: reject paths with suspicious patterns
+    const suspiciousPatterns = [
+      /\.\./,  // Parent directory references
+      /\/\//,  // Double slashes
+      /[<>:"|?*]/,  // Invalid filename characters on Windows
+    ];
+
+    for (const pattern of suspiciousPatterns) {
+      if (pattern.test(cleanPath)) {
+        console.error(`Path contains suspicious pattern: ${cleanPath}`);
+        return null;
+      }
+    }
+
+    return resolvedPath;
+  } catch (error) {
+    console.error(`Error sanitizing path ${filePath}: ${error.message}`);
+    return null;
   }
 }
 
@@ -442,5 +505,6 @@ module.exports = {
   safeFileExists,
   safeReadFile,
   safelyCreateDirectory,
-  safelyWriteFile
+  safelyWriteFile,
+  sanitizeFilePath
 };

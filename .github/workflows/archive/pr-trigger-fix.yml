@@ -1,0 +1,66 @@
+name: PR Trigger Fix
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+
+    - name: Install dependencies
+      run: |
+        if ! which pnpm; then
+          echo "pnpm not found, installing globally with npm..."
+          npm install -g pnpm
+        fi
+        pnpm install --no-optional || npm install --no-optional
+
+    - name: Setup CI Environment (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x .github/scripts/setup-ci-environment.sh
+        ./.github/scripts/setup-ci-environment.sh
+
+    - name: Setup CI Environment (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        ./.github/scripts/setup-ci-environment.ps1
+
+    - name: Run PR trigger fix script
+      run: |
+        python scripts/fix_pr_trigger.py
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.os }}
+        path: |
+          test-results/
+          coverage/
+          coverage.xml
+          ci-reports/
+          ci-artifacts/
+          ci-logs/

@@ -8,17 +8,17 @@ import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 
 // Mock useAppContext
-jest.mock('../../context/AppContext', () => ({
-  useAppContext: jest.fn()
+vi.mock('../../context/AppContext', () => ({
+  useAppContext: vi.fn()
 }));
 
-const { useAppContext } = require('../../context/AppContext');
+import { useAppContext } from '../../context/AppContext';
 
 describe('ProtectedRoute', () => {
   const TestChild = () => <div>Protected Content</div>;
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders children if authenticated and no permission required', () => {

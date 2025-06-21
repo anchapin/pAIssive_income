@@ -1,0 +1,121 @@
+{
+  "timestamp": "2025-06-19T04:40:04.409Z",
+  "ciType": "generic",
+  "ciDetection": {
+    "isCI": true,
+    "isGitHubActions": false,
+    "isJenkins": false,
+    "isGitLabCI": false,
+    "isCircleCI": false,
+    "isTravis": false,
+    "isAzurePipelines": false,
+    "isTeamCity": false,
+    "isBitbucket": false,
+    "isAppVeyor": false,
+    "isDroneCI": false,
+    "isBuddyCI": false,
+    "isBuildkite": false,
+    "isCodeBuild": false,
+    "isVercel": false,
+    "isNetlify": false,
+    "isHeroku": false,
+    "isSemaphore": false,
+    "isCodefresh": false,
+    "isWoodpecker": false,
+    "isHarness": false,
+    "isRender": false,
+    "isRailway": false,
+    "isFlyio": false
+  },
+  "systemInfo": {
+    "nodeVersion": "v22.16.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "osType": "Linux",
+    "osRelease": "5.15.153.1-microsoft-standard-WSL2",
+    "workingDirectory": "/home/anchapin/pAIssive_income_main/pAIssive_income"
+  },
+  "containerEnvironment": {
+    "isDocker": false,
+    "isKubernetes": false,
+    "isDockerCompose": false,
+    "isDockerSwarm": false,
+    "isContainerized": false,
+    "isRkt": false,
+    "isContainerd": false,
+    "isCRIO": false,
+    "isSingularity": false
+  },
+  "cloudEnvironment": {
+    "isAWS": false,
+    "isAzure": false,
+    "isGCP": false,
+    "isCloudEnvironment": false,
+    "isLambda": false,
+    "isAzureFunctions": false,
+    "isCloudFunctions": false,
+    "isServerless": false
+  },
+  "generic": {
+    "ci": "true"
+  },
+  "detailedSystemInfo": {
+    "hostname": "gaming-pc",
+    "username": "anchapin",
+    "memory": {
+      "total": 18863468544,
+      "free": 5133443072,
+      "totalFormatted": "17.57 GB",
+      "freeFormatted": "4.78 GB"
+    },
+    "cpus": 10,
+    "cpuInfo": [
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      },
+      {
+        "model": "AMD Ryzen 5 5600G with Radeon Graphics",
+        "speed": 0
+      }
+    ]
+  },
+  "environmentVariables": {
+    "NODE_ENV": "test",
+    "CI": "true",
+    "CI_ENVIRONMENT": "not set",
+    "CI_TYPE": "not set"
+  }
+}
