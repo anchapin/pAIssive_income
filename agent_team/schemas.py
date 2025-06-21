@@ -2,7 +2,7 @@
 Central schemas for agent_team package.
 """
 
-from typing import Optional, Dict, Any
+from typing import Any
 from pydantic import BaseModel, Field
 
 class AgentProfileSchema(BaseModel):
@@ -18,5 +18,5 @@ class TaskSchema(BaseModel):
 
 class TeamConfigSchema(BaseModel):
     """Configuration schema for an agent team."""
-    model: Optional[Dict[str, Any]] = Field(default=None, description="Model config dictionary.")
-    workflow: Optional[Dict[str, Any]] = Field(default=None, description="Workflow config dictionary.")
+    model: dict[str, Any] | None = Field(default=None, description="Model config dictionary.")
+    workflow: dict[str, Any] | None = Field(default=None, description="Workflow config dictionary.")

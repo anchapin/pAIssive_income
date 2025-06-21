@@ -2,7 +2,6 @@
 Error definitions for agent_team package.
 """
 
-from typing import Optional
 
 
 class AgentTeamError(Exception):
@@ -12,7 +11,7 @@ class AgentTeamError(Exception):
 class DependencyNotInstalledError(AgentTeamError):
     """Raised when an optional dependency is not installed."""
 
-    def __init__(self, dependency: str, extra: Optional[str] = None):
+    def __init__(self, dependency: str, extra: str | None = None):
         msg = f"Required dependency '{dependency}' is not installed."
         if extra:
             msg += f" {extra}"

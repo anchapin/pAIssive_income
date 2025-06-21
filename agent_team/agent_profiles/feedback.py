@@ -4,7 +4,6 @@ FeedbackAgent profile.
 
 from agent_team.agent_profiles.base import BaseAgent
 from agent_team.schemas import AgentProfileSchema
-from typing import Dict
 
 class FeedbackAgent(BaseAgent):
     """Agent responsible for collecting and analyzing feedback."""
@@ -13,7 +12,7 @@ class FeedbackAgent(BaseAgent):
         profile = AgentProfileSchema(role="feedback", goal=goal, backstory=backstory)
         super().__init__(profile=profile)
 
-    def collect_feedback(self, product: str) -> Dict[str, str]:
+    def collect_feedback(self, product: str) -> dict[str, str]:
         """Return stub feedback for a product."""
         return {
             "product": product,

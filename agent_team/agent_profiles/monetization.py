@@ -4,7 +4,6 @@ MonetizationAgent profile.
 
 from agent_team.agent_profiles.base import BaseAgent
 from agent_team.schemas import AgentProfileSchema
-from typing import Dict
 
 class MonetizationAgent(BaseAgent):
     """Agent responsible for monetization strategies."""
@@ -13,7 +12,7 @@ class MonetizationAgent(BaseAgent):
         profile = AgentProfileSchema(role="monetization", goal=goal, backstory=backstory)
         super().__init__(profile=profile)
 
-    def build_plan(self, solution: str) -> Dict[str, str]:
+    def build_plan(self, solution: str) -> dict[str, str]:
         """Return a deterministic monetization plan based on solution."""
         return {
             "solution": solution,
