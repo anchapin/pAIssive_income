@@ -64,8 +64,150 @@ export default [
     rules: {
       // Relax some rules for development
       'no-unused-vars': ['warn', {
-        argsIgnorePattern: '^_|^error$|^e,
+        argsIgnorePattern: '^_|^error$|^e
+      'no-undef': 'warn',
+      'no-control-regex': 'warn',
+      'no-useless-escape': 'warn',
+      'no-unreachable': 'warn',
+    },
+  },
+  {
+    files: ['**/*.test.js', '**/*.spec.js', '**/*.test.jsx', '**/*.spec.jsx', '**/*.test.ts', '**/*.spec.ts'],
+    languageOptions: {
+      globals: {
+        // Jest globals
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        jest: 'readonly',
+
+        // Additional test globals
+        assert: 'readonly',
+        chai: 'readonly',
+        sinon: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['**/*.jsx', '**/*.tsx'],
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        React: 'readonly',
+        ReactDOM: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['ui/tailwind_utils.js'],
+    rules: {
+      // Allow reserved keywords in this specific file
+      'no-unused-vars': 'off',
+    },
+  },
+  {
+    ignores: [
+      'node_modules/',
+      'dist/',
+      'build/',
+      'coverage/',
+      '**/*.min.js',
+      '.git/',
+      'logs/',
+      'playwright-report/',
+      '__pycache__/',
+      '*.bak',
+      'tatus', // Seems to be a git status output file
+    ],
+  },
+  // --- Prettier Integration (global) ---
+  {
+    plugins: { prettier: pluginPrettier },
+    rules: { "prettier/prettier": "error" },
+    extends: ["plugin:prettier/recommended"],
+  },
+];,
         varsIgnorePattern: '^_|^error$|^e
+      'no-undef': 'warn',
+      'no-control-regex': 'warn',
+      'no-useless-escape': 'warn',
+      'no-unreachable': 'warn',
+    },
+  },
+  {
+    files: ['**/*.test.js', '**/*.spec.js', '**/*.test.jsx', '**/*.spec.jsx', '**/*.test.ts', '**/*.spec.ts'],
+    languageOptions: {
+      globals: {
+        // Jest globals
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        jest: 'readonly',
+
+        // Additional test globals
+        assert: 'readonly',
+        chai: 'readonly',
+        sinon: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['**/*.jsx', '**/*.tsx'],
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        React: 'readonly',
+        ReactDOM: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['ui/tailwind_utils.js'],
+    rules: {
+      // Allow reserved keywords in this specific file
+      'no-unused-vars': 'off',
+    },
+  },
+  {
+    ignores: [
+      'node_modules/',
+      'dist/',
+      'build/',
+      'coverage/',
+      '**/*.min.js',
+      '.git/',
+      'logs/',
+      'playwright-report/',
+      '__pycache__/',
+      '*.bak',
+      'tatus', // Seems to be a git status output file
+    ],
+  },
+  // --- Prettier Integration (global) ---
+  {
+    plugins: { prettier: pluginPrettier },
+    rules: { "prettier/prettier": "error" },
+    extends: ["plugin:prettier/recommended"],
+  },
+];
       }],
       'no-undef': 'warn',
       'no-control-regex': 'warn',

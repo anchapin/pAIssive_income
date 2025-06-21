@@ -76,19 +76,19 @@ filterwarnings = [
   "ignore::DeprecationWarning"
 ]
 markers = [
-  "unit: mark a test as a unit test",
-  "integration: mark a test as an integration test",
+  "unit: mark a test as a unit test (fast, isolated, no external dependencies)",
+  "integration: mark a test as an integration test (cross-component or external system)",
   "slow: mark test as slow (taking more than 1 second to run)",
-  "smoke: mark test as a smoke test (critical functionality)",
+  "smoke: mark test as a smoke test (critical functionality, basic health-check)",
   "webhook: mark test related to webhook functionality",
-  "api: mark test related to API functionality",
+  "api: mark test related to API endpoints or external APIs",
   "payment: mark test related to payment functionality",
-  "security: mark test related to security features",
+  "security: mark test related to security features or checks",
   "model: mark test related to AI model functionality",
-  "performance: mark performance-sensitive test",
-  "flaky: mark test as flaky (occasionally fails)",
-  "dependency: mark test as requiring external dependencies",
-  "asyncio: mark test as an async test"
+  "performance: mark performance-sensitive test (timing/efficiency)",
+  "flaky: mark test as flaky (occasionally fails, non-deterministic)",
+  "dependency: mark test as requiring external dependencies (e.g., databases, services)",
+  "asyncio: mark test as an async test (uses asyncio event loop)"
 ]
 
 [tool.black]

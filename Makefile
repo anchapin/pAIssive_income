@@ -35,8 +35,8 @@ all: lint format fix docstring-fix syntax-fix security test pre-commit
 lint-py:
 	uv run ruff .
 format-py:
-	uv run ruff format .
 	uv run black .
+	uv run ruff format .
 
 # JS/TS linting/formatting (pnpm required)
 lint-js:
