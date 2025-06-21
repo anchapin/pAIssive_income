@@ -102,6 +102,88 @@ Prepare and execute a core modules refactor towards the MVP slice as defined in 
 
 ---
 
+## 🔄 Rollback Plan
+
+### Rollback Criteria
+Rollback should be triggered if any of the following conditions are met:
+- **Critical Production Issues:** Application crashes, data corruption, or service unavailability
+- **Performance Degradation:** >20% decrease in response times or throughput
+- **Test Failures:** >10% of existing tests fail after merge
+- **CI/CD Pipeline Failures:** Critical workflows fail consistently for >2 hours
+- **Security Vulnerabilities:** New security issues introduced by refactor
+- **Stakeholder Escalation:** Product owner or technical lead requests rollback
+
+### Rollback Procedures
+
+#### 1. Immediate Response (0-15 minutes)
+```bash
+# Stop any ongoing deployments
+# Revert to last known good commit
+git revert <refactor-merge-commit-sha> --mainline 1
+git push origin main
+
+# If using feature flags, disable new features
+# Update deployment configuration to previous stable version
+```
+
+#### 2. System Recovery (15-60 minutes)
+- **Database Rollback:** If schema changes were made, execute prepared rollback scripts
+- **Configuration Rollback:** Restore previous configuration files from backup
+- **Service Restart:** Restart affected services with previous version
+- **Cache Invalidation:** Clear application caches to prevent stale data issues
+- **Monitoring Reset:** Reset monitoring baselines to pre-refactor metrics
+
+#### 3. Validation (60-120 minutes)
+- **Smoke Tests:** Run critical path tests to verify system functionality
+- **Performance Monitoring:** Confirm metrics return to baseline levels
+- **User Acceptance:** Verify core user flows are working correctly
+- **Data Integrity:** Validate no data loss or corruption occurred
+
+### Communication Plan
+
+#### Internal Communication
+- **Immediate Notification (0-5 minutes):**
+  - Slack: `#engineering` and `#alerts` channels
+  - Email: Engineering team leads and product owner
+  - Status: "ROLLBACK IN PROGRESS - MVP Core Refactor"
+
+- **Progress Updates (Every 30 minutes):**
+  - Current rollback status and ETA
+  - Any blockers or complications
+  - Next steps and timeline
+
+- **Resolution Notification:**
+  - Confirmation of successful rollback
+  - Root cause summary
+  - Next steps for addressing issues
+
+#### External Communication (if customer-facing)
+- **Status Page Update:** Post incident notice with estimated resolution time
+- **Customer Support:** Brief support team on potential user impact
+- **Stakeholder Update:** Notify key stakeholders of rollback and timeline
+
+### Recovery Procedures
+
+#### Post-Rollback Analysis
+1. **Root Cause Analysis:** Identify what caused the rollback need
+2. **Impact Assessment:** Document affected systems and users
+3. **Lessons Learned:** Update rollback procedures based on experience
+4. **Fix Planning:** Create plan to address issues before retry
+
+#### Re-deployment Preparation
+- **Issue Resolution:** Fix identified problems in feature branch
+- **Enhanced Testing:** Add tests to prevent regression
+- **Staged Rollout:** Consider gradual deployment approach
+- **Monitoring Enhancement:** Improve monitoring for early issue detection
+
+### Rollback Testing
+- **Quarterly Drills:** Practice rollback procedures every 3 months
+- **Documentation Updates:** Keep rollback procedures current
+- **Tool Validation:** Ensure rollback tools and scripts are functional
+- **Team Training:** Ensure all team members understand procedures
+
+---
+
 ## 📋 Checklist Before Merge
 
 - [ ] Code owner(s) review complete
@@ -109,7 +191,7 @@ Prepare and execute a core modules refactor towards the MVP slice as defined in 
 - [ ] Docs updated and reviewed
 - [ ] No .gitignore’d files referenced/imported
 - [ ] CI green (uv + pnpm workflows)
-- [ ] Rollback plan documented
+- [x] Rollback plan documented
 
 ---
 
