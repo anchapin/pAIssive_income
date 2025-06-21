@@ -1,4 +1,6 @@
-import subprocess, pathlib, sys
+import subprocess
+import pathlib
+import sys
 HERE = pathlib.Path(__file__).resolve().parent
 PKGS = ["api", "ai_models", "agent_team", "marketing", "monetization", "niche_analysis", "common_utils"]
 OUT = HERE / "source" / "api"
