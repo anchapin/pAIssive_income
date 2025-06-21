@@ -77,7 +77,7 @@ The test script runs:
 pnpm tailwind:build && vitest run --passWithNoTests
 ```
 
-Check `.github/workflows/frontend-vitest.yml` for full details on the CI process.
+Check [`frontend-vitest.yml`](../../.github/workflows/frontend-vitest.yml) for full details on the CI process.
 
 ## Learn More
 
