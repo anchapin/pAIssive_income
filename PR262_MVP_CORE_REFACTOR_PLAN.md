@@ -2,7 +2,7 @@
 
 ## 🎯 Objective
 
-Prepare and execute a core modules refactor towards the MVP slice as defined in [Issue #262](https://github.com/your-org/your-repo/issues/262), under the epic “Refactor Core Modules Towards MVP Slice.” This initiative aims to modernize, streamline, and prepare foundational components for reliable MVP delivery.
+Prepare and execute a core modules refactor towards the MVP slice as defined in [Issue #262](https://github.com/anchapin/pAIssive_income/issues/262), under the epic “Refactor Core Modules Towards MVP Slice.” This initiative aims to modernize, streamline, and prepare foundational components for reliable MVP delivery.
 
 ---
 
@@ -115,7 +115,7 @@ Prepare and execute a core modules refactor towards the MVP slice as defined in 
 
 ## 🔗 References
 
-- [Issue #262: Core Refactor for MVP](https://github.com/your-org/your-repo/issues/262)
+- [Issue #262: Core Refactor for MVP](https://github.com/anchapin/pAIssive_income/issues/262)
 - Epic: “Refactor Core Modules Towards MVP Slice”
 - Example prior PR docs:  
   [`PR_166_WORKFLOW_FIXES_SUMMARY.md`](./PR_166_WORKFLOW_FIXES_SUMMARY.md),  
