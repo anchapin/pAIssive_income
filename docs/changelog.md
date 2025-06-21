@@ -2,6 +2,18 @@
 
 Track all major changes, releases, and fixes here.
 
+## [Unreleased] - 2025-06-21
+
+### Setup Script Refactoring
+- **Jules Setup Script Overhaul**: Completely refactored `setup-jules.sh` for improved reliability and CI compatibility
+  - Added system package installation for Python 3.10+ and Node.js 20+
+  - Streamlined dependency installation using `uv pip install -e ".[dev,agents,memory,ml]"`
+  - Added automatic Tailwind CSS build process
+  - Created necessary directories for testing and reports
+  - Added CI environment variable configuration
+  - Removed complex validation testing in favor of direct setup approach
+  - Updated documentation to reflect new functionality
+
 ## [Unreleased] - 2025-06-19
 
 ### Major Updates
