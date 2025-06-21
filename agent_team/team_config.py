@@ -25,9 +25,11 @@ def load_config(path: Optional[str] = None) -> TeamConfigSchema:
     if path is None:
         return TeamConfigSchema.model_validate(DEFAULT_TEAM_CONFIG)
     import json
+    from pydantic import ValidationError
+
     try:
         with open(path, "r") as f:
             data = json.load(f)
         return TeamConfigSchema.model_validate(data)
-    except Exception as exc:
-        raise RuntimeError(f"Could not load config from {path}: {exc}")
+    except (FileNotFoundError, json.JSONDecodeError, ValidationError) as exc:
+        raise RuntimeError(f"Failed to load config: {exc}") from exc

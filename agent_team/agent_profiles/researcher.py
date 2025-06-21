@@ -14,9 +14,11 @@ class ResearcherAgent(BaseAgent):
         super().__init__(profile=profile)
 
     def identify_niche(self, keywords: str) -> Dict[str, str]:
-        """Return a deterministic 'niche' based on keywords."""
+        """Return a deterministic 'niche' based on keywords, robust to empty/whitespace input."""
+        parts = keywords.strip().split()
+        first_word = parts[0].capitalize() if parts else "General"
         return {
-            "niche": f"AI-powered {keywords.strip().split()[0].capitalize()} Platform"
+            "niche": f"AI-powered {first_word} Platform"
         }
 
     def summarize_findings(self, topic: str) -> str:

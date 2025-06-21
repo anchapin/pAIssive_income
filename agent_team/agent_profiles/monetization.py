@@ -9,6 +9,8 @@ from typing import Dict
 class MonetizationAgent(BaseAgent):
     """Agent responsible for monetization strategies."""
 
+    DEFAULT_MONTHLY_REVENUE_ESTIMATE = 1000
+
     def __init__(self, goal: str, backstory: str):
         profile = AgentProfileSchema(role="monetization", goal=goal, backstory=backstory)
         super().__init__(profile=profile)
@@ -22,4 +24,4 @@ class MonetizationAgent(BaseAgent):
 
     def estimate_revenue(self, months: int = 6) -> int:
         """Return a stubbed revenue estimate."""
-        return months * 1000  # Always returns a fixed estimate per month.
+        return months * self.DEFAULT_MONTHLY_REVENUE_ESTIMATE  # Uses class constant.
