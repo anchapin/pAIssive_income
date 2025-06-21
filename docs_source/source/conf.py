@@ -1,7 +1,28 @@
-"""conf - Module for docs_source/source.conf."""
+"""conf - Sphinx configuration for pAIssive Income documentation."""
 
-# Standard library imports
+# -- Project information -----------------------------------------------------
+project = "pAIssive Income"
+copyright = "2025"
+author = "AI Assistant & Contributors"
 
-# Third-party imports
+# -- General configuration ---------------------------------------------------
+extensions = [
+    "myst_parser",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
+]
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
+autosummary_generate = True
 
-# Local imports
+# -- Options for HTML output -------------------------------------------------
+# (Feel free to set html_theme if desired; default is fine for now)
+
+# -- Intersphinx mapping -----------------------------------------------------
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}

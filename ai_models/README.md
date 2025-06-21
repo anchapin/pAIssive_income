@@ -1,61 +1,6 @@
-# AI Models Module
+# ai_models
 
-This module provides a comprehensive system for managing and using local AI models for various tasks such as content generation, data analysis, and more.
-
-## Overview
-
-The AI Models module includes the following components:
-
-1. **ModelManager**: Central system for managing AI models, including model discovery, loading, caching, and monitoring.
-2. **ModelConfig**: Configuration for AI models, including settings for model paths, cache, and performance options.
-3. **ModelInfo**: Information about AI models, including metadata and capabilities.
-
-## Features
-
-- **Model Discovery**: Automatically discover available models on the system.
-- **Model Loading**: Load models from various sources (local files, Hugging Face, etc.).
-- **Model Caching**: Cache model responses to improve performance.
-- **Model Downloading**: Download models from Hugging Face Hub and other sources.
-- **Performance Monitoring**: Track and analyze model performance metrics.
-- **Model Benchmarking**: Compare performance across different models.
-- **Hardware Optimization**: Automatically select the best device for model inference.
-- **System Information**: Get information about the system's hardware and installed dependencies.
-- **Agent Integration**: Assign models to different agents based on their tasks.
-
-## Installation
-
-To install the required dependencies, run:
-
-```bash
-uv pip install -r requirements.txt
-```
-
-## Usage
-
-### Basic Usage
-
-```python
-from ai_models import ModelManager
-
-# Create a model manager with default configuration
-manager = ModelManager()
-
-# Discover available models
-discovered_models = manager.discover_models()
-print(f"Discovered {len(discovered_models)} models")
-
-# Get all registered models
-all_models = manager.get_all_models()
-for model in all_models:
-    print(f"- {model.name} (Type: {model.type}, Format: {model.format})")
-
-# Load a model
-if all_models:
-    model_to_load = all_models[0]
-    loaded_model = manager.load_model(model_to_load.id)
-
-    # Use the model
-    # ...
+**Documentation has moved!**  Please see the [central docs](../docs_source/html/index.html) for the up-to-date guide.
 
     # Unload the model when done
     manager.unload_model(model_to_load.id)
