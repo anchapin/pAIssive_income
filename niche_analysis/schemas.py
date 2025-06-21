@@ -3,7 +3,7 @@
 from typing import List, Dict, Optional, Literal, Any
 from datetime import datetime
 from uuid import UUID, uuid4
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 # Enums for categorical values
 MarketSize = Literal["large", "medium", "small", "unknown"]
@@ -127,7 +127,8 @@ class OpportunityScore(BaseModel):
     recommendations: List[str]
     timestamp: datetime
 
-    @validator("overall_score")
+    @field_validator("overall_score")
+    @classmethod
     def score_between_0_and_1(cls, v):
         if not (0.0 <= v <= 1.0):
             raise ValueError("overall_score must be between 0 and 1")

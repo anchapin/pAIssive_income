@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 from niche_analysis import OpportunityScorer
 from niche_analysis.schemas import OpportunityScore, Problem
 
@@ -10,7 +11,7 @@ def sample_problem(severity="high"):
         severity=severity,
         current_solutions={},
         solution_gaps={},
-        timestamp="2023-01-01T00:00:00.000000"
+        timestamp=datetime(2023, 1, 1)
     )
 
 def test_score_opportunity_range():

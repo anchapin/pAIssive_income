@@ -22,12 +22,17 @@ class NicheAnalyzer:
         opportunities: List[OpportunityScore] = []
         for segment in market_segments:
             segment_analysis = self.market_analyzer.analyze_segment(segment)
-            potential_niches = getattr(segment_analysis, "potential_niches", [])
+            potential_niches = segment_analysis.potential_niches
             for niche in potential_niches:
-                market_data = self.market_analyzer.analyze_competition(niche)
+                competition_analysis = self.market_analyzer.analyze_competition(niche)
+                market_data = {
+                    "market_size": segment_analysis.market_size,
+                    "growth_rate": segment_analysis.growth_rate,
+                    "competition": competition_analysis.market_saturation,
+                }
                 problems = self.problem_identifier.identify_problems(niche)
                 opportunity = self.opportunity_scorer.score_opportunity(
-                    niche, market_data.__dict__, problems
+                    niche, market_data, problems
                 )
                 opportunities.append(opportunity)
         return opportunities

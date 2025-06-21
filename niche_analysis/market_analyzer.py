@@ -73,11 +73,7 @@ class MarketAnalyzer:
         # Add more pre-defined segments as needed
     }
 
-    _SATURATION_MAP = {
-        "high": "high",
-        "medium": "medium",
-        "low": "low",
-    }
+    # _SATURATION_MAP removed, use saturation_level directly
 
     # ------------------------------------------------------------------
     # Public API
@@ -142,7 +138,7 @@ class MarketAnalyzer:
             niche=niche,
             competitor_count=competitor_count,
             top_competitors=top_competitors,
-            market_saturation=self._SATURATION_MAP[saturation_level],  # type: ignore[arg-type]
+            market_saturation=saturation_level,
             entry_barriers="medium" if competitor_count > 4 else "low",
             differentiation_opportunities=[
                 "specialised workflow integration",

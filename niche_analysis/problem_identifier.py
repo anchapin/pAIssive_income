@@ -155,15 +155,16 @@ class ProblemIdentifier:
             ]
 
         n = niche.lower()
-        # Keyword fallback
-        if "e-commerce" in n or "ecommerce" in n:
-            domain_key = "e-commerce"
-        elif "content" in n or "writing" in n:
-            domain_key = "content"
-        elif "freelance" in n or "freelancing" in n:
-            domain_key = "freelance"
-        else:
-            domain_key = "generic"
+        # Refactored keyword → domain mapping using a dict
+        domain_keyword_map = {
+            "e-commerce": ("e-commerce", "ecommerce"),
+            "content": ("content", "writing"),
+            "freelance": ("freelance", "freelancing"),
+        }
+        domain_key = next(
+            (k for k, kws in domain_keyword_map.items() if any(word in n for word in kws)),
+            "generic",
+        )
         generic_problems = self._GENERIC_PROBLEMS[domain_key]
         return [
             Problem(
