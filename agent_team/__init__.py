@@ -23,10 +23,13 @@ from agent_team.team_config import DEFAULT_TEAM_CONFIG, load_config
 
 # Keep existing exports for CrewAIAgentTeam and MemoryEnhancedCrewAIAgentTeam
 try:
-    from agent_team.crewai_integration import CrewAIAgentTeam, MemoryEnhancedCrewAIAgentTeam
+    from .crewai_agent_team import CrewAIAgentTeam
 except ImportError:
-    # These are optional, only needed for users with CrewAI/mem0 installed.
     CrewAIAgentTeam = None
+
+try:
+    from .memory_enhanced_crewai_agent_team import MemoryEnhancedCrewAIAgentTeam
+except ImportError:
     MemoryEnhancedCrewAIAgentTeam = None
 
 __all__ = [

@@ -21,7 +21,7 @@ def test_developer_agent_design_solution():
     assert "goal" in dev.to_dict()
     assert str(dev).startswith("DeveloperAgent(")
 
-def test_researcher_agent_identify_niche():
+def test_researcher_agent_identify_niche_keywords():
     researcher = ResearcherAgent(goal="Find market opportunity", backstory="Tech analyst.")
     result = researcher.identify_niche("blockchain automation")
     assert "AI-powered Blockchain" in result["niche"]
@@ -37,13 +37,6 @@ def test_monetization_agent_build_plan():
 def test_monetization_agent_default_monthly_estimate():
     monetizer = MonetizationAgent(goal="Create revenue streams", backstory="Startup CFO.")
     assert monetizer.estimate_revenue() == 6 * monetizer.DEFAULT_MONTHLY_REVENUE_ESTIMATE  # 6 is default months in agent
-
-def test_researcher_agent_identify_niche():
-    researcher = ResearcherAgent(goal="Find market opportunity", backstory="Tech analyst.")
-    result = researcher.identify_niche("blockchain automation")
-    assert "AI-powered Blockchain" in result["niche"]
-    assert researcher.to_dict()["role"] == "researcher"
-    assert "goal" in researcher.to_dict()
 
 def test_researcher_agent_identify_niche_empty():
     researcher = ResearcherAgent(goal="Find market opportunity", backstory="Tech analyst.")
