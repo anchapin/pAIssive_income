@@ -2,7 +2,7 @@
 
 ## Motivation & Scope
 
-This PR addresses Issue **“Aggressive Pruning: Remove Experimental, Redundant, and Unused Code”**.
+This PR addresses Issue #267: **“Aggressive Pruning: Remove Experimental, Redundant, and Unused Code”**.
 The goal is to reduce technical debt by permanently removing legacy, experimental, and redundant files and directories that are no longer referenced by production code, tests, or CI workflows.
 
 ## Removals Checklist
