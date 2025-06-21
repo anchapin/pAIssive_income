@@ -5,8 +5,10 @@ import logging
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional
 
-from flask import Flask, jsonify, request, Blueprint, make_response
+from flask import Flask, jsonify, request
 from flask_cors import CORS
+
+__all__ = ["create_app", "Agent"]
 
 # In-memory storage for actions (as a placeholder)
 _ACTIONS: List[Dict[str, Any]] = []
@@ -20,16 +22,19 @@ class Agent:
     description: Optional[str] = None
     # Add more fields as needed
 
+
 DEFAULT_AGENT = Agent(
     id="default-agent",
     name="Default Agent",
-    description="Fallback agent when DB unavailable."
+    description="Fallback agent when DB unavailable.",
 )
+
 
 def get_agent() -> Agent:
     """Fetch agent object. Placeholder for DB integration."""
     # TODO: Integrate with real DB; fallback to default.
     return DEFAULT_AGENT
+
 
 def create_app() -> Flask:
     """Create and configure Flask app with routes and CORS."""

@@ -4,12 +4,14 @@ import pytest
 from flask import Flask
 from ui.app import create_app
 
-@pytest.fixture
-def app() -> Flask:
+@pytest.fixture(name="app")
+def fixture_app() -> Flask:
+    """Flask app fixture."""
     return create_app()
 
-@pytest.fixture
-def client(app: Flask):
+@pytest.fixture(name="client")
+def fixture_client(app: Flask):
+    """Flask client fixture."""
     return app.test_client()
 
 def test_health(client):
@@ -27,7 +29,11 @@ def test_get_agent(client):
     assert "id" in body and "name" in body
 
 def test_agent_action_success(client):
-    sample = {"type": "do-something", "agentId": "test-agent", "payload": {"foo": "bar"}}
+    sample = {
+        "type": "do-something",
+        "agentId": "test-agent",
+        "payload": {"foo": "bar"},
+    }
     resp = client.post("/api/agent/action", json=sample)
     assert resp.status_code == 200
     body = resp.get_json()
@@ -44,7 +50,9 @@ def test_agent_action_id_increments(client):
 
 def test_agent_action_invalid_json(client):
     # Send text/plain, which should not parse as JSON
-    resp = client.post("/api/agent/action", data="not json", content_type="text/plain")
+    resp = client.post(
+        "/api/agent/action", data="not json", content_type="text/plain"
+    )
     assert resp.status_code == 400
     body = resp.get_json()
     assert body["error"] == "Invalid JSON"
