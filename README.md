@@ -441,27 +441,39 @@ All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](h
 linting,
 and the contribution checklist.
 
-### OpenHands Development Environment
+### OpenHands
 
-This project includes automated setup for [OpenHands](https://github.com/All-Hands-AI/OpenHands) development environments. The `.openhands/setup.sh` script automatically configures all required dependencies (Node.js, pnpm, uv) with pinned versions for reproducible builds. See the [Development Workflow](docs/02_developer_guide/01_development_workflow.md#openhands-development-environment) for details.
+...
+
+## UI Flask Backend
+
+The UI backend is a Flask application. To run it for development (using `uv`):
+
+```bash
+uv pip install -r ui/requirements.txt
+python -m ui.run_ui
+```
+
+- Server will start on port 8000 by default, or use `$PORT` if set.
+- Endpoints:
+  - `GET /health`: Health check.
+  - `GET /api/agent`: Returns agent object.
+  - `POST /api/agent/action`: Accepts `{type, agentId?, payload?}` JSON, logs action in memory, returns incremental action_id.
+
+CORS allowed origins are configured via the `CORS_ALLOWED_ORIGINS` environment variable (comma-separated, defaults to `http://localhost:3000`).
+
+See `ui/README.md` for more details.
 
 ---
-
-## 📢 Need Help?
-
-- For common issues, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md).
-- For in-depth troubleshooting,
-see [docs/07_troubleshooting_and_faq/troubleshooting.md](docs/07_troubleshooting_and_faq/troubleshooting.md).
-
----
-
-## 📝 License
-
-See [LICENSE](LICENSE) for license details.
 
 ## Recent Changes
 
-### uv and pnpm Implementation Updates
+- Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
+- Enhanced GitHub workflow configurations for better cross-platform compatibility
+- Improved uv virtual environment handling and dependency management
+
+### JavaScript Dependencies
+- Updated react-router-dom from 7.6.0 to 7.6.2 (June 2025) - includes bug fixes and performance improvements
 - Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
 - Enhanced GitHub workflow configurations for better cross-platform compatibility
 - Improved uv virtual environment handling and dependency management
