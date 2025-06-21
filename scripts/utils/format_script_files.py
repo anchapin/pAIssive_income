@@ -88,30 +88,10 @@ def format_file(file_path: str) -> bool:
 def main() -> int:
     """Format all Python files in the scripts directory."""
     script_files = [
-        "scripts/debug_filtering.py",
-        "scripts/run_webhook_tests.py",
-        "scripts/missing_schemas.py",
-        "scripts/service_initialization.py",
-        "scripts/run_basic_integration_tests.py",
-        "scripts/setup_pre_commit.py",
-        "scripts/run_dashboard.py",
-        "scripts/run_data_consistency_tests.py",
-        "scripts/run_github_actions_locally.py",
-        "scripts/run_integration_tests.py",
-        "scripts/run_integration_tests_standalone.py",
-        "scripts/run_linting.py",
-        "scripts/run_local_tests.py",
-        "scripts/run_microservices.py",
-        "scripts/run_security_tests.py",
-        "scripts/dependency_container.py",
-        "scripts/run_security_tests_advanced.py",
-        "scripts/fix_test_collection_warnings.py",
-        "scripts/run_security_tests_standalone.py",
-        "scripts/format_code.py",
-        "scripts/run_webhook_performance_tests.py",
-        "scripts/format_files.py",
-        "scripts/sues.py",
-    ]
+    # "scripts/fix_test_collection_warnings.py",  # removed in aggressive pruning
+    # "scripts/sues.py",  # removed in aggressive pruning
+    # ...other scripts...
+]
 
     success_count = 0
     failed_files = []
