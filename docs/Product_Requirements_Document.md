@@ -7,6 +7,7 @@
 | 1.1 | 2025-05-20 | AI Assistant | Updated based on user feedback (Project Overview, Goals, User Persona, Feature Emphasis) |
 | 1.2 | 2025-05-20 | AI Assistant | Added potential business models to Future Considerations |
 | 1.3 | 2025-06-09 | AI Assistant | Addressed review comments: removed instructional meta-text, updated stakeholder placeholders |
+| 1.4 | 2025-06-21 | AI Assistant | Documentation restructure & Sphinx consolidation (Issue #269) |
 
 ## **1\. Introduction**
 
