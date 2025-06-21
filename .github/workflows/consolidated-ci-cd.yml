@@ -122,7 +122,7 @@ jobs:
         with:
           node-version: '20.11.0' # Specify exact Node.js version for consistency
           cache: 'pnpm'
-          cache-dependency-path: 'ui/react_frontend/package.json'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: Get pnpm store directory
         shell: bash
@@ -133,7 +133,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
@@ -928,7 +928,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20.11.0'
           cache: 'pnpm'
 
       - name: Install dependencies

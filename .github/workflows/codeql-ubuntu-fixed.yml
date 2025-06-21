@@ -85,9 +85,9 @@ jobs:
         if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.11.0'
           cache: 'pnpm'
-          cache-dependency-path: './pnpm-lock.yaml'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       # Add pnpm to PATH for Linux/macOS
       - name: Add pnpm to PATH
