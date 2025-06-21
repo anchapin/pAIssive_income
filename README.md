@@ -490,8 +490,6 @@ python -m ui.run_ui
 
 See `ui/README.md` for more details.
 
-```
-
 - Server will start on port 8000 by default, or use `$PORT` if set.
 - Endpoints:
   - `GET /health`: Health check.
