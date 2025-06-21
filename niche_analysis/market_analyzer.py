@@ -8,9 +8,9 @@ actionable outputs that are useful for unit testing and MVP workflows.
 from __future__ import annotations
 
 import logging
-from typing import Dict, Any, List
+from typing import Any
 
-from .errors import InvalidInputError, DataNotFoundError
+from .errors import InvalidInputError
 from .schemas import (
     MarketSegmentAnalysis,
     CompetitionAnalysis,
@@ -31,7 +31,7 @@ class MarketAnalyzer:
     # fully deterministic so that tests don’t require network or databases.
     # ---------------------------------------------------------------------
 
-    _SEGMENT_DB: Dict[str, Dict[str, Any]] = {
+    _SEGMENT_DB: dict[str, dict[str, Any]] = {
         "e-commerce": {
             "description": "Online buying and selling of goods and services",
             "market_size": "large",
@@ -117,7 +117,7 @@ class MarketAnalyzer:
         # Deterministic competitor count based on hash to keep repeatability
         competitor_count = (abs(hash(niche)) % 5) + 3  # 3-7 competitors
 
-        top_competitors: List[CompetitorProfile] = []
+        top_competitors: list[CompetitorProfile] = []
         for i in range(min(3, competitor_count)):
             name = f"{niche.title()} Solutions #{i+1}"
             profile = CompetitorProfile(
