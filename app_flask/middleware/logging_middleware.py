@@ -49,15 +49,13 @@ def get_request_context() -> dict[str, Any]:
     """
     context: dict[str, Any] = {}
     try:
-        context.update(
-            {
-                "request_id": getattr(g, "request_id", "unknown"),
-                "correlation_id": getattr(g, "correlation_id", None),
-                "method": request.method,
-                "path": request.path,
-                "remote_addr": request.remote_addr,
-            }
-        )
+        context.update({
+            "request_id": getattr(g, "request_id", "unknown"),
+            "correlation_id": getattr(g, "correlation_id", None),
+            "method": request.method,
+            "path": request.path,
+            "remote_addr": request.remote_addr,
+        })
         if request.user_agent:
             context["user_agent"] = request.user_agent.string
     except (AttributeError, RuntimeError):
@@ -85,9 +83,7 @@ def _setup_before_request(app: Flask) -> None:
         correlation_id_header = config["LOG_CORRELATION_ID_HEADER"]
 
         g.request_id = str(request.headers.get(request_id_header) or uuid.uuid4())
-        g.correlation_id = str(
-            request.headers.get(correlation_id_header) or g.request_id
-        )
+        g.correlation_id = str(request.headers.get(correlation_id_header) or g.request_id)
         g.start_time = time.perf_counter()
 
         # Log request start
@@ -223,9 +219,7 @@ def _setup_error_handler(app: Flask) -> None:
         config = get_config()
         if config["LOG_INCLUDE_TRACE"]:
             tb_limit = config["LOG_MAX_TRACEBACK_DEPTH"]
-            error_data["traceback"] = traceback.format_tb(
-                error.__traceback__, limit=tb_limit
-            )
+            error_data["traceback"] = traceback.format_tb(error.__traceback__, limit=tb_limit)
 
         if config["LOG_SANITIZE_ERRORS"]:
             sanitized_data = sanitize_log_data(error_data)
@@ -241,9 +235,7 @@ def _setup_error_handler(app: Flask) -> None:
 
         from flask import jsonify
 
-        return jsonify(
-            {"error": "Internal server error", "request_id": g.request_id}
-        ), 500
+        return jsonify({"error": "Internal server error", "request_id": g.request_id}), 500
 
 
 def setup_request_logging(app: Flask) -> None:

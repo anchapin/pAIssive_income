@@ -14,9 +14,7 @@ from pathlib import Path
 from typing import Any
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 # type: ignore[import, assignment]
@@ -77,9 +75,7 @@ def main() -> int:
     try:
         # First, install CrewAI
         logger.info("Installing CrewAI...")
-        install_output = run_command(
-            [sys.executable, "install_crewai_for_tests.py"], check=False
-        )
+        install_output = run_command([sys.executable, "install_crewai_for_tests.py"], check=False)
         logger.info("Installation output: %s", install_output)
 
         # Check if the test file exists
@@ -115,9 +111,7 @@ def test_crewai_mock():
         # Run the CrewAI-specific tests
         logger.info("Running CrewAI tests...")
         try:
-            result = run_command(
-                [sys.executable, "-m", "pytest", test_file, "-v"], check=False
-            )
+            result = run_command([sys.executable, "-m", "pytest", test_file, "-v"], check=False)
             logger.info("CrewAI tests completed")
             logger.info("Test results:\n%s", result)
         except Exception:

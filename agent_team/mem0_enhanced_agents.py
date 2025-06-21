@@ -166,11 +166,11 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             raise ImportError(error_msg)
 
         # Retrieve relevant memories for context enhancement
-        context_query = f"Information about team with {len(self.agents)} agents and {len(self.tasks)} tasks"
-        memories = self._retrieve_relevant_memories(query=context_query)
-        logger.info(
-            "Retrieved %d relevant memories for context enhancement", len(memories)
+        context_query = (
+            f"Information about team with {len(self.agents)} agents and {len(self.tasks)} tasks"
         )
+        memories = self._retrieve_relevant_memories(query=context_query)
+        logger.info("Retrieved %d relevant memories for context enhancement", len(memories))
 
         # Log the start of the workflow
         workflow_description = f"Starting memory-enhanced workflow with {len(self.agents)} agents and {len(self.tasks)} tasks"
@@ -295,12 +295,9 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             return context
 
         # Format memories as a string
-        memory_text = "\n".join(
-            [
-                f"- {memory.get('text', memory.get('memory', str(memory)))}"
-                for memory in memories
-            ]
-        )
+        memory_text = "\n".join([
+            f"- {memory.get('text', memory.get('memory', str(memory)))}" for memory in memories
+        ])
 
         # Combine memories with original context
         return f"""

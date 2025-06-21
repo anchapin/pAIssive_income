@@ -227,9 +227,7 @@ def _read_file_content(file_path: str) -> tuple[str, list[str]]:
             lines = content.splitlines()
             return content, lines
     except UnicodeError as e:
-        logger.exception(
-            "UTF-8 decoding error", extra={"file": file_path, "error": str(e)}
-        )
+        logger.exception("UTF-8 decoding error", extra={"file": file_path, "error": str(e)})
         # Try again with replacement characters
         with path.open(encoding="utf-8", errors="replace") as f:
             content = f.read()
@@ -678,9 +676,7 @@ def generate_report(
         extra={"scan_completed": True},
     )
 
-    output = (
-        generate_json_report(results) if json_format else generate_text_report(results)
-    )
+    output = generate_json_report(results) if json_format else generate_text_report(results)
 
     if output_file:
         try:
@@ -713,9 +709,7 @@ def generate_report(
 class SecretsAuditor:
     """Utility for auditing code for hardcoded secrets."""
 
-    def __init__(
-        self, exclude_dirs: set[str] | None = None, patterns: dict | None = None
-    ) -> None:
+    def __init__(self, exclude_dirs: set[str] | None = None, patterns: dict | None = None) -> None:
         """
         Initialize the secrets auditor.
 

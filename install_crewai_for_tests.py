@@ -14,9 +14,7 @@ import sys
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def run_command(command: str | list, check: bool = True) -> str | None:
@@ -41,9 +39,7 @@ def run_command(command: str | list, check: bool = True) -> str | None:
 
         # Run the command with shell=False for security
         # Using a list for command and shell=False is secure
-        result = subprocess.run(
-            command, check=check, shell=False, capture_output=True, text=True
-        )
+        result = subprocess.run(command, check=check, shell=False, capture_output=True, text=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         logger.exception("Command failed with exit code %d", e.returncode)

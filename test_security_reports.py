@@ -30,9 +30,7 @@ def _safe_subprocess_run(
     """Safely run a subprocess command, only allowing trusted binaries."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     allowed_binaries = {sys.executable}
-    if not cmd or (
-        cmd[0] not in allowed_binaries and not str(cmd[0]).endswith("pytest")
-    ):
+    if not cmd or (cmd[0] not in allowed_binaries and not str(cmd[0]).endswith("pytest")):
         msg = f"Untrusted or unsupported command: {cmd}"
         raise ValueError(msg)
     allowed_keys = {
@@ -139,9 +137,7 @@ def main() -> int:
     if not check_json_files():
         # Try to run the test_bandit_config.py script
         try:
-            _safe_subprocess_run(
-                [str(Path("test_bandit_config.py"))], check=False, shell=False
-            )
+            _safe_subprocess_run([str(Path("test_bandit_config.py"))], check=False, shell=False)
             logger.info("Ran test_bandit_config.py")
         except Exception:
             logger.exception("Failed to run test_bandit_config.py")
@@ -149,9 +145,7 @@ def main() -> int:
 
         # Check again
         if not check_json_files():
-            logger.error(
-                "JSON files still do not exist after running test_bandit_config.py"
-            )
+            logger.error("JSON files still do not exist after running test_bandit_config.py")
             return 1
 
     # Validate the JSON files

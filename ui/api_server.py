@@ -70,9 +70,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         origin = self.headers.get("Origin", "*")
 
         # Sanitize origin to prevent HTTP response splitting
-        sanitized_origin = (
-            origin.replace("\r", "").replace("\n", "") if origin != "*" else "*"
-        )
+        sanitized_origin = origin.replace("\r", "").replace("\n", "") if origin != "*" else "*"
 
         # If specific origins are defined, check if the request origin is allowed
         if allowed_origins != "*" and sanitized_origin != "*":
@@ -132,9 +130,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                             self._send_response(200, dict(agent))
                         else:
                             # If no agent found in database, return a default agent
-                            logger.warning(
-                                "No agent found in database, returning default agent"
-                            )
+                            logger.warning("No agent found in database, returning default agent")
                             default_agent = {
                                 "id": 1,
                                 "name": "Default Agent",
@@ -192,9 +188,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                         table_exists = result[0] if result else False
 
                         if not table_exists:
-                            logger.warning(
-                                "agent_action table does not exist, creating it"
-                            )
+                            logger.warning("agent_action table does not exist, creating it")
                             cursor.execute("""
                                 CREATE TABLE IF NOT EXISTS agent_action (
                                     id SERIAL PRIMARY KEY,
@@ -208,9 +202,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
                         # Extract values from action with defaults
                         agent_id = action.get("agentId") or action.get("agent_id") or 1
-                        action_type = (
-                            action.get("type") or action.get("action_type") or "UNKNOWN"
-                        )
+                        action_type = action.get("type") or action.get("action_type") or "UNKNOWN"
                         payload = action.get("payload") or {}
 
                         cursor.execute(
@@ -228,22 +220,16 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                         conn.commit()
                         result = cursor.fetchone()
                         action_id = result[0] if result else 0
-                        self._send_response(
-                            200, {"status": "success", "action_id": action_id}
-                        )
+                        self._send_response(200, {"status": "success", "action_id": action_id})
                 except (DatabaseError, psycopg2.Error):
                     logger.exception("Error saving agent action")
                     # Return success even if there's a database error to avoid breaking the UI
                     logger.warning("Database error, returning mock success response")
-                    self._send_response(
-                        200, {"status": "success", "action_id": 999, "mock": True}
-                    )
+                    self._send_response(200, {"status": "success", "action_id": 999, "mock": True})
                 except Exception:
                     logger.exception("Unexpected error while saving agent action")
                     # Return success even if there's an error to avoid breaking the UI
-                    self._send_response(
-                        200, {"status": "success", "action_id": 999, "mock": True}
-                    )
+                    self._send_response(200, {"status": "success", "action_id": 999, "mock": True})
             else:
                 self._send_response(404, {"error": "Not found", "path": path})
         except Exception:
@@ -259,9 +245,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         origin = self.headers.get("Origin", "*")
 
         # Sanitize origin to prevent HTTP response splitting
-        sanitized_origin = (
-            origin.replace("\r", "").replace("\n", "") if origin != "*" else "*"
-        )
+        sanitized_origin = origin.replace("\r", "").replace("\n", "") if origin != "*" else "*"
 
         # If specific origins are defined, check if the request origin is allowed
         if allowed_origins != "*" and sanitized_origin != "*":
@@ -315,9 +299,7 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
                 port += 1
                 server_address = (host, port)
             else:
-                logger.exception(
-                    "Failed to start server after %d attempts", max_retries
-                )
+                logger.exception("Failed to start server after %d attempts", max_retries)
                 return  # Exit the function instead of raising an exception
 
     # Verify that httpd was successfully initialized
@@ -341,9 +323,7 @@ if __name__ == "__main__":
     try:
         port = int(port_str)
     except ValueError:
-        logger.warning(
-            "Invalid PORT environment variable: %s, using default 8000", port_str
-        )
+        logger.warning("Invalid PORT environment variable: %s, using default 8000", port_str)
         port = 8000
 
     # Run the server

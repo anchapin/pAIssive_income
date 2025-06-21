@@ -122,13 +122,11 @@ def test_create_user_success(client):
 
     # Mock the response data
     response.status_code = HTTP_CREATED
-    response.data = json.dumps(
-        {
-            "id": 1,
-            "username": "testuser",
-            "email": "test@example.com",
-        }
-    ).encode("utf-8")
+    response.data = json.dumps({
+        "id": 1,
+        "username": "testuser",
+        "email": "test@example.com",
+    }).encode("utf-8")
 
     # Assertions
     assert response.status_code == HTTP_CREATED
@@ -188,9 +186,9 @@ def test_create_user_server_error(client):
 
         # Mock the response data
         response.status_code = HTTP_INTERNAL_SERVER_ERROR
-        response.data = json.dumps(
-            {"error": "An error occurred while creating the user"}
-        ).encode("utf-8")
+        response.data = json.dumps({"error": "An error occurred while creating the user"}).encode(
+            "utf-8"
+        )
 
         # Assertions
         assert response.status_code == HTTP_INTERNAL_SERVER_ERROR
@@ -217,13 +215,11 @@ def test_authenticate_user_success(client):
 
         # Mock the response data
         response.status_code = HTTP_OK
-        response.data = json.dumps(
-            {
-                "id": 1,
-                "username": "testuser",
-                "email": "test@example.com",
-            }
-        ).encode("utf-8")
+        response.data = json.dumps({
+            "id": 1,
+            "username": "testuser",
+            "email": "test@example.com",
+        }).encode("utf-8")
 
         # Assertions
         assert response.status_code == HTTP_OK

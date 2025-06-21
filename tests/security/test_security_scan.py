@@ -22,9 +22,7 @@ logger = logging.getLogger(__name__)
 # type: ignore[import, assignment]
 
 
-def _safe_subprocess_run(
-    cmd: list[str], **kwargs: object
-) -> subprocess.CompletedProcess[Any]:
+def _safe_subprocess_run(cmd: list[str], **kwargs: object) -> subprocess.CompletedProcess[Any]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])

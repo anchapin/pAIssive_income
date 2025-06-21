@@ -50,9 +50,7 @@ COMMAND_MAP = {
 }
 
 
-def run_script(
-    script_path: str, extra_args: list[str] | None = None, shell: bool = False
-) -> None:
+def run_script(script_path: str, extra_args: list[str] | None = None, shell: bool = False) -> None:
     """Run a script with Python."""
     try:
         # Construct the command
@@ -98,9 +96,7 @@ def main() -> None:
     subparsers.add_parser("format", help="Run code formatter")
 
     # Onboarding/setup
-    subparsers.add_parser(
-        "setup-dev", help="Run the developer environment setup script"
-    )
+    subparsers.add_parser("setup-dev", help="Run the developer environment setup script")
     subparsers.add_parser("enhanced-setup-dev", help="Run the enhanced setup script")
     subparsers.add_parser("install-mcp-sdk", help="Install the MCP SDK")
     subparsers.add_parser("pre-commit", help="Install and configure pre-commit hooks")

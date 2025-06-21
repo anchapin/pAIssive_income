@@ -99,26 +99,22 @@ def _convert_bandit_results_to_sarif(bandit_data: dict[str, Any]) -> dict[str, A
             }
 
         # Add result
-        results.append(
-            {
-                "ruleId": rule_id,
-                "level": "warning",
-                "message": {"text": result.get("issue_text", "Unknown issue")},
-                "locations": [
-                    {
-                        "physicalLocation": {
-                            "artifactLocation": {
-                                "uri": result.get("filename", "unknown")
-                            },
-                            "region": {
-                                "startLine": result.get("line_number", 1),
-                                "startColumn": 1,
-                            },
-                        }
+        results.append({
+            "ruleId": rule_id,
+            "level": "warning",
+            "message": {"text": result.get("issue_text", "Unknown issue")},
+            "locations": [
+                {
+                    "physicalLocation": {
+                        "artifactLocation": {"uri": result.get("filename", "unknown")},
+                        "region": {
+                            "startLine": result.get("line_number", 1),
+                            "startColumn": 1,
+                        },
                     }
-                ],
-            }
-        )
+                }
+            ],
+        })
 
     # Add rules and results to SARIF
     sarif["runs"][0]["tool"]["driver"]["rules"] = list(rules.values())
@@ -204,10 +200,7 @@ def _create_windows_junction(target_dir: Path, link_name: str) -> bool:
                 for k, v in kwargs.items()
                 if (
                     (k in {"stdin", "stdout", "stderr", "input"})
-                    or (
-                        k in {"cwd", "encoding", "errors"}
-                        and isinstance(v, (str, bytes))
-                    )
+                    or (k in {"cwd", "encoding", "errors"} and isinstance(v, (str, bytes)))
                     or (k == "timeout" and isinstance(v, (int, float)))
                     or (
                         k
@@ -491,9 +484,7 @@ def _create_empty_ini_sarif_file(ini_sarif_file: str) -> bool:
         return True
 
 
-def _create_ini_sarif_file(
-    json_file: str, sarif_file: str, ini_sarif_file: str
-) -> bool:
+def _create_ini_sarif_file(json_file: str, sarif_file: str, ini_sarif_file: str) -> bool:
     """
     Create the ini SARIF file from the main SARIF file or directly from JSON.
 

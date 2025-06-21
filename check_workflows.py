@@ -21,9 +21,7 @@ def check_workflow_files() -> bool:
         return False
 
     # Get all YAML files in the workflows directory
-    workflow_files = [
-        f.name for f in Path(workflow_dir).iterdir() if f.suffix in {".yml", ".yaml"}
-    ]
+    workflow_files = [f.name for f in Path(workflow_dir).iterdir() if f.suffix in {".yml", ".yaml"}]
 
     if not workflow_files:
         logger.error("No workflow files found")

@@ -49,9 +49,7 @@ class TestMemoryBackend:
         assert test_key not in str(kwargs)
 
     @patch("common_utils.secrets.memory_backend.logger")
-    def test_set_secret_secure_logging(
-        self, mock_logger, backend, test_key, test_value
-    ):
+    def test_set_secret_secure_logging(self, mock_logger, backend, test_key, test_value):
         """Test that set_secret uses secure logging."""
         # This should raise NotImplementedError
         with pytest.raises(NotImplementedError):

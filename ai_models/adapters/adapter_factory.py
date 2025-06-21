@@ -127,9 +127,7 @@ except ImportError:
     MCPAdapter = cast("Any", None)
 
 
-def get_adapter(
-    server_type: str, host: str, port: int, **kwargs: dict[str, Any]
-) -> object:
+def get_adapter(server_type: str, host: str, port: int, **kwargs: dict[str, Any]) -> object:
     """
     Get the adapter for a specified server type.
 

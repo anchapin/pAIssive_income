@@ -96,9 +96,7 @@ class ContextFilter(logging.Filter):
         return True
 
 
-def create_compressed_handler(
-    filename: str, compress_delay: int = 60
-) -> logging.Handler:
+def create_compressed_handler(filename: str, compress_delay: int = 60) -> logging.Handler:
     """
     Create a rotating file handler with compression.
 
@@ -192,9 +190,7 @@ def setup_handlers() -> tuple[list[logging.Handler], Queue]:
 
     # Configure formatters
     file_formatter = setup_file_formatter(Config.LOG_FORMAT_JSON)
-    console_formatter = logging.Formatter(
-        "%(levelname)s [%(asctime)s] %(name)s: %(message)s"
-    )
+    console_formatter = logging.Formatter("%(levelname)s [%(asctime)s] %(name)s: %(message)s")
 
     # Apply formatters and filters
     file_handler.setFormatter(file_formatter)

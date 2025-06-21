@@ -104,9 +104,7 @@ class TestSetupScripts:
         bat_content = setup_bat.read_text(encoding="utf-8")
 
         # Check bash error handling
-        assert "set -e" in sh_content, (
-            "setup.sh should have 'set -e' for error handling"
-        )
+        assert "set -e" in sh_content, "setup.sh should have 'set -e' for error handling"
         assert "exit 1" in sh_content, "setup.sh should have explicit error exits"
 
         # Check batch error handling
@@ -122,9 +120,7 @@ class TestSetupScripts:
         bat_content = setup_bat.read_text(encoding="utf-8")
 
         # Should contain correct project name
-        assert "pAIssive Income" in sh_content, (
-            "setup.sh should use 'pAIssive Income' project name"
-        )
+        assert "pAIssive Income" in sh_content, "setup.sh should use 'pAIssive Income' project name"
         assert "pAIssive Income" in bat_content, (
             "setup.bat should use 'pAIssive Income' project name"
         )
@@ -150,22 +146,14 @@ class TestSetupScripts:
         assert "cd " in sh_content, "setup.sh should change to script directory"
 
         # Batch script should use pushd/popd
-        assert "pushd" in bat_content, (
-            "setup.bat should use pushd for directory management"
-        )
-        assert "popd" in bat_content, (
-            "setup.bat should use popd for directory restoration"
-        )
+        assert "pushd" in bat_content, "setup.bat should use pushd for directory management"
+        assert "popd" in bat_content, "setup.bat should use popd for directory restoration"
 
     def test_python_setup_script_exists(self) -> None:
         """Test that the referenced Python setup script exists."""
-        python_script = (
-            PROJECT_ROOT / "scripts" / "setup" / "enhanced_setup_dev_environment.py"
-        )
+        python_script = PROJECT_ROOT / "scripts" / "setup" / "enhanced_setup_dev_environment.py"
         assert python_script.exists(), "enhanced_setup_dev_environment.py should exist"
-        assert python_script.is_file(), (
-            "enhanced_setup_dev_environment.py should be a regular file"
-        )
+        assert python_script.is_file(), "enhanced_setup_dev_environment.py should be a regular file"
 
     @pytest.mark.integration
     def test_setup_sh_dry_run(self) -> None:
@@ -197,9 +185,7 @@ class TestSetupScripts:
                 check=False,
             )
 
-            assert result.returncode == 0, (
-                f"setup.sh failed syntax check: {result.stderr}"
-            )
+            assert result.returncode == 0, f"setup.sh failed syntax check: {result.stderr}"
 
     def test_setup_scripts_have_informative_output(self) -> None:
         """Test that setup scripts provide informative output messages."""
@@ -214,9 +200,7 @@ class TestSetupScripts:
             assert "STEP 1" in content, "Scripts should have numbered steps"
             assert "STEP 2" in content, "Scripts should have numbered steps"
             assert "echo" in content, "Scripts should provide user feedback"
-            assert "WARNING:" in content, (
-                "Scripts should provide warnings when appropriate"
-            )
+            assert "WARNING:" in content, "Scripts should provide warnings when appropriate"
             assert "ERROR:" in content, "Scripts should provide error messages"
 
 

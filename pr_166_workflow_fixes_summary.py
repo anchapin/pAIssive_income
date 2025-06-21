@@ -54,9 +54,7 @@ def _log_header() -> None:
     log("")
 
 
-def _log_workflow_status(
-    valid_files: list[str], invalid_files: list[tuple[str, str]]
-) -> None:
+def _log_workflow_status(valid_files: list[str], invalid_files: list[tuple[str, str]]) -> None:
     """Log current workflow status."""
     log("CURRENT WORKFLOW STATUS")
     log("-" * 30)
@@ -174,9 +172,7 @@ def _log_next_steps() -> None:
     log("")
 
 
-def _log_success_metrics(
-    valid_files: list[str], invalid_files: list[tuple[str, str]]
-) -> None:
+def _log_success_metrics(valid_files: list[str], invalid_files: list[tuple[str, str]]) -> None:
     """Log success metrics."""
     log("SUCCESS METRICS")
     log("-" * 15)

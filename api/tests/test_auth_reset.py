@@ -41,9 +41,7 @@ def test_forgot_password_success(client: FlaskClient) -> None:
 
     """
     # Request a reset for a known user
-    resp = client.post(
-        "/api/auth/forgot-password", json={"email": "e2euser@example.com"}
-    )
+    resp = client.post("/api/auth/forgot-password", json={"email": "e2euser@example.com"})
     assert resp.status_code == HTTP_OK
     data = resp.get_json()
     assert "reset link will be sent" in data["message"].lower()
@@ -51,11 +49,7 @@ def test_forgot_password_success(client: FlaskClient) -> None:
     # Check that a token was generated in the database
     session = SessionLocal()
     try:
-        token = (
-            session.query(PasswordResetToken)
-            .filter_by(email="e2euser@example.com")
-            .first()
-        )
+        token = session.query(PasswordResetToken).filter_by(email="e2euser@example.com").first()
         assert token is not None
     finally:
         session.close()
@@ -69,9 +63,7 @@ def test_forgot_password_unknown_email(client: FlaskClient) -> None:
         client: Flask test client fixture.
 
     """
-    resp = client.post(
-        "/api/auth/forgot-password", json={"email": "notarealuser@fake.com"}
-    )
+    resp = client.post("/api/auth/forgot-password", json={"email": "notarealuser@fake.com"})
     assert resp.status_code == HTTP_OK
     data = resp.get_json()
     assert "reset link will be sent" in data["message"].lower()
@@ -92,9 +84,7 @@ def test_reset_password_success(client: FlaskClient) -> None:
     session = SessionLocal()
     try:
         token_record = (
-            session.query(PasswordResetToken)
-            .filter_by(email="e2euser@example.com")
-            .first()
+            session.query(PasswordResetToken).filter_by(email="e2euser@example.com").first()
         )
         assert token_record is not None
         token = token_record.token

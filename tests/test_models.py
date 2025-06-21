@@ -59,9 +59,7 @@ def test_agent_model(app: Flask) -> None:
     """Test the Agent model."""
     with app.app_context():
         # Create a team
-        team = Team(
-            name="Agent Model Test Team", description="A test team for agent model"
-        )
+        team = Team(name="Agent Model Test Team", description="A test team for agent model")
         db.session.add(team)
         db.session.commit()
 
@@ -93,19 +91,13 @@ def test_team_agent_relationship(app: Flask) -> None:
     """Test the relationship between Team and Agent models."""
     with app.app_context():
         # Create a team
-        team = Team(
-            name="Relationship Test Team", description="A test team for relationships"
-        )
+        team = Team(name="Relationship Test Team", description="A test team for relationships")
         db.session.add(team)
         db.session.commit()
 
         # Create agents
-        agent1 = Agent(
-            name="Agent 1", role="role1", description="Agent 1 description", team=team
-        )
-        agent2 = Agent(
-            name="Agent 2", role="role2", description="Agent 2 description", team=team
-        )
+        agent1 = Agent(name="Agent 1", role="role1", description="Agent 1 description", team=team)
+        agent2 = Agent(name="Agent 2", role="role2", description="Agent 2 description", team=team)
         db.session.add_all([agent1, agent2])
         db.session.commit()
 

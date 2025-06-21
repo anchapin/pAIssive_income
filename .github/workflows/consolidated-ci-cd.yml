@@ -908,7 +908,7 @@ jobs:
         run: |
           cd ui/react_frontend
           ls -la
-          npm install --no-optional --no-optional
+          npm install --no-optional
 
           # Install path-to-regexp explicitly first with a specific version
           echo "Installing path-to-regexp explicitly..."

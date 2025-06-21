@@ -37,9 +37,7 @@ def _safe_import(module_name: str, class_name: str) -> object | None:
         # Check if the module can be imported
         if importlib.util.find_spec(f"ai_models.adapters.{module_name}"):
             # Import the module
-            module = importlib.import_module(
-                f".{module_name}", package="ai_models.adapters"
-            )
+            module = importlib.import_module(f".{module_name}", package="ai_models.adapters")
             # Get the class from the module
             return getattr(module, class_name, None)
     except (ImportError, AttributeError):
@@ -51,9 +49,7 @@ def _safe_import(module_name: str, class_name: str) -> object | None:
 
 # Import adapters safely
 OllamaAdapter = _safe_import("ollama_adapter", "OllamaAdapter")
-OpenAICompatibleAdapter = _safe_import(
-    "openai_compatible_adapter", "OpenAICompatibleAdapter"
-)
+OpenAICompatibleAdapter = _safe_import("openai_compatible_adapter", "OpenAICompatibleAdapter")
 LMStudioAdapter = _safe_import("lmstudio_adapter", "LMStudioAdapter")
 TensorRTAdapter = _safe_import("tensorrt_adapter", "TensorRTAdapter")
 MCPAdapter = _safe_import("mcp_adapter", "MCPAdapter")

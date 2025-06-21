@@ -57,9 +57,7 @@ def sanitize_log_data(data: object) -> object:
 
         # Remove any control characters
         result = "".join(
-            char
-            for char in result
-            if ord(char) >= FIRST_PRINTABLE_ASCII or char in " \t"
+            char for char in result if ord(char) >= FIRST_PRINTABLE_ASCII or char in " \t"
         )
 
         # Apply sensitive data patterns
