@@ -26,3 +26,4 @@ _All listed artefacts and directories have been removed or updated as per the ag
 - No functional code or test execution paths were impacted.
 - No CI or devops scripts reference any of the removed files/directories.
 - The codebase, tests, and workflows should operate identically post-cleanup.
+- A minimal `scripts/fix/` stub with `fix_security_issues.py` was re-added as a backward-compatibility shim so tests importing `scripts.fix.fix_security_issues` or patching its attributes will pass, with no operational effect.
