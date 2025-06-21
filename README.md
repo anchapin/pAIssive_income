@@ -461,6 +461,8 @@ See [LICENSE](LICENSE) for license details.
 
 ## Recent Changes
 
+- **2024-06-13**: Aggressive pruning – removed legacy, experimental, and unused directories/scripts (see PR_AGGRESSIVE_PRUNING.md) to reduce repository bloat and improve maintainability. No functional/testing code paths were affected.
+
 ### uv and pnpm Implementation Updates
 - Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
 - Enhanced GitHub workflow configurations for better cross-platform compatibility
