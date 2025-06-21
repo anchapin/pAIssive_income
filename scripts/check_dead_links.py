@@ -56,14 +56,10 @@ def should_exclude(path: Path, ignore_patterns: List[str]) -> bool:
     return False
 
 
-<<<<<<< HEAD
-def find_markdown_files(root, ignore_patterns):
-    for dirpath, dirnames, filenames in os.walk(root):
-=======
 def find_markdown_files(root: Path, ignore_patterns: List[str]) -> Generator[Path, None, None]:
     """Find all markdown files in the repository, excluding gitignored files."""
-    for dirpath, dirnames, filenames in root.walk():
->>>>>>> main
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirpath = Path(dirpath)
         # Exclude .git and virtualenvs quickly
         if should_exclude(dirpath, ignore_patterns):
             dirnames[:] = []
@@ -74,13 +70,6 @@ def find_markdown_files(root: Path, ignore_patterns: List[str]) -> Generator[Pat
                 if not should_exclude(full, ignore_patterns):
                     yield full
 
-<<<<<<< HEAD
-
-LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
-INLINE_LINK_RE = re.compile(r"<(https?://[^>]+)>")
-
-=======
->>>>>>> main
 
 LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 INLINE_LINK_RE = re.compile(r"<(https?://[^>]+)>")
