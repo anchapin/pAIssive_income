@@ -9,9 +9,12 @@ import re
 import stat
 import threading
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from flask import Blueprint, Response, jsonify, request
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Use a safer path construction with Path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,9 +29,6 @@ MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
 
 # Thread safety
 _LOCK = threading.Lock()
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 
 # Custom exceptions
@@ -175,7 +175,7 @@ def save_settings(data: dict[str, Any]) -> None:
         raise
 
 
-def validate_server_data(server: dict[str, Any]) -> Optional[tuple[str, int]]:
+def validate_server_data(server: dict[str, Any]) -> tuple[str, int] | None:
     """
     Validate server data.
 

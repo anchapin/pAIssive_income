@@ -19,9 +19,11 @@ def test_mem0_import() -> bool | None:
         import mem0  # nosec B404  # Safe: test-only import, not user-supplied
 
         logger.info("Successfully imported mem0 version %s", mem0.__version__)
+    except ImportError:
+        logger.exception("Failed to import mem0")
+        return False
+    else:
         return True
-    except ImportError as e:
-        logger.error("Failed to import mem0: %s", e)
         return False
 
 

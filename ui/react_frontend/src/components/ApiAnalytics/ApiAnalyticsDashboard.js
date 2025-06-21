@@ -224,7 +224,7 @@ const ApiAnalyticsDashboard = () => {
             <Paper sx={{ p: 2 }}>
               <ApiUsageLineChart
                 data={requestsData}
-                dataKey="value"
+                dataKey="request_count"
                 name="API Requests"
                 color="#2196f3"
                 height={300}
@@ -239,7 +239,7 @@ const ApiAnalyticsDashboard = () => {
             <Paper sx={{ p: 2 }}>
               <ApiUsageLineChart
                 data={requestsData}
-                dataKey="value"
+                dataKey="avg_response_time"
                 name="Response Time"
                 color="#ff9800"
                 height={300}

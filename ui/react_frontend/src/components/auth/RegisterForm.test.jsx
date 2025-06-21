@@ -7,23 +7,23 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import RegisterForm from './RegisterForm';
 
 // Mock useAppContext and useFormValidation
-jest.mock('../../context/AppContext', () => ({
-  useAppContext: jest.fn()
+vi.mock('../../context/AppContext', () => ({
+  useAppContext: vi.fn()
 }));
-jest.mock('../../utils/validation', () => ({
-  useFormValidation: jest.fn(),
+vi.mock('../../utils/validation', () => ({
+  useFormValidation: vi.fn(),
   validationSchemas: { register: {} }
 }));
 
-const { useAppContext } = require('../../context/AppContext');
-const { useFormValidation } = require('../../utils/validation');
+import { useAppContext } from '../../context/AppContext';
+import { useFormValidation } from '../../utils/validation';
 
 describe('RegisterForm', () => {
   let registerMock;
   let formState;
 
   beforeEach(() => {
-    registerMock = jest.fn();
+    registerMock = vi.fn();
     useAppContext.mockReturnValue({ register: registerMock });
 
     formState = {
@@ -36,8 +36,8 @@ describe('RegisterForm', () => {
       },
       errors: {},
       touched: {},
-      handleChange: jest.fn(),
-      handleBlur: jest.fn(),
+      handleChange: vi.fn(),
+      handleBlur: vi.fn(),
       handleSubmit: (cb) => (e) => { e.preventDefault(); cb(formState.values); },
       isValid: false
     };
@@ -45,7 +45,7 @@ describe('RegisterForm', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders all input fields and register button', () => {
@@ -83,7 +83,7 @@ describe('RegisterForm', () => {
 
     registerMock.mockResolvedValueOnce(undefined);
 
-    render(<RegisterForm onSuccess={jest.fn()} />);
+    render(<RegisterForm onSuccess={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: /Register/i }));
 
     await waitFor(() => {
@@ -128,7 +128,7 @@ describe('RegisterForm', () => {
     formState.isValid = true;
     useFormValidation.mockReturnValue(formState);
 
-    const onSuccess = jest.fn();
+    const onSuccess = vi.fn();
     registerMock.mockResolvedValueOnce(undefined);
 
     render(<RegisterForm onSuccess={onSuccess} />);

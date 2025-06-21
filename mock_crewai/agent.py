@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .task import Task
 
 
 class Agent:
@@ -30,7 +33,7 @@ class Agent:
         self.backstory = backstory
         self.kwargs = kwargs
 
-    def execute_task(self, task: Any) -> str:
+    def execute_task(self, task: Task) -> str:
         """
         Execute a task and return a result.
 

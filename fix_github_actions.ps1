@@ -184,7 +184,9 @@ directories.forEach(dir => {
 });
 
 // Create a minimal coverage report if it doesn't exist
-const coverageSummaryPath = path.join(process.cwd(), 'coverage', 'coverage-summary.json');
+const coverageSummaryPath = path.join(process.cwd(),
+'coverage',
+'coverage-summary.json');
 if (!fs.existsSync(coverageSummaryPath)) {
   try {
     const coverageData = {

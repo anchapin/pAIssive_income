@@ -20,14 +20,14 @@ from __future__ import annotations
 import logging
 import os
 
-# Initialize logger
-logger = logging.getLogger(__name__)
-
 # Import standard ADK components
 from adk.agent import Agent
 from adk.communication import Message
 from adk.memory import SimpleMemory
 from adk.skill import Skill
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 # Import memory-enhanced agents
 try:
@@ -37,7 +37,11 @@ try:
         MemoryEnhancedSummarizerAgent,
     )
 except ImportError:
-    MEM0_AVAILABLE = False
+    mem0_available = False
+    MemoryEnhancedDataGathererAgent = None
+    MemoryEnhancedSummarizerAgent = None
+else:
+    mem0_available = MEM0_AVAILABLE
 
 
 class DataGathererSkill(Skill):
@@ -190,18 +194,24 @@ def create_agents(
         A tuple containing (data_gatherer, summarizer) agents
 
     """
-    if use_memory and MEM0_AVAILABLE:
+    if use_memory and mem0_available and MemoryEnhancedDataGathererAgent is not None:
         if not user_id:
             user_id = "default_user"
             logger.warning("No user_id provided, using 'default_user'")
 
-        logger.info(f"Creating memory-enhanced agents with user_id: {user_id}")
+        logger.info("Creating memory-enhanced agents with user_id: %s", user_id)
         data_gatherer = MemoryEnhancedDataGathererAgent(
             name="data_gatherer", user_id=user_id
         )
-        summarizer = MemoryEnhancedSummarizerAgent(name="summarizer", user_id=user_id)
+        if MemoryEnhancedSummarizerAgent is not None:
+            summarizer = MemoryEnhancedSummarizerAgent(
+                name="summarizer", user_id=user_id
+            )
+        else:
+            # Fallback to standard agent if memory-enhanced version is not available
+            summarizer = SummarizerAgent(name="summarizer")
     else:
-        if use_memory and not MEM0_AVAILABLE:
+        if use_memory and not mem0_available:
             logger.warning("mem0 not available, falling back to standard agents")
 
         logger.info("Creating standard agents without memory enhancement")
@@ -219,7 +229,7 @@ if __name__ == "__main__":
     )
 
     # Check if mem0 is available
-    if not MEM0_AVAILABLE:
+    if not mem0_available:
         logger.warning("mem0 is not installed. Install with: pip install mem0ai")
 
     # Create agents with memory enhancement if available

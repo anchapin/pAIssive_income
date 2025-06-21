@@ -1,0 +1,9 @@
+CI mode activated at 2025-06-16T19:06:06.853Z
+Path-to-regexp available: Yes
+Node.js: v22.16.0
+Platform: linux
+Working directory: /home/anchapin/pAIssive_income_main/pAIssive_income/ui/react_frontend
+CI environment: Yes
+GitHub Actions: Yes
+Docker environment: No
+Windows environment: No

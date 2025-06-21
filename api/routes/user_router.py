@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 
 # Type checking imports
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from flask import Blueprint, jsonify, request
 
@@ -28,7 +28,7 @@ user_service = UserService(token_secret=TOKEN_SECRET)
 
 
 @user_bp.route("/", methods=["POST"])
-def create_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+def create_user() -> tuple[Response, int] | tuple[WerkzeugResponse, int]:
     """
     Create a new user.
 
@@ -61,7 +61,7 @@ def create_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
 
 
 @user_bp.route("/authenticate", methods=["POST"])
-def authenticate_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+def authenticate_user() -> tuple[Response, int] | tuple[WerkzeugResponse, int]:
     """
     Authenticate a user.
 

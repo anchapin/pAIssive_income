@@ -3,12 +3,19 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ResetPasswordForm from './ResetPasswordForm';
 import { MemoryRouter } from 'react-router-dom';
 
+// Test wrapper component with just Router (Material-UI is mocked in setup)  
+const TestWrapper = ({ children }) => (
+  <MemoryRouter>
+    {children}
+  </MemoryRouter>
+);
+
 describe('ResetPasswordForm', () => {
   it('renders form and resets password successfully', async () => {
     render(
-      <MemoryRouter>
+      <TestWrapper>
         <ResetPasswordForm />
-      </MemoryRouter>
+      </TestWrapper>
     );
     fireEvent.change(screen.getByLabelText(/new password/i), { target: { value: 'abc123456' } });
     fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'abc123456' } });
@@ -20,9 +27,9 @@ describe('ResetPasswordForm', () => {
 
   it('shows error if passwords do not match', async () => {
     render(
-      <MemoryRouter>
+      <TestWrapper>
         <ResetPasswordForm />
-      </MemoryRouter>
+      </TestWrapper>
     );
     fireEvent.change(screen.getByLabelText(/new password/i), { target: { value: 'abc123456' } });
     fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'different' } });
@@ -32,9 +39,9 @@ describe('ResetPasswordForm', () => {
 
   it('shows error if password is too short', async () => {
     render(
-      <MemoryRouter>
+      <TestWrapper>
         <ResetPasswordForm />
-      </MemoryRouter>
+      </TestWrapper>
     );
     fireEvent.change(screen.getByLabelText(/new password/i), { target: { value: 'short' } });
     fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'short' } });
@@ -44,9 +51,9 @@ describe('ResetPasswordForm', () => {
 
   it('shows "Back to login" link', () => {
     render(
-      <MemoryRouter>
+      <TestWrapper>
         <ResetPasswordForm />
-      </MemoryRouter>
+      </TestWrapper>
     );
     expect(screen.getByRole('link', { name: /back to login/i })).toBeInTheDocument();
   });

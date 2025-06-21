@@ -10,8 +10,9 @@ import platform
 import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
+from collections.abc import Collection, Mapping
 from pathlib import Path
-from typing import IO, Any, Collection, Mapping
+from typing import IO, Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -226,7 +227,7 @@ def check_venv_exists() -> bool:
 
 def _safe_subprocess_run(
     cmd: list[str],
-    **kwargs: Any,  # noqa: ANN401
+    **kwargs: Any,
 ) -> subprocess.CompletedProcess[Any]:
     """Run subprocess.run with filtered/normalized kwargs. Only for trusted commands, shell is always False."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]

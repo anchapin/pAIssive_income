@@ -4,14 +4,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Initialize logger
-logger = logging.getLogger(__name__)
-
 from agent_team.mem0_enhanced_agents import (
     CREWAI_AVAILABLE,
     MEM0_AVAILABLE,
     MemoryEnhancedCrewAIAgentTeam,
 )
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 """
 Tests for mem0-enhanced agents.
@@ -48,27 +48,27 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         )
         self.memory_patcher.start()
 
-        # Patch the Crew class
+        # Patch the Crew class in the crewai_agents module
         self.crew_mock = MagicMock()
         self.crew_mock.kickoff.return_value = "Test workflow result"
         self.crew_patcher = patch(
-            "agent_team.mem0_enhanced_agents.Crew",
+            "agent_team.crewai_agents.Crew",
             return_value=self.crew_mock,
         )
         self.crew_patcher.start()
 
-        # Patch the Agent class
+        # Patch the Agent class in the crewai_agents module
         self.agent_mock = MagicMock()
         self.agent_patcher = patch(
-            "agent_team.mem0_enhanced_agents.Agent",
+            "agent_team.crewai_agents.Agent",
             return_value=self.agent_mock,
         )
         self.agent_patcher.start()
 
-        # Patch the Task class
+        # Patch the Task class in the crewai_agents module
         self.task_mock = MagicMock()
         self.task_patcher = patch(
-            "agent_team.mem0_enhanced_agents.Task",
+            "agent_team.crewai_agents.Task",
             return_value=self.task_mock,
         )
         self.task_patcher.start()

@@ -1,0 +1,159 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# GitHub Actions Workflow Guidelines
+
+This rule ensures proper YAML syntax, PowerShell compatibility, and workflow best practices for GitHub Actions.
+
+## **YAML Syntax Requirements**
+
+- **Proper Indentation**: Use 2 spaces for indentation, never tabs
+- **Consistent Spacing**: Always use spaces around colons and after commas
+- **Quote Strings**: Quote strings containing special characters, variables, or multiline content
+- **Escape Special Characters**: Properly escape quotes, pipes, and other YAML special characters
+
+## **PowerShell Environment Variables**
+
+- **Correct Syntax**: Use `$env:GITHUB_ENV` (no space after `env:`)
+- **Output Variables**: Use `$env:GITHUB_OUTPUT` (no space after `env:`)
+
+```yaml
+# ✅ DO: Correct PowerShell environment variable syntax
+echo "VAR_NAME=value" >> $env:GITHUB_ENV
+echo "output_name=value" >> $env:GITHUB_OUTPUT
+
+# ❌ DON'T: Incorrect syntax with spaces
+echo "VAR_NAME=value" >> $env: GITHUB_ENV
+echo "output_name=value" >> $env: GITHUB_OUTPUT
+```
+
+## **Multiline String Handling**
+
+- **Use Literal Block Scalars**: Use `|` for multiline scripts
+- **Proper Quoting**: Quote complex multiline strings
+- **Escape Quotes**: Use proper escaping for nested quotes
+
+```yaml
+# ✅ DO: Proper multiline string formatting
+run: |
+  echo "Starting process..."
+  if [ -f "file.txt" ]; then
+    echo "File exists"
+  fi
+
+# ✅ DO: Quoted multiline for complex content
+run: |
+  echo '{"key": "value"}' > file.json
+  echo "Created JSON file"
+
+# ❌ DON'T: Unquoted complex strings
+run: echo '{"key": "value"}' > file.json
+```
+
+## **Workflow Structure**
+
+- **Job Dependencies**: Use `needs:` to define job dependencies
+- **Conditional Execution**: Use proper `if:` conditions with quotes
+- **Matrix Strategy**: Define matrix builds correctly
+- **Permissions**: Set appropriate permissions for each job
+
+```yaml
+# ✅ DO: Proper job structure
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+```
+
+## **Cross-Platform Compatibility**
+
+- **OS-Specific Steps**: Use `if: runner.os == 'Windows'` conditions
+- **Shell Selection**: Specify shell for cross-platform scripts
+- **Path Handling**: Use forward slashes or OS-specific path handling
+
+```yaml
+# ✅ DO: Cross-platform step handling
+- name: Install dependencies (Windows)
+  if: runner.os == 'Windows'
+  shell: pwsh
+  run: |
+    Write-Host "Installing on Windows..."
+
+- name: Install dependencies (Unix)
+  if: runner.os != 'Windows'
+  shell: bash
+  run: |
+    echo "Installing on Unix..."
+```
+
+## **Error Handling**
+
+- **Continue on Error**: Use `continue-on-error: true` for non-critical steps
+- **Timeout Settings**: Set appropriate `timeout-minutes`
+- **Fallback Commands**: Use `||` for command fallbacks
+
+```yaml
+# ✅ DO: Proper error handling
+- name: Run tests
+  continue-on-error: true
+  timeout-minutes: 30
+  run: |
+    npm test || echo "Tests failed but continuing..."
+```
+
+## **Security Best Practices**
+
+- **Secret Management**: Use `${{ secrets.SECRET_NAME }}` for sensitive data
+- **Minimal Permissions**: Grant only necessary permissions
+- **Input Validation**: Validate inputs and parameters
+
+## **Common Anti-Patterns to Avoid**
+
+```yaml
+# ❌ DON'T: Malformed YAML structure
+run: '# Comment
+  command1
+  command2
+  '
+
+# ❌ DON'T: Incorrect PowerShell syntax
+echo "value" >> $env: GITHUB_ENV
+
+# ❌ DON'T: Unescaped special characters
+run: echo '{"results": [], "errors": []}' > file.json
+
+# ❌ DON'T: Missing quotes in conditions
+if: github.ref == refs/heads/main
+```
+
+## **Validation Steps**
+
+1. **YAML Linting**: Always validate YAML syntax before committing
+2. **Local Testing**: Test workflows locally when possible
+3. **Incremental Changes**: Make small, testable changes
+4. **Review Logs**: Check workflow logs for syntax errors
+
+## **File References**
+
+- Main workflow: [consolidated-ci-cd.yml](mdc:.github/workflows/consolidated-ci-cd.yml)
+- Frontend tests: [frontend-e2e.yml](mdc:.github/workflows/frontend-e2e.yml)
+- Security scanning: [security-testing.yml](mdc:.github/workflows/security-testing.yml)
+
+## **Troubleshooting**
+
+When workflows fail:
+1. Check YAML syntax with a validator
+2. Verify PowerShell environment variable syntax
+3. Ensure proper quoting of strings with special characters
+4. Validate multiline string formatting
+5. Check for proper indentation and spacing
