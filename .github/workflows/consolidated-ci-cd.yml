@@ -141,7 +141,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          echo "Installing Node.js dependencies..."
+          echo "Installing Node.js dependencies (skipping optional dependencies)..."
 
           # Ensure package.json exists
           if [ ! -f "package.json" ]; then
@@ -149,13 +149,13 @@ jobs:
             exit 1
           fi
 
-          # Install dependencies with fallback options
-          echo "Attempting to install dependencies with pnpm..."
-          if ! pnpm install --frozen-lockfile; then
-            echo "Frozen lockfile install failed, trying without frozen lockfile..."
-            if ! pnpm install; then
-              echo "pnpm install failed, trying with npm..."
-              npm install
+          # Install dependencies with fallback options, always skipping optional dependencies
+          echo "Attempting to install dependencies with pnpm (using --no-optional)..."
+          if ! pnpm install --frozen-lockfile --no-optional; then
+            echo "Frozen lockfile install failed, trying pnpm without frozen lockfile (still skipping optional dependencies)..."
+            if ! pnpm install --no-optional; then
+              echo "pnpm install failed, trying with npm (also skipping optional dependencies)..."
+              npm install --no-optional
             fi
           fi
 
