@@ -202,7 +202,6 @@ mypy_typing_report.txt
 ruff_typing_report.json
 ruff-baseline.txt
 
-
 # Frontend test artifacts and reports
 ui/react_frontend/ci-reports/
 ui/react_frontend/logs/
