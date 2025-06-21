@@ -1,10 +1,16 @@
 import js from '@eslint/js';
+import pluginPrettier from "eslint-plugin-prettier";
 
 export default [
+  // 1. Base config
   js.configs.recommended,
+
+  // 2. Ignores: node_modules, dist, build
   {
     ignores: ['**/node_modules/**', '**/dist/**', '**/build/**'],
   },
+
+  // 3. Main JS file rules block
   {
     files: ['**/*.js'],
     languageOptions: {
@@ -72,8 +78,14 @@ export default [
       'no-unreachable': 'warn',
     },
   },
+
+  // 4. Test files globals block
   {
-    files: ['**/*.test.js', '**/*.spec.js', '**/*.test.jsx', '**/*.spec.jsx', '**/*.test.ts', '**/*.spec.ts'],
+    files: [
+      '**/*.test.js', '**/*.spec.js',
+      '**/*.test.jsx', '**/*.spec.jsx',
+      '**/*.test.ts', '**/*.spec.ts'
+    ],
     languageOptions: {
       globals: {
         // Jest globals
@@ -94,6 +106,8 @@ export default [
       },
     },
   },
+
+  // 5. JSX/TSX file parser/global block
   {
     files: ['**/*.jsx', '**/*.tsx'],
     languageOptions: {
@@ -108,6 +122,8 @@ export default [
       },
     },
   },
+
+  // 6. tailwind_utils.js rule override block
   {
     files: ['ui/tailwind_utils.js'],
     rules: {
@@ -115,6 +131,8 @@ export default [
       'no-unused-vars': 'off',
     },
   },
+
+  // 7. Ignores list block (duplicates, broad patterns, etc.)
   {
     ignores: [
       'node_modules/',
@@ -129,5 +147,12 @@ export default [
       '*.bak',
       'tatus', // Seems to be a git status output file
     ],
+  },
+
+  // 8. Prettier integration block
+  {
+    plugins: { prettier: pluginPrettier },
+    rules: { "prettier/prettier": "error" },
+    extends: ["plugin:prettier/recommended"],
   },
 ];

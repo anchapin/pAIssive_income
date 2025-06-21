@@ -28,3 +28,23 @@ pre-commit:
 
 all: lint format fix docstring-fix syntax-fix security test pre-commit
 	@echo "All code quality, security, and pre-commit checks have been run."
+
+# --- Standardized Python/JS/TS quality targets (chore/config-consolidation) ---
+
+# Python linting/formatting
+lint-py:
+	uv run ruff .
+format-py:
+	uv run black .
+	uv run ruff format .
+
+# JS/TS linting/formatting (pnpm required)
+lint-js:
+	pnpm eslint "**/*.{js,jsx,ts,tsx}"
+format-js:
+	pnpm prettier --write "**/*.{js,jsx,ts,tsx,json,css,md}"
+
+# Unified test target (Python & JS/TS)
+test-all:
+	uv run python -m pytest
+	pnpm vitest run
