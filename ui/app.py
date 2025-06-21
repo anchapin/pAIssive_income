@@ -81,13 +81,16 @@ def create_app() -> Flask:
         if not isinstance(data, dict) or "type" not in data:
             return jsonify({"error": "Missing required field 'type'"}), 400
 
+        # Fetch agent_id outside the lock to avoid holding it during potential I/O.
+        agent_id = data.get("agentId", get_agent().id)
+
         with _ACTION_LOCK:
             action_id = _ACTION_ID_COUNTER
             _ACTION_ID_COUNTER += 1
             action = {
                 "id": action_id,
                 "type": data["type"],
-                "agentId": data.get("agentId", get_agent().id),
+                "agentId": agent_id,
                 "payload": data.get("payload"),
             }
             _ACTIONS.append(action)

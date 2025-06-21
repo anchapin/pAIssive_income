@@ -18,13 +18,13 @@ def test_health(client):
 
 def test_cors_headers(client):
     # Test CORS for the primary POST endpoint
+    origin = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")[0].strip()
     resp = client.options("/api/agent/action", headers={
-        "Origin": os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")[0].strip(),
+        "Origin": origin,
         "Access-Control-Request-Method": "POST",
     })
     assert resp.status_code == 200
-    expected_origin = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")[0].strip()
-    assert resp.headers.get("Access-Control-Allow-Origin") == expected_origin
+    assert resp.headers.get("Access-Control-Allow-Origin") == origin
 
 def test_get_agent(client):
     resp = client.get("/api/agent")

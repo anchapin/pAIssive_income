@@ -469,17 +469,3 @@ See `ui/README.md` for more details.
 
 ### JavaScript Dependencies
 - Updated react-router-dom from 7.6.0 to 7.6.2 (June 2025) - includes bug fixes and performance improvements
-
-```
-- Endpoints:
-  - `GET /health`: Health check.
-  - `GET /api/agent`: Returns agent object.
-  - `POST /api/agent/action`: Accepts `{type, agentId?, payload?}` JSON, logs action in memory, returns incremental action_id.
-
-See `ui/README.md` for more details.
-- Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
-- Enhanced GitHub workflow configurations for better cross-platform compatibility
-- Improved uv virtual environment handling and dependency management
-
-### JavaScript Dependencies
-- Updated react-router-dom from 7.6.0 to 7.6.2 (June 2025) - includes bug fixes and performance improvements
