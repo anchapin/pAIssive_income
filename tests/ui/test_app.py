@@ -6,6 +6,11 @@ from ui.app import create_app
 
 @pytest.fixture
 def client():
+    # Reset global state from ui.app to ensure test isolation
+    import ui.app
+    ui.app._ACTIONS.clear()
+    ui.app._ACTION_ID_COUNTER = 1
+
     app = create_app()
     app.config['TESTING'] = True
     with app.test_client() as client:

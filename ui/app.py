@@ -55,7 +55,6 @@ def create_app() -> Flask:
     """Create and configure Flask app with routes and CORS."""
     app = Flask(__name__)
     CORS(app, resources={r"/*": {"origins": _parse_allowed_origins()}})
-    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
     @app.route("/health", methods=["GET"])
