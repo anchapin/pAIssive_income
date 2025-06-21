@@ -1,7 +1,9 @@
-"""schema_builder - Module for api/graphql.schema_builder."""
+"""Builds the Strawberry GraphQL schema for math tools."""
 
-# Standard library imports
+from __future__ import annotations
 
-# Third-party imports
+import strawberry
 
-# Local imports
+from api.graphql.schemas.math_schema import Query
+
+schema = strawberry.Schema(query=Query)
