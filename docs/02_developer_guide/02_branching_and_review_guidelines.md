@@ -12,8 +12,8 @@ Clear development guidelines are essential to maintain code quality, enable effi
   - Features: `feature/&lt;issue-id&gt;-&lt;short-desc&gt;` (e.g., `feature/123-add-login`)
   - Bugfixes: `bugfix/&lt;issue-id&gt;-&lt;short-desc&gt;`
   - Hotfixes: `hotfix/&lt;issue-id&gt;-&lt;short-desc&gt;`
-  - Documentation: `docs/&lt;short-desc&gt;`
-  - Chores/maintenance: `chore/&lt;short-desc&gt;`
+  - Documentation: `docs/&lt;issue-id&gt;-&lt;short-desc&gt;`
+  - Chores/maintenance: `chore/&lt;issue-id&gt;-&lt;short-desc&gt;`
 
 - **Branch Rules:**
   - Always branch off the latest `main` (or default) branch.
