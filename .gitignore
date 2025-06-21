@@ -234,3 +234,7 @@ test.txt
 # Compressed security reports (originals are already tracked)
 security-reports/compressed/
 test-report.json
+
+# macOS specific (fix for CodeQL pathsIgnore issue)
+Icon*
+**/Icon*
