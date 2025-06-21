@@ -132,9 +132,7 @@ class TestSarifUtils(unittest.TestCase):
             assert sarif_data["runs"][0]["tool"]["driver"]["name"] == "TestTool"
             assert len(sarif_data["runs"][0]["results"]) == 1
             assert sarif_data["runs"][0]["results"][0]["ruleId"] == "test-rule"
-            assert (
-                sarif_data["runs"][0]["results"][0]["message"]["text"] == "Test message"
-            )
+            assert sarif_data["runs"][0]["results"][0]["message"]["text"] == "Test message"
 
     def test_list_json_input_file(self) -> None:
         """Test with a JSON input file containing a list instead of a dict."""

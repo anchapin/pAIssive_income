@@ -11,9 +11,7 @@ from __future__ import annotations
 class DirectoryPermissionError(PermissionError):
     """Exception raised when there are insufficient permissions to read a directory."""
 
-    def __init__(
-        self, message: str = "Insufficient permissions to read directory"
-    ) -> None:
+    def __init__(self, message: str = "Insufficient permissions to read directory") -> None:
         """
         Initialize the exception.
 

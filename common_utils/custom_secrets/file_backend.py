@@ -42,9 +42,7 @@ class FileBackend:
 
         # Don't store the actual authentication material
         # Only store whether we have valid authentication
-        self._has_auth = (auth_material is not None) or (
-            "PAISSIVE_AUTH_KEY" in os.environ
-        )
+        self._has_auth = (auth_material is not None) or ("PAISSIVE_AUTH_KEY" in os.environ)
 
         # If we don't have authentication material, log a warning
         if not self._has_auth:

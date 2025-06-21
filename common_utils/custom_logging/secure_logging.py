@@ -103,9 +103,7 @@ def is_sensitive_key(key: str) -> bool:
     return any(term in key_lower for term in sensitive_terms)
 
 
-def mask_sensitive_data(
-    data: object, mask_char: str = "*", visible_chars: int = 4
-) -> object:
+def mask_sensitive_data(data: object, mask_char: str = "*", visible_chars: int = 4) -> object:
     """
     Mask sensitive data in logs to prevent logging of sensitive information.
 
@@ -207,9 +205,7 @@ def _mask_string(value: str, mask_char: str = "*", visible_chars: int = 4) -> st
     return f"{prefix}{mask_char * masked_length}{suffix}"
 
 
-def _mask_pattern(
-    text: str, pattern: Pattern, mask_char: str = "*", visible_chars: int = 4
-) -> str:
+def _mask_pattern(text: str, pattern: Pattern, mask_char: str = "*", visible_chars: int = 4) -> str:
     """
     Mask text that matches a specific regex pattern.
 
@@ -390,9 +386,7 @@ class SecureLogger:
         self, stack_info: bool = False, stacklevel: int = 1
     ) -> tuple[str, int, str, str | None]:
         """Find the caller's source file and line number."""
-        result: tuple[str, int, str, str | None] = self.logger.findCaller(
-            stack_info, stacklevel
-        )
+        result: tuple[str, int, str, str | None] = self.logger.findCaller(stack_info, stacklevel)
         return result
 
     # Standard logging compatibility aliases

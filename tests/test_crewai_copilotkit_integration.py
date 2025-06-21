@@ -8,9 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Check if crewai is installed
 crewai_available = False
@@ -63,16 +61,12 @@ def test_crewai_copilotkit_integration_docs():
         assert "CopilotKit + CrewAI Integration" in content, (
             "Documentation does not contain the expected title"
         )
-        assert "Overview" in content, (
-            "Documentation does not contain the Overview section"
-        )
+        assert "Overview" in content, "Documentation does not contain the Overview section"
         assert "Implementation Details" in content, (
             "Documentation does not contain the Implementation Details section"
         )
         assert "Usage" in content, "Documentation does not contain the Usage section"
-        assert "Resources" in content, (
-            "Documentation does not contain the Resources section"
-        )
+        assert "Resources" in content, "Documentation does not contain the Resources section"
 
     if os.path.exists(ui_docs_path):
         with open(ui_docs_path) as f:
@@ -85,12 +79,8 @@ def test_crewai_copilotkit_integration_docs():
         assert "Implementation Details" in content, (
             "Documentation does not contain the Implementation Details section"
         )
-        assert "Quick Start" in content, (
-            "Documentation does not contain the Quick Start section"
-        )
-        assert "Testing" in content, (
-            "Documentation does not contain the Testing section"
-        )
+        assert "Quick Start" in content, "Documentation does not contain the Quick Start section"
+        assert "Testing" in content, "Documentation does not contain the Testing section"
 
     logging.info("CrewAI and CopilotKit integration documentation test passed")
 
@@ -107,9 +97,7 @@ def test_crewai_copilotkit_frontend_component():
         "CopilotChat.jsx",
     )
 
-    assert os.path.exists(component_path), (
-        "CrewAI and CopilotKit frontend component not found"
-    )
+    assert os.path.exists(component_path), "CrewAI and CopilotKit frontend component not found"
 
     # If the component exists, check its content
     with open(component_path) as f:
@@ -120,9 +108,7 @@ def test_crewai_copilotkit_frontend_component():
     assert "import { CopilotKitProvider } from" in content, (
         "Component does not import CopilotKitProvider"
     )
-    assert "import { CopilotChat } from" in content, (
-        "Component does not import CopilotChat"
-    )
+    assert "import { CopilotChat } from" in content, "Component does not import CopilotChat"
     assert "CopilotKitProvider" in content, "Component does not use CopilotKitProvider"
     assert "CopilotChat" in content, "Component does not use CopilotChat"
 
@@ -150,9 +136,7 @@ def test_crewai_copilotkit_frontend_test():
     # Check that the test contains the expected imports and tests
     assert "import React from" in content, "Test does not import React"
     assert "import { render" in content, "Test does not import render"
-    assert "import CopilotChatDemo from" in content, (
-        "Test does not import CopilotChatDemo"
-    )
+    assert "import CopilotChatDemo from" in content, "Test does not import CopilotChatDemo"
     assert "describe(" in content, "Test does not contain a describe block"
     assert "it(" in content, "Test does not contain any test cases"
 

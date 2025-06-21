@@ -50,9 +50,7 @@ def validate_input(model_cls: type[T], data: object) -> T:
         model_instance = model_cls.model_validate(data)
         # Verify the instance is of the correct type without using assert
         if not isinstance(model_instance, model_cls):
-            error_msg = (
-                f"Expected {model_cls.__name__}, got {type(model_instance).__name__}"
-            )
+            error_msg = f"Expected {model_cls.__name__}, got {type(model_instance).__name__}"
             raise TypeError(error_msg)
     except PydanticValidationError as exc:
         raise ValidationError from exc

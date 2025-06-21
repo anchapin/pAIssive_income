@@ -31,8 +31,7 @@ class Config:
 
     # Disable reloader in container or production environments
     USE_RELOADER = DEBUG and (
-        os.environ.get("FLASK_ENV") == "development"
-        and not bool(os.environ.get("CONTAINER"))
+        os.environ.get("FLASK_ENV") == "development" and not bool(os.environ.get("CONTAINER"))
     )
 
     # Force disable debug mode in container environments
@@ -74,9 +73,7 @@ class Config:
 
     # Performance logging thresholds (in milliseconds)
     LOG_SLOW_REQUEST_THRESHOLD: int = 1000  # Log requests taking more than 1 second
-    LOG_VERY_SLOW_REQUEST_THRESHOLD = (
-        3000  # Log detailed info for requests over 3 seconds
-    )
+    LOG_VERY_SLOW_REQUEST_THRESHOLD = 3000  # Log detailed info for requests over 3 seconds
 
     # Audit logging settings
     LOG_AUDIT_EVENTS = True  # Enable audit logging

@@ -274,9 +274,7 @@ def test_handle_list_no_sensitive_keys() -> None:
             # Verify secure hash format
             if msg.startswith("  Secret #"):
                 # Hash should be sufficiently long
-                assert len(msg) >= MIN_HASH_LENGTH, (
-                    f"Secret hash too short: {len(msg)} chars"
-                )
+                assert len(msg) >= MIN_HASH_LENGTH, f"Secret hash too short: {len(msg)} chars"
                 # Hash should be printable ASCII
                 assert all(c.isascii() and c.isprintable() for c in msg), (
                     "Hash contains non-printable or non-ASCII characters"
@@ -337,11 +335,7 @@ def should_exclude_path(path: str) -> bool:
 
 def _check_excluded_directories(path_parts: list[str]) -> bool:
     """Check if any path part matches excluded directories."""
-    return any(
-        _matches_pattern(exclude, part)
-        for part in path_parts
-        for exclude in EXCLUDE_DIRS
-    )
+    return any(_matches_pattern(exclude, part) for part in path_parts for exclude in EXCLUDE_DIRS)
 
 
 def _check_excluded_files(file_name: str) -> bool:

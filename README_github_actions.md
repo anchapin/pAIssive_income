@@ -61,6 +61,7 @@ with elevated permissions granted only where needed:
    - Uses uv for faster, more reliable dependency installation
    - Implements robust caching strategy
    - Fallback mechanisms for dependency installation
+   - Skips optional dependencies during `npm install` to prevent conflicts and improve stability (see PR #338).
 
 2. **Cross-Platform Testing**:
    - Comprehensive testing across all major operating systems

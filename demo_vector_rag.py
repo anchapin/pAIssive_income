@@ -51,7 +51,6 @@ def canonicalize_text(text: str) -> str:
     return " ".join(text.split())
 
 
-
 def canonical_doc_hash(user_id: str, content: str, metadata: dict) -> str:
     """
     Create a canonical hash for deduplication.
@@ -77,8 +76,7 @@ def prepare_document(
     """
     doc_out = {}
     doc_out["id"] = (
-        doc.get("id")
-        or hashlib.sha256(json.dumps(doc, sort_keys=True).encode()).hexdigest()
+        doc.get("id") or hashlib.sha256(json.dumps(doc, sort_keys=True).encode()).hexdigest()
     )
     doc_out["content"] = doc.get("content", "")
     doc_out["user_id"] = doc.get("user_id", user_id or "global")
@@ -190,9 +188,7 @@ def embed_and_insert_documents_with_dedup(
             metadatas=[
                 {
                     **doc["metadata"],
-                    "user_id": doc[
-                        "user_id"
-                    ],  # Ensure user_id is in metadata for filtering
+                    "user_id": doc["user_id"],  # Ensure user_id is in metadata for filtering
                     "canonical_hash": doc_hash,
                 }
             ],
@@ -204,13 +200,8 @@ def embed_and_insert_documents_with_dedup(
 
 
 # Insert demo documents (deduplication and canonicalization applied)
-inserted, skipped = embed_and_insert_documents_with_dedup(
-    demo_documents, embedder, collection
-)
-logger.info(
-    "\nInserted %d documents, skipped %d duplicates.", len(inserted), len(skipped)
-)
-
+inserted, skipped = embed_and_insert_documents_with_dedup(demo_documents, embedder, collection)
+logger.info("\nInserted %d documents, skipped %d duplicates.", len(inserted), len(skipped))
 
 
 # 7. Retrieval: Context propagation and metadata filtering example
@@ -279,9 +270,7 @@ def test_deduplication_and_metadata() -> None:
         "user_id": "global",
         "metadata": {"type": "fact", "source": "demo", "lang": "en"},
     }
-    inserted, skipped = embed_and_insert_documents_with_dedup(
-        [duplicate], embedder, collection
-    )
+    inserted, skipped = embed_and_insert_documents_with_dedup([duplicate], embedder, collection)
     if len(inserted) != 0:
         logger.error("Deduplication failed: duplicate was inserted.")
         msg = "Deduplication failed: duplicate was inserted."
@@ -299,9 +288,7 @@ def test_deduplication_and_metadata() -> None:
         "user_id": "global",
         "metadata": {"type": "fact", "source": "wikipedia", "lang": "en"},
     }
-    inserted, skipped = embed_and_insert_documents_with_dedup(
-        [new_doc], embedder, collection
-    )
+    inserted, skipped = embed_and_insert_documents_with_dedup([new_doc], embedder, collection)
     if len(inserted) != 1:
         logger.error("Unique document was not inserted.")
         msg = "Unique document was not inserted."

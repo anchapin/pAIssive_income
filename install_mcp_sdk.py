@@ -21,9 +21,7 @@ MIN_PYTHON_MAJOR = 3
 MIN_PYTHON_MINOR = 8
 
 # Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -103,14 +101,11 @@ def install_mcp_packages() -> None:
 
     # Check if we're in a CI environment
     is_ci = any(
-        env_var in os.environ
-        for env_var in ["CI", "GITHUB_ACTIONS", "TRAVIS", "JENKINS_URL"]
+        env_var in os.environ for env_var in ["CI", "GITHUB_ACTIONS", "TRAVIS", "JENKINS_URL"]
     )
 
     if is_ci:
-        logger.info(
-            "Running in CI environment - using more conservative installation approach"
-        )
+        logger.info("Running in CI environment - using more conservative installation approach")
 
     # Try installing with pip first
     for package in packages:
@@ -126,17 +121,13 @@ def install_mcp_packages() -> None:
 
         if not success:
             # Try with uv if available
-            uv_available = run_command(
-                "which uv || where uv", check=False, capture_output=True
-            )
+            uv_available = run_command("which uv || where uv", check=False, capture_output=True)
             if uv_available:
                 logger.info("Trying to install %s with uv...", package)
                 uv_cmd = f"uv pip install {package}"
                 if is_ci:
                     uv_cmd += " --no-cache"
-                success = run_command(
-                    uv_cmd, f"Installing {package} with uv", check=False
-                )
+                success = run_command(uv_cmd, f"Installing {package} with uv", check=False)
 
         if success:
             logger.info("Successfully installed %s", package)
@@ -279,9 +270,7 @@ def main() -> int:
 
     except (OSError, ImportError):
         logger.exception("Installation error")
-        logger.info(
-            "Installation failed, but this may not prevent the build from continuing"
-        )
+        logger.info("Installation failed, but this may not prevent the build from continuing")
 
     return 0  # Return 0 to not fail the CI build
 

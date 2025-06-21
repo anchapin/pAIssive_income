@@ -8,9 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Check if crewai is installed
 crewai_available = False
@@ -110,8 +108,9 @@ def test_crewai_agentic_reasoning_tool_selection_logging(caplog):
     # Add a task with a description that should trigger calculator tool selection
     agent_team.add_task(description="Calculate 2 + 2", agent=agent)
 
-    with patch.object(agent_team, "_create_crew") as mock_create_crew, caplog.at_level(
-        "INFO", logger="agentic_reasoning"
+    with (
+        patch.object(agent_team, "_create_crew") as mock_create_crew,
+        caplog.at_level("INFO", logger="agentic_reasoning"),
     ):
         mock_crew = MagicMock()
         mock_crew.kickoff.return_value = "Calculation complete"
@@ -173,9 +172,7 @@ def test_crewai_agent_team_with_custom_agents():
                 backstory="Expert researcher",
             )
 
-            agent_team.add_agent(
-                role="Writer", goal="Write the report", backstory="Expert writer"
-            )
+            agent_team.add_agent(role="Writer", goal="Write the report", backstory="Expert writer")
 
             # Verify the agents were added
             assert len(agent_team.agents) == 2

@@ -25,9 +25,7 @@ ALLOWED_COMMANDS: set[str] = {
 }
 
 
-def validate_command(
-    command: list[str], allow_shell: bool = False
-) -> tuple[list[str], bool]:
+def validate_command(command: list[str], allow_shell: bool = False) -> tuple[list[str], bool]:
     """
     Validate and sanitize a command before execution.
 

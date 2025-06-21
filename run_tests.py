@@ -193,11 +193,17 @@ def count_tests(validated_args: list[str]) -> int:
         )
     else:
         if result.returncode != 0:
-            logger.warning(
-                "Test collection failed with return code %d", result.returncode
-            )
+            logger.warning("Test collection failed with return code %d", result.returncode)
+            # Print stdout and stderr directly to ensure visibility
+            if result.stdout:
+                print("--- Pytest Collection STDOUT ---", file=sys.stderr)
+                print(result.stdout, file=sys.stderr)
+                print("--- End Pytest Collection STDOUT ---", file=sys.stderr)
             if result.stderr:
-                logger.debug("Collection error: %s", result.stderr)
+                print("--- Pytest Collection STDERR ---", file=sys.stderr)
+                print(result.stderr, file=sys.stderr)
+                print("--- End Pytest Collection STDERR ---", file=sys.stderr)
+                logger.debug("Collection error (also logged to stderr above): %s", result.stderr) # Keep debug log too
             test_count = default_test_count if has_test_files else 0
         else:
             test_count = _parse_test_collection_output(result.stdout, has_test_files)
@@ -238,9 +244,7 @@ def run_pytest_with_workers(validated_args: list[str], num_workers: int) -> int:
             capture_output=True,
         )
         if result.returncode not in [0, 1, 2, 3, 4, 5]:
-            logger.warning(
-                "Pytest exited with unexpected return code: %d", result.returncode
-            )
+            logger.warning("Pytest exited with unexpected return code: %d", result.returncode)
             if result.stdout:
                 logger.info("Pytest stdout: %s", result.stdout)
             if result.stderr:
@@ -279,9 +283,7 @@ def ensure_security_reports_dir() -> None:
     if _ensure_dir_exists(temp_dir, f"security-reports in temp location: {temp_dir}"):
         _try_create_symlink(temp_dir, "security-reports")
         return
-    logger.warning(
-        "Could not create any security-reports directory; continuing without it."
-    )
+    logger.warning("Could not create any security-reports directory; continuing without it.")
 
 
 def _ensure_dir_exists(path: Path, description: str) -> bool:
@@ -402,16 +404,46 @@ def ensure_pytest_xdist_installed() -> None:
             logger.info("Successfully installed pytest-xdist")
         else:
             logger.warning(
-                "Failed to install pytest-xdist. Will run tests without parallelization."
+                "Failed to install pytest-xdist using %s. Will run tests without parallelization.",
+                "uv" if use_uv else "pip",
             )
             if install_result.stderr:
-                logger.debug(
-                    "Installation error: %s",
-                    install_result.stderr,
+                logger.error(
+                    "Installation error (stderr):\n%s",
+                    install_result.stderr.strip(),
                 )
+            if install_result.stdout:
+                logger.info(
+                    "Installation output (stdout):\n%s",
+                    install_result.stdout.strip(),
+                )
+
+            if use_uv: # Attempt pip fallback if uv failed
+                logger.info("Attempting to install pytest-xdist with pip as a fallback...")
+                pip_install_cmd = [sys.executable, "-m", "pip", "install", "pytest-xdist"]
+                pip_install_result = _safe_subprocess_run(
+                    pip_install_cmd,
+                    capture_output=True,
+                    shell=False,
+                )
+                if pip_install_result.returncode == 0:
+                    logger.info("Successfully installed pytest-xdist with pip.")
+                else:
+                    logger.warning("Failed to install pytest-xdist with pip as well.")
+                    if pip_install_result.stderr:
+                        logger.error(
+                            "Pip installation error (stderr):\n%s",
+                            pip_install_result.stderr.strip(),
+                        )
+                    if pip_install_result.stdout:
+                        logger.info(
+                            "Pip installation output (stdout):\n%s",
+                            pip_install_result.stdout.strip(),
+                        )
+
     except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
         logger.warning(
-            "Error checking for pytest-xdist: %s. Will run tests without parallelization.",
+            "Error during pytest-xdist installation check/attempt: %s. Will run tests without parallelization.",
             e,
         )
     except (OSError, FileNotFoundError) as e:
@@ -436,13 +468,9 @@ def main() -> None:
             logger.warning(
                 "Not running in a virtual environment. This may cause issues with pytest."
             )
-            logger.info(
-                "Continuing anyway, but consider running in a virtual environment."
-            )
+            logger.info("Continuing anyway, but consider running in a virtual environment.")
             if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
-                logger.info(
-                    "CI environment detected. Will proceed without virtual environment."
-                )
+                logger.info("CI environment detected. Will proceed without virtual environment.")
     ensure_pytest_xdist_installed()
     ensure_security_reports_dir()
     validated_args = validate_args(sys.argv[1:])

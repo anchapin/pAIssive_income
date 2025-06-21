@@ -153,10 +153,7 @@ class EnhancedArtistAgent(ArtistAgent):
         if any(k in prompt_lower for k in ["expand", "distribute", "multiply out"]):
             return "expand_expression"
 
-        if any(
-            k in prompt_lower
-            for k in ["calculate", "compute", "evaluate", "+", "-", "*", "/"]
-        ):
+        if any(k in prompt_lower for k in ["calculate", "compute", "evaluate", "+", "-", "*", "/"]):
             return "calculator"
 
         return ""

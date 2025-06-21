@@ -33,9 +33,7 @@ def test_flask_app_import() -> bool:
         logger.info("Flask app created successfully")
         logger.info("   App name: %s", app.name)
         logger.info("   Testing mode: %s", app.config.get("TESTING", False))
-        logger.info(
-            "   Database URI: %s", app.config.get("SQLALCHEMY_DATABASE_URI", "Not set")
-        )
+        logger.info("   Database URI: %s", app.config.get("SQLALCHEMY_DATABASE_URI", "Not set"))
         with app.app_context():
             from app_flask import db
 
@@ -127,9 +125,7 @@ def _filter_subprocess_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
     return filtered
 
 
-def _safe_subprocess_run(
-    cmd: list[str], **kwargs: object
-) -> subprocess.CompletedProcess[object]:
+def _safe_subprocess_run(cmd: list[str], **kwargs: object) -> subprocess.CompletedProcess[object]:
     """Run subprocess.run with filtered/normalized kwargs. Only for trusted commands, shell is always False."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     filtered_kwargs = _filter_subprocess_kwargs(kwargs)  # type: ignore[arg-type]
@@ -143,9 +139,7 @@ def _safe_subprocess_run(
     )
 
 
-def run_subprocess(
-    cmd: list[str], **kwargs: object
-) -> subprocess.CompletedProcess[object]:
+def run_subprocess(cmd: list[str], **kwargs: object) -> subprocess.CompletedProcess[object]:
     """Run subprocess only for trusted commands, with strict argument filtering and type safety. shell is always False."""
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     allowed_binaries = {sys.executable, "pytest"}
@@ -226,9 +220,7 @@ def main() -> bool:
     logger.info("Working directory: %s", Path.cwd())
     logger.info("Python path: %s...", sys.path[:3])
     if not Path("app_flask").exists():
-        logger.error(
-            "Error: app_flask directory not found. Are you in the project root?"
-        )
+        logger.error("Error: app_flask directory not found. Are you in the project root?")
         return False
     if not Path("tests").exists():
         logger.error("Error: tests directory not found. Are you in the project root?")

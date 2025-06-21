@@ -26,9 +26,7 @@ class User(db.Model):  # type: ignore[name-defined]
         """
         return f"<User {self.username}>"
 
-    def __init__(
-        self, username: str, email: str, password_hash: str, **kwargs: object
-    ) -> None:
+    def __init__(self, username: str, email: str, password_hash: str, **kwargs: object) -> None:
         """
         Initialize a User instance.
 
@@ -54,14 +52,10 @@ class Team(db.Model):  # type: ignore[name-defined]
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(
-        db.DateTime, server_default=db.func.now(), onupdate=db.func.now()
-    )
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     # Relationships
-    agents = db.relationship(
-        "Agent", back_populates="team", cascade="all, delete-orphan"
-    )
+    agents = db.relationship("Agent", back_populates="team", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         """
@@ -99,9 +93,7 @@ class Agent(db.Model):  # type: ignore[name-defined]
     description = db.Column(db.String(255))
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(
-        db.DateTime, server_default=db.func.now(), onupdate=db.func.now()
-    )
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     # Relationships
     team = db.relationship("Team", backref=db.backref("agents", lazy=True))

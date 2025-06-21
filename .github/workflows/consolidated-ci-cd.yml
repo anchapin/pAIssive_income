@@ -150,12 +150,12 @@ jobs:
           fi
 
           # Install dependencies with fallback options
-          echo "Attempting to install dependencies with pnpm..."
-          if ! pnpm install --frozen-lockfile; then
-            echo "Frozen lockfile install failed, trying without frozen lockfile..."
-            if ! pnpm install; then
-              echo "pnpm install failed, trying with npm..."
-              npm install
+          echo "Attempting to install dependencies with pnpm (skipping optional)..."
+          if ! pnpm install --frozen-lockfile --no-optional; then
+            echo "Frozen lockfile install failed, trying without frozen lockfile (skipping optional)..."
+            if ! pnpm install --no-optional; then
+              echo "pnpm install failed, trying with npm (skipping optional)..."
+              npm install --no-optional
             fi
           fi
 
@@ -906,13 +906,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Create necessary directories first
-          mkdir -p logs
-          mkdir -p playwright-report
-          mkdir -p test-results
-
-          # Install dependencies but ignore optional dependencies to avoid issues with @ag-ui-protocol/ag-ui
-          pnpm install --no-optional
+          cd ui/react_frontend
+          ls -la
+          npm install --no-optional
 
           # Install path-to-regexp explicitly first with a specific version
           echo "Installing path-to-regexp explicitly..."

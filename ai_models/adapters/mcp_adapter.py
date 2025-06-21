@@ -46,9 +46,7 @@ logger = logging.getLogger(__name__)
 class HostFormatError(ValueError):
     """Raised when host format is invalid."""
 
-    MESSAGE = (
-        "Host must contain only alphanumeric characters, dots, underscores, and dashes"
-    )
+    MESSAGE = "Host must contain only alphanumeric characters, dots, underscores, and dashes"
 
     def __init__(self) -> None:
         """Initialize the error with a standard message."""

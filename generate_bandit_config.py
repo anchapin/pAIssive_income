@@ -19,9 +19,7 @@ import sys
 from pathlib import Path
 
 # Configure logging with timestamp
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Constants
@@ -252,9 +250,7 @@ def generate_config_files(bandit_dir: Path, run_id: str) -> bool:
                 continue
 
             # Generate platform-specific configuration file with run ID
-            config_path_with_run_id = (
-                bandit_dir / f"bandit-config-{platform}-{run_id}.yaml"
-            )
+            config_path_with_run_id = bandit_dir / f"bandit-config-{platform}-{run_id}.yaml"
             if not write_config_file(config_path_with_run_id, BANDIT_CONFIG_TEMPLATE):
                 success = False
                 continue

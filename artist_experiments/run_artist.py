@@ -46,12 +46,10 @@ def home() -> dict:
         dict: Welcome message.
 
     """
-    return jsonify(
-        {
-            "message": "Welcome to ARTIST Experiments",
-            "description": "This service provides endpoints for running ARTIST experiments.",
-        }
-    )
+    return jsonify({
+        "message": "Welcome to ARTIST Experiments",
+        "description": "This service provides endpoints for running ARTIST experiments.",
+    })
 
 
 @app.route("/experiments", methods=["GET"])
@@ -63,22 +61,20 @@ def list_experiments() -> dict:
         dict: List of available experiments.
 
     """
-    return jsonify(
-        {
-            "experiments": [
-                {
-                    "id": "math-problem-solving",
-                    "name": "Mathematical Problem Solving",
-                    "description": "Experiment for solving mathematical problems using ARTIST.",
-                },
-                {
-                    "id": "multi-api-orchestration",
-                    "name": "Multi-API Orchestration",
-                    "description": "Experiment for orchestrating multiple APIs using ARTIST.",
-                },
-            ]
-        }
-    )
+    return jsonify({
+        "experiments": [
+            {
+                "id": "math-problem-solving",
+                "name": "Mathematical Problem Solving",
+                "description": "Experiment for solving mathematical problems using ARTIST.",
+            },
+            {
+                "id": "multi-api-orchestration",
+                "name": "Multi-API Orchestration",
+                "description": "Experiment for orchestrating multiple APIs using ARTIST.",
+            },
+        ]
+    })
 
 
 if __name__ == "__main__":
@@ -86,9 +82,7 @@ if __name__ == "__main__":
     try:
         port = int(port_str)
     except ValueError:
-        logger.warning(
-            "Invalid PORT environment variable: %s, defaulting to 5000", port_str
-        )
+        logger.warning("Invalid PORT environment variable: %s, defaulting to 5000", port_str)
         port = 5000
     # Only enable debug and 0.0.0.0 binding if explicitly set for development
     debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"

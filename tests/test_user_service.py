@@ -88,9 +88,11 @@ def test_create_user(mock_hash):
     )
 
     # Set up the mocks
-    with patch("users.services.UserModel", MockUser), patch(
-        "users.services.db_session"
-    ), patch.object(MockUser, "query") as mock_query:
+    with (
+        patch("users.services.UserModel", MockUser),
+        patch("users.services.db_session"),
+        patch.object(MockUser, "query") as mock_query,
+    ):
         # Create a mock filter that returns None for first() to indicate no existing user
         mock_filter = MagicMock()
         mock_filter.first.return_value = None
@@ -161,9 +163,7 @@ def test_create_user_with_both_duplicate():
     with patch("users.services.UserModel") as mock_user_model:
         mock_query = MagicMock()
         mock_filter = MagicMock()
-        existing_user = MockUser(
-            user_id=1, username="testuser", email="test@example.com"
-        )
+        existing_user = MockUser(user_id=1, username="testuser", email="test@example.com")
         mock_filter.first.return_value = existing_user
         mock_query.filter.return_value = mock_filter
         mock_user_model.query.return_value = mock_query

@@ -97,13 +97,9 @@ def create_research_team(user_id: str) -> MemoryEnhancedCrewAIAgentTeam:
         agent=researcher,
     )
 
-    team.add_task(
-        description="Design an AI tool based on the market research", agent=developer
-    )
+    team.add_task(description="Design an AI tool based on the market research", agent=developer)
 
-    team.add_task(
-        description="Create a monetization strategy for the AI tool", agent=monetization
-    )
+    team.add_task(description="Create a monetization strategy for the AI tool", agent=monetization)
 
     return team
 
@@ -142,16 +138,12 @@ def run_example() -> None:  # noqa: C901
 
             logger.info("Retrieved %d memories:", len(memories))
             for i, memory in enumerate(memories):
-                logger.info(
-                    "Memory %d: %s...", i + 1, memory.get("text", "No text")[:100]
-                )
+                logger.info("Memory %d: %s...", i + 1, memory.get("text", "No text")[:100])
         except Exception:
             logger.exception("Error retrieving memories")
 
     # --- New: Demonstrate retrieval using KnowledgeIntegrationLayer ---
-    logger.info(
-        "=== Using KnowledgeIntegrationLayer for unified knowledge querying ==="
-    )
+    logger.info("=== Using KnowledgeIntegrationLayer for unified knowledge querying ===")
     try:
         # Import the integration layer and sources
         from interfaces.knowledge_interfaces import (
@@ -163,27 +155,17 @@ def run_example() -> None:  # noqa: C901
 
         # Stub/mock clients for demonstration (replace with real clients as needed)
         class DummyMem0Client:
-            def search(
-                self, query: str, _user_id: str, **_kwargs: object
-            ) -> list[dict[str, str]]:
+            def search(self, query: str, _user_id: str, **_kwargs: object) -> list[dict[str, str]]:
                 return [{"source": "mem0", "content": f"dummy mem0 for '{query}'"}]
 
-            def add(
-                self, content: str, _user_id: str, **_kwargs: object
-            ) -> dict[str, str]:
+            def add(self, content: str, _user_id: str, **_kwargs: object) -> dict[str, str]:
                 return {"status": "added", "content": content}
 
         class DummyVectorClient:
-            def query(
-                self, query: str, _user_id: str, **_kwargs: object
-            ) -> list[dict[str, str]]:
-                return [
-                    {"source": "vector_rag", "content": f"dummy vector for '{query}'"}
-                ]
+            def query(self, query: str, _user_id: str, **_kwargs: object) -> list[dict[str, str]]:
+                return [{"source": "vector_rag", "content": f"dummy vector for '{query}'"}]
 
-            def add(
-                self, content: str, _user_id: str, **_kwargs: object
-            ) -> dict[str, str]:
+            def add(self, content: str, _user_id: str, **_kwargs: object) -> dict[str, str]:
                 return {"status": "added", "content": content}
 
         mem0_source = Mem0KnowledgeSource(DummyMem0Client())

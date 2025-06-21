@@ -103,9 +103,7 @@ def calculator(expression: str) -> object:
             n > MAX_EXPONENT_VALUE
             for n in [float(x) for x in re.findall(r"\d+", expression) if x.isdigit()]
         ):
-            return (
-                f"Error: Exponentiation with values > {MAX_EXPONENT_VALUE} not allowed"
-            )
+            return f"Error: Exponentiation with values > {MAX_EXPONENT_VALUE} not allowed"
         try:
             return ast.literal_eval(expression)
         except (ValueError, SyntaxError):

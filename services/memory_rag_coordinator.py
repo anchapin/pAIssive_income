@@ -83,9 +83,7 @@ class MemoryRAGCoordinator:
 
             self._mem0_memory = Memory()
         except ImportError:
-            logger.warning(
-                "mem0ai package is not installed. Install with: uv pip install mem0ai"
-            )
+            logger.warning("mem0ai package is not installed. Install with: uv pip install mem0ai")
         except Exception:
             logger.exception("Failed to initialize mem0 Memory")
 
@@ -200,9 +198,7 @@ class MemoryRAGCoordinator:
             )
 
             formatted = []
-            for doc, dist, doc_id, meta in zip(
-                docs, dists, ids, metadatas, strict=False
-            ):
+            for doc, dist, doc_id, meta in zip(docs, dists, ids, metadatas, strict=False):
                 entry = {
                     "content": doc,
                     "score": dist,
@@ -257,9 +253,7 @@ class MemoryRAGCoordinator:
         if source == "chroma":
             current_relevance_value = self._normalize_chroma_score(original_score)
         elif source == "mem0":
-            current_relevance_value = self._normalize_mem0_score(
-                original_score, original_relevance
-            )
+            current_relevance_value = self._normalize_mem0_score(original_score, original_relevance)
         else:
             # Unknown source, default to 0.0
             current_relevance_value = 0.0
@@ -297,9 +291,7 @@ class MemoryRAGCoordinator:
                 deduped[key] = r
         return deduped
 
-    def _merge_results(
-        self, mem0_results: list[dict], chroma_results: list[dict]
-    ) -> list[dict]:
+    def _merge_results(self, mem0_results: list[dict], chroma_results: list[dict]) -> list[dict]:
         """
         Merge, deduplicate, and resolve conflicts between mem0 and ChromaDB results.
 
@@ -315,9 +307,7 @@ class MemoryRAGCoordinator:
 
         # Sort by descending relevance, then most recent timestamp
         merged = list(deduped.values())
-        merged.sort(
-            key=lambda x: (-x.get("relevance", 0.0), -(x.get("timestamp") or 0))
-        )
+        merged.sort(key=lambda x: (-x.get("relevance", 0.0), -(x.get("timestamp") or 0)))
         return merged
 
     def _estimate_cost(self, results: list[dict]) -> float:  # noqa: ARG002

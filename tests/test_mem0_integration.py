@@ -67,9 +67,7 @@ MemoryEnhancedAgent = type(
             setattr(self, "memory", Memory() if Memory is not None else None),
             setattr(self, "user_id", user_id),
         ),
-        "store_memory": lambda self, content: self.memory.add(
-            content, user_id=self.user_id
-        )
+        "store_memory": lambda self, content: self.memory.add(content, user_id=self.user_id)
         if self.memory
         else None,
         "retrieve_relevant_memories": lambda self, query: self.memory.search(
@@ -79,8 +77,7 @@ MemoryEnhancedAgent = type(
         else [],
         "_format_relevant_memories": _format_relevant_memories,
         "process_message": lambda self, message: (
-            self._format_relevant_memories(message)
-            + Agent.process_message(self, message)
+            self._format_relevant_memories(message) + Agent.process_message(self, message)
             if hasattr(Agent, "process_message")
             else ""
         ),
@@ -116,9 +113,7 @@ def test_mem0_dependencies():
     if failed_deps:
         for dep in failed_deps:
             logger.exception(f"Failed to import {dep}")
-    assert not failed_deps, (
-        f"Not all required dependencies are installed: {failed_deps}"
-    )
+    assert not failed_deps, f"Not all required dependencies are installed: {failed_deps}"
 
 
 def _is_module_available(module_name: str) -> bool:

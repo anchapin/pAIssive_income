@@ -68,9 +68,7 @@ def ensure_security_reports_dir() -> None:
 
                 temp_dir = Path(tempfile.gettempdir()) / "security-reports"
                 temp_dir.mkdir(parents=True, exist_ok=True)
-                logger.info(
-                    "Created security-reports directory in temp location: %s", temp_dir
-                )
+                logger.info("Created security-reports directory in temp location: %s", temp_dir)
                 # Create a symlink or junction to the temp directory
                 if platform.system() == "Windows":
                     # Use directory junction on Windows
@@ -142,15 +140,9 @@ def create_empty_json_files() -> bool:
         results_ini_file = reports_dir / "bandit-results-ini.json"
         _write_json_file(results_file, empty_json_data)
         _write_json_file(results_ini_file, empty_json_data)
-        logger.info(
-            "Created empty JSON files at %s and %s", results_file, results_ini_file
-        )
-        if not (
-            _validate_json_file(results_file) and _validate_json_file(results_ini_file)
-        ):
-            logger.warning(
-                "JSON validation failed. Recreating files with simpler JSON."
-            )
+        logger.info("Created empty JSON files at %s and %s", results_file, results_ini_file)
+        if not (_validate_json_file(results_file) and _validate_json_file(results_ini_file)):
+            logger.warning("JSON validation failed. Recreating files with simpler JSON.")
             simple_json = {"results": [], "errors": []}
             _write_json_file(results_file, simple_json)
             _write_json_file(results_ini_file, simple_json)
@@ -173,9 +165,7 @@ def create_empty_json_files() -> bool:
                 security_reports_dir = Path("security-reports")
                 if not security_reports_dir.exists():
                     security_reports_dir.mkdir(parents=True, exist_ok=True)
-                shutil.copy(
-                    temp_results_file, security_reports_dir / "bandit-results.json"
-                )
+                shutil.copy(temp_results_file, security_reports_dir / "bandit-results.json")
                 shutil.copy(
                     temp_results_ini_file,
                     security_reports_dir / "bandit-results-ini.json",
@@ -305,14 +295,10 @@ def _safe_subprocess_run(
             or (
                 k == "env"
                 and isinstance(v, Mapping)
-                and all(
-                    isinstance(k2, str) and isinstance(v2, str) for k2, v2 in v.items()
-                )
+                and all(isinstance(k2, str) and isinstance(v2, str) for k2, v2 in v.items())
             )
             or (
-                k == "pass_fds"
-                and isinstance(v, Collection)
-                and all(isinstance(i, int) for i in v)
+                k == "pass_fds" and isinstance(v, Collection) and all(isinstance(i, int) for i in v)
             )
         ):
             filtered_kwargs[k] = v
@@ -325,9 +311,7 @@ def run_bandit(cmd: list[str], **kwargs: object) -> subprocess.CompletedProcess[
     # Convert any Path objects in cmd to str
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     allowed_binaries = {sys.executable, "bandit", "cmd", "cmd.exe"}
-    if not cmd or (
-        cmd[0] not in allowed_binaries and not str(cmd[0]).endswith("bandit")
-    ):
+    if not cmd or (cmd[0] not in allowed_binaries and not str(cmd[0]).endswith("bandit")):
         msg = f"Untrusted or unsupported command: {cmd}"
         raise ValueError(msg)
     supported_kwargs = {
@@ -351,9 +335,7 @@ def run_bandit(cmd: list[str], **kwargs: object) -> subprocess.CompletedProcess[
         "restore_signals",
         "creationflags",
     }
-    filtered_kwargs: dict[str, Any] = {
-        k: v for k, v in kwargs.items() if k in supported_kwargs
-    }
+    filtered_kwargs: dict[str, Any] = {k: v for k, v in kwargs.items() if k in supported_kwargs}
     if "cwd" in filtered_kwargs and isinstance(filtered_kwargs["cwd"], Path):
         filtered_kwargs["cwd"] = str(filtered_kwargs["cwd"])
     # Only add if type matches subprocess.run signature
@@ -409,9 +391,7 @@ if __name__ == "__main__":
         # bandit_path is either a full path from shutil.which or the string "bandit"
         # nosec S603 - This is a safe subprocess call with no user input, shell=False, and validated arguments. Explicitly set check=False.
         cmd = [str(bandit_path), "--version"]
-        _safe_subprocess_run(
-            cmd, shell=False, check=False, capture_output=True, text=True
-        )
+        _safe_subprocess_run(cmd, shell=False, check=False, capture_output=True, text=True)
     except (FileNotFoundError, subprocess.SubprocessError):
         logger.info("Installing bandit...")
         # nosec B603 - subprocess call is used with shell=False and validated arguments
@@ -442,9 +422,7 @@ if __name__ == "__main__":
                 # nosec B603: trusted input, command is fixed and not user-controlled
                 # nosec S603 - This is a safe subprocess call with no user input, shell=False, and validated arguments. Explicitly set check=False.
                 cmd = [str(bandit_path), "-c", str(bandit_config), "-r", "."]
-                _safe_subprocess_run(
-                    cmd, shell=False, check=False, capture_output=True, text=True
-                )
+                _safe_subprocess_run(cmd, shell=False, check=False, capture_output=True, text=True)
                 logger.info("Bandit scan completed with configuration file")
             except (
                 subprocess.SubprocessError,
@@ -455,16 +433,12 @@ if __name__ == "__main__":
                 # Create empty JSON files as fallback
                 create_empty_json_files()
         else:
-            logger.info(
-                "No bandit.yaml configuration file found, using default configuration"
-            )
+            logger.info("No bandit.yaml configuration file found, using default configuration")
             try:
                 # nosec B603: trusted input, command is fixed and not user-controlled
                 # nosec S603 - This is a safe subprocess call with no user input, shell=False, and validated arguments. Explicitly set check=False.
                 cmd = [str(bandit_path), "-r", "."]
-                _safe_subprocess_run(
-                    cmd, shell=False, check=False, capture_output=True, text=True
-                )
+                _safe_subprocess_run(cmd, shell=False, check=False, capture_output=True, text=True)
                 logger.info("Bandit scan completed with default configuration")
             except (
                 subprocess.SubprocessError,
@@ -478,9 +452,7 @@ if __name__ == "__main__":
         # Verify the JSON file exists and is valid
         bandit_results = Path("security-reports/bandit-results.json")
         if not bandit_results.exists() or bandit_results.stat().st_size == 0:
-            logger.warning(
-                "Bandit did not generate a valid JSON file. Creating fallback."
-            )
+            logger.warning("Bandit did not generate a valid JSON file. Creating fallback.")
             create_empty_json_files()
         else:
             # Check if the JSON file is valid
@@ -497,9 +469,7 @@ if __name__ == "__main__":
                 )
                 logger.info("Copied bandit-results.json to bandit-results-ini.json")
             except (json.JSONDecodeError, OSError, FileNotFoundError) as e:
-                logger.warning(
-                    "JSON validation failed: %s. Creating fallback files.", e
-                )
+                logger.warning("JSON validation failed: %s. Creating fallback files.", e)
                 create_empty_json_files()
 
         logger.info("Bandit configuration test passed!")

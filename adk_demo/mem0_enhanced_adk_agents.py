@@ -54,9 +54,7 @@ except ImportError:
     class Message:  # Inherit from object explicitly
         """Placeholder for Message class when ADK is not installed."""
 
-        def __init__(
-            self, message_type: str, payload: dict[str, Any], sender: str
-        ) -> None:
+        def __init__(self, message_type: str, payload: dict[str, Any], sender: str) -> None:
             """Initialize placeholder message."""
             self.type = message_type
             self.payload = payload
@@ -298,16 +296,12 @@ class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
             self.memory.add(content, user_id=self.user_id, metadata=metadata or {})
             logger.debug(
                 "Memory stored: %s",
-                content[:50] + "..."
-                if isinstance(content, str)
-                else "Conversation stored",
+                content[:50] + "..." if isinstance(content, str) else "Conversation stored",
             )
         except Exception:
             logger.exception("Error storing memory")
 
-    def _retrieve_relevant_memories(
-        self, query: str, limit: int = 5
-    ) -> list[dict[str, Any]]:
+    def _retrieve_relevant_memories(self, query: str, limit: int = 5) -> list[dict[str, Any]]:
         """
         Retrieve relevant memories for a query.
 
@@ -324,9 +318,7 @@ class MemoryEnhancedAgent(Agent):  # type: ignore[reportGeneralTypeIssues]
 
         try:
             # Search for relevant memories
-            search_result = self.memory.search(
-                query=query, user_id=self.user_id, limit=limit
-            )
+            search_result = self.memory.search(query=query, user_id=self.user_id, limit=limit)
             # Ensure we return a list of dictionaries
             return search_result if isinstance(search_result, list) else []
         except Exception:
@@ -407,12 +399,8 @@ if __name__ == "__main__":
         logger.error("mem0 is not installed. Install with: pip install mem0ai")
     else:
         # Create memory-enhanced agents
-        gatherer = MemoryEnhancedDataGathererAgent(
-            name="DataGatherer", user_id="example_user"
-        )
-        summarizer = MemoryEnhancedSummarizerAgent(
-            name="Summarizer", user_id="example_user"
-        )
+        gatherer = MemoryEnhancedDataGathererAgent(name="DataGatherer", user_id="example_user")
+        summarizer = MemoryEnhancedSummarizerAgent(name="Summarizer", user_id="example_user")
 
         # Create a gather message
         gather_message = Message(
@@ -440,8 +428,6 @@ if __name__ == "__main__":
             summary_response = summarizer.handle_message(summarize_message)
 
             if summary_response:
-                logger.info(
-                    "Received summary: %s", summary_response.payload.get("summary", "")
-                )
+                logger.info("Received summary: %s", summary_response.payload.get("summary", ""))
         else:
             logger.error("No response received from data gatherer agent")

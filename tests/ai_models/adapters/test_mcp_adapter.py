@@ -33,34 +33,27 @@ class TestMCPAdapter:
 
     def test_init_with_invalid_host(self, mock_mcp):  # noqa: ARG002
         """Test initialization with invalid host."""
-        with pytest.raises(
-            ValueError, match="Host must contain only alphanumeric characters"
-        ):
+        with pytest.raises(ValueError, match="Host must contain only alphanumeric characters"):
             MCPAdapter(host="local;host", port=9000)
 
     def test_init_with_invalid_port_type(self, mock_mcp):  # noqa: ARG002
         """Test initialization with invalid port type."""
-        with pytest.raises(
-            ValueError, match="Port must be an integer between 1 and 65535"
-        ):
+        with pytest.raises(ValueError, match="Port must be an integer between 1 and 65535"):
             MCPAdapter(host="localhost", port="9000")  # type: ignore[arg-type]
 
     def test_init_with_invalid_port_range(self, mock_mcp):  # noqa: ARG002
         """Test initialization with invalid port range."""
-        with pytest.raises(
-            ValueError, match="Port must be an integer between 1 and 65535"
-        ):
+        with pytest.raises(ValueError, match="Port must be an integer between 1 and 65535"):
             MCPAdapter(host="localhost", port=0)
 
-        with pytest.raises(
-            ValueError, match="Port must be an integer between 1 and 65535"
-        ):
+        with pytest.raises(ValueError, match="Port must be an integer between 1 and 65535"):
             MCPAdapter(host="localhost", port=65536)
 
     def test_init_with_missing_mcp(self):
         """Test initialization with missing MCP module."""
-        with patch("ai_models.adapters.mcp_adapter.mcp", None), pytest.raises(
-            ModelContextProtocolError
+        with (
+            patch("ai_models.adapters.mcp_adapter.mcp", None),
+            pytest.raises(ModelContextProtocolError),
         ):
             MCPAdapter(host="localhost", port=9000)
 
@@ -114,9 +107,7 @@ class TestMCPAdapter:
 
         mock_mcp.Client.return_value.send_message.side_effect = Exception("Send error")
 
-        with pytest.raises(
-            ConnectionError, match="Error communicating with MCP server"
-        ):
+        with pytest.raises(ConnectionError, match="Error communicating with MCP server"):
             adapter.send_message("Hello")
 
         assert adapter.client is None  # Client should be reset on error
@@ -146,9 +137,7 @@ class TestMCPAdapter:
         adapter = MCPAdapter(host="localhost", port=9000)
         adapter.client = mock_mcp.Client.return_value
 
-        mock_mcp.Client.return_value.disconnect.side_effect = Exception(
-            "Disconnect error"
-        )
+        mock_mcp.Client.return_value.disconnect.side_effect = Exception("Disconnect error")
 
         adapter.close()  # Should not raise an exception
 
