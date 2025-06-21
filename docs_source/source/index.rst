@@ -4,7 +4,7 @@ Welcome to pAIssive Income's Documentation!
 **pAIssive Income** is a comprehensive toolkit for finding, developing, monetizing, and marketing AI-powered passive income opportunities.
 python -m pAIssive_income
 
-.. toctree:
+.. toctree::
    :maxdepth: 2
    :caption: Contents:
 
@@ -15,6 +15,14 @@ python -m pAIssive_income
    api/index
    contributing
    changelog
+
+Module Overviews
+================
+
+.. toctree::
+   :maxdepth: 2
+
+   module_overviews/index
 
 Indices and tables
 ================
