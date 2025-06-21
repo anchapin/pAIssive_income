@@ -194,8 +194,16 @@ def count_tests(validated_args: list[str]) -> int:
     else:
         if result.returncode != 0:
             logger.warning("Test collection failed with return code %d", result.returncode)
+            # Print stdout and stderr directly to ensure visibility
+            if result.stdout:
+                print("--- Pytest Collection STDOUT ---", file=sys.stderr)
+                print(result.stdout, file=sys.stderr)
+                print("--- End Pytest Collection STDOUT ---", file=sys.stderr)
             if result.stderr:
-                logger.debug("Collection error: %s", result.stderr)
+                print("--- Pytest Collection STDERR ---", file=sys.stderr)
+                print(result.stderr, file=sys.stderr)
+                print("--- End Pytest Collection STDERR ---", file=sys.stderr)
+                logger.debug("Collection error (also logged to stderr above): %s", result.stderr) # Keep debug log too
             test_count = default_test_count if has_test_files else 0
         else:
             test_count = _parse_test_collection_output(result.stdout, has_test_files)
@@ -396,16 +404,46 @@ def ensure_pytest_xdist_installed() -> None:
             logger.info("Successfully installed pytest-xdist")
         else:
             logger.warning(
-                "Failed to install pytest-xdist. Will run tests without parallelization."
+                "Failed to install pytest-xdist using %s. Will run tests without parallelization.",
+                "uv" if use_uv else "pip",
             )
             if install_result.stderr:
-                logger.debug(
-                    "Installation error: %s",
-                    install_result.stderr,
+                logger.error(
+                    "Installation error (stderr):\n%s",
+                    install_result.stderr.strip(),
                 )
+            if install_result.stdout:
+                logger.info(
+                    "Installation output (stdout):\n%s",
+                    install_result.stdout.strip(),
+                )
+
+            if use_uv: # Attempt pip fallback if uv failed
+                logger.info("Attempting to install pytest-xdist with pip as a fallback...")
+                pip_install_cmd = [sys.executable, "-m", "pip", "install", "pytest-xdist"]
+                pip_install_result = _safe_subprocess_run(
+                    pip_install_cmd,
+                    capture_output=True,
+                    shell=False,
+                )
+                if pip_install_result.returncode == 0:
+                    logger.info("Successfully installed pytest-xdist with pip.")
+                else:
+                    logger.warning("Failed to install pytest-xdist with pip as well.")
+                    if pip_install_result.stderr:
+                        logger.error(
+                            "Pip installation error (stderr):\n%s",
+                            pip_install_result.stderr.strip(),
+                        )
+                    if pip_install_result.stdout:
+                        logger.info(
+                            "Pip installation output (stdout):\n%s",
+                            pip_install_result.stdout.strip(),
+                        )
+
     except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
         logger.warning(
-            "Error checking for pytest-xdist: %s. Will run tests without parallelization.",
+            "Error during pytest-xdist installation check/attempt: %s. Will run tests without parallelization.",
             e,
         )
     except (OSError, FileNotFoundError) as e:
