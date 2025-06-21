@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from typing import Dict, Any, List
 
-from .errors import InvalidInputError, DataNotFoundError
+from .errors import InvalidInputError
 from .schemas import (
     MarketSegmentAnalysis,
     CompetitionAnalysis,
