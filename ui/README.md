@@ -4,13 +4,13 @@ This is a minimal Flask REST API for storing UI actions and providing CORS.
 
 ## CORS
 
-CORS is enabled via Flask-CORS. By default, only `http://localhost:3000` is allowed for CORS requests. You can override this with the `CORS_ALLOWED_ORIGINS` environment variable (comma-separated list of allowed origins).
-
-Example:
+CORS is enabled via Flask-CORS. By default, only `http://localhost:3000` is allowed for CORS requests. You can override this with the `CORS_ALLOWED_ORIGINS` environment variable (comma-separated list of allowed origins):
 
 ```bash
 export CORS_ALLOWED_ORIGINS="http://localhost:3000,https://yourdomain.com"
 ```
+
+Set the `CORS_ALLOWED_ORIGINS` environment variable to restrict allowed origins for security (comma-separated if multiple). Only valid `http`/`https` origins are accepted.
 
 ### Production Deployment
 
@@ -18,12 +18,6 @@ For production, use Gunicorn (recommended):
 
 ```bash
 gunicorn ui.app:create_app --bind 0.0.0.0:8000
-```
-
-Set the `CORS_ALLOWED_ORIGINS` environment variable to restrict allowed origins for security (comma-separated if multiple):
-
-```bash
-export CORS_ALLOWED_ORIGINS="https://yourdomain.com"
 ```
 
 ## Endpoints
@@ -38,11 +32,6 @@ export CORS_ALLOWED_ORIGINS="https://yourdomain.com"
   Accepts JSON: `{type: str, agentId?: str, payload?: any}`  
   Stores/logs action in memory, returns incremental `action_id`.  
   Returns 400 for invalid JSON or missing `type`.
-
-## CORS
-
-CORS is enabled for all origins (`*`).  
-See `app.py` for implementation.
 
 ## Tests
 

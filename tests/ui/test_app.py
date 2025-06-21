@@ -2,10 +2,11 @@
 
 import pytest
 import os
-from ui.app import app
+from ui.app import create_app
 
 @pytest.fixture
 def client():
+    app = create_app()
     app.config['TESTING'] = True
     with app.test_client() as client:
         yield client
@@ -16,8 +17,9 @@ def test_health(client):
     assert resp.json == {"status": "ok"}
 
 def test_cors_headers(client):
-    resp = client.options("/actions", headers={
-        "Origin": "http://localhost:3000",
+    # Test CORS for the primary POST endpoint
+    resp = client.options("/api/agent/action", headers={
+        "Origin": os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")[0].strip(),
         "Access-Control-Request-Method": "POST",
     })
     assert resp.status_code == 200

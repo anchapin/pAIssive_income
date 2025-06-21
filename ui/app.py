@@ -1,20 +1,22 @@
-"""Flask application for UI backend exposing health, agent, and agent action endpoints."""
+"""Flask backend for UI MVP."""
 
 import os
 import threading
-import time
 import logging
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from dataclasses import dataclass, asdict
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
-app = Flask(__name__)
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
-def _parse_allowed_origins():
+__all__ = ["create_app", "Agent"]
+
+def _parse_allowed_origins() -> list[str]:
     """Parse and validate allowed origins from the CORS_ALLOWED_ORIGINS environment variable."""
-    origins_raw = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
-    origins = []
-    for origin in origins_raw.split(","):
+    raw = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
+    origins: list[str] = []
+    for origin in raw.split(","):
         o = origin.strip()
         if not o:
             continue
@@ -22,58 +24,10 @@ def _parse_allowed_origins():
         if parsed.scheme in {"http", "https"} and parsed.netloc:
             origins.append(o)
         else:
-            logging.warning(f"Ignoring malformed CORS origin: {o!r}")
+            logging.warning("Ignoring malformed CORS origin: %r", o)
     return origins
 
-allowed_origins = _parse_allowed_origins()
-
-CORS(app, origins=allowed_origins, supports_credentials=True)
-
-# Simulated shared action storage (thread safe)
-class ActionStore:
-    """Thread-safe action store with id counter."""
-    def __init__(self):
-        self.actions = []
-        self.lock = threading.Lock()
-        self.counter = 0
-
-    def add_action(self, data):
-        with self.lock:
-            self.counter += 1
-            data["id"] = self.counter
-            self.actions.append(data)
-            return data
-
-    def get_actions(self):
-        with self.lock:
-            return list(self.actions)
-
-actions_store = ActionStore()
-
-@app.route("/health", methods=["GET"])
-def health():
-    return jsonify({"status": "ok"})
-
-@app.route("/actions", methods=["POST"])
-def post_action():
-    data = request.get_json(force=True)
-    action = actions_store.add_action(data)
-    return jsonify(action), 201
-
-@app.route("/actions", methods=["GET"])
-def get_actions():
-    return jsonify(actions_store.get_actions())
-import threading
-import logging
-from dataclasses import dataclass, asdict
-from typing import Any, Dict, List, Optional
-
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-
-__all__ = ["create_app", "Agent"]
-
-# In-memory storage for actions (as a placeholder)
+# In-memory storage for actions (thread-safe)
 _ACTIONS: List[Dict[str, Any]] = []
 _ACTION_ID_COUNTER: int = 1
 _ACTION_LOCK = threading.Lock()
@@ -84,8 +38,7 @@ class Agent:
     id: str
     name: str
     description: Optional[str] = None
-    # Add more fields as needed
-
+    # Add more fields as needed.
 
 DEFAULT_AGENT = Agent(
     id="default-agent",
@@ -93,20 +46,15 @@ DEFAULT_AGENT = Agent(
     description="Fallback agent when DB unavailable.",
 )
 
-
 def get_agent() -> Agent:
     """Fetch agent object. Placeholder for DB integration."""
     # TODO: Integrate with real DB; fallback to default.
     return DEFAULT_AGENT
 
-
 def create_app() -> Flask:
     """Create and configure Flask app with routes and CORS."""
     app = Flask(__name__)
-    allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
-    CORS(app, resources={r"/*": {"origins": allowed_origins}})
-
-    # Configure logging
+    CORS(app, resources={r"/*": {"origins": _parse_allowed_origins()}})
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
