@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import strawberry
-from typing import List
 
 from utils import math_utils as mu
 
@@ -74,7 +73,7 @@ class Query:
             raise ValueError("Cannot divide by zero")
 
     @strawberry.field(description="Average a list of numbers")
-    def average(self, numbers: List[float]) -> float:
+    def average(self, numbers: list[float]) -> float:
         """
         Calculate average of a list of numbers.
 
