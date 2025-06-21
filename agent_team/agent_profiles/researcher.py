@@ -4,7 +4,6 @@ ResearcherAgent profile.
 
 from agent_team.agent_profiles.base import BaseAgent
 from agent_team.schemas import AgentProfileSchema
-from typing import Dict
 
 class ResearcherAgent(BaseAgent):
     """Agent responsible for research tasks."""
@@ -13,7 +12,7 @@ class ResearcherAgent(BaseAgent):
         profile = AgentProfileSchema(role="researcher", goal=goal, backstory=backstory)
         super().__init__(profile=profile)
 
-    def identify_niche(self, keywords: str) -> Dict[str, str]:
+    def identify_niche(self, keywords: str) -> dict[str, str]:
         """Return a deterministic 'niche' based on keywords, robust to empty/whitespace input."""
         parts = keywords.strip().split()
         first_word = parts[0].capitalize() if parts else "General"
