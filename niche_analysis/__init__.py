@@ -7,7 +7,7 @@ from .niche_analyzer import NicheAnalyzer
 
 __all__ = [
     "MarketAnalyzer",
-    "ProblemIdentifier",
-    "OpportunityScorer",
     "NicheAnalyzer",
+    "OpportunityScorer",
+    "ProblemIdentifier",
 ]
