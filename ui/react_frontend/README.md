@@ -58,6 +58,27 @@ pnpm start
 
 You should see the CopilotKit + CrewAI chat demo in the browser.
 
+---
+
+## 🧪 Running Unit Tests (Vitest)
+
+The main unit test workflow uses [Vitest](https://vitest.dev/).  
+To run the same tests as CI locally:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run test:unit
+```
+
+If you encounter errors with Node.js 24, use Node.js 20 (LTS) for best compatibility.
+
+The test script runs:
+```bash
+pnpm tailwind:build && vitest run --passWithNoTests
+```
+
+Check `.github/workflows/frontend-vitest.yml` for full details on the CI process.
+
 ## Learn More
 
 - [CopilotKit + CrewAI Docs](https://docs.copilotkit.ai/crewai-crews)
