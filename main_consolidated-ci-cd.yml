@@ -61,10 +61,10 @@ jobs:
           echo "$HOME\.cargo in" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: pwsh
 
-      - name: Install dependencies
+      - name: Install dependencies (using uv)
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run linting
         run: |
           ruff check .
@@ -86,15 +86,20 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-      - name: Install dependencies
+      - name: Set up pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Install dependencies (using pnpm)
         run: |
           cd ui/react_frontend
           ls -la
-          npm install
-      - name: Run tests
+          pnpm install
+      - name: Run tests (using pnpm)
         run: |
           cd ui/react_frontend
-          npm test -- --coverage
+          pnpm test -- --coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -181,10 +186,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install dependencies
+      - name: Install dependencies (using uv)
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run docker-compose tests
         run: |
           docker-compose -f docker-compose.ci.yml up -d --build
@@ -201,10 +206,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install dependencies
+      - name: Install dependencies (using uv)
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
       - name: Run auto-fix
         run: |
           ruff --fix .
