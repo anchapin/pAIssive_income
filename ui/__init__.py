@@ -1,7 +1,5 @@
-"""__init__ - Module for ui.__init__."""
+"""UI module initialization; exposes Flask app factory."""
 
-# Standard library imports
+from .app import create_app
 
-# Third-party imports
-
-# Local imports
+__all__ = ["create_app"]
