@@ -154,7 +154,6 @@ describe('Environment Detection', () => {
     test('should detect Kubernetes distributions', () => {
       // Mock GKE environment
       process.env.KUBERNETES_SERVICE_HOST = '10.0.0.1';
-      process.env.GOOGLE_CLOUD_PROJECT = 'test-project';
       process.env.GKE_CLUSTER_NAME = 'test-cluster';
       
       const env = detectEnvironment();

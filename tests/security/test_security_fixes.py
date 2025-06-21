@@ -133,11 +133,24 @@ def generate_secure_placeholder() -> str:
     """
     return f"[TEST_PLACEHOLDER_{secrets.token_hex(8)}]"
 
+<<<<<<< HEAD
+            # Read the file content
+            temp_path_obj = Path(temp_path)
+            with temp_path_obj.open(encoding="utf-8", errors="replace") as f:
+                content = f.read()
+
+            # Ensure no sensitive data in file
+            assert "[TEST_PLACEHOLDER]" not in content
+            # Since the file is encrypted, we can't check for specific text content
+            # Just verify that the file was written and contains some data
+            assert len(content) > 0
+=======
 
 @pytest.fixture
 def test_data() -> tuple[str, str, dict[str, list[tuple[str, int, str, str]]]]:
     """
     Create test data fixture.
+>>>>>>> main
 
     Returns:
         Tuple containing:
@@ -145,6 +158,32 @@ def test_data() -> tuple[str, str, dict[str, list[tuple[str, int, str, str]]]]:
             - file name (str)
             - test data dictionary (Dict[str, List[Tuple[str, int, str, str]]])
 
+<<<<<<< HEAD
+    def test_handle_list_no_sensitive_keys(self) -> None:
+        """Test that handle_list doesn't print sensitive key names."""
+        # Mock secrets with non-sensitive test identifiers
+        test_credentials = {
+            "access_item_1": "[PLACEHOLDER_1]",
+            "access_item_2": "[PLACEHOLDER_2]",
+            "access_item_3": "[PLACEHOLDER_3]",
+        }
+
+        # Mock args
+        args = MagicMock()
+        args.backend = "env"
+
+        # Use a single with statement with multiple contexts
+        with (
+            patch(
+                "common_utils.custom_secrets.cli.list_secrets",
+                return_value=test_credentials,
+            ),
+            patch("common_utils.custom_secrets.cli._check_auth", return_value=True),
+            patch("builtins.print") as mock_print,
+        ):
+            # Call handle_list
+            handle_list(args)
+=======
     """
     placeholder = generate_secure_placeholder()
     file_name = f"test_file_{secrets.token_hex(8)}.py"
@@ -165,13 +204,26 @@ def test_data() -> tuple[str, str, dict[str, list[tuple[str, int, str, str]]]]:
         ]
     }
     return placeholder, file_name, data
+>>>>>>> main
 
 
+<<<<<<< HEAD
+    @patch("scripts.fix.fix_security_issues.imported_secret_scanner", False)
+    @patch("scripts.fix.fix_security_issues.globals")
+    @patch("subprocess.run")
+    def test_run_security_scan_with_missing_imports(
+        self, mock_subprocess_run: MagicMock, mock_globals: MagicMock
+    ) -> None:
+        """Test that run_security_scan handles missing imports gracefully."""
+        # Configure mock to simulate 'scan_directory_for_secrets' not in globals
+        mock_globals.return_value = {}
+=======
 def test_generate_report_no_sensitive_data_in_logs(
     test_data: tuple[str, str, dict[str, Any]],
 ) -> None:
     """Test that generate_report doesn't log sensitive data."""
     placeholder, file_name, data = test_data
+>>>>>>> main
 
     # Mock logger
     with patch("common_utils.custom_secrets.audit.logger") as mock_logger:
@@ -218,9 +270,14 @@ def test_generate_report_file_output_no_sensitive_data(
             "Output file has incorrect permissions"
         )
 
+<<<<<<< HEAD
+        # Import the function we want to test
+        from scripts.fix.fix_security_issues import run_security_scan
+=======
         # Read and validate file content
         with temp_path_obj.open("r") as f:
             content = f.read()
+>>>>>>> main
 
         # Ensure no sensitive data in file
         assert placeholder not in content

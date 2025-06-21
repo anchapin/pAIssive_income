@@ -1,0 +1,69 @@
+name: Build Tailwind CSS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ui/static/css/tailwind.css"
+      - "tailwind.config.js"
+      - "package.json"
+      - ".github/workflows/tailwind-build.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "ui/static/css/tailwind.css"
+      - "tailwind.config.js"
+      - "package.json"
+      - ".github/workflows/tailwind-build.yml"
+  workflow_run:
+    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.0'
+          cache: 'pnpm'
+          cache-dependency-path: 'ui/react_frontend/package.json'
+
+      - name: Install dependencies
+        run: |
+          echo "Installing root dependencies..."
+          pnpm install --frozen-lockfile
+
+          echo "Installing frontend dependencies..."
+          cd ui/react_frontend
+          pnpm install --frozen-lockfile
+
+      - name: Build Tailwind CSS
+        run: |
+          echo "Building Tailwind CSS..."
+          pnpm tailwind:build
+
+          echo "Verifying output file exists..."
+          if [ ! -f "ui/static/css/tailwind.output.css" ]; then
+            echo "Error: Tailwind output file not found!"
+            exit 1
+          fi
+
+          echo "Tailwind CSS build completed successfully"
+
+      - name: Upload Tailwind CSS output as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tailwind-output-css
+          path: ui/static/css/tailwind.output.css
+          if-no-files-found: error

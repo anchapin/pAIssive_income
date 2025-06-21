@@ -149,7 +149,7 @@ safelyWriteFile(
 safelyWriteFile(
   path.join(reportDir, 'mock-api-test-success.txt'),
   `Mock API server test completed successfully at ${new Date().toISOString()}\n` +
-  `This is a placeholder success report for CI compatibility.`
+  'This is a placeholder success report for CI compatibility.'
 );
 
 // Import the server (as a Promise) with enhanced error handling
@@ -189,7 +189,7 @@ try {
       fs.writeFileSync(
         path.join(githubDir, 'import-success.txt'),
         `GitHub Actions import success at ${new Date().toISOString()}\n` +
-        `Successfully imported mock_api_server\n` +
+        'Successfully imported mock_api_server\n' +
         `Server path: ${serverPath}\n` +
         `Node.js: ${process.version}\n` +
         `Platform: ${process.platform}\n`
@@ -230,7 +230,7 @@ try {
       path.join(reportDir, 'mock-api-ci-fallback.txt'),
       `Created mock server for CI compatibility at ${new Date().toISOString()}\n` +
       `Original error: ${importError.message}\n` +
-      `This file indicates that a mock server was created for CI compatibility.\n` +
+      'This file indicates that a mock server was created for CI compatibility.\n' +
       `Node.js version: ${process.version}\n` +
       `Platform: ${process.platform}\n`
     );
@@ -248,7 +248,7 @@ try {
       fs.writeFileSync(
         path.join(githubDir, 'import-fallback.txt'),
         `GitHub Actions import fallback at ${new Date().toISOString()}\n` +
-        `Failed to import mock_api_server but created fallback\n` +
+        'Failed to import mock_api_server but created fallback\n' +
         `Error: ${importError.message}\n` +
         `Node.js: ${process.version}\n` +
         `Platform: ${process.platform}\n`
@@ -307,7 +307,7 @@ function makeRequest({ url, method = 'GET', data = null, headers = {} }) {
             headers,
           };
 
-          console.log(`Using safe default options for non-string URL:`, options);
+          console.log('Using safe default options for non-string URL:', options);
           return;
         }
 
@@ -353,7 +353,7 @@ function makeRequest({ url, method = 'GET', data = null, headers = {} }) {
               headers,
             };
 
-            console.log(`Using parsed options for localhost URL:`, options);
+            console.log('Using parsed options for localhost URL:', options);
             return;
           }
 
@@ -366,7 +366,7 @@ function makeRequest({ url, method = 'GET', data = null, headers = {} }) {
             headers,
           };
 
-          console.log(`Using safe default options:`, options);
+          console.log('Using safe default options:', options);
           return;
         }
       }
@@ -538,14 +538,14 @@ function makeRequest({ url, method = 'GET', data = null, headers = {} }) {
 
         // In CI environment, create a mock response for timeout errors
         if (isCIEnvironment) {
-          console.warn(`Request timed out in CI environment, creating mock response`);
+          console.warn('Request timed out in CI environment, creating mock response');
 
           // Log the timeout error
           safelyWriteFile(
             path.join(logsDir, 'timeout-errors.log'),
             `Timeout error at ${new Date().toISOString()}\n` +
             `URL: ${url}\n` +
-            `Timeout: 5000ms\n\n`,
+            'Timeout: 5000ms\n\n',
             true // Append mode
           );
 
@@ -680,13 +680,13 @@ async function waitForServerReady({ url, timeout = 30000, retryInterval = 500 })
         path.join(logsDir, 'server-readiness-checks.log'),
         `Error parsing URL: ${urlWithProtocol}\n` +
         `Error: ${innerError.message}\n` +
-        `Using default values:\n` +
+        'Using default values:\n' +
         `Protocol: ${protocol}\n` +
         `Hostname: ${hostname}\n` +
         `Pathname: ${pathname}\n`,
         true // Append mode
       );
-      console.log(`Using default URL values:`, { protocol, hostname, pathname });
+      console.log('Using default URL values:', { protocol, hostname, pathname });
     }
   } catch (urlError) {
     // Handle URL parsing error
@@ -707,7 +707,7 @@ async function waitForServerReady({ url, timeout = 30000, retryInterval = 500 })
     // Log default values
     safelyWriteFile(
       path.join(logsDir, 'server-readiness-checks.log'),
-      `Using default values:\n` +
+      'Using default values:\n' +
       `Protocol: ${protocol}\n` +
       `Hostname: ${hostname}\n` +
       `Pathname: ${pathname}\n`,
@@ -861,7 +861,7 @@ async function waitForServerReady({ url, timeout = 30000, retryInterval = 500 })
   // If we reach here, we couldn't connect to any port
   // In CI environment, create a mock success response
   if (isCIEnvironment) {
-    const mockSuccessMsg = `CI environment detected. Creating mock success response for CI compatibility.`;
+    const mockSuccessMsg = 'CI environment detected. Creating mock success response for CI compatibility.';
     console.log(mockSuccessMsg);
 
     // Append to log file
@@ -931,7 +931,7 @@ async function runTests() {
       fs.writeFileSync(
         path.join(githubDir, 'test-run-start.txt'),
         `GitHub Actions test run started at ${new Date().toISOString()}\n` +
-        `Running mock API server tests for CI compatibility\n` +
+        'Running mock API server tests for CI compatibility\n' +
         `Node.js: ${process.version}\n` +
         `Platform: ${process.platform}\n` +
         `Hostname: ${os.hostname()}\n` +
@@ -1050,10 +1050,10 @@ async function runTests() {
     safelyWriteFile(
       path.join(reportDir, 'mock-api-test-summary.txt'),
       `Mock API server test completed at ${new Date().toISOString()}\n` +
-      `Tests passed: 1\n` +
-      `Tests failed: 0\n` +
+      'Tests passed: 1\n' +
+      'Tests failed: 0\n' +
       `Test duration: ${testDuration}s\n` +
-      `Server initialized successfully\n` +
+      'Server initialized successfully\n' +
       `CI environment: ${isCIEnvironment ? 'Yes' : 'No'}`
     );
     console.log('Created test summary report');
@@ -1117,7 +1117,7 @@ async function runTests() {
           path.join(githubDir, 'test-run-success.txt'),
           `GitHub Actions test run completed successfully at ${new Date().toISOString()}\n` +
           `Test duration: ${testDuration}s\n` +
-          `All tests passed successfully\n` +
+          'All tests passed successfully\n' +
           `Node.js: ${process.version}\n` +
           `Platform: ${process.platform}\n`
         );
@@ -1144,7 +1144,7 @@ async function runTests() {
         const githubActionsFlag = path.join(reportDir, '.github-actions-test-success');
         fs.writeFileSync(githubActionsFlag,
           `GitHub Actions test success flag created at ${new Date().toISOString()}\n` +
-          `This file helps GitHub Actions recognize successful test runs.\n` +
+          'This file helps GitHub Actions recognize successful test runs.\n' +
           `Test duration: ${testDuration}s\n`
         );
         console.log(`Created GitHub Actions test success flag at ${githubActionsFlag}`);

@@ -924,16 +924,16 @@ function cleanup(exitCode) {
 
       // Create a summary file specifically for GitHub Actions
       safelyWriteFile(path.join(githubDir, 'summary.txt'),
-        `GitHub Actions Test Summary\n` +
-        `------------------------\n` +
+        'GitHub Actions Test Summary\n' +
+        '------------------------\n' +
         `Test run completed at: ${new Date().toISOString()}\n` +
         `Exit code: ${exitCode}\n` +
         `Mock API server running: ${mockApiServerRunning ? 'Yes' : 'No'}\n` +
         `Simple mock server running: ${simpleMockServerRunning ? 'Yes' : 'No'}\n` +
         `Fallback server running: ${fallbackServerRunning ? 'Yes' : 'No'}\n` +
         `React server running: ${reactServerRunning ? 'Yes' : 'No'}\n` +
-        `------------------------\n` +
-        `All tests completed successfully.\n`
+        '------------------------\n' +
+        'All tests completed successfully.\n'
       );
     }
   }

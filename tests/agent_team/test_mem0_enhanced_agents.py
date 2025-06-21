@@ -5,9 +5,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from agent_team.mem0_enhanced_agents import (
-    CREWAI_AVAILABLE,
-    MEM0_AVAILABLE,
     MemoryEnhancedCrewAIAgentTeam,
+    crewai_available,
+    mem0_available,
 )
 
 # Initialize logger
@@ -23,7 +23,7 @@ They use mocking to avoid actual API calls to mem0 or CrewAI.
 
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(
-    not CREWAI_AVAILABLE or not MEM0_AVAILABLE,
+    not crewai_available or not mem0_available,
     reason="CrewAI or mem0 not installed",
 )
 
@@ -73,6 +73,20 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         )
         self.task_patcher.start()
 
+        # Patch the MemoryRAGCoordinator class
+        self.rag_coordinator_mock = MagicMock()
+        self.rag_coordinator_mock.query.return_value = {
+            "merged_results": [
+                {"text": "Test memory 1", "source": "mem0"},
+                {"text": "Test memory 2", "source": "mem0"},
+            ]
+        }
+        self.rag_coordinator_patcher = patch(
+            "agent_team.mem0_enhanced_agents.MemoryRAGCoordinator",
+            return_value=self.rag_coordinator_mock,
+        )
+        self.rag_coordinator_patcher.start()
+
         # Create a test instance
         self.team = MemoryEnhancedCrewAIAgentTeam(user_id="test-user")
 
@@ -86,6 +100,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         self.crew_patcher.stop()
         self.agent_patcher.stop()
         self.task_patcher.stop()
+        self.rag_coordinator_patcher.stop()
 
         # Re-enable logging
         logging.disable(logging.NOTSET)
@@ -169,8 +184,8 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         assert result == "Test workflow result"
         self.crew_mock.kickoff.assert_called_once()
 
-        # Check that memories were retrieved and stored
-        assert self.memory_mock.search.call_count >= 1
+        # Check that memories were retrieved via rag_coordinator and stored
+        assert self.rag_coordinator_mock.query.call_count >= 1
         assert self.memory_mock.add.call_count >= 4  # Init, add_agent, add_task, run
 
     def test_store_memory(self):
@@ -196,15 +211,14 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             limit=5,
         )
 
-        # Check that memories were retrieved
-        self.memory_mock.search.assert_called_with(
-            query="Test query",
-            user_id="test-user",
-            limit=5,
+        # Check that memories were retrieved via rag_coordinator
+        self.rag_coordinator_mock.query.assert_called_with(
+            "Test query",
+            "test-user",
         )
         assert len(memories) == 2
-        assert memories[0]["id"] == "memory-1"
-        assert memories[1]["id"] == "memory-2"
+        assert memories[0]["text"] == "Test memory 1"
+        assert memories[1]["text"] == "Test memory 2"
 
     def test_enhance_context_with_memories(self):
         """Test enhancing context with memories."""
@@ -234,20 +248,20 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Create a new team with the same user_id
         new_team = MemoryEnhancedCrewAIAgentTeam(user_id="test-user")
 
-        # Check that the memory was initialized
+        # Check that the memory was initialized (should be mocked)
         assert new_team.memory == self.memory_mock
         assert new_team.user_id == "test-user"
 
         # Retrieve memories with the new team
         query = "What are my preferences?"
-        new_team._retrieve_relevant_memories(query=query)
+        result = new_team._retrieve_relevant_memories(query=query)
 
-        # Check that memories were retrieved using the same user_id
-        self.memory_mock.search.assert_called_with(
-            query=query,
-            user_id="test-user",
-            limit=5,  # Default limit
-        )
+        # Check that the rag_coordinator was called properly
+        new_team.rag_coordinator.query.assert_called_with(query, "test-user")
+
+        # Verify the result (should come from the mocked rag_coordinator)
+        assert len(result) == 2
+        assert result[0]["text"] == "Test memory 1"
 
 
 if __name__ == "__main__":

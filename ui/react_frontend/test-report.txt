@@ -1,0 +1,80 @@
+CI Environment Report
+=====================
+Generated at: 2025-06-19T04:41:03.627Z
+
+CI Detection:
+- CI: Yes
+- CI Type: generic
+- GitHub Actions: No
+- Jenkins: No
+- GitLab CI: No
+- Circle CI: No
+- Travis CI: No
+- Azure Pipelines: No
+- TeamCity: No
+- Bitbucket: No
+- AppVeyor: No
+- Drone CI: No
+- Buddy CI: No
+- Buildkite: No
+- CodeBuild: No
+- Vercel: No
+- Netlify: No
+- Heroku: No
+- Semaphore: No
+- Codefresh: No
+- Woodpecker: No
+- Harness: No
+- Render: No
+- Railway: No
+- Fly.io: No
+
+Generic CI
+----------
+CI environment detected
+
+Container Environment
+-------------------
+Docker: No
+Kubernetes: No
+Docker Compose: No
+Docker Swarm: No
+rkt: No
+containerd: No
+CRI-O: No
+Singularity: No
+Containerized: No
+
+Cloud Environment
+---------------
+AWS: No
+Azure: No
+GCP: No
+Cloud Environment: No
+Lambda: No
+Azure Functions: No
+Cloud Functions: No
+Serverless: No
+
+System Information
+-----------------
+Node.js: v22.16.0
+Platform: linux
+Architecture: x64
+OS: Linux 5.15.153.1-microsoft-standard-WSL2
+Working Directory: /home/anchapin/pAIssive_income_main/pAIssive_income/ui/react_frontend
+
+Detailed System Information
+-------------------------
+Hostname: gaming-pc
+Username: anchapin
+Memory Total: 17.57 GB
+Memory Free: 4.72 GB
+CPUs: 10
+
+Environment Variables
+-------------------
+NODE_ENV: test
+CI: true
+CI_ENVIRONMENT: not set
+CI_TYPE: not set

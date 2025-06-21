@@ -24,6 +24,11 @@ def test_mem0_import() -> bool | None:
         return False
     else:
         return True
+<<<<<<< HEAD
+    except ImportError as e:
+        logger.exception("Failed to import mem0: %s", e)
+=======
+>>>>>>> main
         return False
 
 

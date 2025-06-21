@@ -128,7 +128,11 @@ def run_example() -> None:  # noqa: C901
         logger.info("Workflow completed successfully")
         logger.info("Result: %s", result)
     except Exception as e:
+<<<<<<< HEAD
+        logger.exception(f"Error running workflow: {e}")
+=======
         logger.exception("Error running workflow: %s", e)
+>>>>>>> main
 
     # Demonstrate memory retrieval
     if team.memory is not None:
