@@ -95,7 +95,7 @@ except ImportError:
         """Placeholder for Task class when crewai is not installed."""
 
         def __init__(
-            self, description: str = "", agent: Optional[AgentProtocol] = None
+            self, description: str = "", agent: AgentProtocol | None = None
         ) -> None:
             """Initialize the placeholder Task with description and agent."""
             self.description = description
