@@ -157,7 +157,7 @@ def test_safety_scan() -> None:
 
     if return_code == 124:
         logger.warning("Safety check timed out. Using empty results.")
-        
+
     if stdout and not stderr:
         tmp_file = Path("security-reports/safety-results.json.tmp")
         tmp_file.write_text(stdout)
@@ -213,7 +213,7 @@ def test_bandit_scan() -> None:
 
     if return_code == 124:
         logger.warning("Bandit scan timed out. Using empty results.")
-        
+
     if stdout:
         tmp_file = Path("security-reports/bandit-results.json.tmp")
         tmp_file.write_text(stdout)
