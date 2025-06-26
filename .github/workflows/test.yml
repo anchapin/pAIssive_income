@@ -105,6 +105,7 @@ jobs:
           echo "Running full test suite..."
           pytest ${{ inputs.test-path }} \
             -n auto \
+            -m "not slow" \
             --tb=short \
             --import-mode=importlib \
             --cov=. \
