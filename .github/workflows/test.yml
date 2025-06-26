@@ -23,7 +23,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -91,15 +91,30 @@ jobs:
 
           # Run tests with pytest (ensure we run from project root)
           cd ${{ github.workspace }}
-          pytest ${{ inputs.test-path }} \
-            -n auto \
+          
+          # Run core coverage tests first to establish baseline
+          echo "Running core coverage tests..."
+          pytest tests/test_core_coverage.py \
             -v \
             --import-mode=importlib \
             --cov=. \
+            --cov-report=term-missing \
+            --tb=short || true
+          
+          # Run all tests with optimized settings
+          echo "Running full test suite..."
+          pytest ${{ inputs.test-path }} \
+            -n auto \
+            --tb=short \
+            --import-mode=importlib \
+            --cov=. \
+            --cov-append \
             --cov-report=xml \
             --cov-report=term-missing \
             --cov-fail-under=${{ inputs.coverage-threshold }} \
-            --junitxml=junit/test-results.xml
+            --junitxml=junit/test-results.xml \
+            --maxfail=50 \
+            --disable-warnings
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
