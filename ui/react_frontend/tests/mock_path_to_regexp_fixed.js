@@ -37,12 +37,15 @@ function pathToRegexp(path, keys, options = {}) {
     // Extract parameters if keys array is provided
     if (Array.isArray(keys)) {
       const params = path.match(/:[a-zA-Z0-9_]+/g) || [];
+      
+      // Limit the number of parameters to MAX_PARAMS
+      const limitedParams = params.slice(0, LIMITS.MAX_PARAMS);
+      
       if (params.length > LIMITS.MAX_PARAMS) {
-        console.warn('Too many parameters in path');
-        return /.*/;
+        console.warn(`Too many parameters in path (${params.length}), limiting to ${LIMITS.MAX_PARAMS}`);
       }
 
-      params.forEach(param => {
+      limitedParams.forEach(param => {
         const name = param.substring(1);
         if (name && name.length < LIMITS.MAX_PATTERN_LENGTH) {
           keys.push({

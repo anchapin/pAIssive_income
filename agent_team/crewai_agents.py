@@ -95,7 +95,7 @@ except ImportError:
         """Placeholder for Task class when crewai is not installed."""
 
         def __init__(
-            self, description: str = "", agent: AgentPlaceholder | None = None
+            self, description: str = "", agent: AgentProtocol | None = None
         ) -> None:
             """Initialize the placeholder Task with description and agent."""
             self.description = description
@@ -123,9 +123,9 @@ except ImportError:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
 
-    Agent: type[AgentProtocol] = AgentPlaceholder
-    Task: type[TaskProtocol] = TaskPlaceholder
-    Crew: type[CrewProtocol] = CrewPlaceholder
+    Agent: type[AgentProtocol] = AgentPlaceholder  # type: ignore[assignment]
+    Task: type[TaskProtocol] = TaskPlaceholder  # type: ignore[assignment]
+    Crew: type[CrewProtocol] = CrewPlaceholder  # type: ignore[assignment]
 
     import warnings
 
@@ -228,8 +228,8 @@ class CrewAIAgentTeam:
 
         """
         self.llm_provider = llm_provider
-        self.agents: list[object] = []
-        self.tasks: list[object] = []
+        self.agents: list[AgentProtocol] = []
+        self.tasks: list[TaskProtocol] = []
         self.api_client: object | None = None
 
         # Dedicated logger for agentic reasoning

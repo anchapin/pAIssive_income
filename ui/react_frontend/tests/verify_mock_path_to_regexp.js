@@ -833,7 +833,7 @@ pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
         if (typeof token === 'string') {
           pattern += token.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, '\\\\$&');
         } else if (typeof token === 'object' && token.pattern) {
-          pattern += \`(\${token.pattern})\`;
+          pattern += '(' + token.pattern + ')';
         }
       });
     }
@@ -934,22 +934,15 @@ module.exports = pathToRegexp;
     log(`Created mock package.json at ${path.join(location, 'package.json')}`, 'info');
 
     // Create a README.md file to explain the mock implementation
-    const readme = `# Enhanced Mock path-to-regexp
-
-This is an enhanced mock implementation of the path-to-regexp package for CI and Docker compatibility.
-
-Created at ${new Date().toISOString()}
-
-## Purpose
-
-This mock implementation is used to avoid dependency issues in CI and Docker environments.
-It provides all the necessary functions and methods of the original package,
-but with simplified implementations that always succeed.
-
-## Usage
-
-This package is automatically installed by the CI workflow.
-`;
+    const readme = '# Enhanced Mock path-to-regexp\n\n' +
+      'This is an enhanced mock implementation of the path-to-regexp package for CI and Docker compatibility.\n\n' +
+      'Created at ' + new Date().toISOString() + '\n\n' +
+      '## Purpose\n\n' +
+      'This mock implementation is used to avoid dependency issues in CI and Docker environments.\n' +
+      'It provides all the necessary functions and methods of the original package,\n' +
+      'but with simplified implementations that always succeed.\n\n' +
+      '## Usage\n\n' +
+      'This package is automatically installed by the CI workflow.\n';
 
     fs.writeFileSync(path.join(location, 'README.md'), readme);
     log(`Created README.md at ${path.join(location, 'README.md')}`, 'info');

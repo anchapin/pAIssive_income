@@ -48,23 +48,41 @@ describe('analyticsAPI', () => {
 
   it('calls getEndpointStats with correct default and custom days', async () => {
     await analyticsAPI.getEndpointStats();
+<<<<<<< HEAD
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/endpoints?days=30', {});
+    await analyticsAPI.getEndpointStats(60);
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/endpoints?days=60', {});
+=======
     expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/endpoints?days=30');
     await analyticsAPI.getEndpointStats(60);
     expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/endpoints?days=60');
+>>>>>>> main
   });
 
   it('calls getUserStats with and without user_id', async () => {
     await analyticsAPI.getUserStats();
+<<<<<<< HEAD
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/users?days=30', {});
+    await analyticsAPI.getUserStats(90, 'xyz');
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/users?days=90&user_id=xyz', {});
+=======
     expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/users?days=30');
     await analyticsAPI.getUserStats(90, 'xyz');
     expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/users?days=90&user_id=xyz');
+>>>>>>> main
   });
 
   it('calls getApiKeyStats with and without api_key_id', async () => {
     await analyticsAPI.getApiKeyStats();
+<<<<<<< HEAD
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/api-keys?days=30', {});
+    await analyticsAPI.getApiKeyStats(15, 'k10');
+    expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/api-keys?days=15&api_key_id=k10', {});
+=======
     expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/api-keys?days=30');
     await analyticsAPI.getApiKeyStats(15, 'k10');
     expect(apiClient.fetchAPI).toHaveBeenCalledWith('/api/v1/analytics/api-keys?days=15&api_key_id=k10');
+>>>>>>> main
   });
 
   it('calls exportRequestsCSV with correct params and options', async () => {

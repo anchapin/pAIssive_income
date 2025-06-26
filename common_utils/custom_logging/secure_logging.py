@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import logging
 import re
-from re import Pattern
 from typing import Any
 
 # List of sensitive field names to mask in logs
@@ -34,7 +33,7 @@ SENSITIVE_FIELDS: list[str] = [
 ]
 
 # Regex patterns to detect sensitive information
-PATTERNS: dict[str, Pattern] = {
+PATTERNS: dict[str, re.Pattern[str]] = {
     "credential_type_1": re.compile(
         (
             r'(access[_-]?credential|api_material)["\']?\s*[:=]\s*["\']?'
@@ -208,7 +207,7 @@ def _mask_string(value: str, mask_char: str = "*", visible_chars: int = 4) -> st
 
 
 def _mask_pattern(
-    text: str, pattern: Pattern, mask_char: str = "*", visible_chars: int = 4
+    text: str, pattern: re.Pattern[str], mask_char: str = "*", visible_chars: int = 4
 ) -> str:
     """
     Mask text that matches a specific regex pattern.

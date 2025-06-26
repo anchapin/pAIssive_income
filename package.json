@@ -98,11 +98,21 @@
       "**/build/**",
       "**/dist/**",
       "**/*.egg-info/**",
+      ".venv/**",
+      ".venv_new/**",
+      "venv/**",
+      "env/**",
+      ".env/**",
+      "node_modules/**",
+      "__pycache__/**",
+      ".pytest_cache/**",
+      ".mypy_cache/**",
+      ".ruff_cache/**",
+      "build/**",
+      "dist/**",
       ".venv*/**",
       "venv*/**",
-      "__pycache__/**",
       "*.pyc",
-      "node_modules/**",
       ".git/**"
     ],
     "statements": 1,
@@ -124,5 +134,6 @@
         "lines": 100
       }
     }
-  }
+  },
+  "packageManager": "pnpm@8.14.0+sha512.5d4bf97b349faf1a51318aa1ba887e99d9c36e203dbcb55938a91fddd2454246cb00723d6642f54d463a0f52a2701dadf8de002a37fc613c9cdc94ed5675ddce"
 }

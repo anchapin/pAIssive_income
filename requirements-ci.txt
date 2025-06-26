@@ -40,8 +40,9 @@ mem0ai>=0.1.100
 openai>=1.33.0  # Required for mem0 embeddings
 pytz>=2024.1  # Required for mem0
 
-# MCP integration (lightweight)
-modelcontextprotocol>=0.1.0  # Required for MCP server integration
+# MCP integration (lightweight) - disabled due to dependency conflicts
+# modelcontextprotocol>=0.1.0  # Required for MCP server integration
+# Note: This package pulls in airtrain with complex dependencies causing CI failures
 
 # Skip these heavy packages in CI to prevent timeouts:
 # torch>=1.10.0

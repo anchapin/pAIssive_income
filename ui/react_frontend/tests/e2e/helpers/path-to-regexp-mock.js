@@ -115,7 +115,7 @@ module.exports = pathToRegexp;
       path.join(logsDir, 'path-to-regexp-mock-installed.txt'),
       `Mock path-to-regexp implementation installed at ${new Date().toISOString()}\n` +
       `Installation directory: ${mockDir}\n` +
-      `This file indicates that a mock implementation of path-to-regexp was installed for CI compatibility.`
+      'This file indicates that a mock implementation of path-to-regexp was installed for CI compatibility.'
     );
     
     console.log('Successfully installed mock path-to-regexp implementation');

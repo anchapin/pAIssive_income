@@ -144,7 +144,7 @@ function createSuccessMarker(message) {
     for (const markerFile of markerFiles) {
       fs.writeFileSync(
         path.join(reportDir, markerFile),
-        `Simple fallback server success marker\n` +
+        'Simple fallback server success marker\n' +
         `Created at: ${new Date().toISOString()}\n` +
         `Message: ${message}\n` +
         `CI Mode: ${CI_MODE ? 'Yes' : 'No'}\n` +
@@ -166,7 +166,7 @@ function createSuccessMarker(message) {
 </testsuites>`
     );
 
-    log(`Created success markers and test result file`, 'info');
+    log('Created success markers and test result file', 'info');
   } catch (error) {
     log(`Failed to create success markers: ${error.message}`, 'error');
   }
@@ -508,7 +508,7 @@ function handleVerifyPathToRegexp(url, res) {
       fs.writeFileSync(
         path.join(reportDir, 'path-to-regexp-verification-success.txt'),
         `Mock path-to-regexp verification successful at ${new Date().toISOString()}\n` +
-        `Available functions: parse, compile, tokensToRegexp, match, tokensToFunction, encode, decode\n` +
+        'Available functions: parse, compile, tokensToRegexp, match, tokensToFunction, encode, decode\n' +
         `CI Mode: ${CI_MODE ? 'Yes' : 'No'}\n` +
         `GitHub Actions: ${GITHUB_ACTIONS ? 'Yes' : 'No'}\n` +
         `Node.js version: ${process.version}\n` +
