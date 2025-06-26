@@ -58,7 +58,7 @@ import AddIcon from '@mui/icons-material/Add';
  */
 const UserGrowthLineChart = ({
   data,
-  title = "User Growth Projections",
+  title = 'User Growth Projections',
   height = 400
 }) => {
   // State for tracking which lines to show
@@ -80,8 +80,8 @@ const UserGrowthLineChart = ({
   const [showReferenceLineDialog, setShowReferenceLineDialog] = useState(false);
   const [newReferenceLine, setNewReferenceLine] = useState({
     month: 12,
-    label: "1 Year",
-    color: "#ff4081"
+    label: '1 Year',
+    color: '#ff4081'
   });
 
   // Menu state
@@ -125,9 +125,9 @@ const UserGrowthLineChart = ({
           <p className="label" style={{ fontWeight: 'bold', marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '5px' }}>{label}</p>
           {payload
             .filter(entry =>
-              (entry.dataKey === "total_users" && showTotal) ||
-              (entry.dataKey === "free_users" && showFree) ||
-              (entry.dataKey === "paid_users" && showPaid)
+              (entry.dataKey === 'total_users' && showTotal) ||
+              (entry.dataKey === 'free_users' && showFree) ||
+              (entry.dataKey === 'paid_users' && showPaid)
             )
             .map((entry, index) => (
               <p key={index} style={{
@@ -253,8 +253,8 @@ const UserGrowthLineChart = ({
     // Reset the form
     setNewReferenceLine({
       month: 12,
-      label: "1 Year",
-      color: "#ff4081"
+      label: '1 Year',
+      color: '#ff4081'
     });
   };
 
@@ -268,10 +268,10 @@ const UserGrowthLineChart = ({
 
     if (format === 'csv') {
       // Create CSV content
-      let csvContent = "data:text/csv;charset=utf-8,";
+      let csvContent = 'data:text/csv;charset=utf-8,';
 
       // Add headers
-      csvContent += "Month,Total Users,Free Users,Paid Users\n";
+      csvContent += 'Month,Total Users,Free Users,Paid Users\n';
 
       // Add data rows
       chartData.forEach(item => {
@@ -280,9 +280,9 @@ const UserGrowthLineChart = ({
 
       // Create download link
       const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.csv`);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_data.csv`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup
@@ -295,9 +295,9 @@ const UserGrowthLineChart = ({
       // Create download link
       const blob = new Blob([jsonContent], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.json`);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_data.json`);
       document.body.appendChild(link);
 
       // Trigger download and cleanup

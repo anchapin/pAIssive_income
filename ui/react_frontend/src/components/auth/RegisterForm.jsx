@@ -163,7 +163,7 @@ const RegisterForm = ({ onSuccess }) => {
               fullWidth
               name="authCredential"
               label="Authentication Credential"
-              type={showCredential ? "text" : "password"}
+              type={showCredential ? 'text' : 'password'}
               id="authCredential"
               autoComplete="new-password"
               value={values.authCredential}
@@ -194,7 +194,7 @@ const RegisterForm = ({ onSuccess }) => {
               fullWidth
               name="confirmCredential"
               label="Confirm Credential"
-              type={showConfirmCredential ? "text" : "password"}
+              type={showConfirmCredential ? 'text' : 'password'}
               id="confirmCredential"
               autoComplete="new-password"
               value={values.confirmCredential}
@@ -230,7 +230,7 @@ const RegisterForm = ({ onSuccess }) => {
           aria-label="Register"
           startIcon={!isSubmitting && <span role="img" aria-label="register">📝</span>}
         >
-          {isSubmitting ? <CircularProgress size={24} /> : "Register"}
+          {isSubmitting ? <CircularProgress size={24} /> : 'Register'}
         </Button>
       </Box>
     </Paper>

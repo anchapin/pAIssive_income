@@ -47,3 +47,5 @@ env/**
 **/*.sarif.json
 ui/react_frontend/node_modules/**
 sdk/javascript/node_modules/**
+Icon*
+**/Icon*

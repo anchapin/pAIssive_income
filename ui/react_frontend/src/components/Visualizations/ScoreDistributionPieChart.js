@@ -23,7 +23,7 @@ import {
  */
 const ScoreDistributionPieChart = ({
   data,
-  title = "Opportunity Score Distribution",
+  title = 'Opportunity Score Distribution',
   height = 400
 }) => {
   // If no data, return a message

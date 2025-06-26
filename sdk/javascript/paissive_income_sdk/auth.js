@@ -65,7 +65,7 @@ class APIKeyAuth extends Auth {
       enumerable: false // Don't expose in object enumeration
     });
 
-    return { "X-API-Key": credential };
+    return { 'X-API-Key': credential };
   }
 
   /**
@@ -114,7 +114,7 @@ class JWTAuth extends Auth {
       console.warn('Authentication token not available');
       return {};
     }
-    return { "Authorization": `Bearer ${token}` };
+    return { 'Authorization': `Bearer ${token}` };
   }
 
   /**

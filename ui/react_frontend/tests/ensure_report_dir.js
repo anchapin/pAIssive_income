@@ -463,7 +463,7 @@ function safelyCreateDirectory(dirPath) {
           return true;
         }
       } else {
-        console.log(`Original path was already absolute, trying alternative approach`);
+        console.log('Original path was already absolute, trying alternative approach');
       }
     } catch (fallbackError) {
       console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
@@ -685,7 +685,7 @@ function safelyWriteFile(filePath, content, append = false) {
 
     // If we're in CI, create an empty file as a last resort
     if (process.env.CI === 'true' || process.env.CI === true) {
-      console.log(`CI environment: Creating empty placeholder file as last resort`);
+      console.log('CI environment: Creating empty placeholder file as last resort');
       try {
         // Try multiple locations
         const locations = [
@@ -755,7 +755,7 @@ safelyCreateDirectory(logsDir);
 safelyWriteFile(
   path.join(logsDir, 'mock-api-server.log'),
   `Log file created at ${new Date().toISOString()}\n` +
-  `This file was created to ensure the logs directory is not empty.\n` +
+  'This file was created to ensure the logs directory is not empty.\n' +
   `Node.js version: ${process.version}\n` +
   `Platform: ${process.platform}\n` +
   `Hostname: ${os.hostname()}\n` +
@@ -767,11 +767,11 @@ safelyWriteFile(
 safelyWriteFile(
   path.join(logsDir, 'server-readiness-checks.log'),
   `Server readiness check started at ${new Date().toISOString()}\n` +
-  `Checking URL: http://localhost:8000/health\n` +
-  `Timeout: 10000ms\n` +
-  `Retry interval: 500ms\n` +
-  `Ports to try: 8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007, 8008, 8009\n\n` +
-  `CI environment detected. Creating mock success response for CI compatibility.\n` +
+  'Checking URL: http://localhost:8000/health\n' +
+  'Timeout: 10000ms\n' +
+  'Retry interval: 500ms\n' +
+  'Ports to try: 8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007, 8008, 8009\n\n' +
+  'CI environment detected. Creating mock success response for CI compatibility.\n' +
   `Server readiness check completed at ${new Date().toISOString()}\n`
 );
 
@@ -780,11 +780,11 @@ safelyWriteFile(
 function escapeHtml(unsafe) {
   return unsafe
     .toString()
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 // Create HTML with safely encoded values
@@ -899,29 +899,29 @@ const testResults = {
   },
   tests: [
     {
-      title: "basic page load test",
-      fullTitle: "Simple Tests basic page load test",
+      title: 'basic page load test',
+      fullTitle: 'Simple Tests basic page load test',
       duration: 100,
       currentRetry: 0,
       err: {}
     },
     {
-      title: "simple math test",
-      fullTitle: "Simple Tests simple math test",
+      title: 'simple math test',
+      fullTitle: 'Simple Tests simple math test',
       duration: 100,
       currentRetry: 0,
       err: {}
     },
     {
-      title: "simple string test",
-      fullTitle: "Simple Tests simple string test",
+      title: 'simple string test',
+      fullTitle: 'Simple Tests simple string test',
       duration: 100,
       currentRetry: 0,
       err: {}
     },
     {
-      title: "AgentUI component test",
-      fullTitle: "Simple Tests AgentUI component test",
+      title: 'AgentUI component test',
+      fullTitle: 'Simple Tests AgentUI component test',
       duration: 200,
       currentRetry: 0,
       err: {}
@@ -931,29 +931,29 @@ const testResults = {
   failures: [],
   passes: [
     {
-      title: "basic page load test",
-      fullTitle: "Simple Tests basic page load test",
+      title: 'basic page load test',
+      fullTitle: 'Simple Tests basic page load test',
       duration: 100,
       currentRetry: 0,
       err: {}
     },
     {
-      title: "simple math test",
-      fullTitle: "Simple Tests simple math test",
+      title: 'simple math test',
+      fullTitle: 'Simple Tests simple math test',
       duration: 100,
       currentRetry: 0,
       err: {}
     },
     {
-      title: "simple string test",
-      fullTitle: "Simple Tests simple string test",
+      title: 'simple string test',
+      fullTitle: 'Simple Tests simple string test',
       duration: 100,
       currentRetry: 0,
       err: {}
     },
     {
-      title: "AgentUI component test",
-      fullTitle: "Simple Tests AgentUI component test",
+      title: 'AgentUI component test',
+      fullTitle: 'Simple Tests AgentUI component test',
       duration: 200,
       currentRetry: 0,
       err: {}
@@ -967,7 +967,7 @@ safelyWriteFile(path.join(reportDir, 'test-results.json'), JSON.stringify(testRe
 safelyWriteFile(
   path.join(scriptLogDir, 'ensure-report-dir.log'),
   `\nensure_report_dir.js completed at ${new Date().toISOString()}\n` +
-  `Created all required report files in playwright-report directory\n`,
+  'Created all required report files in playwright-report directory\n',
   true // Append mode
 );
 
@@ -978,7 +978,7 @@ if (isCI) {
   const ciCompatFile = path.join(reportDir, 'ci-compat-success.txt');
   safelyWriteFile(ciCompatFile,
     `CI compatibility mode activated at ${new Date().toISOString()}\n` +
-    `This file indicates that the CI report directory setup was successful.\n` +
+    'This file indicates that the CI report directory setup was successful.\n' +
     `Path-to-regexp available: ${pathToRegexpAvailable ? 'Yes' : 'No'}\n` +
     `Node.js: ${process.version}\n` +
     `Platform: ${process.platform} ${process.arch}\n` +
@@ -1002,7 +1002,7 @@ if (isCI) {
   ];
 
   const markerContent = `CI compatibility marker created at ${new Date().toISOString()}\n` +
-    `This file indicates that the CI setup was successful.\n` +
+    'This file indicates that the CI setup was successful.\n' +
     `Node.js: ${process.version}\n` +
     `Platform: ${process.platform}\n` +
     `CI: ${isCI ? 'Yes' : 'No'}\n` +
@@ -1025,7 +1025,7 @@ if (isCI) {
   const githubActionsFlag = path.join(reportDir, '.github-actions-success');
   safelyWriteFile(githubActionsFlag,
     `GitHub Actions compatibility flag created at ${new Date().toISOString()}\n` +
-    `This file helps GitHub Actions recognize successful test runs.\n` +
+    'This file helps GitHub Actions recognize successful test runs.\n' +
     `Path-to-regexp available: ${pathToRegexpAvailable ? 'Yes' : 'No'}\n`
   );
   console.log(`Created GitHub Actions flag file at ${githubActionsFlag}`);
@@ -1040,7 +1040,7 @@ if (isCI) {
     safelyWriteFile(
       path.join(githubDir, 'ensure-dir-status.txt'),
       `GitHub Actions status at ${new Date().toISOString()}\n` +
-      `ensure_report_dir.js has run successfully\n` +
+      'ensure_report_dir.js has run successfully\n' +
       `Path-to-regexp available: ${pathToRegexpAvailable ? 'Yes' : 'No'}\n` +
       `Node.js: ${process.version}\n` +
       `Platform: ${process.platform}\n` +
@@ -1140,7 +1140,7 @@ if (isCI) {
     ];
 
     const githubMarkerContent = `GitHub Actions marker created at ${new Date().toISOString()}\n` +
-      `This file indicates that the GitHub Actions setup was successful.\n` +
+      'This file indicates that the GitHub Actions setup was successful.\n' +
       `Node.js: ${process.version}\n` +
       `Platform: ${process.platform}\n` +
       `CI: ${isCI ? 'Yes' : 'No'}\n` +
@@ -1218,7 +1218,7 @@ if (isCI) {
         fs.writeFileSync(
           path.join(process.cwd(), 'github-actions-emergency.txt'),
           `GitHub Actions emergency marker created at ${new Date().toISOString()}\n` +
-          `Created as last resort due to errors:\n` +
+          'Created as last resort due to errors:\n' +
           `- Original error: ${githubError.message}\n` +
           `- Fallback error: ${fallbackError.message}\n` +
           `Node.js: ${process.version}\n` +
