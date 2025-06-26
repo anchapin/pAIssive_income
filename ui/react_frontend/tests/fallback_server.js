@@ -315,9 +315,9 @@ try {
 
   const server = app.listen(PORT, () => {
     log(`Fallback server running on port ${PORT}`);
-    log(`Available routes:`);
-    log(`- GET /`);
-    log(`- GET /about`);
+    log('Available routes:');
+    log('- GET /');
+    log('- GET /about');
 
     // Create a marker file to indicate server is ready
     createReport('fallback-server-ready.txt',

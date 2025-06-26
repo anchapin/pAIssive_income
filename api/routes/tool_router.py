@@ -21,7 +21,6 @@ if not logger.hasHandlers():
     logger.addHandler(handler)
 
 
-# --- Settings ---
 def get_api_key() -> str:
     """Get the API key from environment or use test key for CI."""
     api_key = os.getenv("TOOL_API_KEY")

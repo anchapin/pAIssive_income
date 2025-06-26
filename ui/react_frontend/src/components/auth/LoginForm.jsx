@@ -116,7 +116,7 @@ const LoginForm = ({ onSuccess }) => {
           fullWidth
           name="credentials"
           label="Credentials"
-          type={showCredential ? "text" : "password"}
+          type={showCredential ? 'text' : 'password'}
           id="credentials"
           autoComplete="current-password"
           value={values.credentials}
@@ -150,7 +150,7 @@ const LoginForm = ({ onSuccess }) => {
           aria-label="Log In"
           startIcon={!isSubmitting && <span role="img" aria-label="login">🔑</span>}
         >
-          {isSubmitting ? <CircularProgress size={24} /> : "Log In"}
+          {isSubmitting ? <CircularProgress size={24} /> : 'Log In'}
         </Button>
 
         <Box sx={{ mb: 1, textAlign: 'right' }}>

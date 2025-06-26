@@ -43,10 +43,10 @@ const Item = styled(Paper)(({ theme }) => ({
 
 // Example theme configuration for AgentUI
 const theme = {
-  primaryColor: "#007bff",
-  secondaryColor: "#f5f5f5",
-  fontFamily: "Roboto, Arial, sans-serif",
-  borderRadius: "8px",
+  primaryColor: '#007bff',
+  secondaryColor: '#f5f5f5',
+  fontFamily: 'Roboto, Arial, sans-serif',
+  borderRadius: '8px',
   darkMode: false,
 };
 
