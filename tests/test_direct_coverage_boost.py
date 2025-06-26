@@ -20,13 +20,13 @@ class TestDirectCoverageBoost:
             import simulate_ci_environment
 
             # Test environment variable functions
-            env_vars = simulate_ci_environment.get_ci_env_vars()
+            env_vars = simulate_ci_environment.get_ci_env_vars("github")
             assert isinstance(env_vars, dict)
 
-            cloud_vars = simulate_ci_environment.get_cloud_env_vars()
+            cloud_vars = simulate_ci_environment.get_cloud_env_vars("aws")
             assert isinstance(cloud_vars, dict)
 
-            container_vars = simulate_ci_environment.get_container_env_vars()
+            container_vars = simulate_ci_environment.get_container_env_vars("docker")
             assert isinstance(container_vars, dict)
 
             # Test setup functions (these should execute without errors)
@@ -194,7 +194,12 @@ class TestDirectCoverageBoost:
                 result = enhanced_setup_dev_environment.verify_installation()
 
             if hasattr(enhanced_setup_dev_environment, 'install_dependencies'):
-                enhanced_setup_dev_environment.install_dependencies()
+                # Create a mock args object for the install_dependencies function
+                from unittest.mock import Mock
+                mock_args = Mock()
+                mock_args.no_deps = False
+                mock_args.minimal = False
+                enhanced_setup_dev_environment.install_dependencies(mock_args)
 
         except ImportError:
             pass
@@ -319,7 +324,7 @@ class TestDirectCoverageBoost:
 
             for backend_type in backend_types:
                 try:
-                    manager = SecretsManager(backend_type=backend_type)
+                    manager = SecretsManager(default_backend=backend_type)
 
                     # Test basic operations (they might fail but execute code)
                     try:
