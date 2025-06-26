@@ -26,14 +26,14 @@ class TestAdditionalCoverageBoost:
         try:
             # Test importing and executing users modules
             from users import auth, models, services
-            
+
             # Test auth module functions more comprehensively
             test_password = "test_password_12345"
             if hasattr(auth, 'hash_password'):
                 hashed = auth.hash_password(test_password)
                 assert hashed != test_password
                 assert isinstance(hashed, str)
-                
+
                 # Test password verification if available
                 if hasattr(auth, 'verify_password'):
                     try:
@@ -41,7 +41,7 @@ class TestAdditionalCoverageBoost:
                         assert isinstance(is_valid, bool)
                     except Exception:
                         pass
-            
+
             # Test models
             if hasattr(models, 'User'):
                 try:
@@ -50,19 +50,19 @@ class TestAdditionalCoverageBoost:
                     assert hasattr(user, 'email')
                 except Exception:
                     pass
-            
+
             # Test services
             if hasattr(services, 'UserService'):
                 try:
                     service = services.UserService()
                     assert service is not None
-                    
+
                     # Try service methods
                     try:
                         service.get_user_by_id("test_id")
                     except Exception:
                         pass
-                    
+
                     try:
                         service.create_user({"username": "test", "email": "test@example.com"})
                     except Exception:
@@ -99,7 +99,7 @@ class TestAdditionalCoverageBoost:
                 try:
                     cache = cache_manager.CacheManager()
                     assert cache is not None
-                    
+
                     # Test cache operations
                     cache.set("test_key", "test_value")
                     value = cache.get("test_key")
@@ -121,10 +121,10 @@ class TestAdditionalCoverageBoost:
                 try:
                     strategy = strategies.MarketingStrategy()
                     assert strategy is not None
-                    
+
                     if hasattr(strategy, 'analyze_market'):
                         strategy.analyze_market("test_market")
-                    
+
                     if hasattr(strategy, 'generate_campaign'):
                         strategy.generate_campaign("test_product")
                 except Exception:
@@ -135,10 +135,10 @@ class TestAdditionalCoverageBoost:
                 try:
                     generator = content_generation.ContentGenerator()
                     assert generator is not None
-                    
+
                     if hasattr(generator, 'generate_content'):
                         generator.generate_content("test_topic")
-                    
+
                     if hasattr(generator, 'optimize_content'):
                         generator.optimize_content("test_content")
                 except Exception:
@@ -149,10 +149,10 @@ class TestAdditionalCoverageBoost:
                 try:
                     analytics_obj = analytics.MarketingAnalytics()
                     assert analytics_obj is not None
-                    
+
                     if hasattr(analytics_obj, 'track_campaign'):
                         analytics_obj.track_campaign("test_campaign")
-                    
+
                     if hasattr(analytics_obj, 'generate_report'):
                         analytics_obj.generate_report()
                 except Exception:
@@ -171,11 +171,11 @@ class TestAdditionalCoverageBoost:
                 try:
                     pricing_obj = pricing.PricingStrategy()
                     assert pricing_obj is not None
-                    
+
                     if hasattr(pricing_obj, 'calculate_price'):
                         price = pricing_obj.calculate_price("basic_plan")
                         assert isinstance(price, (int, float))
-                    
+
                     if hasattr(pricing_obj, 'apply_discount'):
                         pricing_obj.apply_discount("DISCOUNT10")
                 except Exception:
@@ -186,10 +186,10 @@ class TestAdditionalCoverageBoost:
                 try:
                     sub_manager = subscription.SubscriptionManager()
                     assert sub_manager is not None
-                    
+
                     if hasattr(sub_manager, 'create_subscription'):
                         sub_manager.create_subscription("user123", "basic_plan")
-                    
+
                     if hasattr(sub_manager, 'cancel_subscription'):
                         sub_manager.cancel_subscription("sub123")
                 except Exception:
@@ -200,10 +200,10 @@ class TestAdditionalCoverageBoost:
                 try:
                     processor = payment_processing.PaymentProcessor()
                     assert processor is not None
-                    
+
                     if hasattr(processor, 'process_payment'):
                         processor.process_payment({"amount": 99.99, "currency": "USD"})
-                    
+
                     if hasattr(processor, 'refund_payment'):
                         processor.refund_payment("payment123")
                 except Exception:
@@ -222,10 +222,10 @@ class TestAdditionalCoverageBoost:
                 try:
                     researcher = market_research.MarketResearcher()
                     assert researcher is not None
-                    
+
                     if hasattr(researcher, 'analyze_market'):
                         researcher.analyze_market("AI tools")
-                    
+
                     if hasattr(researcher, 'identify_opportunities'):
                         researcher.identify_opportunities("tech sector")
                 except Exception:
@@ -236,10 +236,10 @@ class TestAdditionalCoverageBoost:
                 try:
                     analyzer = trend_analysis.TrendAnalyzer()
                     assert analyzer is not None
-                    
+
                     if hasattr(analyzer, 'analyze_trends'):
                         analyzer.analyze_trends("AI market")
-                    
+
                     if hasattr(analyzer, 'predict_trends'):
                         analyzer.predict_trends("next_quarter")
                 except Exception:
@@ -250,10 +250,10 @@ class TestAdditionalCoverageBoost:
                 try:
                     comp_analyzer = competitor_analysis.CompetitorAnalyzer()
                     assert comp_analyzer is not None
-                    
+
                     if hasattr(comp_analyzer, 'analyze_competitors'):
                         comp_analyzer.analyze_competitors("AI chatbots")
-                    
+
                     if hasattr(comp_analyzer, 'benchmark_features'):
                         comp_analyzer.benchmark_features(["feature1", "feature2"])
                 except Exception:
@@ -306,10 +306,10 @@ class TestAdditionalCoverageBoost:
                 try:
                     config = config_loader.ConfigLoader()
                     assert config is not None
-                    
+
                     if hasattr(config, 'load_config'):
                         config.load_config()
-                    
+
                     if hasattr(config, 'get_setting'):
                         config.get_setting("test_setting")
                 except Exception:
@@ -320,7 +320,7 @@ class TestAdditionalCoverageBoost:
                 try:
                     is_valid = validation.validate_email("test@example.com")
                     assert isinstance(is_valid, bool)
-                    
+
                     is_invalid = validation.validate_email("invalid-email")
                     assert isinstance(is_invalid, bool)
                 except Exception:
@@ -331,7 +331,7 @@ class TestAdditionalCoverageBoost:
                 try:
                     processor = db_batch_utils.BatchProcessor()
                     assert processor is not None
-                    
+
                     processor.add_item({"test": "data"})
                     if hasattr(processor, 'process_batch'):
                         processor.process_batch()
@@ -346,9 +346,8 @@ class TestAdditionalCoverageBoost:
         # Test various file operations that project might use
         import tempfile
         import csv
-        import json
         import pickle
-        
+
         # JSON operations
         test_data = {
             "users": [
@@ -358,20 +357,20 @@ class TestAdditionalCoverageBoost:
             "settings": {"theme": "dark", "language": "en"},
             "metadata": {"version": "1.0", "created": "2024-01-01"}
         }
-        
+
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             json.dump(test_data, f, indent=2)
             json_file = f.name
-        
+
         # Read and validate JSON
         with open(json_file) as f:
             loaded_data = json.load(f)
             assert loaded_data == test_data
             assert len(loaded_data["users"]) == 2
             assert loaded_data["settings"]["theme"] == "dark"
-        
+
         os.unlink(json_file)
-        
+
         # CSV operations
         csv_data = [
             ["id", "name", "email", "plan", "revenue"],
@@ -379,12 +378,12 @@ class TestAdditionalCoverageBoost:
             ["2", "Bob", "bob@example.com", "basic", "19.99"],
             ["3", "Charlie", "charlie@example.com", "enterprise", "299.99"]
         ]
-        
+
         with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, newline='') as f:
             writer = csv.writer(f)
             writer.writerows(csv_data)
             csv_file = f.name
-        
+
         # Read and process CSV
         with open(csv_file) as f:
             reader = csv.DictReader(f)
@@ -392,9 +391,9 @@ class TestAdditionalCoverageBoost:
             assert len(rows) == 3
             assert rows[0]["name"] == "Alice"
             assert float(rows[2]["revenue"]) > 200
-        
+
         os.unlink(csv_file)
-        
+
         # Pickle operations (without lambda functions)
         complex_data = {
             "nested": {"level1": {"level2": {"level3": "deep_value"}}},
@@ -403,18 +402,18 @@ class TestAdditionalCoverageBoost:
             "numbers": [1, 2, 3, 4, 5],
             "strings": ["test", "data", "pickle"]
         }
-        
+
         with tempfile.NamedTemporaryFile(mode='wb', suffix='.pkl', delete=False) as f:
             pickle.dump(complex_data, f)
             pickle_file = f.name
-        
+
         # Read pickle data
         with open(pickle_file, 'rb') as f:
             loaded_pickle = pickle.load(f)
             assert "nested" in loaded_pickle
             assert loaded_pickle["nested"]["level1"]["level2"]["level3"] == "deep_value"
             assert len(loaded_pickle["numbers"]) == 5
-        
+
         os.unlink(pickle_file)
 
     def test_extensive_data_processing(self):
@@ -423,29 +422,29 @@ class TestAdditionalCoverageBoost:
         import itertools
         import collections
         from functools import reduce
-        
+
         # Test itertools operations
         data_sets = [
             [1, 2, 3],
             ["a", "b", "c"],
             [True, False]
         ]
-        
+
         # Cartesian product
         product_result = list(itertools.product(*data_sets))
         assert len(product_result) == 18  # 3 * 3 * 2
         assert (1, "a", True) in product_result
-        
+
         # Combinations
         numbers = [1, 2, 3, 4, 5]
         combinations = list(itertools.combinations(numbers, 3))
         assert len(combinations) == 10
-        
+
         # Permutations
         letters = ["x", "y", "z"]
         permutations = list(itertools.permutations(letters))
         assert len(permutations) == 6
-        
+
         # Test collections operations
         # Counter
         text = "hello world this is a test hello world"
@@ -453,45 +452,45 @@ class TestAdditionalCoverageBoost:
         assert word_count["hello"] == 2
         assert word_count["world"] == 2
         assert word_count.most_common(1)[0] == ("hello", 2) or word_count.most_common(1)[0] == ("world", 2)
-        
+
         # DefaultDict
         grouped_data = collections.defaultdict(list)
         items = [("fruit", "apple"), ("vegetable", "carrot"), ("fruit", "banana"), ("vegetable", "broccoli")]
         for category, item in items:
             grouped_data[category].append(item)
-        
+
         assert len(grouped_data["fruit"]) == 2
         assert len(grouped_data["vegetable"]) == 2
         assert "apple" in grouped_data["fruit"]
-        
+
         # Deque
         queue = collections.deque(maxlen=5)
         for i in range(10):
             queue.append(i)
-        
+
         assert len(queue) == 5
         assert list(queue) == [5, 6, 7, 8, 9]
-        
+
         # Test functional programming
         # Reduce operations
         numbers = [1, 2, 3, 4, 5]
         sum_result = reduce(lambda x, y: x + y, numbers)
         assert sum_result == 15
-        
+
         product_result = reduce(lambda x, y: x * y, numbers)
         assert product_result == 120
-        
+
         # Complex list comprehensions
         matrix = [[i + j for j in range(3)] for i in range(3)]
         assert matrix == [[0, 1, 2], [1, 2, 3], [2, 3, 4]]
-        
+
         flattened = [item for row in matrix for item in row]
         assert flattened == [0, 1, 2, 1, 2, 3, 2, 3, 4]
-        
+
         # Dictionary comprehensions
         square_dict = {x: x**2 for x in range(5)}
         assert square_dict == {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
-        
+
         filtered_dict = {k: v for k, v in square_dict.items() if v > 5}
         assert filtered_dict == {3: 9, 4: 16}
 
@@ -499,23 +498,23 @@ class TestAdditionalCoverageBoost:
         """Test extensive string operations."""
         import re
         import string
-        
+
         # Test regular expressions
         text = "Contact us at support@company.com or sales@company.com for assistance"
         email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        
+
         emails = re.findall(email_pattern, text)
         assert len(emails) == 2
         assert "support@company.com" in emails
         assert "sales@company.com" in emails
-        
+
         # Test string formatting
         template = "Hello {name}, you have {count} messages in your {folder} folder"
         formatted = template.format(name="Alice", count=5, folder="inbox")
         assert "Alice" in formatted
         assert "5" in formatted
         assert "inbox" in formatted
-        
+
         # Test f-strings
         name = "Bob"
         age = 30
@@ -524,22 +523,22 @@ class TestAdditionalCoverageBoost:
         assert "Bob" in f_string
         assert "30" in f_string
         assert "95.5" in f_string
-        
+
         # Test string methods
         sample_text = "  This Is A Sample Text With Mixed Case  "
         processed = sample_text.strip().lower().replace(" ", "_")
         assert processed == "this_is_a_sample_text_with_mixed_case"
-        
+
         # Test string constants
         assert len(string.ascii_letters) == 52
         assert len(string.digits) == 10
         assert len(string.punctuation) > 20
-        
+
         # Test string operations
         words = ["python", "programming", "testing", "coverage"]
         joined = " | ".join(words)
-        assert "python | programming | testing | coverage" == joined
-        
+        assert joined == "python | programming | testing | coverage"
+
         split_back = joined.split(" | ")
         assert split_back == words
 
@@ -551,17 +550,17 @@ class TestAdditionalCoverageBoost:
             mock_response.status_code = 200
             mock_response.json.return_value = {"status": "success", "data": [1, 2, 3]}
             mock_get.return_value = mock_response
-            
+
             # Simulate service call
             import requests
             response = requests.get("https://api.example.com/data")
             assert response.status_code == 200
             assert response.json()["status"] == "success"
-            
+
         with patch('builtins.open', create=True) as mock_open:
             # Mock file operations
             mock_open.return_value.__enter__.return_value.read.return_value = "mocked file content"
-            
+
             with open("fake_file.txt") as f:
                 content = f.read()
                 assert content == "mocked file content"
@@ -573,19 +572,19 @@ class TestAdditionalCoverageBoost:
             result = 10 / 0
         except ZeroDivisionError as e:
             assert "division by zero" in str(e).lower()
-        
+
         try:
             invalid_list = [1, 2, 3]
             item = invalid_list[10]
         except IndexError as e:
             assert "index" in str(e).lower()
-        
+
         try:
             invalid_dict = {"a": 1, "b": 2}
             value = invalid_dict["c"]
         except KeyError as e:
             assert "c" in str(e)
-        
+
         # Test multiple exception types
         def risky_function(value):
             if value == "zero":
@@ -598,7 +597,7 @@ class TestAdditionalCoverageBoost:
                 return "string" + 5
             else:
                 return "success"
-        
+
         error_types = ["zero", "index", "key", "type"]
         for error_type in error_types:
             try:
@@ -606,7 +605,7 @@ class TestAdditionalCoverageBoost:
                 assert False, f"Should have raised exception for {error_type}"
             except (ZeroDivisionError, IndexError, KeyError, TypeError):
                 pass  # Expected
-        
+
         # Test successful case
         result = risky_function("success")
         assert result == "success"
@@ -614,7 +613,7 @@ class TestAdditionalCoverageBoost:
     def test_context_managers(self):
         """Test context managers and resource management."""
         import contextlib
-        
+
         # Test custom context manager
         @contextlib.contextmanager
         def managed_resource():
@@ -623,14 +622,14 @@ class TestAdditionalCoverageBoost:
                 yield resource
             finally:
                 resource["status"] = "released"
-        
+
         with managed_resource() as resource:
             assert resource["status"] == "acquired"
             resource["used"] = True
-        
+
         assert resource["status"] == "released"
         assert resource["used"] is True
-        
+
         # Test multiple context managers
         with tempfile.NamedTemporaryFile(mode='w') as f1, \
              tempfile.NamedTemporaryFile(mode='w') as f2:
@@ -638,10 +637,10 @@ class TestAdditionalCoverageBoost:
             f2.write("file 2 content")
             f1.flush()
             f2.flush()
-            
+
             assert os.path.exists(f1.name)
             assert os.path.exists(f2.name)
-        
+
         # Files should be cleaned up automatically
 
     def test_generator_functions(self):
@@ -651,31 +650,31 @@ class TestAdditionalCoverageBoost:
             for _ in range(n):
                 yield a
                 a, b = b, a + b
-        
+
         fib_sequence = list(fibonacci_generator(10))
         assert fib_sequence == [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
-        
+
         # Test generator expression
         squares = (x**2 for x in range(5))
         square_list = list(squares)
         assert square_list == [0, 1, 4, 9, 16]
-        
+
         # Test iterator protocol
         class CustomIterator:
             def __init__(self, max_count):
                 self.max_count = max_count
                 self.count = 0
-            
+
             def __iter__(self):
                 return self
-            
+
             def __next__(self):
                 if self.count < self.max_count:
                     self.count += 1
                     return self.count
                 else:
                     raise StopIteration
-        
+
         custom_iter = CustomIterator(3)
         result = list(custom_iter)
         assert result == [1, 2, 3]
