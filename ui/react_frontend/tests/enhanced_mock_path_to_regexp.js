@@ -1204,7 +1204,7 @@ function enhancedMonkeyPatchRequire() {
       fs.writeFileSync(
         path.join(logDir, 'require-patched-marker.txt'),
         `Require function patched for path-to-regexp at ${new Date().toISOString()}\n` +
-        `This file indicates that the require function was patched to handle path-to-regexp imports.\n` +
+        'This file indicates that the require function was patched to handle path-to-regexp imports.\n' +
         `Environment Detection Module: ${unifiedEnv ? 'Available' : 'Not Available'}\n` +
         `Node.js version: ${process.version}\n` +
         `Platform: ${os.platform()}\n` +
@@ -1334,7 +1334,7 @@ try {
     const pathModule = require('path');
     fs.appendFileSync(
       pathModule.join(logDir, 'enhanced-mock-path-to-regexp.log'),
-      `Enhanced mock implementation verification: Success\n` +
+      'Enhanced mock implementation verification: Success\n' +
       `Timestamp: ${new Date().toISOString()}\n`
     );
   } catch (logError) {

@@ -34,7 +34,7 @@ import {
  */
 const UserActivityChart = ({
   data = [],
-  title = "User Activity Metrics",
+  title = 'User Activity Metrics',
   height = 400,
   metrics = [
     { key: 'dau', name: 'Daily Active Users', color: '#8884d8', type: 'bar' },

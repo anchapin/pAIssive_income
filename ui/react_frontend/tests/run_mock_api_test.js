@@ -86,7 +86,7 @@ function checkServerReady(port, maxRetries = 15) {
       // Set a timeout to avoid hanging requests
       req.setTimeout(2000, () => {
         req.destroy();
-        console.log(`Request timed out after 2000ms`);
+        console.log('Request timed out after 2000ms');
         if (retries < maxRetries) {
           setTimeout(tryConnect, 500);
         } else {
@@ -166,7 +166,7 @@ async function checkServerPorts() {
       path.join(reportDir, 'server-check-failed.txt'),
       `Server not ready on any port at ${new Date().toISOString()}\n` +
       `Checked ports: ${ports.join(', ')}\n` +
-      `Continuing with direct tests...`
+      'Continuing with direct tests...'
     );
   } catch (error) {
     console.error(`Failed to create server check failure report: ${error.message}`);

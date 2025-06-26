@@ -23,7 +23,7 @@ import {
  * @param {number} props.height - Chart height in pixels (default: 400)
  * @returns {React.Component} A radar chart component for opportunity scoring visualization
  */
-const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", height = 400 }) => {
+const OpportunityRadarChart = ({ data, title = 'Opportunity Factor Analysis', height = 400 }) => {
   // Format the data for the radar chart if it's a single opportunity
   const formatSingleOpportunity = (opportunity) => {
     if (!opportunity || !opportunity.factors) return [];
@@ -31,32 +31,32 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
     // Extract factor scores from the opportunity data
     return [
       {
-        subject: "Market Size",
+        subject: 'Market Size',
         value: opportunity.factors.market_size || 0,
         fullMark: 1.0,
       },
       {
-        subject: "Growth Rate",
+        subject: 'Growth Rate',
         value: opportunity.factors.growth_rate || 0,
         fullMark: 1.0,
       },
       {
-        subject: "Competition",
+        subject: 'Competition',
         value: opportunity.factors.competition || 0,
         fullMark: 1.0,
       },
       {
-        subject: "Problem Severity",
+        subject: 'Problem Severity',
         value: opportunity.factors.problem_severity || 0,
         fullMark: 1.0,
       },
       {
-        subject: "Solution Feasibility",
+        subject: 'Solution Feasibility',
         value: opportunity.factors.solution_feasibility || 0,
         fullMark: 1.0,
       },
       {
-        subject: "Monetization Potential",
+        subject: 'Monetization Potential',
         value: opportunity.factors.monetization_potential || 0,
         fullMark: 1.0,
       }
@@ -107,7 +107,7 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
               fill="#8884d8"
               fillOpacity={0.6}
             />
-            <Tooltip formatter={(value) => [value.toFixed(2), "Score"]} />
+            <Tooltip formatter={(value) => [value.toFixed(2), 'Score']} />
             <Legend />
           </RadarChart>
         ) : (
@@ -115,7 +115,7 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
             <PolarGrid />
             <PolarAngleAxis dataKey="subject" />
             <PolarRadiusAxis angle={30} domain={[0, 1.0]} />
-            {["marketSize", "growthRate", "competition", "problemSeverity", "solutionFeasibility", "monetizationPotential"].map(
+            {['marketSize', 'growthRate', 'competition', 'problemSeverity', 'solutionFeasibility', 'monetizationPotential'].map(
               (dataKey, index) => (
                 <Radar
                   key={dataKey}
@@ -127,7 +127,7 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
                 />
               )
             )}
-            <Tooltip formatter={(value) => [value.toFixed(2), "Score"]} />
+            <Tooltip formatter={(value) => [value.toFixed(2), 'Score']} />
             <Legend />
           </RadarChart>
         )}

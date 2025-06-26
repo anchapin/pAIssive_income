@@ -167,10 +167,10 @@ const logFile = path.join(logsDir, 'run_ci_tests_enhanced.log');
 fs.writeFileSync(
   logFile,
   `Enhanced CI Test Runner started at ${new Date().toISOString()}\n` +
-  `Environment Detection:\n` +
-  `- Unified Environment Module: Available\n` +
-  `- Detection Method: Unified Module\n` +
-  `Environment Information:\n` +
+  'Environment Detection:\n' +
+  '- Unified Environment Module: Available\n' +
+  '- Detection Method: Unified Module\n' +
+  'Environment Information:\n' +
   `- CI Mode: ${CI_MODE ? 'Yes' : 'No'}\n` +
   `- CI Type: ${ciType}\n` +
   `- GitHub Actions: ${GITHUB_ACTIONS ? 'Yes' : 'No'}\n` +
@@ -183,13 +183,13 @@ fs.writeFileSync(
   `- Docker: ${DOCKER_ENV ? 'Yes' : 'No'}\n` +
   `- rkt: ${RKT_ENV ? 'Yes' : 'No'}\n` +
   `- Singularity: ${SINGULARITY_ENV ? 'Yes' : 'No'}\n` +
-  `Platform Information:\n` +
+  'Platform Information:\n' +
   `- Windows: ${IS_WINDOWS ? 'Yes' : 'No'}\n` +
   `- macOS: ${IS_MACOS ? 'Yes' : 'No'}\n` +
   `- Linux: ${IS_LINUX ? 'Yes' : 'No'}\n` +
   `- Node.js version: ${process.version}\n` +
   `- Architecture: ${process.arch}\n` +
-  `Configuration:\n` +
+  'Configuration:\n' +
   `- Mock API Port: ${MOCK_API_PORT}\n` +
   `- React Port: ${REACT_PORT}\n` +
   `- Test Spec: ${TEST_SPEC}\n` +
@@ -235,9 +235,9 @@ function createSuccessMarker(message) {
   try {
     // Use the unified environment module's createCISuccessMarkers function
     if (unifiedEnv.createCISuccessMarkers(reportDir, message)) {
-      log(`Created CI success markers using unified environment module`, 'info');
+      log('Created CI success markers using unified environment module', 'info');
     } else {
-      log(`Failed to create CI success markers using unified environment module, falling back to manual creation`, 'warn');
+      log('Failed to create CI success markers using unified environment module, falling back to manual creation', 'warn');
 
       // Fallback: Create multiple marker files with different names to ensure at least one is recognized
       const markerFiles = [
@@ -249,13 +249,13 @@ function createSuccessMarker(message) {
       for (const markerFile of markerFiles) {
         fs.writeFileSync(
           path.join(reportDir, markerFile),
-          `Enhanced CI Test Runner success marker\n` +
+          'Enhanced CI Test Runner success marker\n' +
           `Created at: ${new Date().toISOString()}\n` +
           `Message: ${message}\n` +
-          `Environment Detection:\n` +
-          `- Unified Environment Module: Available\n` +
-          `- Detection Method: Unified Module\n` +
-          `Environment Information:\n` +
+          'Environment Detection:\n' +
+          '- Unified Environment Module: Available\n' +
+          '- Detection Method: Unified Module\n' +
+          'Environment Information:\n' +
           `- CI Mode: ${CI_MODE ? 'Yes' : 'No'}\n` +
           `- CI Type: ${ciType}\n` +
           `- GitHub Actions: ${GITHUB_ACTIONS ? 'Yes' : 'No'}\n` +
@@ -268,13 +268,13 @@ function createSuccessMarker(message) {
           `- Docker: ${DOCKER_ENV ? 'Yes' : 'No'}\n` +
           `- rkt: ${RKT_ENV ? 'Yes' : 'No'}\n` +
           `- Singularity: ${SINGULARITY_ENV ? 'Yes' : 'No'}\n` +
-          `Platform Information:\n` +
+          'Platform Information:\n' +
           `- Windows: ${IS_WINDOWS ? 'Yes' : 'No'}\n` +
           `- macOS: ${IS_MACOS ? 'Yes' : 'No'}\n` +
           `- Linux: ${IS_LINUX ? 'Yes' : 'No'}\n` +
           `- Node.js version: ${process.version}\n` +
           `- Architecture: ${process.arch}\n` +
-          `Test Configuration:\n` +
+          'Test Configuration:\n' +
           `- Test Spec: ${TEST_SPEC}\n` +
           `- Reporter: ${REPORTER}\n` +
           `- Mock API Port: ${MOCK_API_PORT}\n` +
@@ -296,15 +296,15 @@ function createSuccessMarker(message) {
       // Create a summary file specifically for GitHub Actions
       fs.writeFileSync(
         path.join(githubDir, 'summary.txt'),
-        `GitHub Actions Test Summary\n` +
-        `------------------------\n` +
+        'GitHub Actions Test Summary\n' +
+        '------------------------\n' +
         `Test run completed at: ${new Date().toISOString()}\n` +
         `Message: ${message}\n` +
         `CI Type: ${ciType}\n` +
         `Mock API Port: ${MOCK_API_PORT}\n` +
         `React Port: ${REACT_PORT}\n` +
-        `------------------------\n` +
-        `All tests completed successfully.\n`
+        '------------------------\n' +
+        'All tests completed successfully.\n'
       );
     }
 
@@ -320,7 +320,7 @@ function createSuccessMarker(message) {
 </testsuites>`
     );
 
-    log(`Created success markers and test result file`, 'info');
+    log('Created success markers and test result file', 'info');
   } catch (error) {
     log(`Failed to create success markers: ${error.message}`, 'error');
 
@@ -330,7 +330,7 @@ function createSuccessMarker(message) {
         path.join(reportDir, 'last-resort-success.txt'),
         `Last resort success marker\nCreated at: ${new Date().toISOString()}\nMessage: ${message}\n`
       );
-      log(`Created last resort success marker`, 'info');
+      log('Created last resort success marker', 'info');
     } catch (lastResortError) {
       log(`Failed to create last resort success marker: ${lastResortError.message}`, 'error');
     }
