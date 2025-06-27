@@ -14,7 +14,6 @@ exclude: (?x)(
   node_modules/.*|
   .*__pycache__/.*|
   .*\.pytest_cache/.*|
-  .*\.mypy_cache/.*|
   .*\.ruff_cache/.*|
   build/.*|
   dist/.*|
@@ -61,20 +60,21 @@ repos:
         args: ["-c", "bandit.yaml", "-r"]
         types: [python]
         exclude: "tests/.*"
-  # Type checking (run after formatting/linting) - temporarily disabled
-  # - repo: local
-  #   hooks:
-  #     - id: pyright
-  #       name: Type check with Pyright
-  #       entry: pyright
-  #       language: system
-  #       types: [python]
-  #       require_serial: true
-  #       exclude: |
-  #         (?x)(
-  #           ^scripts/__init__.py$|
-  #           ^.github/scripts/__init__.py$
-  #         )
+  # Type checking (run after formatting/linting)
+  - repo: local
+    hooks:
+      - id: pyright
+        name: Type check with Pyright
+        entry: pyright
+        language: system
+        types: [python]
+        require_serial: true
+        exclude: |
+          (?x)(
+            ^ui/react_frontend/.*|
+            ^scripts/.*|
+            ^\.github/scripts/.*
+          )
   # Optimized local hooks for incremental checks
   - repo: local
     hooks:

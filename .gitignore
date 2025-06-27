@@ -116,11 +116,6 @@ venv.bak/
 # mkdocs documentation
 /site
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
 # Pyre type-checker
 .pyre/
 
@@ -197,8 +192,6 @@ test-artifacts/
 test-results/
 requirements_logs/
 bandit_results.txt
-mypy_errors_summary.txt
-mypy_typing_report.txt
 ruff_typing_report.json
 ruff-baseline.txt
 pnpm-lock.yaml
