@@ -19,58 +19,58 @@ class TestSimple15PercentCoverage:
         """Test importing and using large modules."""
         # Test importing the CI simulation script
         try:
-            sys.path.insert(0, './scripts/ci')
+            sys.path.insert(0, "./scripts/ci")
             import simulate_ci_environment
 
             # Execute some basic functionality
-            if hasattr(simulate_ci_environment, 'detect_environment'):
+            if hasattr(simulate_ci_environment, "detect_environment"):
                 result = simulate_ci_environment.detect_environment()
-            elif hasattr(simulate_ci_environment, 'main'):
+            elif hasattr(simulate_ci_environment, "main"):
                 # Don't actually run main, just check it exists
                 assert callable(simulate_ci_environment.main)
 
         except ImportError:
             pass
         finally:
-            if './scripts/ci' in sys.path:
-                sys.path.remove('./scripts/ci')
+            if "./scripts/ci" in sys.path:
+                sys.path.remove("./scripts/ci")
 
     def test_import_fix_scripts(self):
         """Test importing fix scripts."""
         try:
-            sys.path.insert(0, './scripts/fix')
+            sys.path.insert(0, "./scripts/fix")
             import fix_all_issues_final
 
             # Test basic functionality
-            if hasattr(fix_all_issues_final, 'fix_issues'):
+            if hasattr(fix_all_issues_final, "fix_issues"):
                 # Don't actually run, just verify it exists
                 assert callable(fix_all_issues_final.fix_issues)
-            elif hasattr(fix_all_issues_final, 'main'):
+            elif hasattr(fix_all_issues_final, "main"):
                 assert callable(fix_all_issues_final.main)
 
         except ImportError:
             pass
         finally:
-            if './scripts/fix' in sys.path:
-                sys.path.remove('./scripts/fix')
+            if "./scripts/fix" in sys.path:
+                sys.path.remove("./scripts/fix")
 
     def test_import_setup_scripts(self):
         """Test importing setup scripts."""
         try:
-            sys.path.insert(0, './scripts/setup')
+            sys.path.insert(0, "./scripts/setup")
             import enhanced_setup_dev_environment
 
             # Test basic functionality
-            if hasattr(enhanced_setup_dev_environment, 'setup_environment'):
+            if hasattr(enhanced_setup_dev_environment, "setup_environment"):
                 assert callable(enhanced_setup_dev_environment.setup_environment)
-            elif hasattr(enhanced_setup_dev_environment, 'main'):
+            elif hasattr(enhanced_setup_dev_environment, "main"):
                 assert callable(enhanced_setup_dev_environment.main)
 
         except ImportError:
             pass
         finally:
-            if './scripts/setup' in sys.path:
-                sys.path.remove('./scripts/setup')
+            if "./scripts/setup" in sys.path:
+                sys.path.remove("./scripts/setup")
 
     def test_custom_secrets_modules(self):
         """Test custom secrets modules."""
@@ -78,18 +78,18 @@ class TestSimple15PercentCoverage:
             from common_utils.custom_secrets import cli, secrets_manager, audit
 
             # Test CLI module
-            if hasattr(cli, 'CLI'):
+            if hasattr(cli, "CLI"):
                 cli_obj = cli.CLI()
                 assert cli_obj is not None
 
             # Test secrets manager
-            if hasattr(secrets_manager, 'SecretsManager'):
+            if hasattr(secrets_manager, "SecretsManager"):
                 # Just test class creation, not actual functionality
                 manager_class = secrets_manager.SecretsManager
                 assert manager_class is not None
 
             # Test audit module
-            if hasattr(audit, 'AuditLogger'):
+            if hasattr(audit, "AuditLogger"):
                 logger_class = audit.AuditLogger
                 assert logger_class is not None
 
@@ -102,11 +102,11 @@ class TestSimple15PercentCoverage:
             from common_utils.custom_logging import secure_logging
 
             # Test logging functions
-            if hasattr(secure_logging, 'get_logger'):
-                logger = secure_logging.get_logger('test_logger')
+            if hasattr(secure_logging, "get_logger"):
+                logger = secure_logging.get_logger("test_logger")
                 assert logger is not None
 
-            if hasattr(secure_logging, 'setup_logging'):
+            if hasattr(secure_logging, "setup_logging"):
                 # Test setup (but don't actually configure)
                 assert callable(secure_logging.setup_logging)
 
@@ -119,13 +119,13 @@ class TestSimple15PercentCoverage:
             import run_tests
 
             # Test that it has expected functions
-            if hasattr(run_tests, 'main'):
+            if hasattr(run_tests, "main"):
                 assert callable(run_tests.main)
 
-            if hasattr(run_tests, 'run_pytest'):
+            if hasattr(run_tests, "run_pytest"):
                 assert callable(run_tests.run_pytest)
 
-            if hasattr(run_tests, 'setup_environment'):
+            if hasattr(run_tests, "setup_environment"):
                 assert callable(run_tests.setup_environment)
 
         except ImportError:
@@ -137,10 +137,10 @@ class TestSimple15PercentCoverage:
             import convert_bandit_to_sarif
 
             # Test functions exist
-            if hasattr(convert_bandit_to_sarif, 'convert_to_sarif'):
+            if hasattr(convert_bandit_to_sarif, "convert_to_sarif"):
                 assert callable(convert_bandit_to_sarif.convert_to_sarif)
 
-            if hasattr(convert_bandit_to_sarif, 'main'):
+            if hasattr(convert_bandit_to_sarif, "main"):
                 assert callable(convert_bandit_to_sarif.main)
 
         except ImportError:
@@ -152,7 +152,7 @@ class TestSimple15PercentCoverage:
             from adk_demo import mem0_enhanced_adk_agents
 
             # Test classes exist
-            if hasattr(mem0_enhanced_adk_agents, 'MemoryEnhancedADKAgents'):
+            if hasattr(mem0_enhanced_adk_agents, "MemoryEnhancedADKAgents"):
                 agent_class = mem0_enhanced_adk_agents.MemoryEnhancedADKAgents
                 assert agent_class is not None
 
@@ -172,13 +172,13 @@ class TestSimple15PercentCoverage:
             import install_mcp_sdk
 
             # Test functions exist
-            if hasattr(install_mcp_sdk, 'install_mcp'):
+            if hasattr(install_mcp_sdk, "install_mcp"):
                 assert callable(install_mcp_sdk.install_mcp)
 
-            if hasattr(install_mcp_sdk, 'check_installation'):
+            if hasattr(install_mcp_sdk, "check_installation"):
                 assert callable(install_mcp_sdk.check_installation)
 
-            if hasattr(install_mcp_sdk, 'main'):
+            if hasattr(install_mcp_sdk, "main"):
                 assert callable(install_mcp_sdk.main)
 
         except ImportError:
@@ -190,10 +190,10 @@ class TestSimple15PercentCoverage:
             import test_bandit_config
 
             # Test functions exist
-            if hasattr(test_bandit_config, 'test_config'):
+            if hasattr(test_bandit_config, "test_config"):
                 assert callable(test_bandit_config.test_config)
 
-            if hasattr(test_bandit_config, 'main'):
+            if hasattr(test_bandit_config, "main"):
                 assert callable(test_bandit_config.main)
 
         except ImportError:
@@ -202,14 +202,14 @@ class TestSimple15PercentCoverage:
     def test_import_all_main_modules(self):
         """Test importing all main modules to boost coverage."""
         main_modules = [
-            'ai_models',
-            'agent_team',
-            'ui',
-            'users',
-            'marketing',
-            'monetization',
-            'niche_analysis',
-            'common_utils'
+            "ai_models",
+            "agent_team",
+            "ui",
+            "users",
+            "marketing",
+            "monetization",
+            "niche_analysis",
+            "common_utils",
         ]
 
         for module_name in main_modules:
@@ -218,11 +218,11 @@ class TestSimple15PercentCoverage:
                 assert module is not None
 
                 # Try to access module attributes to execute code
-                if hasattr(module, '__version__'):
+                if hasattr(module, "__version__"):
                     version = module.__version__
-                if hasattr(module, '__file__'):
+                if hasattr(module, "__file__"):
                     file_path = module.__file__
-                if hasattr(module, '__path__'):
+                if hasattr(module, "__path__"):
                     path = module.__path__
 
             except ImportError:
@@ -235,7 +235,7 @@ class TestSimple15PercentCoverage:
         assert current_dir.exists()
 
         # Test file operations
-        project_files = list(Path('.').glob('*.py'))
+        project_files = list(Path(".").glob("*.py"))
         assert len(project_files) > 0
 
         # Test environment operations
@@ -255,15 +255,15 @@ class TestSimple15PercentCoverage:
             from utils import math_utils
 
             # Test all functions if they exist
-            if hasattr(math_utils, 'calculate_percentage'):
+            if hasattr(math_utils, "calculate_percentage"):
                 result = math_utils.calculate_percentage(50, 100)
                 assert result == 50.0
 
-            if hasattr(math_utils, 'validate_number'):
+            if hasattr(math_utils, "validate_number"):
                 assert math_utils.validate_number(42) is True
                 assert math_utils.validate_number("not_number") is False
 
-            if hasattr(math_utils, 'format_currency'):
+            if hasattr(math_utils, "format_currency"):
                 formatted = math_utils.format_currency(1234.56)
                 assert isinstance(formatted, str)
 
@@ -280,12 +280,12 @@ class TestSimple15PercentCoverage:
 
             # Try to access any functions that might exist
             for attr_name in dir(validation_utils):
-                if not attr_name.startswith('_'):
+                if not attr_name.startswith("_"):
                     attr = getattr(validation_utils, attr_name)
                     if callable(attr):
                         # We found a callable, try to use it
                         try:
-                            if 'validate' in attr_name.lower() or 'sanitize' in attr_name.lower():
+                            if "validate" in attr_name.lower() or "sanitize" in attr_name.lower():
                                 attr("test_input")
                         except Exception:
                             pass  # Expected to fail, but we executed the code
@@ -299,11 +299,11 @@ class TestSimple15PercentCoverage:
             from ui import api_server
 
             # Test API server functions
-            if hasattr(api_server, 'create_app'):
+            if hasattr(api_server, "create_app"):
                 # Don't actually create app, just verify function exists
                 assert callable(api_server.create_app)
 
-            if hasattr(api_server, 'init_db'):
+            if hasattr(api_server, "init_db"):
                 assert callable(api_server.init_db)
 
         except ImportError:
@@ -313,29 +313,30 @@ class TestSimple15PercentCoverage:
         """Test users modules."""
         # Mock DATABASE_URL environment variable to avoid production check
         import os
-        original_database_url = os.environ.get('DATABASE_URL')
-        os.environ['DATABASE_URL'] = 'sqlite:///test.db'
+
+        original_database_url = os.environ.get("DATABASE_URL")
+        os.environ["DATABASE_URL"] = "sqlite:///test.db"
 
         try:
             from users import auth, models, services
 
             # Test auth module
-            if hasattr(auth, 'hash_password'):
+            if hasattr(auth, "hash_password"):
                 # Test with simple password
                 hashed = auth.hash_password("test_password")
                 assert hashed != "test_password"
 
-            if hasattr(auth, 'verify_password'):
+            if hasattr(auth, "verify_password"):
                 # Don't actually verify, just check function exists
                 assert callable(auth.verify_password)
 
             # Test models
-            if hasattr(models, 'User'):
+            if hasattr(models, "User"):
                 user_class = models.User
                 assert user_class is not None
 
             # Test services
-            if hasattr(services, 'UserService'):
+            if hasattr(services, "UserService"):
                 service_class = services.UserService
                 assert service_class is not None
 
@@ -344,9 +345,9 @@ class TestSimple15PercentCoverage:
         finally:
             # Restore original DATABASE_URL environment variable
             if original_database_url is not None:
-                os.environ['DATABASE_URL'] = original_database_url
-            elif 'DATABASE_URL' in os.environ:
-                del os.environ['DATABASE_URL']
+                os.environ["DATABASE_URL"] = original_database_url
+            elif "DATABASE_URL" in os.environ:
+                del os.environ["DATABASE_URL"]
 
     def test_import_agent_team_modules(self):
         """Test agent team modules."""
@@ -354,19 +355,19 @@ class TestSimple15PercentCoverage:
             from agent_team import crewai_agents, mem0_enhanced_agents
 
             # Test CrewAI agents
-            if hasattr(crewai_agents, 'CrewAIAgentTeam'):
+            if hasattr(crewai_agents, "CrewAIAgentTeam"):
                 team_class = crewai_agents.CrewAIAgentTeam
                 # Try to create instance
                 try:
                     team = team_class()
                     assert team is not None
-                    assert hasattr(team, 'agents')
-                    assert hasattr(team, 'tasks')
+                    assert hasattr(team, "agents")
+                    assert hasattr(team, "tasks")
                 except Exception:
                     pass  # Might fail due to dependencies, but we executed code
 
             # Test mem0 enhanced agents
-            if hasattr(mem0_enhanced_agents, 'MemoryEnhancedCrewAIAgentTeam'):
+            if hasattr(mem0_enhanced_agents, "MemoryEnhancedCrewAIAgentTeam"):
                 enhanced_class = mem0_enhanced_agents.MemoryEnhancedCrewAIAgentTeam
                 try:
                     enhanced_team = enhanced_class(user_id="test")
@@ -383,14 +384,14 @@ class TestSimple15PercentCoverage:
             from ai_models.adapters import adapter_factory
 
             # Test adapter factory
-            if hasattr(adapter_factory, 'get_adapter'):
+            if hasattr(adapter_factory, "get_adapter"):
                 # Try to get adapters (will fail but execute code)
                 try:
                     adapter = adapter_factory.get_adapter("ollama", "localhost", 11434)
                 except Exception:
                     pass  # Expected to fail, but we executed the code
 
-            if hasattr(adapter_factory, 'AdapterFactory'):
+            if hasattr(adapter_factory, "AdapterFactory"):
                 factory_class = adapter_factory.AdapterFactory
                 try:
                     factory = factory_class()
@@ -404,9 +405,9 @@ class TestSimple15PercentCoverage:
     def test_coverage_by_importing_scripts(self):
         """Boost coverage by importing various scripts."""
         script_modules = [
-            ('scripts.run.run_mcp_tests', './scripts/run'),
-            ('scripts.ci.detect_ci_environment', './scripts/ci'),
-            ('scripts.setup.setup_dev_environment', './scripts/setup'),
+            ("scripts.run.run_mcp_tests", "./scripts/run"),
+            ("scripts.ci.detect_ci_environment", "./scripts/ci"),
+            ("scripts.setup.setup_dev_environment", "./scripts/setup"),
         ]
 
         for module_name, path in script_modules:
@@ -415,12 +416,12 @@ class TestSimple15PercentCoverage:
                     sys.path.insert(0, path)
 
                 # Import the module
-                parts = module_name.split('.')
+                parts = module_name.split(".")
                 module = importlib.import_module(parts[-1])
                 assert module is not None
 
                 # Try to access main function
-                if hasattr(module, 'main'):
+                if hasattr(module, "main"):
                     assert callable(module.main)
 
             except ImportError:
@@ -472,7 +473,7 @@ class TestSimple15PercentCoverage:
             import tempfile
 
             # Test file operations that might be used in the project
-            with tempfile.NamedTemporaryFile(mode='w+', delete=False) as f:
+            with tempfile.NamedTemporaryFile(mode="w+", delete=False) as f:
                 f.write("test content")
                 temp_file = f.name
 
@@ -489,15 +490,16 @@ class TestSimple15PercentCoverage:
 
         # Test environment variable operations
         import os
-        original_test_var = os.environ.get('TEST_COVERAGE_VAR')
+
+        original_test_var = os.environ.get("TEST_COVERAGE_VAR")
         try:
-            os.environ['TEST_COVERAGE_VAR'] = 'test_value'
-            assert os.getenv('TEST_COVERAGE_VAR') == 'test_value'
+            os.environ["TEST_COVERAGE_VAR"] = "test_value"
+            assert os.getenv("TEST_COVERAGE_VAR") == "test_value"
         finally:
             if original_test_var is not None:
-                os.environ['TEST_COVERAGE_VAR'] = original_test_var
-            elif 'TEST_COVERAGE_VAR' in os.environ:
-                del os.environ['TEST_COVERAGE_VAR']
+                os.environ["TEST_COVERAGE_VAR"] = original_test_var
+            elif "TEST_COVERAGE_VAR" in os.environ:
+                del os.environ["TEST_COVERAGE_VAR"]
 
         # Test more data structures and operations
         test_list = [1, 2, 3, 4, 5]
@@ -521,8 +523,9 @@ class TestSimple15PercentCoverage:
         """Extra test to ensure we exceed 15% coverage by testing actual project functions."""
         # Mock DATABASE_URL for any database-related imports
         import os
-        original_database_url = os.environ.get('DATABASE_URL')
-        os.environ['DATABASE_URL'] = 'sqlite:///test.db'
+
+        original_database_url = os.environ.get("DATABASE_URL")
+        os.environ["DATABASE_URL"] = "sqlite:///test.db"
 
         try:
             # Test actual math utilities
@@ -588,8 +591,8 @@ class TestSimple15PercentCoverage:
                 # Try to create a user instance (might fail but executes code)
                 try:
                     user = User(username="test_user", email="test@example.com")
-                    assert hasattr(user, 'username')
-                    assert hasattr(user, 'email')
+                    assert hasattr(user, "username")
+                    assert hasattr(user, "email")
                 except Exception:
                     pass
 
@@ -624,7 +627,10 @@ class TestSimple15PercentCoverage:
 
             # Test more secrets manager functionality
             try:
-                from common_utils.custom_secrets.secrets_manager import SecretsManager, SecretsBackend
+                from common_utils.custom_secrets.secrets_manager import (
+                    SecretsManager,
+                    SecretsBackend,
+                )
 
                 # Test enum functionality
                 assert SecretsBackend.ENV.value == "env"
@@ -670,6 +676,6 @@ class TestSimple15PercentCoverage:
         finally:
             # Restore original DATABASE_URL
             if original_database_url is not None:
-                os.environ['DATABASE_URL'] = original_database_url
-            elif 'DATABASE_URL' in os.environ:
-                del os.environ['DATABASE_URL']
+                os.environ["DATABASE_URL"] = original_database_url
+            elif "DATABASE_URL" in os.environ:
+                del os.environ["DATABASE_URL"]

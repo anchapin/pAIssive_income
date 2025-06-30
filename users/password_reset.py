@@ -197,9 +197,7 @@ class PasswordResetService:
         hashed_reset_token = hashlib.sha256(reset_code.encode()).hexdigest()
 
         # Find the user with the reset code hash
-        user: UserDict | None = self.user_repository.find_by_reset_token(
-            hashed_reset_token
-        )
+        user: UserDict | None = self.user_repository.find_by_reset_token(hashed_reset_token)
         if not user:
             # Don't reveal whether code exists
             logger.warning(
@@ -216,9 +214,7 @@ class PasswordResetService:
         expiry_str = str(user["auth_reset_expires"])
         expiry = datetime.fromisoformat(expiry_str)
         if expiry < datetime.now(tz=timezone.utc):
-            logger.warning(
-                "Expired authentication reset attempt", extra={"user_id": user["id"]}
-            )
+            logger.warning("Expired authentication reset attempt", extra={"user_id": user["id"]})
             return False
 
         # Hash the new credential

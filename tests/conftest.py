@@ -66,6 +66,7 @@ def app():
     except ImportError:
         # If app_flask is not available, create a minimal Flask app
         from flask import Flask
+
         app = Flask(__name__)
         app.config.update({
             "TESTING": True,

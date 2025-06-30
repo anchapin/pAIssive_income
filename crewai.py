@@ -13,9 +13,7 @@ __version__ = "0.120.0"
 class Agent:
     """Mock implementation of CrewAI Agent class."""
 
-    def __init__(
-        self, role: str = "", goal: str = "", backstory: str = "", **kwargs: dict
-    ) -> None:
+    def __init__(self, role: str = "", goal: str = "", backstory: str = "", **kwargs: dict) -> None:
         """
         Initialize a mock Agent.
 
@@ -48,9 +46,7 @@ class Agent:
 class Task:
     """Mock implementation of CrewAI Task class."""
 
-    def __init__(
-        self, description: str = "", agent: Agent | None = None, **kwargs: dict
-    ) -> None:
+    def __init__(self, description: str = "", agent: Agent | None = None, **kwargs: dict) -> None:
         """
         Initialize a mock Task.
 

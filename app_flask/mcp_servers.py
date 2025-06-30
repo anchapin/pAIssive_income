@@ -95,13 +95,9 @@ def load_settings() -> dict[str, Any]:
         with MCP_SETTINGS_FILE.open(encoding="utf-8") as f:
             try:
                 # Parse with a maximum depth to prevent stack overflow attacks
-                data = json.load(
-                    f, parse_constant=lambda _: None, parse_int=int, parse_float=float
-                )
+                data = json.load(f, parse_constant=lambda _: None, parse_int=int, parse_float=float)
             except json.JSONDecodeError:
-                logger.exception(
-                    "Failed to decode JSON from settings file '%s'", MCP_SETTINGS_FILE
-                )
+                logger.exception("Failed to decode JSON from settings file '%s'", MCP_SETTINGS_FILE)
                 data = {}
     except (OSError, PermissionError):
         logger.exception("Error reading settings file '%s'", MCP_SETTINGS_FILE)
@@ -194,49 +190,38 @@ def validate_server_data(server: dict[str, Any]) -> tuple[str, int] | None:
 
     # Validate required fields
     required_fields = ["name", "host", "port"]
-    validations.extend(
-        [
-            (field not in server, f"Missing required field: {field}")
-            for field in required_fields
-        ]
-    )
+    validations.extend([
+        (field not in server, f"Missing required field: {field}") for field in required_fields
+    ])
 
     # If we have the required fields, perform additional validations
     if all(field in server for field in required_fields):
         # Validate server name (alphanumeric, dash, underscore only)
-        validations.append(
-            (
-                not re.match(r"^[a-zA-Z0-9_-]+$", server["name"]),
-                "Server name must contain only alphanumeric characters, underscores, and dashes",
-            )
-        )
+        validations.append((
+            not re.match(r"^[a-zA-Z0-9_-]+$", server["name"]),
+            "Server name must contain only alphanumeric characters, underscores, and dashes",
+        ))
 
         # Validate host (prevent command injection via hostname)
-        validations.append(
-            (
-                not re.match(r"^[a-zA-Z0-9_.-]+$", server["host"]),
-                "Host must contain only alphanumeric characters, dots, underscores, and dashes",
-            )
-        )
+        validations.append((
+            not re.match(r"^[a-zA-Z0-9_.-]+$", server["host"]),
+            "Host must contain only alphanumeric characters, dots, underscores, and dashes",
+        ))
 
         # Validate description if provided
         if "description" in server:
-            validations.append(
-                (
-                    not isinstance(server["description"], str),
-                    "Description must be a string",
-                )
-            )
+            validations.append((
+                not isinstance(server["description"], str),
+                "Description must be a string",
+            ))
 
         # Validate port is an integer in valid range
         try:
             port = int(server["port"])
-            validations.append(
-                (
-                    port < MIN_PORT or port > MAX_PORT,
-                    f"Port must be between {MIN_PORT} and {MAX_PORT}",
-                )
-            )
+            validations.append((
+                port < MIN_PORT or port > MAX_PORT,
+                f"Port must be between {MIN_PORT} and {MAX_PORT}",
+            ))
             server["port"] = port
         except (ValueError, TypeError):
             return "Port must be a valid integer", 400

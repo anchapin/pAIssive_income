@@ -105,9 +105,7 @@ def main() -> int:
         config_path.write_text(BANDIT_CONFIG_TEMPLATE)
 
         # Test run ID config
-        test_run_id_path = (
-            Path(BANDIT_DIR) / f"bandit-config-{platform}-test_run_id.yaml"
-        )
+        test_run_id_path = Path(BANDIT_DIR) / f"bandit-config-{platform}-test_run_id.yaml"
         test_run_id_path.write_text(BANDIT_CONFIG_TEMPLATE)
 
     # Create empty SARIF file

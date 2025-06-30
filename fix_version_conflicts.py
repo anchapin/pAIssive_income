@@ -13,9 +13,7 @@ import sys
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -87,9 +85,7 @@ def verify_dependency_resolution() -> bool:
         if result.returncode == 0:
             logger.info("✓ All dependency conflicts resolved")
             return True
-        logger.warning(
-            f"✗ Remaining dependency conflicts:\n{result.stdout}\n{result.stderr}"
-        )
+        logger.warning(f"✗ Remaining dependency conflicts:\n{result.stdout}\n{result.stderr}")
         return False
 
     except Exception as e:

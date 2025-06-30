@@ -21,9 +21,7 @@ logger = get_logger(__name__)
 class VaultBackend:
     """Backend for storing secrets in HashiCorp Vault."""
 
-    def __init__(
-        self, vault_url: str | None = None, auth_material: str | None = None
-    ) -> None:
+    def __init__(self, vault_url: str | None = None, auth_material: str | None = None) -> None:
         """
         Initialize the Vault backend.
 

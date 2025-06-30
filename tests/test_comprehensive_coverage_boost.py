@@ -160,6 +160,7 @@ def test_comprehensive_ai_models():
     """Test AI models modules comprehensively."""
     # Test version
     from ai_models.version import __version__
+
     assert isinstance(__version__, str)
     assert len(__version__) > 0
 
@@ -222,23 +223,19 @@ def test_comprehensive_marketing():
     """Test marketing modules comprehensively."""
     from marketing.errors import MarketingError
     from marketing.schemas import ContentTemplate, MarketingCampaign
+
     # from marketing.service import MarketingService  # Import error - service may not exist
     MarketingService = MagicMock  # Mock the service for testing
 
     # Test schema creation
     campaign = MarketingCampaign(
-        name="Test Campaign",
-        target_audience="Test Audience",
-        budget=1000.0,
-        duration_days=30
+        name="Test Campaign", target_audience="Test Audience", budget=1000.0, duration_days=30
     )
     assert campaign.name == "Test Campaign"
     assert campaign.budget == 1000.0
 
     template = ContentTemplate(
-        name="Test Template",
-        content_type="email",
-        template_text="Hello {name}!"
+        name="Test Template", content_type="email", template_text="Hello {name}!"
     )
     assert template.name == "Test Template"
     assert template.content_type == "email"
@@ -256,6 +253,7 @@ def test_comprehensive_monetization():
     """Test monetization modules comprehensively."""
     from monetization.billing_calculator import BillingCalculator
     from monetization.payment_gateway import PaymentGateway
+
     # from monetization.schemas import Invoice, SubscriptionPlan  # Module may not exist
     Invoice = MagicMock
     SubscriptionPlan = MagicMock
@@ -263,20 +261,12 @@ def test_comprehensive_monetization():
 
     # Test schemas
     plan = SubscriptionPlan(
-        name="Basic Plan",
-        price=29.99,
-        features=["Feature 1", "Feature 2"],
-        billing_cycle="monthly"
+        name="Basic Plan", price=29.99, features=["Feature 1", "Feature 2"], billing_cycle="monthly"
     )
     assert plan.name == "Basic Plan"
     assert plan.price == 29.99
 
-    invoice = Invoice(
-        invoice_id="INV-001",
-        amount=29.99,
-        due_date="2025-01-01",
-        status="pending"
-    )
+    invoice = Invoice(invoice_id="INV-001", amount=29.99, due_date="2025-01-01", status="pending")
     assert invoice.invoice_id == "INV-001"
     assert invoice.amount == 29.99
 
@@ -303,7 +293,7 @@ def test_comprehensive_niche_analysis():
         niche_name="AI Chatbots",
         market_size=1000000,
         competition_level="medium",
-        growth_potential="high"
+        growth_potential="high",
     )
     assert opportunity.niche_name == "AI Chatbots"
     assert opportunity.market_size == 1000000
@@ -312,7 +302,7 @@ def test_comprehensive_niche_analysis():
         competitor_name="Competitor A",
         market_share=25.5,
         strengths=["Strong brand", "Good pricing"],
-        weaknesses=["Limited features"]
+        weaknesses=["Limited features"],
     )
     assert analysis.competitor_name == "Competitor A"
     assert analysis.market_share == 25.5
@@ -328,6 +318,7 @@ def test_comprehensive_niche_analysis():
 def test_comprehensive_app_flask():
     """Test Flask app modules comprehensively."""
     from app_flask import create_app
+
     # from app_flask.database import get_db_connection, init_db  # Import error
     get_db_connection = MagicMock
     init_db = MagicMock

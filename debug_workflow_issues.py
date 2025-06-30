@@ -68,17 +68,13 @@ def check_package_json() -> None:
             if "src" in pattern and Path("src").exists():
                 test_files = list(Path("src").glob("*.test.js"))
                 if test_files:
-                    logger.info(
-                        "\u2705 Found test files in src/: %d files", len(test_files)
-                    )
+                    logger.info("\u2705 Found test files in src/: %d files", len(test_files))
                 else:
                     logger.info("\u274c No test files found in src/")
             elif "ui" in pattern and Path("ui").exists():
                 test_files = list(Path("ui").rglob("*.test.js"))
                 if test_files:
-                    logger.info(
-                        "\u2705 Found test files in ui/: %d files", len(test_files)
-                    )
+                    logger.info("\u2705 Found test files in ui/: %d files", len(test_files))
                 else:
                     logger.info("\u274c No test files found in ui/")
 
@@ -96,9 +92,7 @@ def check_workflow_files() -> None:
     if not check_directory_exists(str(workflow_dir), "Workflows directory"):
         return
 
-    workflow_files = list(workflow_dir.glob("*.yml")) + list(
-        workflow_dir.glob("*.yaml")
-    )
+    workflow_files = list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
     logger.info("\u2705 Found %d workflow files", len(workflow_files))
 
     for workflow_file in workflow_files:
@@ -195,9 +189,7 @@ def main() -> None:
 
     logger.info("%s", "\n" + "=" * 50)
     logger.info("🏁 Debug report complete!")
-    logger.info(
-        "\nIf you see ❌ marks above, those might be causing workflow failures."
-    )
+    logger.info("\nIf you see ❌ marks above, those might be causing workflow failures.")
     logger.info("Check the GitHub Actions logs for more specific error messages.")
 
 

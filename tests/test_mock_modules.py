@@ -74,9 +74,7 @@ class TestMockModules(unittest.TestCase):
 
             # Test Agent class
             assert hasattr(crewai, "Agent")
-            agent = crewai.Agent(
-                role="test-role", goal="test-goal", backstory="test-backstory"
-            )
+            agent = crewai.Agent(role="test-role", goal="test-goal", backstory="test-backstory")
             assert agent.role == "test-role"
             assert agent.goal == "test-goal"
             assert agent.backstory == "test-backstory"

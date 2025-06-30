@@ -11,9 +11,7 @@ class Agent:
         self.kwargs = kwargs
 
     def execute_task(self, task) -> str:
-        return (
-            f"Mock agent executed task: {getattr(task, 'description', 'unknown task')}"
-        )
+        return f"Mock agent executed task: {getattr(task, 'description', 'unknown task')}"
 
 
 class Task:

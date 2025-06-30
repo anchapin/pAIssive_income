@@ -105,11 +105,7 @@ class SummarizerSkill(Skill):
         """
         # Define a constant for the maximum summary length
         max_summary_length = 75
-        return (
-            data[:max_summary_length] + "..."
-            if len(data) > max_summary_length
-            else data
-        )
+        return data[:max_summary_length] + "..." if len(data) > max_summary_length else data
 
 
 class SummarizerAgent(Agent):

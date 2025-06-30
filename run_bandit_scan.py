@@ -190,33 +190,29 @@ def _install_bandit() -> None:
 
 
 def _run_bandit_scan_with_config(bandit_path: str, bandit_config: str) -> None:
-    _safe_subprocess_run(
-        [
-            bandit_path,
-            "-c",
-            bandit_config,
-            "-r",
-            ".",
-            "-f",
-            "json",
-            "-o",
-            "security-reports/bandit-results.json",
-        ]
-    )
+    _safe_subprocess_run([
+        bandit_path,
+        "-c",
+        bandit_config,
+        "-r",
+        ".",
+        "-f",
+        "json",
+        "-o",
+        "security-reports/bandit-results.json",
+    ])
 
 
 def _run_bandit_scan_default(bandit_path: str) -> None:
-    _safe_subprocess_run(
-        [
-            bandit_path,
-            "-r",
-            ".",
-            "-f",
-            "json",
-            "-o",
-            "security-reports/bandit-results.json",
-        ]
-    )
+    _safe_subprocess_run([
+        bandit_path,
+        "-r",
+        ".",
+        "-f",
+        "json",
+        "-o",
+        "security-reports/bandit-results.json",
+    ])
 
 
 def _convert_bandit_to_sarif() -> None:
@@ -243,38 +239,32 @@ def run_bandit_with_config(bandit_path: str) -> None:
     if bandit_config.exists():
         logger.info("Found bandit.yaml configuration file")
         try:
-            _safe_subprocess_run(
-                [
-                    bandit_path,
-                    "-c",
-                    str(bandit_config),
-                    "-r",
-                    ".",
-                    "-f",
-                    "json",
-                    "-o",
-                    "security-reports/bandit-results.json",
-                ]
-            )
+            _safe_subprocess_run([
+                bandit_path,
+                "-c",
+                str(bandit_config),
+                "-r",
+                ".",
+                "-f",
+                "json",
+                "-o",
+                "security-reports/bandit-results.json",
+            ])
             logger.info("Bandit scan completed with configuration file")
         except (subprocess.SubprocessError, OSError, FileNotFoundError):
             logger.warning("Bandit scan with configuration file failed")
     else:
-        logger.info(
-            "No bandit.yaml configuration file found, using default configuration"
-        )
+        logger.info("No bandit.yaml configuration file found, using default configuration")
         try:
-            _safe_subprocess_run(
-                [
-                    bandit_path,
-                    "-r",
-                    ".",
-                    "-f",
-                    "json",
-                    "-o",
-                    "security-reports/bandit-results.json",
-                ]
-            )
+            _safe_subprocess_run([
+                bandit_path,
+                "-r",
+                ".",
+                "-f",
+                "json",
+                "-o",
+                "security-reports/bandit-results.json",
+            ])
             logger.info("Bandit scan completed with default configuration")
         except (subprocess.SubprocessError, OSError, FileNotFoundError):
             logger.warning("Bandit scan with default configuration failed")

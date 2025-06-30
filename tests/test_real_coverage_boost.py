@@ -22,7 +22,7 @@ class TestRealCoverageBoost:
             # Create and test memory backend
             backend = MemoryBackend()
             assert backend is not None
-            assert hasattr(backend, 'secrets')
+            assert hasattr(backend, "secrets")
             assert isinstance(backend.secrets, dict)
 
             # Test key masking (this works since it doesn't use actual backend functionality)
@@ -116,14 +116,14 @@ class TestRealCoverageBoost:
                 pass  # Expected for unimplemented backends
 
             # Test rotation if available
-            if hasattr(manager, 'rotate_secret'):
+            if hasattr(manager, "rotate_secret"):
                 try:
                     manager.rotate_secret("manager_key")
                 except Exception:
                     pass  # Rotation might fail, but we executed the code
 
             # Test audit if available
-            if hasattr(manager, 'audit_secrets'):
+            if hasattr(manager, "audit_secrets"):
                 try:
                     audit_result = manager.audit_secrets()
                 except Exception:
@@ -141,11 +141,11 @@ class TestRealCoverageBoost:
             assert config is not None
 
             # Test configuration attributes
-            if hasattr(config, 'backend_type'):
+            if hasattr(config, "backend_type"):
                 config.backend_type = "memory"
                 assert config.backend_type == "memory"
 
-            if hasattr(config, 'file_path'):
+            if hasattr(config, "file_path"):
                 config.file_path = "/tmp/test_secrets"
                 assert config.file_path == "/tmp/test_secrets"
 
@@ -161,9 +161,9 @@ class TestRealCoverageBoost:
             assert cli is not None
 
             # Test CLI methods if they exist
-            if hasattr(cli, 'parse_args'):
+            if hasattr(cli, "parse_args"):
                 try:
-                    args = cli.parse_args(['--help'])
+                    args = cli.parse_args(["--help"])
                 except SystemExit:
                     pass  # Help command exits, but we executed the code
 
@@ -179,13 +179,13 @@ class TestRealCoverageBoost:
             assert rotator is not None
 
             # Test rotation methods
-            if hasattr(rotator, 'rotate'):
+            if hasattr(rotator, "rotate"):
                 try:
                     rotator.rotate("test_secret")
                 except Exception:
                     pass  # Rotation might fail, but we executed the code
 
-            if hasattr(rotator, 'schedule_rotation'):
+            if hasattr(rotator, "schedule_rotation"):
                 try:
                     rotator.schedule_rotation("test_secret", "daily")
                 except Exception:
@@ -217,7 +217,7 @@ class TestRealCoverageBoost:
                 backend.delete_secret("vault_key")
 
             # Test the is_authenticated property (this should work)
-            assert hasattr(backend, 'is_authenticated')
+            assert hasattr(backend, "is_authenticated")
 
         except ImportError:
             pytest.skip("Vault backend not available")
@@ -231,13 +231,13 @@ class TestRealCoverageBoost:
             assert auditor is not None
 
             # Test audit methods
-            if hasattr(auditor, 'log_access'):
+            if hasattr(auditor, "log_access"):
                 auditor.log_access("test_user", "test_secret", "read")
 
-            if hasattr(auditor, 'log_modification'):
+            if hasattr(auditor, "log_modification"):
                 auditor.log_modification("test_user", "test_secret", "update")
 
-            if hasattr(auditor, 'get_audit_log'):
+            if hasattr(auditor, "get_audit_log"):
                 try:
                     log = auditor.get_audit_log()
                 except Exception:
@@ -277,11 +277,11 @@ class TestRealCoverageBoost:
             assert processor is not None
 
             # Test batch processing methods
-            if hasattr(processor, 'add_item'):
+            if hasattr(processor, "add_item"):
                 processor.add_item({"id": 1, "data": "test"})
                 processor.add_item({"id": 2, "data": "test2"})
 
-            if hasattr(processor, 'process_batch'):
+            if hasattr(processor, "process_batch"):
                 try:
                     processor.process_batch()
                 except Exception:
@@ -299,7 +299,7 @@ class TestRealCoverageBoost:
             assert repo is not None
 
             # Test repository methods
-            if hasattr(repo, 'create'):
+            if hasattr(repo, "create"):
                 try:
                     repo.create({"url": "http://example.com", "event": "test"})
                 except Exception:
@@ -314,7 +314,7 @@ class TestRealCoverageBoost:
             repo = ApiKeyRepository()
             assert repo is not None
 
-            if hasattr(repo, 'generate_key'):
+            if hasattr(repo, "generate_key"):
                 try:
                     key = repo.generate_key("test_user")
                 except Exception:
@@ -361,20 +361,11 @@ class TestRealCoverageBoost:
             import re
 
             # Test email validation
-            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
-            valid_emails = [
-                "test@example.com",
-                "user.name@domain.co.uk",
-                "admin+tag@company.org"
-            ]
+            valid_emails = ["test@example.com", "user.name@domain.co.uk", "admin+tag@company.org"]
 
-            invalid_emails = [
-                "invalid-email",
-                "@domain.com",
-                "user@",
-                "user name@domain.com"
-            ]
+            invalid_emails = ["invalid-email", "@domain.com", "user@", "user name@domain.com"]
 
             for email in valid_emails:
                 assert re.match(email_pattern, email) is not None
@@ -387,13 +378,13 @@ class TestRealCoverageBoost:
                 "<script>alert('xss')</script>",
                 "normal text",
                 "text with 'quotes'",
-                'text with "double quotes"'
+                'text with "double quotes"',
             ]
 
             for input_text in test_inputs:
                 # Basic sanitization - remove HTML tags
-                sanitized = re.sub(r'<[^>]+>', '', input_text)
-                assert '<script>' not in sanitized
+                sanitized = re.sub(r"<[^>]+>", "", input_text)
+                assert "<script>" not in sanitized
 
         except Exception:
             # Even if validation fails, we executed validation code
@@ -407,7 +398,7 @@ class TestRealCoverageBoost:
         # Test JSON operations
         test_data = {"test": "data", "number": 42, "list": [1, 2, 3]}
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(test_data, f)
             json_file = f.name
 
@@ -421,10 +412,10 @@ class TestRealCoverageBoost:
         csv_data = [
             ["name", "age", "city"],
             ["Alice", "30", "New York"],
-            ["Bob", "25", "Los Angeles"]
+            ["Bob", "25", "Los Angeles"],
         ]
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, newline='') as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, newline="") as f:
             writer = csv.writer(f)
             writer.writerows(csv_data)
             csv_file = f.name
@@ -445,25 +436,25 @@ class TestRealCoverageBoost:
 
         try:
             # Set test environment variables
-            os.environ['TEST_VAR_1'] = 'value1'
-            os.environ['TEST_VAR_2'] = 'value2'
-            os.environ['TEST_DEBUG'] = 'true'
-            os.environ['TEST_PORT'] = '8080'
+            os.environ["TEST_VAR_1"] = "value1"
+            os.environ["TEST_VAR_2"] = "value2"
+            os.environ["TEST_DEBUG"] = "true"
+            os.environ["TEST_PORT"] = "8080"
 
             # Test reading environment variables
-            assert os.getenv('TEST_VAR_1') == 'value1'
-            assert os.getenv('TEST_VAR_2') == 'value2'
-            assert os.getenv('TEST_DEBUG') == 'true'
-            assert os.getenv('TEST_PORT') == '8080'
-            assert os.getenv('NONEXISTENT_VAR') is None
-            assert os.getenv('NONEXISTENT_VAR', 'default') == 'default'
+            assert os.getenv("TEST_VAR_1") == "value1"
+            assert os.getenv("TEST_VAR_2") == "value2"
+            assert os.getenv("TEST_DEBUG") == "true"
+            assert os.getenv("TEST_PORT") == "8080"
+            assert os.getenv("NONEXISTENT_VAR") is None
+            assert os.getenv("NONEXISTENT_VAR", "default") == "default"
 
             # Test boolean parsing
-            debug_value = os.getenv('TEST_DEBUG', 'false').lower() in ('true', '1', 'yes', 'on')
+            debug_value = os.getenv("TEST_DEBUG", "false").lower() in ("true", "1", "yes", "on")
             assert debug_value is True
 
             # Test integer parsing
-            port_value = int(os.getenv('TEST_PORT', '3000'))
+            port_value = int(os.getenv("TEST_PORT", "3000"))
             assert port_value == 8080
 
         finally:

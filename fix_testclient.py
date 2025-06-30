@@ -15,9 +15,7 @@ def fix_test_file(filepath) -> None:
 
     # Add client = TestClient(app) at the beginning of each test method
     # Find all test methods that use client
-    test_methods = re.findall(
-        r"(def test_[^(]+\([^)]*\):.*?)(?=def|\Z)", content, re.DOTALL
-    )
+    test_methods = re.findall(r"(def test_[^(]+\([^)]*\):.*?)(?=def|\Z)", content, re.DOTALL)
 
     for method in test_methods:
         if "client." in method and "client = TestClient(app)" not in method:

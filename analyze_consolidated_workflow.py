@@ -45,9 +45,7 @@ def _check_run_line_for_issues(
     return None
 
 
-def _find_backslash_continuations(
-    lines: list[str], start_line: int
-) -> tuple[bool, int]:
+def _find_backslash_continuations(lines: list[str], start_line: int) -> tuple[bool, int]:
     """Find backslash continuations in workflow lines."""
     j = start_line
     has_backslash = False
@@ -69,9 +67,7 @@ def _find_backslash_continuations(
     return has_backslash, end_line
 
 
-def _should_stop_checking(
-    line: str, current_pos: int, start_pos: int, has_backslash: bool
-) -> bool:
+def _should_stop_checking(line: str, current_pos: int, start_pos: int, has_backslash: bool) -> bool:
     """Determine if we should stop checking for continuations."""
     if current_pos <= start_pos:
         return False

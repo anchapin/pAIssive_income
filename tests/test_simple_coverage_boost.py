@@ -41,9 +41,7 @@ def test_users_models():
     from users.models import User
 
     # Test user creation
-    user = User(
-        id=1, username="testuser", email="test@example.com", hashed_password="hashed123"
-    )
+    user = User(id=1, username="testuser", email="test@example.com", hashed_password="hashed123")
 
     # Access the actual values, not the SQLAlchemy column descriptors
     assert str(user.id) == "1"

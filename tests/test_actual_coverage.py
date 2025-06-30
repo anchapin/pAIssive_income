@@ -22,6 +22,7 @@ class TestActualCoverage:
         # Test config_loader
         try:
             from common_utils.config_loader import Config
+
             config = Config()
             # Execute some methods to increase coverage
             config.database_url = "sqlite:///test.db"
@@ -36,10 +37,11 @@ class TestActualCoverage:
         # Test validation utils
         try:
             from common_utils import validation_utils
+
             # Try to execute any available functions
-            if hasattr(validation_utils, 'validate_email'):
+            if hasattr(validation_utils, "validate_email"):
                 result = validation_utils.validate_email("test@example.com")
-            if hasattr(validation_utils, 'sanitize_input'):
+            if hasattr(validation_utils, "sanitize_input"):
                 result = validation_utils.sanitize_input("test input")
         except ImportError:
             pass
@@ -47,7 +49,8 @@ class TestActualCoverage:
         # Test logging config
         try:
             from common_utils import logging_config
-            if hasattr(logging_config, 'setup_logging'):
+
+            if hasattr(logging_config, "setup_logging"):
                 logging_config.setup_logging()
         except ImportError:
             pass
@@ -73,7 +76,7 @@ class TestActualCoverage:
                 try:
                     adapter = get_adapter(server_type, host, port)
                     # If we get an adapter, test some methods
-                    if adapter and hasattr(adapter, 'connect'):
+                    if adapter and hasattr(adapter, "connect"):
                         try:
                             adapter.connect()
                         except Exception:
@@ -100,18 +103,11 @@ class TestActualCoverage:
             assert team is not None
 
             # Test adding agents
-            agent = team.add_agent(
-                role="Test Agent",
-                goal="Test goal",
-                backstory="Test backstory"
-            )
+            agent = team.add_agent(role="Test Agent", goal="Test goal", backstory="Test backstory")
             assert agent is not None
 
             # Test adding tasks
-            task = team.add_task(
-                description="Test task description",
-                agent=agent
-            )
+            task = team.add_task(description="Test task description", agent=agent)
             assert task is not None
 
             # Test crew creation
@@ -141,9 +137,9 @@ class TestActualCoverage:
                 pass  # Expected to fail without proper config
 
             # Test app configuration
-            if hasattr(app, 'config'):
-                app.config['TESTING'] = True
-                assert app.config['TESTING'] is True
+            if hasattr(app, "config"):
+                app.config["TESTING"] = True
+                assert app.config["TESTING"] is True
 
         except ImportError:
             pass
@@ -189,9 +185,9 @@ class TestActualCoverage:
             assert user.email == "test@example.com"
 
             # Test methods if they exist
-            if hasattr(user, 'check_password'):
+            if hasattr(user, "check_password"):
                 result = user.check_password("test_password")
-            if hasattr(user, 'set_password'):
+            if hasattr(user, "set_password"):
                 user.set_password("new_password")
 
         except ImportError:
@@ -205,13 +201,13 @@ class TestActualCoverage:
 
             # Test marketing strategy
             strategy = MarketingStrategy()
-            if hasattr(strategy, 'analyze_market'):
+            if hasattr(strategy, "analyze_market"):
                 try:
                     result = strategy.analyze_market("test market")
                 except Exception:
                     pass
 
-            if hasattr(strategy, 'generate_campaign'):
+            if hasattr(strategy, "generate_campaign"):
                 try:
                     campaign = strategy.generate_campaign("test product")
                 except Exception:
@@ -219,7 +215,7 @@ class TestActualCoverage:
 
             # Test content generator
             generator = ContentGenerator()
-            if hasattr(generator, 'generate_content'):
+            if hasattr(generator, "generate_content"):
                 try:
                     content = generator.generate_content("test topic")
                 except Exception:
@@ -236,13 +232,13 @@ class TestActualCoverage:
 
             # Test subscription manager
             manager = SubscriptionManager()
-            if hasattr(manager, 'create_subscription'):
+            if hasattr(manager, "create_subscription"):
                 try:
                     subscription = manager.create_subscription("user123", "premium")
                 except Exception:
                     pass
 
-            if hasattr(manager, 'cancel_subscription'):
+            if hasattr(manager, "cancel_subscription"):
                 try:
                     result = manager.cancel_subscription("sub123")
                 except Exception:
@@ -250,7 +246,7 @@ class TestActualCoverage:
 
             # Test payment processor
             processor = PaymentProcessor()
-            if hasattr(processor, 'process_payment'):
+            if hasattr(processor, "process_payment"):
                 try:
                     result = processor.process_payment(100, "usd", "test_token")
                 except Exception:
@@ -267,13 +263,13 @@ class TestActualCoverage:
 
             # Test market researcher
             researcher = MarketResearcher()
-            if hasattr(researcher, 'research_market'):
+            if hasattr(researcher, "research_market"):
                 try:
                     result = researcher.research_market("test niche")
                 except Exception:
                     pass
 
-            if hasattr(researcher, 'analyze_trends'):
+            if hasattr(researcher, "analyze_trends"):
                 try:
                     trends = researcher.analyze_trends("test market")
                 except Exception:
@@ -281,7 +277,7 @@ class TestActualCoverage:
 
             # Test competitor analyzer
             analyzer = CompetitorAnalyzer()
-            if hasattr(analyzer, 'analyze_competitors'):
+            if hasattr(analyzer, "analyze_competitors"):
                 try:
                     competitors = analyzer.analyze_competitors("test industry")
                 except Exception:
@@ -300,13 +296,13 @@ class TestActualCoverage:
             db_conn = DatabaseConnection("sqlite:///test.db")
             assert db_conn is not None
 
-            if hasattr(db_conn, 'connect'):
+            if hasattr(db_conn, "connect"):
                 try:
                     db_conn.connect()
                 except Exception:
                     pass
 
-            if hasattr(db_conn, 'close'):
+            if hasattr(db_conn, "close"):
                 try:
                     db_conn.close()
                 except Exception:
@@ -339,7 +335,7 @@ class TestActualCoverage:
 
             # Test cache manager
             manager = CacheManager()
-            if hasattr(manager, 'get_cache'):
+            if hasattr(manager, "get_cache"):
                 backend = manager.get_cache("memory")
 
         except ImportError:
@@ -368,7 +364,7 @@ class TestActualCoverage:
 
         except ImportError:
             # Fallback to basic file operations
-            test_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+            test_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
             test_file.write("test content")
             test_file.close()
 
@@ -401,6 +397,7 @@ class TestActualCoverage:
         except ImportError:
             # Fallback to basic hashing
             import hashlib
+
             data = "test_data"
             hashed = hashlib.sha256(data.encode()).hexdigest()
             assert hashed is not None
@@ -417,9 +414,9 @@ class TestActualCoverage:
             blueprints = [analytics_bp, marketing_bp, monetization_bp, niche_bp]
             for bp in blueprints:
                 assert bp is not None
-                if hasattr(bp, 'name'):
+                if hasattr(bp, "name"):
                     assert bp.name is not None
-                if hasattr(bp, 'url_prefix'):
+                if hasattr(bp, "url_prefix"):
                     # url_prefix can be None, that's ok
                     pass
 
@@ -463,9 +460,9 @@ class TestActualCoverage:
             assert config is not None
 
             # Test config validation
-            if hasattr(config, 'database_url'):
+            if hasattr(config, "database_url"):
                 config.database_url = "sqlite:///test.db"
-            if hasattr(config, 'debug'):
+            if hasattr(config, "debug"):
                 config.debug = True
 
             try:
@@ -501,31 +498,31 @@ class TestActualCoverage:
         """Import and execute real modules to boost coverage."""
         # Import modules that definitely exist based on the file structure
         modules_to_import = [
-            'ai_models',
-            'agent_team',
-            'ui',
-            'users',
-            'common_utils',
-            'marketing',
-            'monetization',
-            'niche_analysis',
+            "ai_models",
+            "agent_team",
+            "ui",
+            "users",
+            "common_utils",
+            "marketing",
+            "monetization",
+            "niche_analysis",
         ]
 
         for module_name in modules_to_import:
             try:
                 module = __import__(module_name)
                 # Execute some basic operations
-                if hasattr(module, '__version__'):
+                if hasattr(module, "__version__"):
                     version = module.__version__
-                if hasattr(module, '__file__'):
+                if hasattr(module, "__file__"):
                     file_path = module.__file__
-                if hasattr(module, '__path__'):
+                if hasattr(module, "__path__"):
                     path = module.__path__
 
                 # Import submodules if they exist
-                if hasattr(module, '__path__'):
+                if hasattr(module, "__path__"):
                     for item in os.listdir(module.__path__[0]):
-                        if item.endswith('.py') and not item.startswith('_'):
+                        if item.endswith(".py") and not item.startswith("_"):
                             submodule_name = item[:-3]
                             try:
                                 submodule = __import__(f"{module_name}.{submodule_name}")

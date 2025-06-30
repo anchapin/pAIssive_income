@@ -31,9 +31,7 @@ logger = logging.getLogger(__name__)
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 # Flask-Limiter instance (for demo; in prod, usually set up in main app)
-limiter = Limiter(
-    key_func=get_remote_address, default_limits=["200 per day", "50 per hour"]
-)
+limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 # Ensure init_app method exists for compatibility
 if not hasattr(limiter, "init_app"):
     limiter.init_app = lambda _: None  # type: ignore[assignment]
@@ -149,9 +147,7 @@ def forgot_password() -> ResponseReturnValue:
 
     # Always respond identically for user enumeration protection
     if not email:
-        return jsonify(
-            {"message": "If the email is registered, a reset link will be sent."}
-        ), 200
+        return jsonify({"message": "If the email is registered, a reset link will be sent."}), 200
 
     # If user exists, create a token and send an email
     if email in USERS:
@@ -162,9 +158,7 @@ def forgot_password() -> ResponseReturnValue:
         # Store token in DB with proper session handling
         session = SessionLocal()
         try:
-            session.add(
-                PasswordResetToken(email=email, token=token, expires_at=expires_at)
-            )
+            session.add(PasswordResetToken(email=email, token=token, expires_at=expires_at))
             session.commit()
 
             # Log token generation (without exposing the full token in logs)
@@ -194,9 +188,7 @@ def forgot_password() -> ResponseReturnValue:
             session.close()
 
     # Respond identically in either case for security
-    return jsonify(
-        {"message": "If the email is registered, a reset link will be sent."}
-    ), 200
+    return jsonify({"message": "If the email is registered, a reset link will be sent."}), 200
 
 
 @auth_bp.route("/reset-password", methods=["POST"])
@@ -253,9 +245,9 @@ def reset_password() -> ResponseReturnValue:
                 safe_email,
                 safe_ip,
             )
-            return jsonify(
-                {"message": "Invalid or expired reset link."}
-            ), 400  # Use same message for security
+            return jsonify({
+                "message": "Invalid or expired reset link."
+            }), 400  # Use same message for security
 
         # Hash the new password with bcrypt (already secure)
         hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()

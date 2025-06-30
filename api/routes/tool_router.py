@@ -27,11 +27,7 @@ def get_api_key() -> str:
 
     if not api_key:
         # Check if we're in a testing/CI environment where API key might not be set
-        if (
-            os.getenv("CI") == "true"
-            or os.getenv("PYTEST_CURRENT_TEST")
-            or os.getenv("TESTING")
-        ):
+        if os.getenv("CI") == "true" or os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING"):
             api_key = "test-api-key-for-ci"
             logger.warning("Using test API key for CI/testing environment")
         else:
@@ -77,9 +73,7 @@ router = APIRouter(
 )
 
 
-@router.post(
-    "/add", summary="Add two numbers", response_description="Sum of the numbers"
-)
+@router.post("/add", summary="Add two numbers", response_description="Sum of the numbers")
 async def add_endpoint(
     payload: BinaryOpRequest,
     api_key: Annotated[str, Depends(api_key_auth)],  # noqa: ARG001
@@ -160,11 +154,7 @@ async def average_endpoint(
             "[AUDIT] tool=average, params=%s, api_key=***, error=ValueError",
             payload.model_dump(),
         )
-        raise HTTPException(
-            status_code=400, detail="Cannot calculate average of empty list"
-        ) from e
+        raise HTTPException(status_code=400, detail="Cannot calculate average of empty list") from e
     else:
-        logger.info(
-            "[AUDIT] tool=average, params=%s, api_key=***", payload.model_dump()
-        )
+        logger.info("[AUDIT] tool=average, params=%s, api_key=***", payload.model_dump())
         return {"result": result}

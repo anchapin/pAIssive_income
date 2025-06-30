@@ -15,9 +15,7 @@ import sys
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -98,9 +96,7 @@ def check_dependency_conflicts() -> bool:
         if result.returncode == 0:
             logger.info("✓ No dependency conflicts found")
             return True
-        logger.warning(
-            f"✗ Dependency conflicts found:\n{result.stdout}\n{result.stderr}"
-        )
+        logger.warning(f"✗ Dependency conflicts found:\n{result.stdout}\n{result.stderr}")
         return False
 
     except subprocess.TimeoutExpired:
@@ -139,9 +135,7 @@ def verify_requirements_files() -> bool:
                     essential_packages = ["pytest", "ruff", "bandit", "safety"]
                     for package in essential_packages:
                         if package not in content:
-                            logger.warning(
-                                f"⚠ {req_file} missing essential package: {package}"
-                            )
+                            logger.warning(f"⚠ {req_file} missing essential package: {package}")
                             all_valid = False
 
             except Exception as e:
@@ -238,9 +232,7 @@ def main() -> int:
 
     # Check critical imports
     imports_status = check_critical_imports()
-    if not all(
-        imports_status[module] for module in ["pytest", "ruff", "safety", "bandit"]
-    ):
+    if not all(imports_status[module] for module in ["pytest", "ruff", "safety", "bandit"]):
         logger.error("Critical imports are failing")
         success = False
 

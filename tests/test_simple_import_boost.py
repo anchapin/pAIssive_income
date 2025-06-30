@@ -12,6 +12,7 @@ def test_import_all_modules():
         import ai_models.adapters.base_adapter
         import ai_models.adapters.exceptions
         import ai_models.version
+
         assert True
     except ImportError:
         pytest.skip("AI models not available")
@@ -25,6 +26,7 @@ def test_import_all_modules():
         import common_utils.json_utils
         import common_utils.string_utils
         import common_utils.validation
+
         assert True
     except ImportError:
         pytest.skip("Common utils not available")
@@ -35,6 +37,7 @@ def test_import_all_modules():
         import api.config
         import api.dependencies
         import api.errors
+
         assert True
     except ImportError:
         pytest.skip("API modules not available")
@@ -44,6 +47,7 @@ def test_import_all_modules():
         import users
         import users.auth
         import users.models
+
         assert True
     except ImportError:
         pytest.skip("Users modules not available")
@@ -52,6 +56,7 @@ def test_import_all_modules():
     try:
         import utils
         import utils.math_utils
+
         assert True
     except ImportError:
         pytest.skip("Utils not available")
@@ -64,6 +69,7 @@ def test_marketing_modules():
         import marketing.errors
         import marketing.schemas
         import marketing.service
+
         assert True
     except ImportError:
         pytest.skip("Marketing modules not available")
@@ -77,6 +83,7 @@ def test_monetization_modules():
         import monetization.errors
         import monetization.payment_gateway
         import monetization.service
+
         assert True
     except ImportError:
         pytest.skip("Monetization modules not available")
@@ -89,6 +96,7 @@ def test_niche_analysis_modules():
         import niche_analysis.errors
         import niche_analysis.schemas
         import niche_analysis.service
+
         assert True
     except ImportError:
         pytest.skip("Niche analysis modules not available")
@@ -101,6 +109,7 @@ def test_collaboration_modules():
         import collaboration.access_control
         import collaboration.sharing
         import collaboration.workspace
+
         assert True
     except ImportError:
         pytest.skip("Collaboration modules not available")
@@ -112,6 +121,7 @@ def test_ui_modules():
         import ui
         import ui.errors
         import ui.routes
+
         assert True
     except ImportError:
         pytest.skip("UI modules not available")
@@ -122,6 +132,7 @@ def test_artist_experiments():
     try:
         import artist_experiments
         import artist_experiments.multi_api_orchestration
+
         assert True
     except ImportError:
         pytest.skip("Artist experiments not available")
@@ -132,6 +143,7 @@ def test_config_and_main():
     try:
         import config
         import main
+
         assert True
     except ImportError:
         pytest.skip("Config/main not available")
@@ -143,6 +155,7 @@ def test_app_flask():
         import app_flask
         import app_flask.database
         import app_flask.models
+
         assert True
     except ImportError:
         pytest.skip("Flask app not available")
@@ -155,6 +168,7 @@ def test_crewai_modules():
         import agent_team.crewai_agents
         import agent_team.schemas
         import crewai
+
         assert True
     except ImportError:
         pytest.skip("CrewAI modules not available")

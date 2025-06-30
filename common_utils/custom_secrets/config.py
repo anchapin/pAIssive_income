@@ -38,9 +38,7 @@ class SecretConfig:
     @property
     def secret_prefix(self) -> str:
         """Get the secret prefix from environment or use default."""
-        return os.environ.get(
-            "SECRET_STORAGE_PREFIX", "storage:"
-        )  # More generic prefix
+        return os.environ.get("SECRET_STORAGE_PREFIX", "storage:")  # More generic prefix
 
     def __init__(
         self,
@@ -56,9 +54,7 @@ class SecretConfig:
             secrets_backend: Backend to use for secrets (SecretsBackend enum, string, or None)
 
         """
-        self.config_file = config_file or os.environ.get(
-            "PAISSIVE_CONFIG_FILE", "config.json"
-        )
+        self.config_file = config_file or os.environ.get("PAISSIVE_CONFIG_FILE", "config.json")
 
         # Handle different types for secrets_backend
         if secrets_backend is None:

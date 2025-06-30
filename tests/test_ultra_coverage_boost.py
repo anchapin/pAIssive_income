@@ -44,7 +44,7 @@ class TestUltraCoverageBoost:
                 assert isinstance(secrets, dict)
 
                 # Test has_secret if available
-                if hasattr(env_manager, 'has_secret'):
+                if hasattr(env_manager, "has_secret"):
                     has_it = env_manager.has_secret(test_key)
                     assert isinstance(has_it, bool)
 
@@ -123,7 +123,7 @@ class TestUltraCoverageBoost:
 
             backend = MemoryBackend()
             assert backend is not None
-            assert hasattr(backend, 'secrets')
+            assert hasattr(backend, "secrets")
 
             # Test key masking with different lengths
             test_keys = [
@@ -131,7 +131,7 @@ class TestUltraCoverageBoost:
                 "a",  # very short
                 "abc",  # short
                 "test_key",  # medium
-                "very_long_test_key_for_masking"  # long
+                "very_long_test_key_for_masking",  # long
             ]
 
             for key in test_keys:
@@ -222,7 +222,7 @@ class TestUltraCoverageBoost:
                 (1, 3, 33.33),
                 (2, 3, 66.67),
                 (1, 7, 14.29),
-                (5, 8, 62.5)
+                (5, 8, 62.5),
             ]
 
             for numerator, denominator, expected in test_cases:
@@ -233,30 +233,12 @@ class TestUltraCoverageBoost:
                     assert result == expected
 
             # Test validate_number with many types
-            valid_numbers = [
-                42,
-                3.14,
-                -5,
-                0,
-                "42",
-                "3.14",
-                "-5",
-                "0"
-            ]
+            valid_numbers = [42, 3.14, -5, 0, "42", "3.14", "-5", "0"]
 
             for num in valid_numbers:
                 assert validate_number(num) is True
 
-            invalid_numbers = [
-                "not_a_number",
-                "abc",
-                "",
-                None,
-                [],
-                {},
-                [],
-                object()
-            ]
+            invalid_numbers = ["not_a_number", "abc", "", None, [], {}, [], object()]
 
             for num in invalid_numbers:
                 assert validate_number(num) is False
@@ -282,19 +264,19 @@ class TestUltraCoverageBoost:
     def test_ultra_users_module_coverage(self):
         """Ultra comprehensive users module testing."""
         # Set up environment
-        original_db_url = os.environ.get('DATABASE_URL')
-        os.environ['DATABASE_URL'] = 'sqlite:///test.db'
+        original_db_url = os.environ.get("DATABASE_URL")
+        os.environ["DATABASE_URL"] = "sqlite:///test.db"
 
         try:
             from users import auth, models, services
 
             # Test auth module extensively
-            if hasattr(auth, 'hash_password'):
+            if hasattr(auth, "hash_password"):
                 passwords = [
                     "simple",
                     "complex_password_123!",
                     "short",
-                    "very_long_password_with_many_characters_12345"
+                    "very_long_password_with_many_characters_12345",
                 ]
 
                 for password in passwords:
@@ -304,7 +286,7 @@ class TestUltraCoverageBoost:
                     assert len(hashed) > 0
 
                     # Test verification if available
-                    if hasattr(auth, 'verify_password'):
+                    if hasattr(auth, "verify_password"):
                         try:
                             is_valid = auth.verify_password(password, hashed)
                             assert isinstance(is_valid, bool)
@@ -312,7 +294,7 @@ class TestUltraCoverageBoost:
                             pass
 
             # Test token creation if available
-            if hasattr(auth, 'create_user_token'):
+            if hasattr(auth, "create_user_token"):
                 user_ids = ["user1", "user2", "test_user_123"]
                 for user_id in user_ids:
                     try:
@@ -323,60 +305,60 @@ class TestUltraCoverageBoost:
                         pass
 
             # Test models extensively
-            if hasattr(models, 'User'):
+            if hasattr(models, "User"):
                 user_data = [
                     {"username": "alice", "email": "alice@example.com"},
                     {"username": "bob", "email": "bob@example.com"},
-                    {"username": "charlie", "email": "charlie@example.com"}
+                    {"username": "charlie", "email": "charlie@example.com"},
                 ]
 
                 for data in user_data:
                     try:
                         user = models.User(**data)
-                        assert hasattr(user, 'username')
-                        assert hasattr(user, 'email')
+                        assert hasattr(user, "username")
+                        assert hasattr(user, "email")
                         assert user.username == data["username"]
                         assert user.email == data["email"]
                     except Exception:
                         pass
 
             # Test services extensively
-            if hasattr(services, 'UserService'):
+            if hasattr(services, "UserService"):
                 try:
                     service = services.UserService()
                     assert service is not None
 
                     # Test all service methods
                     service_methods = [
-                        'get_user_by_id',
-                        'get_user_by_username',
-                        'get_user_by_email',
-                        'create_user',
-                        'update_user',
-                        'delete_user',
-                        'list_users',
-                        'authenticate_user'
+                        "get_user_by_id",
+                        "get_user_by_username",
+                        "get_user_by_email",
+                        "create_user",
+                        "update_user",
+                        "delete_user",
+                        "list_users",
+                        "authenticate_user",
                     ]
 
                     for method_name in service_methods:
                         if hasattr(service, method_name):
                             method = getattr(service, method_name)
                             try:
-                                if method_name == 'get_user_by_id':
+                                if method_name == "get_user_by_id":
                                     method("test_id")
-                                elif method_name == 'get_user_by_username':
+                                elif method_name == "get_user_by_username":
                                     method("test_user")
-                                elif method_name == 'get_user_by_email':
+                                elif method_name == "get_user_by_email":
                                     method("test@example.com")
-                                elif method_name == 'create_user':
+                                elif method_name == "create_user":
                                     method({"username": "test", "email": "test@example.com"})
-                                elif method_name == 'update_user':
+                                elif method_name == "update_user":
                                     method("test_id", {"username": "updated"})
-                                elif method_name == 'delete_user':
+                                elif method_name == "delete_user":
                                     method("test_id")
-                                elif method_name == 'list_users':
+                                elif method_name == "list_users":
                                     method()
-                                elif method_name == 'authenticate_user':
+                                elif method_name == "authenticate_user":
                                     method("test_user", "test_password")
                             except (Exception, SystemExit):
                                 pass
@@ -389,19 +371,19 @@ class TestUltraCoverageBoost:
         finally:
             # Restore environment
             if original_db_url is not None:
-                os.environ['DATABASE_URL'] = original_db_url
-            elif 'DATABASE_URL' in os.environ:
-                del os.environ['DATABASE_URL']
+                os.environ["DATABASE_URL"] = original_db_url
+            elif "DATABASE_URL" in os.environ:
+                del os.environ["DATABASE_URL"]
 
     def test_ultra_script_execution(self):
         """Ultra comprehensive script execution."""
         # Test CI scripts
         script_paths = [
-            ('./scripts/ci', 'simulate_ci_environment'),
-            ('./scripts/ci', 'detect_ci_environment'),
-            ('./scripts/setup', 'enhanced_setup_dev_environment'),
-            ('./scripts/fix', 'fix_all_issues_final'),
-            ('./scripts/run', 'run_mcp_tests')
+            ("./scripts/ci", "simulate_ci_environment"),
+            ("./scripts/ci", "detect_ci_environment"),
+            ("./scripts/setup", "enhanced_setup_dev_environment"),
+            ("./scripts/fix", "fix_all_issues_final"),
+            ("./scripts/run", "run_mcp_tests"),
         ]
 
         for script_path, module_name in script_paths:
@@ -413,33 +395,39 @@ class TestUltraCoverageBoost:
 
                 # Test all callable attributes
                 for attr_name in dir(module):
-                    if not attr_name.startswith('_'):
+                    if not attr_name.startswith("_"):
                         attr = getattr(module, attr_name)
                         if callable(attr):
                             try:
                                 # Try to call functions with common patterns
-                                if 'setup' in attr_name.lower():
+                                if "setup" in attr_name.lower():
                                     attr()
-                                elif 'get' in attr_name.lower() and 'env' in attr_name.lower():
-                                    if 'ci' in attr_name.lower():
+                                elif "get" in attr_name.lower() and "env" in attr_name.lower():
+                                    if "ci" in attr_name.lower():
                                         attr("github")
-                                    elif 'cloud' in attr_name.lower():
+                                    elif "cloud" in attr_name.lower():
                                         attr("aws")
-                                    elif 'container' in attr_name.lower():
+                                    elif "container" in attr_name.lower():
                                         attr("docker")
-                                elif 'detect' in attr_name.lower() or 'fix' in attr_name.lower() or 'validate' in attr_name.lower() or 'check' in attr_name.lower():
+                                elif (
+                                    "detect" in attr_name.lower()
+                                    or "fix" in attr_name.lower()
+                                    or "validate" in attr_name.lower()
+                                    or "check" in attr_name.lower()
+                                ):
                                     attr()
-                                elif 'install' in attr_name.lower():
-                                    if 'dependencies' in attr_name.lower():
+                                elif "install" in attr_name.lower():
+                                    if "dependencies" in attr_name.lower():
                                         # Create mock args
                                         from unittest.mock import Mock
+
                                         mock_args = Mock()
                                         mock_args.no_deps = False
                                         mock_args.minimal = False
                                         attr(mock_args)
                                     else:
                                         attr()
-                                elif attr_name == 'main':
+                                elif attr_name == "main":
                                     # Don't actually run main, just check it exists
                                     assert callable(attr)
                                 else:
@@ -468,7 +456,7 @@ class TestUltraCoverageBoost:
                 "test_logger_1",
                 "test_logger_2",
                 "module.submodule",
-                "long.module.name.with.dots"
+                "long.module.name.with.dots",
             ]
 
             for name in logger_names:
@@ -491,11 +479,15 @@ class TestUltraCoverageBoost:
 
             # Try to access any functions
             for attr_name in dir(validation_utils):
-                if not attr_name.startswith('_'):
+                if not attr_name.startswith("_"):
                     attr = getattr(validation_utils, attr_name)
                     if callable(attr):
                         try:
-                            if 'validate' in attr_name.lower() or 'sanitize' in attr_name.lower() or 'check' in attr_name.lower():
+                            if (
+                                "validate" in attr_name.lower()
+                                or "sanitize" in attr_name.lower()
+                                or "check" in attr_name.lower()
+                            ):
                                 attr("test_input")
                         except Exception:
                             pass
@@ -506,15 +498,15 @@ class TestUltraCoverageBoost:
     def test_ultra_top_level_imports(self):
         """Ultra comprehensive top-level module imports."""
         top_level_modules = [
-            'run_tests',
-            'convert_bandit_to_sarif',
-            'install_mcp_sdk',
-            'test_bandit_config',
-            'validate_workflows',
-            'verify_mock_crewai',
-            'verify_mock_crewai_fix',
-            'update_github_actions_progress',
-            'update_pydantic_models'
+            "run_tests",
+            "convert_bandit_to_sarif",
+            "install_mcp_sdk",
+            "test_bandit_config",
+            "validate_workflows",
+            "verify_mock_crewai",
+            "verify_mock_crewai_fix",
+            "update_github_actions_progress",
+            "update_pydantic_models",
         ]
 
         for module_name in top_level_modules:
@@ -524,16 +516,20 @@ class TestUltraCoverageBoost:
 
                 # Test all callable attributes
                 for attr_name in dir(module):
-                    if not attr_name.startswith('_'):
+                    if not attr_name.startswith("_"):
                         attr = getattr(module, attr_name)
                         if callable(attr):
                             try:
-                                if attr_name == 'main':
+                                if attr_name == "main":
                                     # Don't run main, just verify it exists
                                     assert callable(attr)
-                                elif 'setup' in attr_name.lower() or 'check' in attr_name.lower() or 'validate' in attr_name.lower():
+                                elif (
+                                    "setup" in attr_name.lower()
+                                    or "check" in attr_name.lower()
+                                    or "validate" in attr_name.lower()
+                                ):
                                     attr()
-                                elif 'convert' in attr_name.lower():
+                                elif "convert" in attr_name.lower():
                                     # Don't actually convert without inputs
                                     assert callable(attr)
                                 else:
@@ -549,11 +545,11 @@ class TestUltraCoverageBoost:
         """Execute various code patterns to boost coverage."""
         # Test environment variable operations
         test_vars = [
-            ('TEST_VAR_1', 'value1'),
-            ('TEST_VAR_2', 'value2'),
-            ('DEBUG', 'true'),
-            ('PORT', '8080'),
-            ('API_KEY', 'test_key_12345')
+            ("TEST_VAR_1", "value1"),
+            ("TEST_VAR_2", "value2"),
+            ("DEBUG", "true"),
+            ("PORT", "8080"),
+            ("API_KEY", "test_key_12345"),
         ]
 
         original_env = {}
@@ -568,12 +564,12 @@ class TestUltraCoverageBoost:
                 assert actual == expected
 
                 # Test boolean conversion
-                if var == 'DEBUG':
-                    debug_bool = actual.lower() in ('true', '1', 'yes', 'on')
+                if var == "DEBUG":
+                    debug_bool = actual.lower() in ("true", "1", "yes", "on")
                     assert debug_bool is True
 
                 # Test integer conversion
-                if var == 'PORT':
+                if var == "PORT":
                     port_int = int(actual)
                     assert port_int == 8080
 
@@ -587,11 +583,11 @@ class TestUltraCoverageBoost:
 
         # Test path operations
         paths = [
-            Path('.'),
-            Path('./tests'),
-            Path('./common_utils'),
-            Path('./users'),
-            Path('./utils')
+            Path("."),
+            Path("./tests"),
+            Path("./common_utils"),
+            Path("./users"),
+            Path("./utils"),
         ]
 
         for path in paths:
@@ -603,20 +599,17 @@ class TestUltraCoverageBoost:
 
                 if path.is_dir():
                     try:
-                        files = list(path.glob('*.py'))
+                        files = list(path.glob("*.py"))
                         assert isinstance(files, list)
                     except Exception:
                         pass
 
         # Test data structure operations
         test_data = {
-            'lists': [[1, 2, 3], ['a', 'b', 'c'], [True, False]],
-            'dicts': [
-                {'name': 'Alice', 'age': 30},
-                {'name': 'Bob', 'age': 25}
-            ],
-            'sets': [{1, 2, 3}, {'a', 'b', 'c'}],
-            'tuples': [(1, 'a'), (2, 'b'), (3, 'c')]
+            "lists": [[1, 2, 3], ["a", "b", "c"], [True, False]],
+            "dicts": [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}],
+            "sets": [{1, 2, 3}, {"a", "b", "c"}],
+            "tuples": [(1, "a"), (2, "b"), (3, "c")],
         }
 
         # Process all data structures
@@ -626,16 +619,16 @@ class TestUltraCoverageBoost:
             for item in data_list:
                 if isinstance(item, list):
                     assert len(item) > 0
-                    item.append('new_item')
-                    assert 'new_item' in item
+                    item.append("new_item")
+                    assert "new_item" in item
                 elif isinstance(item, dict):
                     assert len(item) > 0
-                    item['new_key'] = 'new_value'
-                    assert item['new_key'] == 'new_value'
+                    item["new_key"] = "new_value"
+                    assert item["new_key"] == "new_value"
                 elif isinstance(item, set):
                     assert len(item) > 0
                     original_size = len(item)
-                    item.add('new_item')
+                    item.add("new_item")
                     assert len(item) >= original_size
                 elif isinstance(item, tuple):
                     assert len(item) > 0

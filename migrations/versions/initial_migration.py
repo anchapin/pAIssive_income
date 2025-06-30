@@ -41,12 +41,8 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=128), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
-        sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=True
-        ),
-        sa.Column(
-            "updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=True
-        ),
+        sa.Column("created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=True),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("name"),
     )
@@ -59,12 +55,8 @@ def upgrade() -> None:
         sa.Column("role", sa.String(length=64), nullable=True),
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("team_id", sa.Integer(), nullable=True),
-        sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=True
-        ),
-        sa.Column(
-            "updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=True
-        ),
+        sa.Column("created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=True),
         sa.ForeignKeyConstraint(
             ["team_id"],
             ["teams.id"],

@@ -22,9 +22,7 @@ logger = logging.getLogger(__name__)
 # type: ignore[import, assignment]
 
 
-def _safe_subprocess_run(
-    cmd: list[str], **kwargs: object
-) -> subprocess.CompletedProcess[Any]:
+def _safe_subprocess_run(cmd: list[str], **kwargs: object) -> subprocess.CompletedProcess[Any]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])
@@ -204,12 +202,16 @@ def test_bandit_scan() -> None:
 
     # Run bandit scan with timeout and limited scope for tests
     logger.info("Running bandit scan...")
-    stdout, stderr, return_code = run_command("bandit -r . -f json --skip B101,B601 --exclude ./tests,./htmlcov,./logs", timeout=30)
+    stdout, stderr, return_code = run_command(
+        "bandit -r . -f json --skip B101,B601 --exclude ./tests,./htmlcov,./logs", timeout=30
+    )
 
     if return_code != 0 and stderr and "command not found" in stderr:
         logger.info("Bandit not installed. Installing...")
         run_command("uv pip install bandit")  # Using uv
-        stdout, stderr, return_code = run_command("bandit -r . -f json --skip B101,B601 --exclude ./tests,./htmlcov,./logs", timeout=30)
+        stdout, stderr, return_code = run_command(
+            "bandit -r . -f json --skip B101,B601 --exclude ./tests,./htmlcov,./logs", timeout=30
+        )
 
     if return_code == 124:
         logger.warning("Bandit scan timed out. Using empty results.")
@@ -306,6 +308,7 @@ def test_sarif_file_handling() -> None:
         # Use Python's gzip module for better cross-platform compatibility
         try:
             import gzip
+
             with open(sarif_file, "rb") as f_in:
                 with gzip.open(compressed_file, "wb") as f_out:
                     f_out.write(f_in.read())

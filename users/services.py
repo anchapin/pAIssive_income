@@ -33,9 +33,7 @@ class UserProtocol(Protocol):
     password_hash: str
     query: Any
 
-    def __init__(
-        self, username: str, email: str, password_hash: str, **kwargs: object
-    ) -> None:
+    def __init__(self, username: str, email: str, password_hash: str, **kwargs: object) -> None:
         """Initialize a user model with required attributes."""
 
     @classmethod
@@ -91,9 +89,7 @@ try:
     db_session = cast("DBSessionProtocol", db)
 except ImportError:
     # Keep UserModel and db_session as None if import fails
-    logger.debug(
-        "Failed to import User model from app_flask.models, using fallback mechanisms"
-    )
+    logger.debug("Failed to import User model from app_flask.models, using fallback mechanisms")
 
 
 class AuthenticationError(ValueError):
@@ -346,12 +342,8 @@ class UserService:
         max_claim_length = 1000  # Maximum length for token claims
         for key, value in additional_claims.items():
             # Skip any sensitive looking claims
-            if any(
-                sensitive_term in key.lower() for sensitive_term in sensitive_claim_keys
-            ):
-                logger.warning(
-                    "Potentially sensitive claim '%s' was excluded from token", key
-                )
+            if any(sensitive_term in key.lower() for sensitive_term in sensitive_claim_keys):
+                logger.warning("Potentially sensitive claim '%s' was excluded from token", key)
                 continue
             # Avoid adding large values to token payload
             if isinstance(value, str) and len(value) > max_claim_length:

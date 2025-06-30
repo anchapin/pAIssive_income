@@ -194,9 +194,7 @@ class KnowledgeSource(ABC):
 
         """
 
-    def update(
-        self, content_id: str, new_content: str, user_id: str, **kwargs: Any
-    ) -> Any:
+    def update(self, content_id: str, new_content: str, user_id: str, **kwargs: Any) -> Any:
         """
         Update existing knowledge entry.
 

@@ -81,9 +81,7 @@ class TestAdapterFactory:
 
         adapter = get_adapter("ollama", "localhost", 11434, model={"name": "llama2"})
 
-        mock_ollama_adapter.assert_called_once_with(
-            "localhost", 11434, model={"name": "llama2"}
-        )
+        mock_ollama_adapter.assert_called_once_with("localhost", 11434, model={"name": "llama2"})
         assert adapter == mock_instance
 
     def test_get_adapter_unsupported_type(self):

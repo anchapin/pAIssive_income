@@ -61,9 +61,7 @@ class TestMathProblemSolving:
         mock_run.assert_called_once_with("Solve 2 + 3")
 
 
-@pytest.mark.skipif(
-    not API_AVAILABLE, reason="API orchestration dependencies not available"
-)
+@pytest.mark.skipif(not API_AVAILABLE, reason="API orchestration dependencies not available")
 class TestMultiAPIOrchestration:
     """Tests for the multi-API orchestration experiment."""
 

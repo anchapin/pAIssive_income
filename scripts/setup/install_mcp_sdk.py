@@ -53,9 +53,7 @@ def run_command(command: list[str], cwd: str | None = None) -> tuple[int, str, s
 
     """
     # Validate command to ensure it's a list of strings and doesn't contain shell metacharacters
-    if not isinstance(command, list) or not all(
-        isinstance(arg, str) for arg in command
-    ):
+    if not isinstance(command, list) or not all(isinstance(arg, str) for arg in command):
         logger.error("Invalid command format: command must be a list of strings")
         return 1, "", "Invalid command format"
 
@@ -190,9 +188,7 @@ def _try_installation_methods(temp_dir: str) -> bool:
         )
 
         if exit_code == 0:
-            logger.info(
-                "Mock MCP SDK installed successfully with %s", method["description"]
-            )
+            logger.info("Mock MCP SDK installed successfully with %s", method["description"])
             return True
         logger.warning(
             "Failed to install mock MCP SDK with %s: %s",
@@ -427,9 +423,7 @@ def _check_existing_installation() -> bool:
                 logger.info("Verified modelcontextprotocol.Client exists")
                 return True
 
-            logger.warning(
-                "modelcontextprotocol module exists but Client class is missing"
-            )
+            logger.warning("modelcontextprotocol module exists but Client class is missing")
         except ImportError as e:
             logger.warning("Module exists but import failed: %s", e)
             return False

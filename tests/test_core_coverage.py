@@ -20,9 +20,9 @@ class TestCoreCoverage:
         """Test importing core modules to ensure they load correctly."""
         # Test importing key modules
         modules_to_test = [
-            'common_utils.config_loader',
-            'common_utils.validation_utils',
-            'common_utils.logging_config',
+            "common_utils.config_loader",
+            "common_utils.validation_utils",
+            "common_utils.logging_config",
         ]
 
         for module_name in modules_to_test:
@@ -30,7 +30,7 @@ class TestCoreCoverage:
                 module = importlib.import_module(module_name)
                 assert module is not None
                 # Touch the module by accessing its __file__ attribute
-                if hasattr(module, '__file__'):
+                if hasattr(module, "__file__"):
                     assert module.__file__ is not None
             except ImportError:
                 # If module doesn't exist, that's ok for coverage purposes
@@ -95,8 +95,8 @@ class TestCoreCoverage:
             # Test agent team creation
             team = CrewAIAgentTeam()
             assert team is not None
-            assert hasattr(team, 'agents')
-            assert hasattr(team, 'tasks')
+            assert hasattr(team, "agents")
+            assert hasattr(team, "tasks")
 
         except ImportError:
             pytest.skip("Agent team module not available")
@@ -186,7 +186,7 @@ class TestCoreCoverage:
     def test_file_operations(self):
         """Test file operations that touch various modules."""
         # Test creating and reading config files
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             test_config = '{"test": "value"}'
             f.write(test_config)
             f.flush()
@@ -278,7 +278,7 @@ class TestCoreCoverage:
         except ImportError:
             pytest.skip("Security utilities not available")
 
-    @patch('builtins.open')
+    @patch("builtins.open")
     def test_file_processing_with_mocks(self, mock_open):
         """Test file processing with mocks to ensure coverage."""
         mock_open.return_value.__enter__.return_value.read.return_value = '{"test": "data"}'
@@ -286,6 +286,7 @@ class TestCoreCoverage:
         # This will cover file reading code paths
         try:
             from common_utils.file_utils import read_json_file
+
             result = read_json_file("dummy_path.json")
             assert result is not None
         except ImportError:
@@ -328,10 +329,11 @@ class TestCoreCoverage:
     def test_environment_configuration(self):
         """Test environment configuration loading."""
         # Test environment variable handling
-        os.environ['TEST_CONFIG_VAR'] = 'test_value'
+        os.environ["TEST_CONFIG_VAR"] = "test_value"
 
         try:
             from common_utils.env_config import load_env_config
+
             config = load_env_config()
             assert config is not None
         except ImportError:
@@ -339,7 +341,7 @@ class TestCoreCoverage:
             pass
 
         # Clean up
-        del os.environ['TEST_CONFIG_VAR']
+        del os.environ["TEST_CONFIG_VAR"]
 
     def test_logging_configuration(self):
         """Test logging configuration."""
@@ -351,6 +353,7 @@ class TestCoreCoverage:
 
             # Test that we can create a logger
             import logging
+
             logger = logging.getLogger("test_logger")
             logger.info("Test log message")
 
