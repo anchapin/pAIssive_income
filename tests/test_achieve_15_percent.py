@@ -24,40 +24,40 @@ class TestAchieve15Percent:
         try:
             # 1. Math utilities - 100% coverage on this module
             self._test_all_math_utils()
-            
+
             # 2. User authentication - extensive testing
             self._test_user_auth_extensively()
-            
+
             # 3. Secrets management - comprehensive testing
             self._test_secrets_comprehensive()
-            
+
             # 4. Logging systems - full testing
             self._test_logging_comprehensive()
-            
+
             # 5. Import and execute AI models
             self._test_ai_models_comprehensive()
-            
+
             # 6. Import and execute agent teams
             self._test_agent_teams_comprehensive()
-            
+
             # 7. Import configuration and validation
             self._test_config_and_validation()
-            
+
             # 8. Import API and UI modules
             self._test_api_and_ui_modules()
-            
+
             # 9. Import services and middleware
             self._test_services_and_middleware()
-            
+
             # 10. Execute standard library operations
             self._test_standard_library_extensively()
-            
+
             # 11. Import root modules
             self._import_root_modules()
-            
+
             # 12. Execute additional operations
             self._execute_additional_operations()
-            
+
         finally:
             # Restore environment
             if original_database_url is not None:
@@ -68,15 +68,19 @@ class TestAchieve15Percent:
     def _test_all_math_utils(self):
         """Test all math utility functions comprehensively."""
         from utils.math_utils import (
-            add, subtract, multiply, divide, average,
-            calculate_percentage, validate_number, format_currency
+            add,
+            subtract,
+            multiply,
+            divide,
+            average,
+            calculate_percentage,
+            validate_number,
+            format_currency,
         )
 
         # Test all functions with multiple inputs
-        test_cases = [
-            (1, 2), (10, 5), (0, 1), (-5, 3), (3.14, 2.71)
-        ]
-        
+        test_cases = [(1, 2), (10, 5), (0, 1), (-5, 3), (3.14, 2.71)]
+
         for a, b in test_cases:
             assert add(a, b) == a + b
             assert subtract(a, b) == a - b
@@ -100,10 +104,10 @@ class TestAchieve15Percent:
         # Test number validation
         valid_numbers = [42, "42", "3.14", 0, -5]
         invalid_numbers = ["not_number", None, "", "abc", []]
-        
+
         for num in valid_numbers:
             assert validate_number(num) is True
-            
+
         for num in invalid_numbers:
             assert validate_number(num) is False
 
@@ -133,28 +137,34 @@ class TestAchieve15Percent:
     def _test_user_auth_extensively(self):
         """Test user authentication functions extensively."""
         from users.auth import (
-            hash_password, verify_password, create_user_token,
-            hash_credential, verify_credential
+            hash_password,
+            verify_password,
+            create_user_token,
+            hash_credential,
+            verify_credential,
         )
 
         # Test password functions with many passwords
         passwords = [
-            "simple", "complex_password_123", "special!@#$%^&*()",
+            "simple",
+            "complex_password_123",
+            "special!@#$%^&*()",
             "very_long_password_with_many_characters_1234567890",
-            "short", "unicode_测试_password"
+            "short",
+            "unicode_测试_password",
         ]
-        
+
         for password in passwords:
             # Test hashing
             hashed = hash_password(password)
             assert hashed != password
             assert isinstance(hashed, str)
             assert len(hashed) > 0
-            
+
             # Test verification
             assert verify_password(password, hashed) is True
             assert verify_password("wrong_password", hashed) is False
-            
+
             # Test credential functions
             hashed_cred = hash_credential(password)
             assert verify_credential(password, hashed_cred) is True
@@ -177,6 +187,7 @@ class TestAchieve15Percent:
         """Test secrets management comprehensively."""
         from common_utils.custom_secrets.secrets_manager import SecretsManager, SecretsBackend
         from common_utils.custom_secrets.memory_backend import MemoryBackend
+
         try:
             from common_utils.custom_secrets.file_backend import FileBackend
         except ImportError:
@@ -189,7 +200,7 @@ class TestAchieve15Percent:
         # Test all enum operations extensively
         all_backends = ["env", "file", "memory", "vault"]
         invalid_backends = ["invalid", "bad", "wrong", "test"]
-        
+
         for backend in all_backends:
             assert SecretsBackend.is_valid_backend(backend) is True
             backend_enum = SecretsBackend.from_string(backend)
@@ -218,7 +229,7 @@ class TestAchieve15Percent:
             try:
                 manager = SecretsManager(default_backend=backend)
                 assert manager is not None
-                
+
                 # Execute methods to get more coverage
                 try:
                     manager.list_secrets()
@@ -245,14 +256,14 @@ class TestAchieve15Percent:
             assert mem_backend is not None
         except Exception:
             pass
-            
+
         if FileBackend:
             try:
                 file_backend = FileBackend()
                 assert file_backend is not None
             except Exception:
                 pass
-                
+
         if VaultBackend:
             try:
                 vault_backend = VaultBackend()
@@ -264,20 +275,24 @@ class TestAchieve15Percent:
         """Test logging systems comprehensively."""
         try:
             from common_utils.custom_logging.secure_logging import (
-                get_logger, get_secure_logger, setup_logging,
-                mask_sensitive_data, is_sensitive_key, SecureLogger
+                get_logger,
+                get_secure_logger,
+                setup_logging,
+                mask_sensitive_data,
+                is_sensitive_key,
+                SecureLogger,
             )
 
             # Test logger creation
             logger_names = [f"test_logger_{i}" for i in range(10)]
             loggers = []
-            
+
             for name in logger_names:
                 logger = get_logger(name)
                 assert logger is not None
                 assert isinstance(logger, SecureLogger)
                 loggers.append(logger)
-                
+
                 secure_logger = get_secure_logger(name)
                 assert secure_logger is not None
 
@@ -292,7 +307,7 @@ class TestAchieve15Percent:
                 {"password": "secret", "api_key": "key123", "normal": "data"},
                 ["password", "secret", "normal_data"],
                 {"nested": {"password": "nested_secret", "data": "normal"}},
-                "complex string with password=hidden and api_key=alsohidden"
+                "complex string with password=hidden and api_key=alsohidden",
             ]
 
             for data in sensitive_test_data:
@@ -301,14 +316,35 @@ class TestAchieve15Percent:
 
             # Test key sensitivity detection
             sensitive_keys = [
-                "password", "secret", "api_key", "auth_token", "private_key",
-                "access_token", "refresh_token", "client_secret", "auth",
-                "credential", "private", "security", "access", "api", "cert"
+                "password",
+                "secret",
+                "api_key",
+                "auth_token",
+                "private_key",
+                "access_token",
+                "refresh_token",
+                "client_secret",
+                "auth",
+                "credential",
+                "private",
+                "security",
+                "access",
+                "api",
+                "cert",
             ]
-            
+
             normal_keys = [
-                "username", "email", "name", "id", "data", "config",
-                "setting", "value", "result", "status", "message"
+                "username",
+                "email",
+                "name",
+                "id",
+                "data",
+                "config",
+                "setting",
+                "value",
+                "result",
+                "status",
+                "message",
             ]
 
             for key in sensitive_keys:
@@ -343,7 +379,7 @@ class TestAchieve15Percent:
             try:
                 factory = AdapterFactory()
                 assert factory is not None
-                
+
                 # Try different adapter types
                 adapter_types = ["ollama", "openai", "lmstudio", "tensorrt"]
                 for adapter_type in adapter_types:
@@ -381,7 +417,7 @@ class TestAchieve15Percent:
             try:
                 team = CrewAIAgentTeam()
                 assert team is not None
-                
+
                 # Try to access properties
                 if hasattr(team, "agents"):
                     agents = team.agents
@@ -396,7 +432,7 @@ class TestAchieve15Percent:
             try:
                 enhanced_team = MemoryEnhancedCrewAIAgentTeam(user_id="test_user")
                 assert enhanced_team is not None
-                
+
                 # Try to access methods
                 if hasattr(enhanced_team, "kickoff"):
                     # Don't actually call kickoff, just verify it exists
@@ -418,7 +454,7 @@ class TestAchieve15Percent:
                 ValidationResult(is_valid=True, message="Success"),
                 ValidationResult(is_valid=False, message="Error"),
                 ValidationResult(is_valid=True, message="", errors=[]),
-                ValidationResult(is_valid=False, message="Failed", errors=["error1", "error2"])
+                ValidationResult(is_valid=False, message="Failed", errors=["error1", "error2"]),
             ]
 
             for result in test_results:
@@ -499,7 +535,7 @@ class TestAchieve15Percent:
             try:
                 service = UserService()
                 assert service is not None
-                
+
                 # Try service methods
                 try:
                     service.get_user_by_id("test_id")
@@ -544,7 +580,6 @@ class TestAchieve15Percent:
         import base64
         import hashlib
         import urllib.parse
-        from pathlib import Path
         import tempfile
 
         # JSON operations
@@ -553,7 +588,7 @@ class TestAchieve15Percent:
             {"complex": {"nested": {"deep": "value"}}},
             {"list": [1, 2, 3, {"nested": "value"}]},
             {"numbers": list(range(50))},
-            {"mixed": {"str": "value", "int": 42, "list": [1, 2, 3]}}
+            {"mixed": {"str": "value", "int": 42, "list": [1, 2, 3]}},
         ]
 
         for obj in test_objects:
@@ -563,10 +598,11 @@ class TestAchieve15Percent:
 
         # Base64 operations
         test_strings = [
-            "simple string", "complex string with !@#$%^&*()",
+            "simple string",
+            "complex string with !@#$%^&*()",
             "unicode string with 测试 characters",
             "very long string " * 100,
-            ""
+            "",
         ]
 
         for s in test_strings:
@@ -581,7 +617,7 @@ class TestAchieve15Percent:
                 md5_hash = hashlib.md5(s.encode()).hexdigest()
                 sha1_hash = hashlib.sha1(s.encode()).hexdigest()
                 sha256_hash = hashlib.sha256(s.encode()).hexdigest()
-                
+
                 assert len(md5_hash) == 32
                 assert len(sha1_hash) == 40
                 assert len(sha256_hash) == 64
@@ -592,7 +628,7 @@ class TestAchieve15Percent:
             {"param1": "value1", "param2": "value with spaces"},
             {"special": "chars!@#$%^&*()"},
             {"unicode": "测试参数"},
-            {"numbers": "123456"}
+            {"numbers": "123456"},
         ]
 
         for params in url_params:
@@ -624,8 +660,13 @@ class TestAchieve15Percent:
     def _import_root_modules(self):
         """Import root modules to execute their code."""
         root_modules = [
-            "config", "run_tests", "run_ui", "main_agents",
-            "manage", "init_db", "convert_bandit_to_sarif"
+            "config",
+            "run_tests",
+            "run_ui",
+            "main_agents",
+            "manage",
+            "init_db",
+            "convert_bandit_to_sarif",
         ]
 
         for module_name in root_modules:
@@ -677,7 +718,7 @@ class TestAchieve15Percent:
             test_list = list(range(i * 10, (i + 1) * 10))
             test_dict = {f"key_{j}": j for j in test_list}
             test_set = set(test_list)
-            
+
             assert len(test_list) == 10
             assert len(test_dict) == 10
             assert len(test_set) == 10

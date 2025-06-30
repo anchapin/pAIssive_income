@@ -13,6 +13,7 @@ class TestFinalPush15Percent:
         # Import and execute more modules
         try:
             from common_utils.tooling import ToolManager
+
             tool_manager = ToolManager()
             assert tool_manager is not None
         except Exception:
@@ -20,10 +21,10 @@ class TestFinalPush15Percent:
 
         try:
             from common_utils.exceptions import BaseCustomException
-            
+
             class TestException(BaseCustomException):
                 pass
-                
+
             try:
                 raise TestException("test")
             except TestException:
@@ -33,6 +34,7 @@ class TestFinalPush15Percent:
 
         try:
             import config
+
             config_module = config
             assert config_module is not None
         except Exception:
@@ -40,6 +42,7 @@ class TestFinalPush15Percent:
 
         try:
             import run_tests
+
             assert run_tests is not None
             if hasattr(run_tests, "main"):
                 assert callable(run_tests.main)
@@ -48,12 +51,14 @@ class TestFinalPush15Percent:
 
         try:
             import manage
+
             assert manage is not None
         except Exception:
             pass
 
         try:
             from services.memory_rag_coordinator import MemoryRAGCoordinator
+
             coordinator = MemoryRAGCoordinator()
             assert coordinator is not None
         except Exception:
@@ -74,6 +79,7 @@ class TestFinalPush15Percent:
 
         # More math operations
         import math
+
         for i in range(1, 10):
             sqrt_result = math.sqrt(i)
             assert sqrt_result > 0

@@ -24,8 +24,14 @@ class TestFinal15PercentCoverage:
         try:
             # Test math utilities extensively
             from utils.math_utils import (
-                add, subtract, multiply, divide, average,
-                calculate_percentage, validate_number, format_currency
+                add,
+                subtract,
+                multiply,
+                divide,
+                average,
+                calculate_percentage,
+                validate_number,
+                format_currency,
             )
 
             # Execute all math functions
@@ -77,9 +83,7 @@ class TestFinal15PercentCoverage:
             # Just importing executes the class definition
 
             # Test custom secrets functionality
-            from common_utils.custom_secrets.secrets_manager import (
-                SecretsManager, SecretsBackend
-            )
+            from common_utils.custom_secrets.secrets_manager import SecretsManager, SecretsBackend
 
             # Test enum functionality extensively
             assert SecretsBackend.ENV.value == "env"
@@ -161,7 +165,9 @@ class TestFinal15PercentCoverage:
 
             # Test exceptions
             from common_utils.exceptions import (
-                BaseCustomException, ConfigurationError, ValidationError as VError
+                BaseCustomException,
+                ConfigurationError,
+                ValidationError as VError,
             )
 
             # Test custom exceptions

@@ -19,8 +19,14 @@ class TestSimpleFinalCoverage:
         try:
             # Execute math utilities to get 100% coverage on that module
             from utils.math_utils import (
-                add, subtract, multiply, divide, average,
-                calculate_percentage, validate_number, format_currency
+                add,
+                subtract,
+                multiply,
+                divide,
+                average,
+                calculate_percentage,
+                validate_number,
+                format_currency,
             )
 
             # Execute all functions with multiple test cases
@@ -102,7 +108,10 @@ class TestSimpleFinalCoverage:
             # Execute logging
             try:
                 from common_utils.custom_logging.secure_logging import (
-                    get_logger, setup_logging, mask_sensitive_data, is_sensitive_key
+                    get_logger,
+                    setup_logging,
+                    mask_sensitive_data,
+                    is_sensitive_key,
                 )
 
                 for i in range(3):
@@ -116,7 +125,7 @@ class TestSimpleFinalCoverage:
                     "password=secret",
                     "api_key=123456",
                     {"password": "secret", "normal": "data"},
-                    ["password", "secret", "normal_data"]
+                    ["password", "secret", "normal_data"],
                 ]
 
                 for data in sensitive_data:
@@ -197,7 +206,7 @@ class TestSimpleFinalCoverage:
             test_objects = [
                 {"test": True, "value": 42},
                 {"list": [1, 2, 3], "dict": {"nested": "value"}},
-                {"numbers": list(range(10))}
+                {"numbers": list(range(10))},
             ]
 
             for obj in test_objects:

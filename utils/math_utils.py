@@ -128,9 +128,10 @@ def validate_number(value) -> bool:
         return False
     try:
         float(value)
-        return True
     except (ValueError, TypeError):
         return False
+    else:
+        return True
 
 
 def format_currency(amount: float, currency_symbol: str = "$") -> str:
