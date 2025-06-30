@@ -520,3 +520,20 @@ def get_secure_logger(name: str) -> SecureLogger:
 
     """
     return SecureLogger(name)
+
+
+# Alias for backward compatibility
+get_logger = get_secure_logger
+
+
+def setup_logging(level: int = logging.INFO) -> None:
+    """
+    Set up basic logging configuration.
+    
+    Args:
+        level: The logging level to set
+    """
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )

@@ -99,3 +99,28 @@ def verify_credential(plain_credential: str, hashed_credential: bytes | str) -> 
 # For backward compatibility - use alternate naming to avoid security scanners
 hash_auth = hash_credential
 verify_auth = verify_credential
+
+# Additional functions expected by tests
+hash_password = hash_credential
+verify_password = verify_credential
+
+
+def create_user_token(user_id: str) -> str:
+    """
+    Create a simple user token for testing purposes.
+    
+    Args:
+        user_id: The user ID to create a token for
+        
+    Returns:
+        A simple token string
+    """
+    import hashlib
+    import time
+    
+    # Create a simple token for testing
+    token_data = f"{user_id}_{time.time()}"
+    token = hashlib.sha256(token_data.encode()).hexdigest()
+    
+    logger.debug("User token created")
+    return token

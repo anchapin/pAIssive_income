@@ -92,3 +92,56 @@ def average(numbers: Sequence[float]) -> float:
         msg = "Cannot calculate average of empty list"
         raise ValueError(msg)
     return sum(numbers) / len(numbers)
+
+
+def calculate_percentage(part: float, whole: float) -> float:
+    """
+    Calculate percentage of part from whole.
+
+    Args:
+        part: The part value
+        whole: The whole value
+
+    Returns:
+        Percentage value
+
+    Raises:
+        ZeroDivisionError: If whole is zero
+    """
+    if whole == 0:
+        msg = "Cannot calculate percentage with zero whole"
+        raise ZeroDivisionError(msg)
+    return round((part / whole) * 100, 2)
+
+
+def validate_number(value) -> bool:
+    """
+    Validate if a value is a number.
+
+    Args:
+        value: Value to validate
+
+    Returns:
+        True if value is a number, False otherwise
+    """
+    if value is None:
+        return False
+    try:
+        float(value)
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
+def format_currency(amount: float, currency_symbol: str = "$") -> str:
+    """
+    Format a number as currency.
+
+    Args:
+        amount: Amount to format
+        currency_symbol: Currency symbol to use
+
+    Returns:
+        Formatted currency string
+    """
+    return f"{currency_symbol}{amount:,.2f}"
