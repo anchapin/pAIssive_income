@@ -9,16 +9,23 @@ on:
       - "package.json"
       - ".github/workflows/tailwind-build.yml"
   pull_request:
+    types: [ opened, synchronize, reopened ]
     branches: [main]
     paths:
       - "ui/static/css/tailwind.css"
       - "tailwind.config.js"
       - "package.json"
       - ".github/workflows/tailwind-build.yml"
-  workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
-    types:
-      - completed
+  # Disabled workflow_run trigger to prevent cascading runs
+  # workflow_run:
+  #   workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+  #   types:
+  #     - completed
+
+# Prevent concurrent runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:

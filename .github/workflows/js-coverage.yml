@@ -4,12 +4,22 @@ on:
     branches:
       - main
   pull_request:
+    types: [ opened, synchronize, reopened ]
     branches: [main]
+    paths:
+      - "ui/react_frontend/**"
+      - ".github/workflows/js-coverage.yml"
     # Codecov will comment on PRs with coverage changes if configured in the Codecov dashboard.
-  workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
-    types:
-      - completed
+  # Disabled workflow_run trigger to prevent cascading runs
+  # workflow_run:
+  #   workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+  #   types:
+  #     - completed
+
+# Prevent concurrent runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   js-coverage:
     runs-on: ubuntu-latest

@@ -40,7 +40,9 @@ permissions:
   contents: read
 
 jobs:
+  # DISABLED: Redundant with main codeql-fixed.yml workflow which runs on multiple OS
   analyze-javascript:
+    if: false  # DISABLED: Redundant workflow
     name: Analyze JavaScript/TypeScript
     runs-on: macos-latest
     timeout-minutes: 90  # Increased timeout for larger codebases
@@ -137,6 +139,7 @@ jobs:
           retention-days: 7
 
   analyze-python:
+    if: false  # DISABLED: Redundant workflow
     name: Analyze Python
     runs-on: macos-latest
     timeout-minutes: 90  # Increased timeout for larger codebases

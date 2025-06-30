@@ -1,26 +1,34 @@
 name: Security Testing
 on:
+  # Only run on push to main branches to avoid duplicate runs
   push:
     branches:
       - main
       - develop
     paths:
       - '**.py'
-      - .github/workflows/security-testing.yml
+      - .github/workflows/security-testing-updated.yml
       - requirements*.txt
       - pyproject.toml
       - setup.py
+  # Only run on PRs for validation
   pull_request:
+    types: [ opened, synchronize, reopened ]
     branches:
       - main
       - develop
     paths:
       - '**.py'
-      - .github/workflows/security-testing.yml
+      - .github/workflows/security-testing-updated.yml
       - requirements*.txt
       - pyproject.toml
       - setup.py
   workflow_dispatch: {}
+
+# Prevent concurrent runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   security-scan:
     name: Security Scan

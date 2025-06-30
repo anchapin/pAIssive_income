@@ -15,10 +15,11 @@ on:
         required: false
         default: 10
         type: number
-  workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
-    types:
-      - completed
+  # Disabled workflow_run trigger to prevent cascading runs
+  # workflow_run:
+  #   workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+  #   types:
+  #     - completed
 
 jobs:
   test:

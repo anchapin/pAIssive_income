@@ -1,15 +1,23 @@
 name: Auto Fix (Linting & CodeQL Issues)
 on:
   pull_request:
+    types: [ opened, synchronize ]
+    branches: [ main, dev, master, develop ]
     paths:
       - "**.py"
       - "**.js"
       - "**.ts"
       - "**.tsx"
       - "**.jsx"
-      - "**.json"
-      - "**.yml"
-      - "**.yaml"
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "package.json"
+      - "tsconfig.json"
+
+# Prevent duplicate runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   auto-fix:

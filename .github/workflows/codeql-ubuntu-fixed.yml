@@ -1,7 +1,7 @@
 name: "CodeQL Analysis (Ubuntu)"
 
-# This workflow performs CodeQL analysis for JavaScript/TypeScript and Python on Ubuntu
-# It's a specialized version of the main CodeQL workflow for Ubuntu-specific analysis
+# DISABLED: This workflow is redundant with codeql-fixed.yml which already runs on multiple OS
+# Consolidating to prevent duplicate runs
 
 on:
   push:
@@ -58,6 +58,7 @@ permissions:
 
 jobs:
   analyze:
+    if: false  # DISABLED: Redundant with main codeql-fixed.yml workflow
     name: Analyze
     runs-on: ubuntu-latest
     timeout-minutes: 90  # Increased timeout for larger codebases
