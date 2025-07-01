@@ -238,3 +238,7 @@ test-report.json
 # macOS specific (fix for CodeQL pathsIgnore issue)
 Icon*
 **/Icon*
+
+# Untracked files
+GEMINI.md
+reset_tokens.db
