@@ -3,7 +3,7 @@ name: Frontend Unit Tests (Vitest)
 on:
   pull_request:
     types: [ opened, synchronize, reopened ]
-    branches: [ main, dev, master, develop ]
+    branches: [ main, dev, master, develop, fix/test-coverage-15-percent ]
     paths:
       - "ui/react_frontend/**"
       - ".github/workflows/frontend-vitest.yml"
