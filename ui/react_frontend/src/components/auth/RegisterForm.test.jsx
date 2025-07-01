@@ -4,12 +4,11 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import RegisterForm from './RegisterForm';
 
 // Mock useAppContext and useFormValidation
-vi.mock('../../context/AppContext', () => ({
-  useAppContext: vi.fn()
-}));
+vi.mock('../../context/AppContext');
 vi.mock('../../utils/validation', () => ({
   useFormValidation: vi.fn(),
   validationSchemas: { register: {} }

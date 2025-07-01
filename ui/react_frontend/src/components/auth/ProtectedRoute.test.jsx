@@ -5,12 +5,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { vi } from 'vitest';
 import ProtectedRoute from './ProtectedRoute';
 
 // Mock useAppContext
-vi.mock('../../context/AppContext', () => ({
-  useAppContext: vi.fn()
-}));
+vi.mock('../../context/AppContext');
 
 import { useAppContext } from '../../context/AppContext';
 

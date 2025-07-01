@@ -76,6 +76,22 @@ vi.mock('@mui/material', () => ({
     const { elevation: _e, sx: _sx, variant: _v, ...cleanProps } = props;
     return React.createElement(component, { 'data-elevation': elevation, 'data-variant': variant, ...cleanProps }, children);
   },
+  Grid: ({ children, container, item, xs, sm, md, lg, xl, spacing, sx, ...props }: any) => {
+    const { container: _c, item: _i, xs: _xs, sm: _sm, md: _md, lg: _lg, xl: _xl, spacing: _s, sx: _sx, ...cleanProps } = props;
+    return React.createElement('div', { 'data-grid': 'true', ...cleanProps }, children);
+  },
+  InputAdornment: ({ children, position, ...props }: any) => {
+    const { position: _p, ...cleanProps } = props;
+    return React.createElement('div', { 'data-input-adornment': position, ...cleanProps }, children);
+  },
+  IconButton: ({ children, size, edge, color, sx, ...props }: any) => {
+    const { size: _s, edge: _e, color: _c, sx: _sx, ...cleanProps } = props;
+    return React.createElement('button', { 'data-icon-button': 'true', ...cleanProps }, children);
+  },
+  FormHelperText: ({ children, error, sx, ...props }: any) => {
+    const { error: _e, sx: _sx, ...cleanProps } = props;
+    return React.createElement('div', { 'data-helper-text': error ? 'error' : 'normal', ...cleanProps }, children);
+  },
 }));
 
 // Mock localStorage and sessionStorage

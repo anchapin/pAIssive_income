@@ -4,12 +4,11 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 import AuthGuard from './AuthGuard';
 
 // Mock useAppContext
-vi.mock('../../context/AppContext', () => ({
-  useAppContext: vi.fn()
-}));
+vi.mock('../../context/AppContext');
 
 import { useAppContext } from '../../context/AppContext';
 
