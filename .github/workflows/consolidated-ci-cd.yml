@@ -129,6 +129,9 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: 'pnpm-lock.yaml'
 
+      - name: Add npm global bin to PATH
+        run: echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
+
       - name: Get pnpm store directory
         shell: bash
         run: |
