@@ -124,14 +124,11 @@ jobs:
       - name: Debug: Read ui/react_frontend/package.json
         run: cat ui/react_frontend/package.json
 
-      - name: Debug: Print current working directory before pnpm setup
-        run: pwd
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           run_install: false # We will run install manually later
-          package_json_file: ui/react_frontend/package.json
+          version: 8.x
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
