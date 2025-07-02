@@ -147,7 +147,15 @@ function loadConfig(configPath) {
     }
 
     const configData = fs.readFileSync(configPath, 'utf8');
-    return JSON.parse(configData);
+    let parsedConfig = JSON.parse(configData);
+    // Remove nyc and packageManager fields if they exist
+    if (parsedConfig.nyc) {
+      delete parsedConfig.nyc;
+    }
+    if (parsedConfig.packageManager) {
+      delete parsedConfig.packageManager;
+    }
+    return parsedConfig;
   } catch (err) {
     log(`Failed to load configuration from ${configPath}: ${err.message}`, 'error', { error: err });
     return null;
