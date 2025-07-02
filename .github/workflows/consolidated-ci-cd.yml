@@ -115,14 +115,7 @@ jobs:
           fetch-depth: 0
 
       # Setup Node.js and pnpm for JavaScript development
-      - name: Debug: Print current working directory
-        run: pwd
-
-      - name: Debug: List files in current directory
-        run: ls -la
-
-      - name: Debug: Read ui/react_frontend/package.json
-        run: cat ui/react_frontend/package.json
+      
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
