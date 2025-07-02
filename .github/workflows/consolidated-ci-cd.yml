@@ -119,6 +119,7 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           run_install: false # We will run install manually later
+          version: 8.x
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
