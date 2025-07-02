@@ -31,9 +31,7 @@ class MockAgent:
         """Initialize the mock agent."""
         self.name = name
 
-    def process_message(
-        self, message: str, additional_context: Optional[str] = None
-    ) -> str:
+    def process_message(self, message: str, additional_context: Optional[str] = None) -> str:
         """Process a message and return a response."""
         if additional_context:
             return f"Agent {self.name} responding to '{message}' with context: {additional_context}"
@@ -63,9 +61,7 @@ class MemoryEnhancedAgent(MockAgent):
 
         self.user_id = user_id
 
-    def process_message(
-        self, message: str, additional_context: Optional[str] = None
-    ) -> str:
+    def process_message(self, message: str, additional_context: Optional[str] = None) -> str:
         """
         Process a message with memory enhancement.
 
@@ -85,14 +81,10 @@ class MemoryEnhancedAgent(MockAgent):
         """
         # Skip memory enhancement if mem0 is not available
         if self.memory is None:
-            return super().process_message(
-                message, additional_context=additional_context
-            )
+            return super().process_message(message, additional_context=additional_context)
 
         # Retrieve relevant memories
-        relevant_memories = self.memory.search(
-            query=message, user_id=self.user_id, limit=5
-        )
+        relevant_memories = self.memory.search(query=message, user_id=self.user_id, limit=5)
 
         # Enhance the context with memories
         context = self._build_context_from_memories(relevant_memories)

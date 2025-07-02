@@ -9,6 +9,7 @@ import secrets
 import smtplib
 from datetime import datetime, timedelta, timezone
 from email.mime.text import MIMEText
+from typing import TYPE_CHECKING
 
 import bcrypt
 from flask import Blueprint, jsonify, request
@@ -17,6 +18,9 @@ from flask_limiter.util import get_remote_address
 from sqlalchemy import Column, DateTime, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+if TYPE_CHECKING:
+    from flask.typing import ResponseReturnValue
 
 # Pattern for allowed characters in logs. Anything not matching this will be replaced.
 # Allows: a-z, A-Z, 0-9, space, period, underscore, @, :, /, =, -
@@ -27,9 +31,7 @@ logger = logging.getLogger(__name__)
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 # Flask-Limiter instance (for demo; in prod, usually set up in main app)
-limiter = Limiter(
-    key_func=get_remote_address, default_limits=["200 per day", "50 per hour"]
-)
+limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 # Ensure init_app method exists for compatibility
 if not hasattr(limiter, "init_app"):
     limiter.init_app = lambda _: None  # type: ignore[assignment]
@@ -120,7 +122,7 @@ def sanitize_log_data(data: str | None) -> str:
 
 @auth_bp.route("/forgot-password", methods=["POST"])
 @limiter.limit("5 per minute")
-def forgot_password() -> tuple[dict, int]:
+def forgot_password() -> ResponseReturnValue:
     """Handle forgot password requests with proper security measures."""
     data = request.get_json() or {}
     email = data.get("email", "").strip().lower() if data.get("email") else ""
@@ -145,9 +147,7 @@ def forgot_password() -> tuple[dict, int]:
 
     # Always respond identically for user enumeration protection
     if not email:
-        return jsonify(
-            {"message": "If the email is registered, a reset link will be sent."}
-        ), 200
+        return jsonify({"message": "If the email is registered, a reset link will be sent."}), 200
 
     # If user exists, create a token and send an email
     if email in USERS:
@@ -158,9 +158,7 @@ def forgot_password() -> tuple[dict, int]:
         # Store token in DB with proper session handling
         session = SessionLocal()
         try:
-            session.add(
-                PasswordResetToken(email=email, token=token, expires_at=expires_at)
-            )
+            session.add(PasswordResetToken(email=email, token=token, expires_at=expires_at))
             session.commit()
 
             # Log token generation (without exposing the full token in logs)
@@ -190,14 +188,12 @@ def forgot_password() -> tuple[dict, int]:
             session.close()
 
     # Respond identically in either case for security
-    return jsonify(
-        {"message": "If the email is registered, a reset link will be sent."}
-    ), 200
+    return jsonify({"message": "If the email is registered, a reset link will be sent."}), 200
 
 
 @auth_bp.route("/reset-password", methods=["POST"])
 @limiter.limit("5 per minute")
-def reset_password() -> tuple[object, int]:
+def reset_password() -> ResponseReturnValue:
     """Handle password reset with proper security measures."""
     data = request.get_json() or {}
     token = data.get("token", "")
@@ -228,7 +224,7 @@ def reset_password() -> tuple[object, int]:
         # Use parameterized query to prevent SQL injection
         prt = session.query(PasswordResetToken).filter_by(token=token).first()
 
-        if not prt or prt.expires_at < datetime.now(timezone.utc):
+        if prt is None or prt.expires_at < datetime.now(timezone.utc):
             logger.warning(
                 "[AUDIT][%s] Password reset failed (invalid/expired token) from %s token_prefix=%s...",
                 datetime.now(timezone.utc).isoformat(),
@@ -249,9 +245,9 @@ def reset_password() -> tuple[object, int]:
                 safe_email,
                 safe_ip,
             )
-            return jsonify(
-                {"message": "Invalid or expired reset link."}
-            ), 400  # Use same message for security
+            return jsonify({
+                "message": "Invalid or expired reset link."
+            }), 400  # Use same message for security
 
         # Hash the new password with bcrypt (already secure)
         hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()

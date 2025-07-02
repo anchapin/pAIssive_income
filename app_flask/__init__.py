@@ -52,15 +52,11 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
             app.config.from_object(Config)
         except ImportError:
             # Fallback configuration if config.py is not available
-            app.config.update(
-                {
-                    "SQLALCHEMY_DATABASE_URI": os.environ.get(
-                        "DATABASE_URL", "sqlite:///:memory:"
-                    ),
-                    "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-                    "SECRET_KEY": os.environ.get("SECRET_KEY", "dev-secret-key"),
-                }
-            )
+            app.config.update({
+                "SQLALCHEMY_DATABASE_URI": os.environ.get("DATABASE_URL", "sqlite:///:memory:"),
+                "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+                "SECRET_KEY": os.environ.get("SECRET_KEY", "dev-secret-key"),
+            })
     else:
         # Load the test config if passed in
         app.config.update(test_config)

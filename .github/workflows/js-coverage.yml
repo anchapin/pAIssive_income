@@ -4,12 +4,22 @@ on:
     branches:
       - main
   pull_request:
+    types: [ opened, synchronize, reopened ]
     branches: [main]
+    paths:
+      - "ui/react_frontend/**"
+      - ".github/workflows/js-coverage.yml"
     # Codecov will comment on PRs with coverage changes if configured in the Codecov dashboard.
-  workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
-    types:
-      - completed
+  # Disabled workflow_run trigger to prevent cascading runs
+  # workflow_run:
+  #   workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+  #   types:
+  #     - completed
+
+# Prevent concurrent runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   js-coverage:
     runs-on: ubuntu-latest
@@ -22,40 +32,68 @@ jobs:
       run:
         working-directory: ui/react_frontend
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
-        run_install: false
-    - name: Install dependencies
-      run: pnpm install
-    - name: Create coverage directory
-      run: mkdir -p coverage
-    - name: Build Tailwind CSS
-      run: pnpm tailwind:build
-    - name: Run JS tests and check coverage
-      run: |
-        echo "Node.js version: $(node --version)"
-        echo "npm version: $(npm --version)"
-        echo "pnpm version: $(pnpm --version)"
-        pnpm test:ci --passWithNoTests || true
-    - name: Generate coverage report
-      run: pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage report, but continuing workflow"
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        files: ./coverage/lcov.info
-        flags: js, node${{ matrix.node-version }}
-        fail_ci_if_error: false
-    - name: Upload HTML coverage report as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: js-coverage-html-report-node${{ matrix.node-version }}
-        path: ui/react_frontend/coverage/
-        if-no-files-found: warn
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+
+      - name: Install dependencies
+        run: |
+          echo "Installing frontend dependencies..."
+          pnpm install --frozen-lockfile || pnpm install
+
+      - name: Create coverage directory
+        run: mkdir -p coverage
+
+      - name: Build Tailwind CSS
+        run: pnpm tailwind:build
+
+      - name: Run JS tests and check coverage
+        run: |
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          echo "pnpm version: $(pnpm --version)"
+
+          # Run tests from the current frontend directory
+          echo "Running frontend tests with coverage..."
+          pnpm test:ci --passWithNoTests || echo "Frontend tests failed, but continuing"
+
+      - name: Generate coverage report
+        run: |
+          # Generate coverage from current frontend directory
+          echo "Using robust coverage generation script..."
+          pnpm coverage:robust || pnpm coverage > ./coverage/lcov.info || echo "Failed to generate coverage report, but continuing workflow"
+
+          # Check if coverage files were generated
+          if [ -f "./coverage/lcov.info" ]; then
+            echo "Coverage report generated successfully"
+            echo "Coverage file size: $(wc -l < ./coverage/lcov.info) lines"
+          else
+            echo "No lcov.info found, creating empty file"
+            mkdir -p ./coverage
+            touch ./coverage/lcov.info
+          fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          flags: js,node${{ matrix.node-version }}
+          fail_ci_if_error: false
+
+      - name: Upload HTML coverage report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: js-coverage-html-report-node${{ matrix.node-version }}
+          path: coverage/
+          if-no-files-found: warn

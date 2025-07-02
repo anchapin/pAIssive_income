@@ -93,8 +93,8 @@ class Mem0ClientProtocol(Protocol):
         self,
         content: str | list[dict[str, str]],
         user_id: str,
-        **kwargs: str | int | bool | None,
-    ) -> dict[str, str | int | bool | None] | str | None:
+        **kwargs: Any,
+    ) -> Any:
         """
         Add new memory content.
 
@@ -194,13 +194,7 @@ class KnowledgeSource(ABC):
 
         """
 
-    def update(
-        self,
-        content_id: str,
-        new_content: str,
-        user_id: str,
-        **kwargs: str | int | bool | None,
-    ) -> dict[str, str | int | bool | None] | str | None:
+    def update(self, content_id: str, new_content: str, user_id: str, **kwargs: Any) -> Any:
         """
         Update existing knowledge entry.
 

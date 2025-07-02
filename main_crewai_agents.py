@@ -101,9 +101,7 @@ def create_team(use_memory: bool = False, user_id: str | None = None) -> TeamPro
                 agent=analyzer,
             )
 
-            team.add_task(
-                description="Write a summary report based on analysis.", agent=writer
-            )
+            team.add_task(description="Write a summary report based on analysis.", agent=writer)
 
             return team
     if use_memory and not mem0_available:
@@ -136,9 +134,7 @@ def create_team(use_memory: bool = False, user_id: str | None = None) -> TeamPro
         description="Analyze gathered data for trends and anomalies.",
         agent=analyzer,
     )
-    task_report = Task(
-        description="Write a summary report based on analysis.", agent=writer
-    )
+    task_report = Task(description="Write a summary report based on analysis.", agent=writer)
 
     return Crew(
         agents=[data_gatherer, analyzer, writer],
@@ -148,9 +144,7 @@ def create_team(use_memory: bool = False, user_id: str | None = None) -> TeamPro
 
 if __name__ == "__main__":
     # Configure logging
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
     # Check if dependencies are available
     if not crewai_available:

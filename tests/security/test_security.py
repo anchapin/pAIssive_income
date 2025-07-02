@@ -97,9 +97,7 @@ class BaseSecurityTest:
         mode = "wb" if isinstance(content, bytes) else "w"
         # Create with restricted permissions
         with os.fdopen(
-            os.open(
-                path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, SECURE_FILE_PERMISSIONS
-            ),
+            os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, SECURE_FILE_PERMISSIONS),
             mode,
         ) as f:
             f.write(content)

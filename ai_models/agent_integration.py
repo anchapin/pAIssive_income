@@ -144,9 +144,7 @@ def _validate_server_config(server: dict[str, Any]) -> bool:
     """
     # Check required fields
     if not all(k in server for k in ["name", "host", "port"]):
-        logger.warning(
-            "Skipping invalid server config missing required fields: %s", server
-        )
+        logger.warning("Skipping invalid server config missing required fields: %s", server)
         return False
 
     # Validate server name

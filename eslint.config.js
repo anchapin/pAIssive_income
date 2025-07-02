@@ -3,10 +3,25 @@ import js from '@eslint/js';
 export default [
   js.configs.recommended,
   {
-    ignores: ['**/node_modules/**', '**/dist/**', '**/build/**'],
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.venv/**',
+      '**/venv/**',
+      '**/__pycache__/**',
+      '**/*.pyc',
+      '**/migrations/**',
+      '**/coverage/**',
+      '**/junit/**',
+      '**/logs/**',
+      '**/security-reports/**',
+      '**/.git/**',
+      '**/ui/react_frontend/tests/verify_mock_path_to_regexp.js'
+    ],
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.jsx'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -47,6 +62,15 @@ export default [
         module: 'readonly',
         exports: 'readonly',
 
+        // Testing globals
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        before: 'readonly',
+        after: 'readonly',
+
         // Common library globals
         $: 'readonly',
         jQuery: 'readonly',
@@ -58,6 +82,7 @@ export default [
         isDockerEnvironment: 'readonly',
         express: 'readonly',
         cors: 'readonly',
+        React: 'readonly',
       },
     },
     rules: {

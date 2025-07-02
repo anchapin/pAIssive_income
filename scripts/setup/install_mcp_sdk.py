@@ -14,14 +14,13 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import sys
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
-def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:  # noqa: ANN003
+def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])
@@ -41,7 +40,7 @@ def _safe_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProces
     return subprocess.run(cmd, check=False, **filtered_kwargs)
 
 
-def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str, str]:
+def run_command(command: list[str], cwd: str | None = None) -> tuple[int, str, str]:
     """
     Run a command and return the exit code, stdout, and stderr.
 
@@ -54,9 +53,7 @@ def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str
 
     """
     # Validate command to ensure it's a list of strings and doesn't contain shell metacharacters
-    if not isinstance(command, list) or not all(
-        isinstance(arg, str) for arg in command
-    ):
+    if not isinstance(command, list) or not all(isinstance(arg, str) for arg in command):
         logger.error("Invalid command format: command must be a list of strings")
         return 1, "", "Invalid command format"
 
@@ -191,9 +188,7 @@ def _try_installation_methods(temp_dir: str) -> bool:
         )
 
         if exit_code == 0:
-            logger.info(
-                "Mock MCP SDK installed successfully with %s", method["description"]
-            )
+            logger.info("Mock MCP SDK installed successfully with %s", method["description"])
             return True
         logger.warning(
             "Failed to install mock MCP SDK with %s: %s",
@@ -428,9 +423,7 @@ def _check_existing_installation() -> bool:
                 logger.info("Verified modelcontextprotocol.Client exists")
                 return True
 
-            logger.warning(
-                "modelcontextprotocol module exists but Client class is missing"
-            )
+            logger.warning("modelcontextprotocol module exists but Client class is missing")
         except ImportError as e:
             logger.warning("Module exists but import failed: %s", e)
             return False

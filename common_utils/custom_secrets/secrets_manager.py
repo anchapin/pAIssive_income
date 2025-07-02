@@ -85,21 +85,25 @@ class SecretsBackend(enum.Enum):
 class SecretBackendProtocol(Protocol):
     """Protocol for secret backend implementations."""
 
-    def get_secret(self) -> str | None:
+    def get_secret(self, key: str) -> str | None:
         """Get a secret from the backend."""
-        ...
+        msg = "Subclasses must implement get_secret"
+        raise NotImplementedError(msg)
 
-    def set_secret(self) -> bool:
+    def set_secret(self, key: str, value: str) -> bool:
         """Set a secret in the backend."""
-        ...
+        msg = "Subclasses must implement set_secret"
+        raise NotImplementedError(msg)
 
-    def delete_secret(self) -> bool:
+    def delete_secret(self, key: str) -> bool:
         """Delete a secret from the backend."""
-        ...
+        msg = "Subclasses must implement delete_secret"
+        raise NotImplementedError(msg)
 
     def list_secrets(self) -> dict[str, Any]:
         """List secrets in the backend."""
-        ...
+        msg = "Subclasses must implement list_secrets"
+        raise NotImplementedError(msg)
 
 
 class SecretsManager:
@@ -284,9 +288,7 @@ class SecretsManager:
         os.environ[key] = value
         return True
 
-    def _set_backend_secret(
-        self, _key: str, _value: str, backend_type: SecretsBackend
-    ) -> bool:
+    def _set_backend_secret(self, _key: str, _value: str, backend_type: SecretsBackend) -> bool:
         """
         Set a secret in a specific backend.
 
@@ -330,9 +332,7 @@ class SecretsManager:
         else:
             return result
 
-    def set_secret(
-        self, key: str, value: str, backend: SecretsBackend | None = None
-    ) -> bool:
+    def set_secret(self, key: str, value: str, backend: SecretsBackend | None = None) -> bool:
         """
         Set a secret in the specified backend.
 
@@ -518,16 +518,14 @@ class SecretsManager:
         # Process each environment variable
         for key in os.environ:
             # Skip environment variables that are clearly not secrets
-            if key.startswith(
-                (
-                    "PATH",
-                    "PYTHON",
-                    "SYSTEM",
-                    "OS_",
-                    "COMPUTERNAME",
-                    "USERNAME",
-                )
-            ):
+            if key.startswith((
+                "PATH",
+                "PYTHON",
+                "SYSTEM",
+                "OS_",
+                "COMPUTERNAME",
+                "USERNAME",
+            )):
                 continue
 
             # Determine if this key potentially contains sensitive information
@@ -671,9 +669,7 @@ class SecretsManager:
         logger.error("Unknown backend specified")
         return {}
 
-    def _sanitize_secrets_dict(
-        self, secrets: dict[str, Any]
-    ) -> dict[str, str | dict[str, Any]]:
+    def _sanitize_secrets_dict(self, secrets: dict[str, Any]) -> dict[str, str | dict[str, Any]]:
         """
         Sanitize a dictionary of secrets to ensure no sensitive data is exposed.
 
@@ -735,9 +731,7 @@ def get_secret(key: str, backend: SecretsBackend | str | None = None) -> str | N
     return _secrets_manager.get_secret(key, backend)
 
 
-def set_secret(
-    key: str, value: str, backend: SecretsBackend | str | None = None
-) -> bool:
+def set_secret(key: str, value: str, backend: SecretsBackend | str | None = None) -> bool:
     """
     Set a secret in the specified backend.
 

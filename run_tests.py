@@ -193,9 +193,7 @@ def count_tests(validated_args: list[str]) -> int:
         )
     else:
         if result.returncode != 0:
-            logger.warning(
-                "Test collection failed with return code %d", result.returncode
-            )
+            logger.warning("Test collection failed with return code %d", result.returncode)
             if result.stderr:
                 logger.debug("Collection error: %s", result.stderr)
             test_count = default_test_count if has_test_files else 0
@@ -238,9 +236,7 @@ def run_pytest_with_workers(validated_args: list[str], num_workers: int) -> int:
             capture_output=True,
         )
         if result.returncode not in [0, 1, 2, 3, 4, 5]:
-            logger.warning(
-                "Pytest exited with unexpected return code: %d", result.returncode
-            )
+            logger.warning("Pytest exited with unexpected return code: %d", result.returncode)
             if result.stdout:
                 logger.info("Pytest stdout: %s", result.stdout)
             if result.stderr:
@@ -279,9 +275,7 @@ def ensure_security_reports_dir() -> None:
     if _ensure_dir_exists(temp_dir, f"security-reports in temp location: {temp_dir}"):
         _try_create_symlink(temp_dir, "security-reports")
         return
-    logger.warning(
-        "Could not create any security-reports directory; continuing without it."
-    )
+    logger.warning("Could not create any security-reports directory; continuing without it.")
 
 
 def _ensure_dir_exists(path: Path, description: str) -> bool:
@@ -361,7 +355,10 @@ def _safe_subprocess_run(
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])
     filtered_kwargs = {k: v for k, v in kwargs.items() if v is not None}
-    return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[return-value]
+    # Set default check=False if not provided
+    if "check" not in filtered_kwargs:
+        filtered_kwargs["check"] = False
+    return subprocess.run(cmd, **filtered_kwargs)  # type: ignore[return-value]  # noqa: PLW1510
 
 
 def ensure_pytest_xdist_installed() -> None:
@@ -436,13 +433,9 @@ def main() -> None:
             logger.warning(
                 "Not running in a virtual environment. This may cause issues with pytest."
             )
-            logger.info(
-                "Continuing anyway, but consider running in a virtual environment."
-            )
+            logger.info("Continuing anyway, but consider running in a virtual environment.")
             if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
-                logger.info(
-                    "CI environment detected. Will proceed without virtual environment."
-                )
+                logger.info("CI environment detected. Will proceed without virtual environment.")
     ensure_pytest_xdist_installed()
     ensure_security_reports_dir()
     validated_args = validate_args(sys.argv[1:])

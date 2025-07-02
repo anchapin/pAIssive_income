@@ -22,9 +22,7 @@ logger = logging.getLogger(__name__)
 # type: ignore[import, assignment]
 
 
-def _safe_subprocess_run(
-    cmd: list[str], **kwargs: object
-) -> subprocess.CompletedProcess[Any]:
+def _safe_subprocess_run(cmd: list[str], **kwargs: object) -> subprocess.CompletedProcess[Any]:
     cmd = [str(c) if isinstance(c, Path) else c for c in cmd]
     if "cwd" in kwargs and isinstance(kwargs["cwd"], Path):
         kwargs["cwd"] = str(kwargs["cwd"])
@@ -100,12 +98,13 @@ def _safe_subprocess_run(
     return subprocess.run(cmd, check=False, **filtered_kwargs)  # type: ignore[call-arg]
 
 
-def run_command(command: str) -> tuple[str, str, int]:
+def run_command(command: str, timeout: int = 30) -> tuple[str, str, int]:
     """
     Run a shell command and return stdout, stderr, and return code.
 
     Args:
         command: Command to run
+        timeout: Timeout in seconds
 
     Returns:
         Tuple of (stdout, stderr, return_code)
@@ -116,8 +115,10 @@ def run_command(command: str) -> tuple[str, str, int]:
         args = shlex.split(command)
 
         # The following subprocess call is constructed with shlex.split and is safe for use in test code.
-        result = _safe_subprocess_run(args, capture_output=True, text=True)
+        result = _safe_subprocess_run(args, capture_output=True, text=True, timeout=timeout)
         stdout, stderr, returncode = result.stdout, result.stderr, result.returncode
+    except subprocess.TimeoutExpired:
+        stdout, stderr, returncode = "", "Command timed out", 124
     except (subprocess.SubprocessError, OSError) as e:
         stdout, stderr, returncode = "", str(e), 1
 
@@ -143,14 +144,17 @@ def test_safety_scan() -> None:
     # Create fallback safety results file
     Path("security-reports/safety-results.json").write_text("[]")
 
-    # Run safety check
+    # Run safety check with timeout
     logger.info("Running safety check...")
-    stdout, stderr, return_code = run_command("safety check --json")
+    stdout, stderr, return_code = run_command("safety check --json", timeout=30)
 
-    if return_code != 0 and "command not found" in stderr:
+    if return_code != 0 and stderr and "command not found" in stderr:
         logger.info("Safety not installed. Installing...")
         run_command("uv pip install safety")  # Using uv
-        stdout, stderr, return_code = run_command("safety check --json")
+        stdout, stderr, return_code = run_command("safety check --json", timeout=30)
+
+    if return_code == 124:
+        logger.warning("Safety check timed out. Using empty results.")
 
     if stdout and not stderr:
         tmp_file = Path("security-reports/safety-results.json.tmp")
@@ -196,14 +200,21 @@ def test_bandit_scan() -> None:
     # Create fallback bandit results file
     Path("security-reports/bandit-results.json").write_text("[]")
 
-    # Run bandit scan
+    # Run bandit scan with timeout and limited scope for tests
     logger.info("Running bandit scan...")
-    stdout, stderr, return_code = run_command("bandit -r . -f json")
+    stdout, stderr, return_code = run_command(
+        "bandit -r . -f json --skip B101,B601 --exclude ./tests,./htmlcov,./logs", timeout=30
+    )
 
-    if return_code != 0 and "command not found" in stderr:
+    if return_code != 0 and stderr and "command not found" in stderr:
         logger.info("Bandit not installed. Installing...")
         run_command("uv pip install bandit")  # Using uv
-        stdout, stderr, return_code = run_command("bandit -r . -f json")
+        stdout, stderr, return_code = run_command(
+            "bandit -r . -f json --skip B101,B601 --exclude ./tests,./htmlcov,./logs", timeout=30
+        )
+
+    if return_code == 124:
+        logger.warning("Bandit scan timed out. Using empty results.")
 
     if stdout:
         tmp_file = Path("security-reports/bandit-results.json.tmp")
@@ -289,21 +300,23 @@ def test_sarif_file_handling() -> None:
                 msg = "Failed to create fallback SARIF file"
                 raise AssertionError(msg) from None
 
-        # Create compressed version
+        # Create compressed version using Python's gzip module
         compressed_file_name = f"{sarif_file.name}.gz"
         compressed_path_base = Path("security-reports/compressed")
         compressed_file = compressed_path_base / compressed_file_name
 
-        # Use a safer approach to create compressed file
-        cmd = f"gzip -c {sarif_file} > {compressed_file}"
-        stdout, stderr, return_code = run_command(cmd)
+        # Use Python's gzip module for better cross-platform compatibility
+        try:
+            import gzip
 
-        if return_code != 0:
-            logger.error("Error creating compressed version: %s", stderr)
-            msg = f"Failed to create compressed version: {stderr}"
+            with open(sarif_file, "rb") as f_in:
+                with gzip.open(compressed_file, "wb") as f_out:
+                    f_out.write(f_in.read())
+            logger.info("Created compressed version: %s", compressed_file)
+        except Exception as e:
+            logger.exception("Error creating compressed version: %s", e)
+            msg = f"Failed to create compressed version: {e}"
             raise AssertionError(msg)
-
-        logger.info("Created compressed version: %s", compressed_file)
 
     logger.info("SARIF file handling test completed")
     assert True

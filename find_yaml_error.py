@@ -34,9 +34,7 @@ def find_yaml_error() -> None:
         logger.exception("YAML Error")
         if hasattr(e, "problem_mark") and content:
             mark = e.problem_mark
-            logger.exception(
-                "Error at line %d, column %d", mark.line + 1, mark.column + 1
-            )
+            logger.exception("Error at line %d, column %d", mark.line + 1, mark.column + 1)
 
             # Show context around the error
             lines = content.split("\n")

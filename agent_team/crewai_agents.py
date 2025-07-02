@@ -36,9 +36,7 @@ class TaskProtocol(Protocol):
     description: str
     agent: AgentProtocol | None
 
-    def __init__(
-        self, description: str = "", agent: AgentProtocol | None = None
-    ) -> None:
+    def __init__(self, description: str = "", agent: AgentProtocol | None = None) -> None:
         """Initialize the Task with description and optional agent."""
 
 
@@ -94,9 +92,7 @@ except ImportError:
     class TaskPlaceholder:
         """Placeholder for Task class when crewai is not installed."""
 
-        def __init__(
-            self, description: str = "", agent: AgentPlaceholder | None = None
-        ) -> None:
+        def __init__(self, description: str = "", agent: AgentProtocol | None = None) -> None:
             """Initialize the placeholder Task with description and agent."""
             self.description = description
             self.agent = agent
@@ -123,9 +119,9 @@ except ImportError:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
 
-    Agent: type[AgentProtocol] = AgentPlaceholder
-    Task: type[TaskProtocol] = TaskPlaceholder
-    Crew: type[CrewProtocol] = CrewPlaceholder
+    Agent: type[AgentProtocol] = AgentPlaceholder  # type: ignore[assignment]
+    Task: type[TaskProtocol] = TaskPlaceholder  # type: ignore[assignment]
+    Crew: type[CrewProtocol] = CrewPlaceholder  # type: ignore[assignment]
 
     import warnings
 
@@ -176,9 +172,7 @@ reporting_team = Crew(
 
 if __name__ == "__main__":
     # Configure logging
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
     logger = logging.getLogger(__name__)
     if not crewai_available:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
@@ -228,8 +222,8 @@ class CrewAIAgentTeam:
 
         """
         self.llm_provider = llm_provider
-        self.agents: list[object] = []
-        self.tasks: list[object] = []
+        self.agents: list[AgentProtocol] = []
+        self.tasks: list[TaskProtocol] = []
         self.api_client: object | None = None
 
         # Dedicated logger for agentic reasoning
@@ -266,9 +260,7 @@ class CrewAIAgentTeam:
 
         """
         if isinstance(agent, str):
-            agent_obj = next(
-                (a for a in self.agents if getattr(a, "role", None) == agent), None
-            )
+            agent_obj = next((a for a in self.agents if getattr(a, "role", None) == agent), None)
             if not agent_obj:
                 error_msg = f"Agent with role '{agent}' not found"
                 raise ValueError(error_msg)
@@ -282,9 +274,7 @@ class CrewAIAgentTeam:
         """Create a Crew instance from the current agents and tasks."""
         return Crew(agents=self.agents, tasks=self.tasks)
 
-    def _heuristic_tool_selection(
-        self, description: str
-    ) -> tuple[str, dict] | tuple[None, None]:
+    def _heuristic_tool_selection(self, description: str) -> tuple[str, dict] | tuple[None, None]:
         """
         Select a tool based on task description using extensible heuristic matching.
 
@@ -312,12 +302,8 @@ class CrewAIAgentTeam:
 
             # Check keywords if available in tool metadata
             keywords = tool_metadata.get("keywords", [])
-            if keywords and any(
-                keyword.lower() in description_lower for keyword in keywords
-            ):
-                self.logger.info(
-                    "Tool '%s' matched by keyword in description.", tool_name
-                )
+            if keywords and any(keyword.lower() in description_lower for keyword in keywords):
+                self.logger.info("Tool '%s' matched by keyword in description.", tool_name)
                 return tool_name, tool_metadata
 
         self.logger.info("No tool matched by heuristic.")
@@ -363,9 +349,7 @@ class CrewAIAgentTeam:
                         if match:
                             tool_input = match.group(1)
 
-                self.logger.info(
-                    "Invoking tool '%s' with input: %r", tool_name, tool_input
-                )
+                self.logger.info("Invoking tool '%s' with input: %r", tool_name, tool_input)
                 try:
                     # Get the actual function from the tool metadata
                     func = tool_metadata["func"]
@@ -376,9 +360,7 @@ class CrewAIAgentTeam:
                 except Exception:
                     self.logger.exception("Error invoking tool '%s'", tool_name)
             else:
-                self.logger.info(
-                    "No tool selected for this task. Proceeding without tool."
-                )
+                self.logger.info("No tool selected for this task. Proceeding without tool.")
 
         # Create and run the crew as usual
         crew = self._create_crew()

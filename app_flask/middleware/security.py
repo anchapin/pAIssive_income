@@ -75,9 +75,7 @@ def set_security_headers() -> Callable[[F], F]:
                 "form-action 'self'",
             )
             # HTTP Strict Transport Security (max age: 1 year)
-            headers.add(
-                "Strict-Transport-Security", "max-age=31536000; includeSubDomains"
-            )
+            headers.add("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
             # Referrer Policy
             headers.add("Referrer-Policy", "strict-origin-when-cross-origin")
             # Permissions Policy

@@ -52,9 +52,7 @@ lockout_times: dict[str, float] = {}
 
 AUTH_REQUIRED_MSG = "Authentication required"
 OPERATION_LOCKED_MSG = "Operation locked for {remaining_time:.0f} seconds"
-TOO_MANY_ATTEMPTS_MSG = (
-    f"Too many failed attempts. Locked for {LOCKOUT_DURATION} seconds"
-)
+TOO_MANY_ATTEMPTS_MSG = f"Too many failed attempts. Locked for {LOCKOUT_DURATION} seconds"
 MIN_SECRET_LENGTH = 12
 MIN_CHAR_SET_SIZE = 30
 
@@ -150,12 +148,8 @@ def _check_rate_limit(operation: str) -> None:
     # Check lockout
     if operation in lockout_times:
         if current_time - lockout_times[operation] < LOCKOUT_DURATION:
-            remaining_time = LOCKOUT_DURATION - (
-                current_time - lockout_times[operation]
-            )
-            raise PermissionError(
-                OPERATION_LOCKED_MSG.format(remaining_time=remaining_time)
-            )
+            remaining_time = LOCKOUT_DURATION - (current_time - lockout_times[operation])
+            raise PermissionError(OPERATION_LOCKED_MSG.format(remaining_time=remaining_time))
         del lockout_times[operation]
         failed_attempts[operation] = 0
 
@@ -317,13 +311,9 @@ def handle_get(args: argparse.Namespace) -> None:
 
         # SECURITY ENHANCEMENT: Replace double masking with secure clipboard copy option
         if os.environ.get("SECRETS_CLI_MODE") == "interactive":
-            logger.info(
-                "For security reasons, secrets are not displayed in the terminal."
-            )
+            logger.info("For security reasons, secrets are not displayed in the terminal.")
             logger.info("Available options:")
-            logger.info(
-                "  1. Copy to clipboard (temporary, will be cleared after 30 seconds)"
-            )
+            logger.info("  1. Copy to clipboard (temporary, will be cleared after 30 seconds)")
             logger.info("  2. Cancel")
             try:
                 choice = input("Enter your choice (1-2): ")
@@ -361,9 +351,7 @@ def handle_get(args: argparse.Namespace) -> None:
                 except ImportError:
                     # If pyperclip isn't installed, we can't clear the clipboard but
                     # that's acceptable since it wasn't used to begin with
-                    logger.debug(
-                        "pyperclip not installed, couldn't clear clipboard on interrupt"
-                    )
+                    logger.debug("pyperclip not installed, couldn't clear clipboard on interrupt")
 
     except Exception as e:
         if isinstance(e, PermissionError):
@@ -461,9 +449,7 @@ def handle_delete(args: argparse.Namespace) -> None:
         masked_key = mask_sensitive_data(args.key)
 
         # Require confirmation for delete
-        confirm = input(
-            f"Are you sure you want to delete secret {masked_key}? (yes/no): "
-        )
+        confirm = input(f"Are you sure you want to delete secret {masked_key}? (yes/no): ")
         if confirm.lower() != "yes":
             logger.info("Delete operation cancelled")
             return
@@ -529,9 +515,7 @@ def handle_list(args: argparse.Namespace) -> None:
         failed_attempts["list"] = failed_attempts.get("list", 0) + 1
         logger.exception("Error listing secrets", extra={"error": str(e)})
         # Use exception for logging errors
-        logger.exception(
-            "Error listing secrets"
-        )  # Keep this for user-facing simple error
+        logger.exception("Error listing secrets")  # Keep this for user-facing simple error
         sys.exit(1)
 
 
@@ -563,9 +547,7 @@ def handle_audit(args: argparse.Namespace) -> None:
             output_path = Path(args.output)
             output_dir = str(output_path.parent)
             if output_dir and not Path(output_dir).exists():
-                logger.error(
-                    "Output directory not found", extra={"directory": output_dir}
-                )
+                logger.error("Output directory not found", extra={"directory": output_dir})
                 logger.error("Output directory not found: %s", output_dir)
                 sys.exit(1)
 
@@ -596,9 +578,7 @@ def handle_audit(args: argparse.Namespace) -> None:
         failed_attempts["audit"] = failed_attempts.get("audit", 0) + 1
         logger.exception("Error in audit command", extra={"error": str(e)})
         # Use exception for logging errors
-        logger.exception(
-            "Error in audit command"
-        )  # Keep this for user-facing simple error
+        logger.exception("Error in audit command")  # Keep this for user-facing simple error
         sys.exit(1)
 
 

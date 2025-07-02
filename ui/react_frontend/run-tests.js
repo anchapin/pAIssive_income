@@ -60,12 +60,18 @@ function log(message, level = 'info') {
 // Helper to check if a port is in use
 function isPortInUse(port) {
   try {
+    // Validate port number to prevent command injection
+    const portNum = parseInt(port, 10);
+    if (isNaN(portNum) || portNum < 1 || portNum > 65535) {
+      throw new Error(`Invalid port number: ${port}`);
+    }
+
     // Different command based on OS
     if (os.platform() === 'win32') {
-      const result = execSync(`netstat -ano | findstr :${port}`).toString();
+      const result = execSync(`netstat -ano | findstr :${portNum}`).toString();
       return result.length > 0;
     } else {
-      const result = execSync(`lsof -i:${port}`).toString();
+      const result = execSync(`lsof -i:${portNum}`).toString();
       return result.length > 0;
     }
   } catch (error) {
@@ -77,24 +83,36 @@ function isPortInUse(port) {
 // Helper to kill a process by port
 function killProcessOnPort(port) {
   try {
+    // Validate port number to prevent command injection
+    const portNum = parseInt(port, 10);
+    if (isNaN(portNum) || portNum < 1 || portNum > 65535) {
+      throw new Error(`Invalid port number: ${port}`);
+    }
+
     if (os.platform() === 'win32') {
-      const result = execSync(`netstat -ano | findstr :${port}`).toString();
+      const result = execSync(`netstat -ano | findstr :${portNum}`).toString();
       const lines = result.split('\n');
       for (const line of lines) {
         const parts = line.trim().split(/\s+/);
         if (parts.length > 4) {
           const pid = parts[4];
-          if (pid && !isNaN(parseInt(pid))) {
-            log(`Killing process with PID ${pid} on port ${port}`);
-            execSync(`taskkill /F /PID ${pid}`);
+          // Validate PID to prevent command injection
+          const pidNum = parseInt(pid, 10);
+          if (pid && !isNaN(pidNum) && pidNum > 0) {
+            log(`Killing process with PID ${pidNum} on port ${portNum}`);
+            execSync(`taskkill /F /PID ${pidNum}`);
           }
         }
       }
     } else {
-      const pid = execSync(`lsof -t -i:${port}`).toString().trim();
+      const pid = execSync(`lsof -t -i:${portNum}`).toString().trim();
       if (pid) {
-        log(`Killing process with PID ${pid} on port ${port}`);
-        execSync(`kill -9 ${pid}`);
+        // Validate PID to prevent command injection
+        const pidNum = parseInt(pid, 10);
+        if (!isNaN(pidNum) && pidNum > 0) {
+          log(`Killing process with PID ${pidNum} on port ${portNum}`);
+          execSync(`kill -9 ${pidNum}`);
+        }
       }
     }
   } catch (error) {

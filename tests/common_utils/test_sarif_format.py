@@ -64,11 +64,7 @@ def validate_sarif_file(file_path: str) -> bool:
         if "$schema" not in data:
             logger.error("Missing '$schema' field")
             is_valid = False
-        if (
-            "runs" not in data
-            or not isinstance(data["runs"], list)
-            or len(data["runs"]) == 0
-        ):
+        if "runs" not in data or not isinstance(data["runs"], list) or len(data["runs"]) == 0:
             logger.error("Missing or invalid 'runs' field")
             is_valid = False
         else:

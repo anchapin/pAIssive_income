@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import logging
 import re
-from re import Pattern
 from typing import Any
 
 # List of sensitive field names to mask in logs
@@ -34,7 +33,7 @@ SENSITIVE_FIELDS: list[str] = [
 ]
 
 # Regex patterns to detect sensitive information
-PATTERNS: dict[str, Pattern] = {
+PATTERNS: dict[str, re.Pattern[str]] = {
     "credential_type_1": re.compile(
         (
             r'(access[_-]?credential|api_material)["\']?\s*[:=]\s*["\']?'
@@ -103,9 +102,7 @@ def is_sensitive_key(key: str) -> bool:
     return any(term in key_lower for term in sensitive_terms)
 
 
-def mask_sensitive_data(
-    data: object, mask_char: str = "*", visible_chars: int = 4
-) -> object:
+def mask_sensitive_data(data: object, mask_char: str = "*", visible_chars: int = 4) -> object:
     """
     Mask sensitive data in logs to prevent logging of sensitive information.
 
@@ -208,7 +205,7 @@ def _mask_string(value: str, mask_char: str = "*", visible_chars: int = 4) -> st
 
 
 def _mask_pattern(
-    text: str, pattern: Pattern, mask_char: str = "*", visible_chars: int = 4
+    text: str, pattern: re.Pattern[str], mask_char: str = "*", visible_chars: int = 4
 ) -> str:
     """
     Mask text that matches a specific regex pattern.
@@ -390,9 +387,7 @@ class SecureLogger:
         self, stack_info: bool = False, stacklevel: int = 1
     ) -> tuple[str, int, str, str | None]:
         """Find the caller's source file and line number."""
-        result: tuple[str, int, str, str | None] = self.logger.findCaller(
-            stack_info, stacklevel
-        )
+        result: tuple[str, int, str, str | None] = self.logger.findCaller(stack_info, stacklevel)
         return result
 
     # Standard logging compatibility aliases
@@ -525,3 +520,17 @@ def get_secure_logger(name: str) -> SecureLogger:
 
     """
     return SecureLogger(name)
+
+
+# Alias for backward compatibility
+get_logger = get_secure_logger
+
+
+def setup_logging(level: int = logging.INFO) -> None:
+    """
+    Set up basic logging configuration.
+
+    Args:
+        level: The logging level to set
+    """
+    logging.basicConfig(level=level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")

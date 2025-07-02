@@ -96,9 +96,7 @@ def _initialize_database_data() -> bool:
         logger.info("Admin user created")
 
         # Create default team
-        default_team = Team(
-            name="Default Team", description="Default team for AI agents"
-        )
+        default_team = Team(name="Default Team", description="Default team for AI agents")
         db.session.add(default_team)
         logger.info("Default team created")
 
@@ -166,9 +164,7 @@ def _verify_initialization(agents: list[Any]) -> bool:
     try:
         agent_count = db.session.query(Agent).count()
         if agent_count != len(agents):
-            logger.warning(
-                "Agent count mismatch: expected %d, found %d", len(agents), agent_count
-            )
+            logger.warning("Agent count mismatch: expected %d, found %d", len(agents), agent_count)
             return False
     except SQLAlchemyError:
         logger.exception("Error verifying agent count")

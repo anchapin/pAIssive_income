@@ -93,12 +93,8 @@ class TestAuthorizationEdgeCases(BaseSecurityTest, unittest.TestCase):
         self.auth_service = AsyncMock()
         self.auth_service.check_permission.side_effect = self._mock_check_permission
         self.auth_service.transition_role.side_effect = self._mock_transition_role
-        self.auth_service.add_temp_permission.side_effect = (
-            self._mock_add_temp_permission
-        )
-        self.auth_service.inherit_permissions.side_effect = (
-            self._mock_inherit_permissions
-        )
+        self.auth_service.add_temp_permission.side_effect = self._mock_add_temp_permission
+        self.auth_service.inherit_permissions.side_effect = self._mock_inherit_permissions
 
     def _mock_check_permission(
         self, user_id: str, resource_id: str, permission: Permission
@@ -126,9 +122,7 @@ class TestAuthorizationEdgeCases(BaseSecurityTest, unittest.TestCase):
 
         # Check resource inheritance
         if resource.inherited_from:
-            return self._mock_check_permission(
-                user_id, resource.inherited_from, permission
-            )
+            return self._mock_check_permission(user_id, resource.inherited_from, permission)
 
         return False
 
@@ -172,14 +166,9 @@ class TestAuthorizationEdgeCases(BaseSecurityTest, unittest.TestCase):
         self.temp_permission_expiry[user_id] = datetime.now(tz=timezone.utc) + duration
         return True
 
-    def _mock_inherit_permissions(
-        self, child_resource_id: str, parent_resource_id: str
-    ) -> bool:
+    def _mock_inherit_permissions(self, child_resource_id: str, parent_resource_id: str) -> bool:
         """Mock permission inheritance setup."""
-        if (
-            child_resource_id not in self.resources
-            or parent_resource_id not in self.resources
-        ):
+        if child_resource_id not in self.resources or parent_resource_id not in self.resources:
             return False
 
         # Set up inheritance
@@ -195,9 +184,7 @@ class TestAuthorizationEdgeCases(BaseSecurityTest, unittest.TestCase):
         mock_auth_service.return_value = self.auth_service
 
         # Try unauthorized elevation
-        success = await self.auth_service.transition_role(
-            self.test_user_id, Role.MODERATOR
-        )
+        success = await self.auth_service.transition_role(self.test_user_id, Role.MODERATOR)
         assert not success
         assert self.user_roles[self.test_user_id] == Role.USER
 
@@ -209,16 +196,12 @@ class TestAuthorizationEdgeCases(BaseSecurityTest, unittest.TestCase):
         assert self.user_roles[self.test_user_id] == Role.MODERATOR
 
     @patch("common_utils.auth.services.AuthService")
-    async def test_role_transition_with_active_sessions(
-        self, mock_auth_service: MagicMock
-    ) -> None:
+    async def test_role_transition_with_active_sessions(self, mock_auth_service: MagicMock) -> None:
         """Test role transition with active sessions."""
         mock_auth_service.return_value = self.auth_service
 
         # Set up test resource
-        resource = Resource(
-            self.test_resource_id, self.test_admin_id, {Permission.WRITE}
-        )
+        resource = Resource(self.test_resource_id, self.test_admin_id, {Permission.WRITE})
         self.resources[self.test_resource_id] = resource
 
         # Verify no write access initially
@@ -240,9 +223,7 @@ class TestAuthorizationEdgeCases(BaseSecurityTest, unittest.TestCase):
         assert access
 
     @patch("common_utils.auth.services.AuthService")
-    async def test_inherited_permissions_basic(
-        self, mock_auth_service: MagicMock
-    ) -> None:
+    async def test_inherited_permissions_basic(self, mock_auth_service: MagicMock) -> None:
         """Test basic permission inheritance."""
         mock_auth_service.return_value = self.auth_service
 
@@ -250,9 +231,7 @@ class TestAuthorizationEdgeCases(BaseSecurityTest, unittest.TestCase):
         parent_id = self.generate_secure_token()
         child_id = self.generate_secure_token()
 
-        parent = Resource(
-            parent_id, self.test_admin_id, {Permission.READ, Permission.WRITE}
-        )
+        parent = Resource(parent_id, self.test_admin_id, {Permission.READ, Permission.WRITE})
         child = Resource(child_id, self.test_admin_id, {Permission.READ})
 
         self.resources[parent_id] = parent
@@ -269,16 +248,12 @@ class TestAuthorizationEdgeCases(BaseSecurityTest, unittest.TestCase):
         assert access  # Should inherit WRITE from parent
 
     @patch("common_utils.auth.services.AuthService")
-    async def test_temporary_permission_elevation(
-        self, mock_auth_service: MagicMock
-    ) -> None:
+    async def test_temporary_permission_elevation(self, mock_auth_service: MagicMock) -> None:
         """Test temporary permission elevation process."""
         mock_auth_service.return_value = self.auth_service
 
         # Set up test resource
-        resource = Resource(
-            self.test_resource_id, self.test_admin_id, {Permission.DELETE}
-        )
+        resource = Resource(self.test_resource_id, self.test_admin_id, {Permission.DELETE})
         self.resources[self.test_resource_id] = resource
 
         # Verify no delete access initially
@@ -301,9 +276,9 @@ class TestAuthorizationEdgeCases(BaseSecurityTest, unittest.TestCase):
         assert access
 
         # Simulate permission expiration
-        self.temp_permission_expiry[self.test_user_id] = datetime.now(
-            tz=timezone.utc
-        ) - timedelta(minutes=1)
+        self.temp_permission_expiry[self.test_user_id] = datetime.now(tz=timezone.utc) - timedelta(
+            minutes=1
+        )
 
         # Verify access revoked after expiration
         access = await self.auth_service.check_permission(

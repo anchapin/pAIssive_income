@@ -227,9 +227,7 @@ def _read_file_content(file_path: str) -> tuple[str, list[str]]:
             lines = content.splitlines()
             return content, lines
     except UnicodeError as e:
-        logger.exception(
-            "UTF-8 decoding error", extra={"file": file_path, "error": str(e)}
-        )
+        logger.exception("UTF-8 decoding error", extra={"file": file_path, "error": str(e)})
         # Try again with replacement characters
         with path.open(encoding="utf-8", errors="replace") as f:
             content = f.read()
@@ -533,7 +531,8 @@ def generate_json_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
     """
     json_results = {}
     for file_path, secrets in results.items():
-        masked_file_path = mask_sensitive_data(file_path)
+        # Ensure the masked file path is always a string (hashable) for use as dict key
+        masked_file_path = str(mask_sensitive_data(file_path))
         json_results[masked_file_path] = [
             {
                 "type": pattern_name,
@@ -570,9 +569,9 @@ def generate_text_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
     ]
 
     for file_path, secrets in results.items():
-        masked_file_path = mask_sensitive_data(file_path)
+        masked_file_path = str(mask_sensitive_data(file_path))
         lines.append(f"File: {masked_file_path}")
-        lines.append("-" * (len(str(masked_file_path)) + 6))
+        lines.append("-" * (len(masked_file_path) + 6))
 
         for pattern_name, line_number, line, _ in secrets:
             masked_line = mask_sensitive_data(line)
@@ -630,8 +629,7 @@ def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
         del key_material
         if derived_key is not None:
             del derived_key
-        if encoded_key is not None:
-            del encoded_key
+        # encoded_key is automatically cleaned up when function exits
 
 
 def save_encrypted_report(path: str, salt: bytes, encrypted_content: bytes) -> None:
@@ -678,9 +676,7 @@ def generate_report(
         extra={"scan_completed": True},
     )
 
-    output = (
-        generate_json_report(results) if json_format else generate_text_report(results)
-    )
+    output = generate_json_report(results) if json_format else generate_text_report(results)
 
     if output_file:
         try:
@@ -713,9 +709,7 @@ def generate_report(
 class SecretsAuditor:
     """Utility for auditing code for hardcoded secrets."""
 
-    def __init__(
-        self, exclude_dirs: set[str] | None = None, patterns: dict | None = None
-    ) -> None:
+    def __init__(self, exclude_dirs: set[str] | None = None, patterns: dict | None = None) -> None:
         """
         Initialize the secrets auditor.
 

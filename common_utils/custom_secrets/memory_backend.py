@@ -74,9 +74,7 @@ class MemoryBackend:
         """
         # Don't log any information about the key, even masked versions
         # Use generic logging without exposing any sensitive information
-        logger.warning(
-            "Memory backend not yet implemented", extra={"operation": "get_secret"}
-        )
+        logger.warning("Memory backend not yet implemented", extra={"operation": "get_secret"})
         # Use key in a no-op to avoid unused argument warning
         if key:  # This prevents the unused argument warning
             pass
@@ -103,9 +101,7 @@ class MemoryBackend:
         """
         # Don't log any information about the key or value, even masked versions
         # Use generic logging without exposing any sensitive information
-        logger.warning(
-            "Memory backend not yet implemented", extra={"operation": "set_secret"}
-        )
+        logger.warning("Memory backend not yet implemented", extra={"operation": "set_secret"})
         # Use key and value in a no-op to avoid unused argument warning
         # Don't log the key or value, even in debug logs
         if key and value:  # This prevents the unused argument warning
@@ -132,9 +128,7 @@ class MemoryBackend:
         """
         # Don't log any information about the key, even masked versions
         # Use generic logging without exposing any sensitive information
-        logger.warning(
-            "Memory backend not yet implemented", extra={"operation": "delete_secret"}
-        )
+        logger.warning("Memory backend not yet implemented", extra={"operation": "delete_secret"})
         # Use key in a no-op to avoid unused argument warning
         if key:  # This prevents the unused argument warning
             pass
@@ -155,8 +149,6 @@ class MemoryBackend:
 
         """
         # Use structured logging without exposing any sensitive information
-        logger.warning(
-            "Memory backend not yet implemented", extra={"operation": "list_secrets"}
-        )
+        logger.warning("Memory backend not yet implemented", extra={"operation": "list_secrets"})
         error_msg = "The memory backend is not currently supported."
         raise NotImplementedError(error_msg)

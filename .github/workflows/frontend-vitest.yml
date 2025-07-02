@@ -2,7 +2,14 @@ name: Frontend Unit Tests (Vitest)
 
 on:
   pull_request:
-    branches: [ main, develop, master ]
+    types: [ opened, synchronize, reopened ]
+    branches: [ main, dev, master, develop, fix/test-coverage-15-percent ]
+    paths:
+      - "ui/react_frontend/**"
+      - ".github/workflows/frontend-vitest.yml"
+  # Only run on push to main branches, not feature branches
+  push:
+    branches: [ main, dev, master, develop ]
     paths:
       - "ui/react_frontend/**"
       - ".github/workflows/frontend-vitest.yml"
@@ -13,14 +20,15 @@ on:
         required: false
         default: false
         type: boolean
-  workflow_run:
-    workflows: ["Auto Fix (Linting & CodeQL Issues)"]
-    types:
-      - completed
+  # Disabled workflow_run trigger to prevent cascading runs
+  # workflow_run:
+  #   workflows: ["Auto Fix (Linting & CodeQL Issues)"]
+  #   types:
+  #     - completed
 
-# Prevent concurrent runs to avoid memory issues
+# Prevent concurrent runs and duplicate executions
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -40,14 +48,14 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          run_install: false
 
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: '20.11.0' # Use consistent Node.js version across workflows
           cache: 'pnpm'
-          cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       # Add global pnpm to PATH
       - name: Add global pnpm to PATH
@@ -70,7 +78,12 @@ jobs:
       - name: Check pnpm version
         run: pnpm --version
 
-      - name: Install dependencies
+      - name: Install root dependencies first
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+
+      - name: Install frontend dependencies
+        working-directory: ui/react_frontend
         run: pnpm install
 
       # Create coverage directory to prevent errors

@@ -40,9 +40,7 @@ def _install_mcp_sdk() -> None:
     install_script_path = Path(__file__).parent / "install_mcp_sdk.py"
 
     if not install_script_path.exists():
-        logger.warning(
-            "MCP SDK installation script not found at %s", install_script_path
-        )
+        logger.warning("MCP SDK installation script not found at %s", install_script_path)
         return
 
     logger.info("Running MCP SDK installation script at %s", install_script_path)
@@ -86,9 +84,7 @@ def _get_test_script_path() -> tuple[Path, bool]:
     # Check if the script exists
     if not script_path.exists():
         # Try alternative path with backslashes for Windows
-        script_path = Path(__file__).parent.joinpath(
-            "scripts", "run", "run_mcp_tests.py"
-        )
+        script_path = Path(__file__).parent.joinpath("scripts", "run", "run_mcp_tests.py")
         if not script_path.exists():
             logger.error("Script not found at %s", script_path)
             return script_path, False
@@ -187,8 +183,7 @@ def _run_test_script(script_path: Path) -> int:
         if os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true":
             if result.returncode != 0:
                 logger.warning(
-                    "Tests failed with code %d, "
-                    "but returning success in CI environment",
+                    "Tests failed with code %d, but returning success in CI environment",
                     result.returncode,
                 )
             return 0

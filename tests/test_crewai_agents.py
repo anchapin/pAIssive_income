@@ -9,9 +9,7 @@ from typing import Protocol
 import pytest
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 crewai_available = False
 try:
@@ -124,17 +122,11 @@ def test_crewai_mock_fallback():
         # Create a simple agent
         agent: AgentProtocol
         if agent_class is not None:
-            agent = agent_class(
-                role="Test Agent", goal="Test goal", backstory="Test backstory"
-            )
+            agent = agent_class(role="Test Agent", goal="Test goal", backstory="Test backstory")
         elif source == "mock_crewai" and MockAgent is not None:
-            agent = MockAgent(
-                role="Test Agent", goal="Test goal", backstory="Test backstory"
-            )
+            agent = MockAgent(role="Test Agent", goal="Test goal", backstory="Test backstory")
         else:
-            agent = Agent(
-                role="Test Agent", goal="Test goal", backstory="Test backstory"
-            )  # type: ignore[assignment]
+            agent = Agent(role="Test Agent", goal="Test goal", backstory="Test backstory")  # type: ignore[assignment]
         assert hasattr(agent, "role")
         assert agent.role == "Test Agent"
         assert hasattr(agent, "goal")

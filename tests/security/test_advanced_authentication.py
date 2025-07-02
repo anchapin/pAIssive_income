@@ -120,9 +120,7 @@ class TestAdvancedAuthentication(BaseSecurityTest, unittest.TestCase):
         assert self._mock_validate_token(new_tokens["access_token"])
 
     @patch("common_utils.auth.services.AuthService")
-    async def test_expired_access_token_refresh(
-        self, mock_auth_service: MagicMock
-    ) -> None:
+    async def test_expired_access_token_refresh(self, mock_auth_service: MagicMock) -> None:
         """Test refreshing with expired access token but valid refresh token."""
         mock_auth_service.return_value = self.auth_service
 
@@ -166,10 +164,7 @@ class TestAdvancedAuthentication(BaseSecurityTest, unittest.TestCase):
         mock_auth_service.return_value = self.auth_service
 
         # Test within rate limit
-        tasks = [
-            self.auth_service.create_token(self.test_user_id)
-            for _ in range(MAX_ATTEMPTS)
-        ]
+        tasks = [self.auth_service.create_token(self.test_user_id) for _ in range(MAX_ATTEMPTS)]
         results = await asyncio.gather(*tasks)
         assert len(results) == MAX_ATTEMPTS
         assert all(r is not None for r in results)
@@ -179,9 +174,7 @@ class TestAdvancedAuthentication(BaseSecurityTest, unittest.TestCase):
         assert exceeded is None
 
     @patch("common_utils.auth.services.AuthService")
-    async def test_session_invalidation_propagation(
-        self, mock_auth_service: MagicMock
-    ) -> None:
+    async def test_session_invalidation_propagation(self, mock_auth_service: MagicMock) -> None:
         """Test propagation of session invalidation across services."""
         mock_auth_service.return_value = self.auth_service
 

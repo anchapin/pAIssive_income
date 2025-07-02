@@ -8,13 +8,10 @@ import { vi } from 'vitest';
 import Notifications from './Notifications';
 
 // Mock AppContext
-vi.mock('../../context/AppContext', () => {
-  return {
-    useAppContext: vi.fn()
-  };
-});
-
-const { useAppContext } = await vi.importActual('../../context/AppContext');
+const mockUseAppContext = vi.fn();
+vi.mock('../../context/AppContext', () => ({
+  useAppContext: mockUseAppContext
+}));
 
 describe('Notifications', () => {
   afterEach(() => {
@@ -22,7 +19,7 @@ describe('Notifications', () => {
   });
 
   it('renders nothing when there are no notifications', () => {
-    useAppContext.mockReturnValue({
+    mockUseAppContext.mockReturnValue({
       notifications: [],
       dispatch: vi.fn()
     });
@@ -33,7 +30,7 @@ describe('Notifications', () => {
   });
 
   it('renders a single notification with correct message and severity', () => {
-    useAppContext.mockReturnValue({
+    mockUseAppContext.mockReturnValue({
       notifications: [
         { id: 1, message: 'Test notification', type: 'success' }
       ],
@@ -45,7 +42,7 @@ describe('Notifications', () => {
   });
 
   it('renders multiple notifications', () => {
-    useAppContext.mockReturnValue({
+    mockUseAppContext.mockReturnValue({
       notifications: [
         { id: 1, message: 'Info message', type: 'info' },
         { id: 2, message: 'Warning message', type: 'warning' }
@@ -59,7 +56,7 @@ describe('Notifications', () => {
   });
 
   it('defaults severity to "info" if type is missing', () => {
-    useAppContext.mockReturnValue({
+    mockUseAppContext.mockReturnValue({
       notifications: [
         { id: 3, message: 'Default info message' }
       ],
@@ -71,7 +68,7 @@ describe('Notifications', () => {
 
   it('calls dispatch to remove notification when closed', () => {
     const mockDispatch = vi.fn();
-    useAppContext.mockReturnValue({
+    mockUseAppContext.mockReturnValue({
       notifications: [
         { id: 4, message: 'Closable notification', type: 'error' }
       ],

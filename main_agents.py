@@ -129,11 +129,7 @@ class SummarizerSkill(Skill):
         """
         # Define a constant for the maximum summary length
         max_summary_length = 75
-        return (
-            data[:max_summary_length] + "..."
-            if len(data) > max_summary_length
-            else data
-        )
+        return data[:max_summary_length] + "..." if len(data) > max_summary_length else data
 
 
 class SummarizerAgent(Agent):
@@ -180,9 +176,7 @@ class SummarizerAgent(Agent):
             )
 
 
-def create_agents(
-    use_memory: bool = False, user_id: str | None = None
-) -> tuple[Agent, Agent]:
+def create_agents(use_memory: bool = False, user_id: str | None = None) -> tuple[Agent, Agent]:
     """
     Create and return a pair of agents, optionally using memory enhancement.
 
@@ -200,13 +194,9 @@ def create_agents(
             logger.warning("No user_id provided, using 'default_user'")
 
         logger.info("Creating memory-enhanced agents with user_id: %s", user_id)
-        data_gatherer = MemoryEnhancedDataGathererAgent(
-            name="data_gatherer", user_id=user_id
-        )
+        data_gatherer = MemoryEnhancedDataGathererAgent(name="data_gatherer", user_id=user_id)
         if MemoryEnhancedSummarizerAgent is not None:
-            summarizer = MemoryEnhancedSummarizerAgent(
-                name="summarizer", user_id=user_id
-            )
+            summarizer = MemoryEnhancedSummarizerAgent(name="summarizer", user_id=user_id)
         else:
             # Fallback to standard agent if memory-enhanced version is not available
             summarizer = SummarizerAgent(name="summarizer")

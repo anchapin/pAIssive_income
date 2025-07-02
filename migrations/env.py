@@ -81,9 +81,7 @@ def run_migrations_online() -> None:
         if getattr(config.cmd_opts, "autogenerate", False):
             script = directives[0]  # type: ignore[index]
             # Only proceed if script is a MigrationScript and has upgrade_ops
-            if isinstance(script, MigrationScript) and isinstance(
-                script.upgrade_ops, UpgradeOps
-            ):
+            if isinstance(script, MigrationScript) and isinstance(script.upgrade_ops, UpgradeOps):
                 if script.upgrade_ops.is_empty():
                     directives[:] = []
                 logger.info("No changes in schema detected.")

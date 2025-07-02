@@ -595,7 +595,7 @@ if (isCI || isGitHubActions) {
         fs.writeFileSync(
           path.join(artifactDir, 'ci-status.txt'),
           `GitHub Actions status at ${new Date().toISOString()}\n` +
-          `CI test is running in compatibility mode\n` +
+          'CI test is running in compatibility mode\n' +
           `Path-to-regexp available: ${pathToRegexpAvailable ? 'Yes' : 'No'}\n` +
           `Node.js: ${process.version}\n` +
           `Platform: ${process.platform}\n` +
@@ -639,7 +639,7 @@ if (isCI || isGitHubActions) {
       fs.writeFileSync(
         path.join(dockerDir, 'docker-status.txt'),
         `Docker environment status at ${new Date().toISOString()}\n` +
-        `CI test is running in Docker compatibility mode\n` +
+        'CI test is running in Docker compatibility mode\n' +
         `Path-to-regexp available: ${pathToRegexpAvailable ? 'Yes' : 'No'}\n` +
         `Node.js: ${process.version}\n` +
         `Platform: ${process.platform}\n` +
@@ -678,7 +678,7 @@ if (isCI || isGitHubActions) {
     fs.writeFileSync(
       path.join(codeqlDir, 'codeql-status.txt'),
       `CodeQL compatibility status at ${new Date().toISOString()}\n` +
-      `CI test is running in CodeQL compatibility mode\n` +
+      'CI test is running in CodeQL compatibility mode\n' +
       `Path-to-regexp available: ${pathToRegexpAvailable ? 'Yes' : 'No'}\n` +
       `Node.js: ${process.version}\n` +
       `Platform: ${process.platform}\n` +
@@ -901,7 +901,7 @@ if (isCI || isGitHubActions) {
       fs.writeFileSync(
         path.join(process.cwd(), 'logs', 'require-patched.txt'),
         `Require function patched at ${new Date().toISOString()}\n` +
-        `This file indicates that the require function was patched to handle path-to-regexp imports.\n` +
+        'This file indicates that the require function was patched to handle path-to-regexp imports.\n' +
         `Node.js version: ${process.version}\n` +
         `Platform: ${process.platform}\n` +
         `Working directory: ${process.cwd()}\n` +
@@ -1021,7 +1021,7 @@ function safelyCreateDirectory(dirPath) {
           return true;
         }
       } else {
-        console.log(`Original path was already absolute, trying alternative approach`);
+        console.log('Original path was already absolute, trying alternative approach');
       }
     } catch (fallbackError) {
       console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
@@ -1216,10 +1216,10 @@ const testDuration = 0.5; // Mock duration
 safelyWriteFile(
   path.join(reportDir, 'mock-api-test-summary.txt'),
   `Mock API server test completed at ${new Date().toISOString()}\n` +
-  `Tests passed: 1\n` +
-  `Tests failed: 0\n` +
+  'Tests passed: 1\n' +
+  'Tests failed: 0\n' +
   `Test duration: ${testDuration}s\n` +
-  `Server initialized successfully\n` +
+  'Server initialized successfully\n' +
   `CI environment: ${process.env.CI ? 'Yes' : 'No'}`
 );
 
@@ -1237,7 +1237,7 @@ safelyWriteFile(path.join(reportDir, 'junit-results.xml'), junitXml);
 safelyWriteFile(
   path.join(logDir, 'mock-api-server.log'),
   `Mock API server log created at ${new Date().toISOString()}\n` +
-  `This is a placeholder log file for CI compatibility.\n` +
+  'This is a placeholder log file for CI compatibility.\n' +
   `Node.js version: ${process.version}\n` +
   `Platform: ${process.platform}\n` +
   `Hostname: ${os.hostname()}\n` +
@@ -1249,11 +1249,11 @@ safelyWriteFile(
 safelyWriteFile(
   path.join(logDir, 'server-readiness-checks.log'),
   `Server readiness check started at ${new Date().toISOString()}\n` +
-  `Checking URL: http://localhost:8000/health\n` +
-  `Timeout: 10000ms\n` +
-  `Retry interval: 500ms\n` +
-  `Ports to try: 8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007, 8008, 8009\n\n` +
-  `CI environment detected. Creating mock success response for CI compatibility.\n` +
+  'Checking URL: http://localhost:8000/health\n' +
+  'Timeout: 10000ms\n' +
+  'Retry interval: 500ms\n' +
+  'Ports to try: 8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007, 8008, 8009\n\n' +
+  'CI environment detected. Creating mock success response for CI compatibility.\n' +
   `Server readiness check completed at ${new Date().toISOString()}\n`
 );
 
@@ -1322,8 +1322,8 @@ safelyWriteFile(
     },
     tests: [
       {
-        title: "mock API server test",
-        fullTitle: "Mock API Server Tests mock API server test",
+        title: 'mock API server test',
+        fullTitle: 'Mock API Server Tests mock API server test',
         duration: testDuration * 1000,
         currentRetry: 0,
         err: {}
@@ -1333,8 +1333,8 @@ safelyWriteFile(
     failures: [],
     passes: [
       {
-        title: "mock API server test",
-        fullTitle: "Mock API Server Tests mock API server test",
+        title: 'mock API server test',
+        fullTitle: 'Mock API Server Tests mock API server test',
         duration: testDuration * 1000,
         currentRetry: 0,
         err: {}
@@ -1366,7 +1366,7 @@ safelyWriteFile(
   JSON.stringify({
     traceEvents: [],
     metadata: {
-      test: "mock-api-test",
+      test: 'mock-api-test',
       timestamp: new Date().toISOString()
     }
   })
@@ -1376,56 +1376,56 @@ safelyWriteFile(
 safelyWriteFile(
   path.join(logDir, 'url-parsing-errors.log'),
   `URL parsing errors log created at ${new Date().toISOString()}\n` +
-  `This is a placeholder log file for CI compatibility.\n` +
-  `No actual errors occurred during this test run.\n`
+  'This is a placeholder log file for CI compatibility.\n' +
+  'No actual errors occurred during this test run.\n'
 );
 
 // Create a URL construction errors log file
 safelyWriteFile(
   path.join(logDir, 'url-construction-errors.log'),
   `URL construction errors log created at ${new Date().toISOString()}\n` +
-  `This is a placeholder log file for CI compatibility.\n` +
-  `No actual errors occurred during this test run.\n`
+  'This is a placeholder log file for CI compatibility.\n' +
+  'No actual errors occurred during this test run.\n'
 );
 
 // Create a request errors log file
 safelyWriteFile(
   path.join(logDir, 'request-errors.log'),
   `Request errors log created at ${new Date().toISOString()}\n` +
-  `This is a placeholder log file for CI compatibility.\n` +
-  `No actual errors occurred during this test run.\n`
+  'This is a placeholder log file for CI compatibility.\n' +
+  'No actual errors occurred during this test run.\n'
 );
 
 // Create a JSON parse errors log file
 safelyWriteFile(
   path.join(logDir, 'json-parse-errors.log'),
   `JSON parse errors log created at ${new Date().toISOString()}\n` +
-  `This is a placeholder log file for CI compatibility.\n` +
-  `No actual errors occurred during this test run.\n`
+  'This is a placeholder log file for CI compatibility.\n' +
+  'No actual errors occurred during this test run.\n'
 );
 
 // Create a timeout errors log file
 safelyWriteFile(
   path.join(logDir, 'timeout-errors.log'),
   `Timeout errors log created at ${new Date().toISOString()}\n` +
-  `This is a placeholder log file for CI compatibility.\n` +
-  `No actual errors occurred during this test run.\n`
+  'This is a placeholder log file for CI compatibility.\n' +
+  'No actual errors occurred during this test run.\n'
 );
 
 // Create a request creation errors log file
 safelyWriteFile(
   path.join(logDir, 'request-creation-errors.log'),
   `Request creation errors log created at ${new Date().toISOString()}\n` +
-  `This is a placeholder log file for CI compatibility.\n` +
-  `No actual errors occurred during this test run.\n`
+  'This is a placeholder log file for CI compatibility.\n' +
+  'No actual errors occurred during this test run.\n'
 );
 
 // Create a CI fallbacks log file
 safelyWriteFile(
   path.join(logDir, 'ci-fallbacks.log'),
   `CI fallbacks log created at ${new Date().toISOString()}\n` +
-  `This is a placeholder log file for CI compatibility.\n` +
-  `No actual fallbacks were used during this test run.\n`
+  'This is a placeholder log file for CI compatibility.\n' +
+  'No actual fallbacks were used during this test run.\n'
 );
 
 // Create a test coverage report

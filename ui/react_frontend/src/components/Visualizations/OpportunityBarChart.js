@@ -26,8 +26,8 @@ import {
  */
 const OpportunityBarChart = ({
   data,
-  dataKey = "overall_score",
-  title = "Opportunity Score Comparison",
+  dataKey = 'overall_score',
+  title = 'Opportunity Score Comparison',
   height = 400
 }) => {
   // If no data, return null
@@ -38,7 +38,7 @@ const OpportunityBarChart = ({
   // Format the data for the bar chart
   const formatData = (opportunities) => {
     return opportunities.map(opp => ({
-      name: opp.niche || "Unknown",
+      name: opp.niche || 'Unknown',
       value: opp[dataKey] || 0,
       // Add a color based on the score value
       color: getScoreColor(opp[dataKey] || 0)
