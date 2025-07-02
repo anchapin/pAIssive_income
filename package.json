@@ -62,56 +62,8 @@
     "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.1"
-  },
-  "nyc": {
-    "all": true,
-    "reporter": [
-      "text",
-      "html"
-    ],
-    "include": [
-      "src/**/*.js",
-      "ui/**/*.js",
-      "sdk/javascript/**/*.js"
-    ],
-    "exclude": [
-      "**/*.test.js",
-      "**/test/**",
-      "tests/**",
-      "**/__mocks__/**",
-      "**/mocks/**",
-      "**/mock*/**",
-      "**/testUtils.js",
-      "**/test_utils.js",
-      "**/test-utils.js",
-      "**/setupTests.js",
-      "**/.venv/**",
-      "**/.venv_new/**",
-      "**/venv/**",
-      "**/env/**",
-      "**/.env/**",
-      "**/node_modules/**",
-      "**/__pycache__/**",
-      "**/.pytest_cache/**",
-      "**/.mypy_cache/**",
-      "**/.ruff_cache/**",
-      "**/build/**",
-      "**/dist/**",
-      "**/*.egg-info/**",
-      ".venv/**",
-      ".venv_new/**",
-      "venv/**",
-      "env/**",
-      ".env/**",
-      "node_modules/**",
-      "__pycache__/**",
-      ".pytest_cache/**",
-      ".mypy_cache/**",
-      ".ruff_cache/**",
-      "build/**",
-      "dist/**",
-      ".venv*/**",
-      "venv*/**",
+  }
+}
       "*.pyc",
       ".git/**"
     ],
