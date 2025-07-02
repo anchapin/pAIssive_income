@@ -124,6 +124,9 @@ jobs:
       - name: Debug: Read ui/react_frontend/package.json
         run: cat ui/react_frontend/package.json
 
+      - name: Debug: Print current working directory before pnpm setup
+        run: pwd
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
