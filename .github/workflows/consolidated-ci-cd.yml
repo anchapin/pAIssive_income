@@ -117,10 +117,10 @@ jobs:
       # Setup Node.js and pnpm for JavaScript development
       
 
-      - name: Install pnpm globally
-        run: |
-          npm install -g pnpm
-          echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
+      # - name: Install pnpm globally
+      #   run: |
+      #     npm install -g pnpm
+      #     echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -945,10 +945,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install pnpm globally
-        run: |
-          npm install -g pnpm
-          echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
+      # - name: Install pnpm globally
+      #   run: |
+      #     npm install -g pnpm
+      #     echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
