@@ -44,7 +44,7 @@ jobs:
       BUILDKIT_INLINE_CACHE: 1
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 1
     - name: Optimize runner for Docker workloads
