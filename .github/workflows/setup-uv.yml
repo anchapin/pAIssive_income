@@ -35,7 +35,7 @@ jobs:
     - name: Shared CI Setup
       run: bash scripts/ci-setup.sh
     - name: Set up Python ${{ inputs.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ inputs.python-version }}
     - name: Cache dependencies
