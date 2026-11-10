@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@babel/core": "^7.29.13",
     "@copilotkit/react-core": "^1.85.0",
     "@copilotkit/react-ui": "^1.85.0",
     "@emotion/react": "^11.14.0",
