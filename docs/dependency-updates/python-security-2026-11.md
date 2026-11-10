@@ -18,16 +18,14 @@ The vulnerable pins in `requirements.txt` that Dependabot flagged have been rais
 
 ## Held back
 
-These fixes require Python 3.11 or newer:
+Checked against the vulnerable ranges of the open Dependabot alerts, 42 of the 428 alert matches on `requirements.txt` remain.
 
-- Pillow 13.0.0
-- tornado 6.6
-- filelock 4.2.1
+These need Python 3.11 or newer:
 
-Moving CI to Python 3.11+ would allow them.
+- Pillow 13.0.0: 36 alerts. Pillow 12.3.0 is the newest release that supports Python 3.10, and the alerts' minimum.
+- tornado 6.6: 3 alerts. 6.5.10 is used.
+- filelock 4.2.1: 2 alerts. 3.32.7 is used. virtualenv 21.14.9+ requires filelock 3.24.2 or newer.
 
-These packages have no fixed release yet:
+PyPDF2 3.0.1 has 1 alert with no fixed release. The package is deprecated in favour of pypdf.
 
-- mistune
-- nbconvert (one advisory)
-- PyPDF2
+Moving CI to Python 3.11+ would allow the first three.
