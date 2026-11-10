@@ -265,7 +265,7 @@ jobs:
         run: |
           set -ex
           python3 -m pip install ruff pytest pytest-cov pytest-xdist pytest-asyncio
-          python3 -m pip install protobuf==5.29.4 # Ensure compatible protobuf
+          python3 -m pip install protobuf==5.29.6 # Ensure compatible protobuf
 
       - name: Install dev requirements (Unix)
         if: runner.os != 'Windows'
@@ -353,7 +353,7 @@ jobs:
 
           # Install testing tools
           python -m pip install ruff pytest pytest-cov pytest-xdist pytest-asyncio
-          python -m pip install protobuf==5.29.4 # Ensure compatible protobuf
+          python -m pip install protobuf==5.29.6 # Ensure compatible protobuf
 
       - name: Install dev requirements (Windows)
         if: runner.os == 'Windows'
